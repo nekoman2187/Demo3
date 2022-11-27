@@ -1,0 +1,1164 @@
+   1                             		.file	"logging.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.bss.log_function,"aw",@nobits
+   5                             		.balign 4
+   8                             	_log_function:
+   9 0000 00 00 00 00             		.zero	4
+  10                             		.section	.bss.loggingEnabled,"aw",@nobits
+  11                             		.balign 4
+  14                             	_loggingEnabled:
+  15 0000 00 00 00 00             		.zero	4
+  16                             		.section	.text.wolfSSL_SetLoggingCb,"ax",@progbits
+  17                             		.global	_wolfSSL_SetLoggingCb
+  19                             	_wolfSSL_SetLoggingCb:
+  20                             	.LFB1:
+  21                             		.file 1 "../src/wolfcrypt/src/logging.c"
+   1:../src/wolfcrypt/src/logging.c **** /* logging.c
+   2:../src/wolfcrypt/src/logging.c ****  *
+   3:../src/wolfcrypt/src/logging.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/wolfcrypt/src/logging.c ****  *
+   5:../src/wolfcrypt/src/logging.c ****  * This file is part of wolfSSL.
+   6:../src/wolfcrypt/src/logging.c ****  *
+   7:../src/wolfcrypt/src/logging.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/wolfcrypt/src/logging.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/wolfcrypt/src/logging.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/wolfcrypt/src/logging.c ****  * (at your option) any later version.
+  11:../src/wolfcrypt/src/logging.c ****  *
+  12:../src/wolfcrypt/src/logging.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/wolfcrypt/src/logging.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/wolfcrypt/src/logging.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/wolfcrypt/src/logging.c ****  * GNU General Public License for more details.
+  16:../src/wolfcrypt/src/logging.c ****  *
+  17:../src/wolfcrypt/src/logging.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/wolfcrypt/src/logging.c ****  * along with this program; if not, write to the Free Software
+  19:../src/wolfcrypt/src/logging.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/wolfcrypt/src/logging.c ****  */
+  21:../src/wolfcrypt/src/logging.c **** 
+  22:../src/wolfcrypt/src/logging.c **** 
+  23:../src/wolfcrypt/src/logging.c **** #ifdef HAVE_CONFIG_H
+  24:../src/wolfcrypt/src/logging.c ****     #include <config.h>
+  25:../src/wolfcrypt/src/logging.c **** #endif
+  26:../src/wolfcrypt/src/logging.c **** 
+  27:../src/wolfcrypt/src/logging.c **** #include <wolfssl/wolfcrypt/settings.h>
+  28:../src/wolfcrypt/src/logging.c **** 
+  29:../src/wolfcrypt/src/logging.c **** #include <wolfssl/wolfcrypt/logging.h>
+  30:../src/wolfcrypt/src/logging.c **** #include <wolfssl/wolfcrypt/error-crypt.h>
+  31:../src/wolfcrypt/src/logging.c **** #if defined(OPENSSL_EXTRA) && !defined(WOLFCRYPT_ONLY)
+  32:../src/wolfcrypt/src/logging.c **** /* avoid adding WANT_READ and WANT_WRITE to error queue */
+  33:../src/wolfcrypt/src/logging.c **** #include <wolfssl/error-ssl.h>
+  34:../src/wolfcrypt/src/logging.c **** #endif
+  35:../src/wolfcrypt/src/logging.c **** 
+  36:../src/wolfcrypt/src/logging.c **** #if defined(OPENSSL_EXTRA) || defined(DEBUG_WOLFSSL_VERBOSE)
+  37:../src/wolfcrypt/src/logging.c **** static
+  38:../src/wolfcrypt/src/logging.c **** #ifdef ERROR_QUEUE_PER_THREAD
+  39:../src/wolfcrypt/src/logging.c **** THREAD_LS_T
+  40:../src/wolfcrypt/src/logging.c **** #endif
+  41:../src/wolfcrypt/src/logging.c **** wolfSSL_Mutex debug_mutex; /* mutex for access to debug structure */
+  42:../src/wolfcrypt/src/logging.c **** 
+  43:../src/wolfcrypt/src/logging.c **** /* accessing any node from the queue should be wrapped in a lock of
+  44:../src/wolfcrypt/src/logging.c ****  * debug_mutex */
+  45:../src/wolfcrypt/src/logging.c **** static
+  46:../src/wolfcrypt/src/logging.c **** #ifdef ERROR_QUEUE_PER_THREAD
+  47:../src/wolfcrypt/src/logging.c **** THREAD_LS_T
+  48:../src/wolfcrypt/src/logging.c **** #endif
+  49:../src/wolfcrypt/src/logging.c **** void* wc_error_heap;
+  50:../src/wolfcrypt/src/logging.c **** struct wc_error_queue {
+  51:../src/wolfcrypt/src/logging.c ****     void*  heap; /* the heap hint used with nodes creation */
+  52:../src/wolfcrypt/src/logging.c ****     struct wc_error_queue* next;
+  53:../src/wolfcrypt/src/logging.c ****     struct wc_error_queue* prev;
+  54:../src/wolfcrypt/src/logging.c ****     char   error[WOLFSSL_MAX_ERROR_SZ];
+  55:../src/wolfcrypt/src/logging.c ****     char   file[WOLFSSL_MAX_ERROR_SZ];
+  56:../src/wolfcrypt/src/logging.c ****     int    value;
+  57:../src/wolfcrypt/src/logging.c ****     int    line;
+  58:../src/wolfcrypt/src/logging.c **** };
+  59:../src/wolfcrypt/src/logging.c **** #ifdef ERROR_QUEUE_PER_THREAD
+  60:../src/wolfcrypt/src/logging.c **** THREAD_LS_T
+  61:../src/wolfcrypt/src/logging.c **** #endif
+  62:../src/wolfcrypt/src/logging.c **** volatile struct wc_error_queue* wc_errors;
+  63:../src/wolfcrypt/src/logging.c **** static
+  64:../src/wolfcrypt/src/logging.c **** #ifdef ERROR_QUEUE_PER_THREAD
+  65:../src/wolfcrypt/src/logging.c **** THREAD_LS_T
+  66:../src/wolfcrypt/src/logging.c **** #endif
+  67:../src/wolfcrypt/src/logging.c **** struct wc_error_queue* wc_current_node;
+  68:../src/wolfcrypt/src/logging.c **** static
+  69:../src/wolfcrypt/src/logging.c **** #ifdef ERROR_QUEUE_PER_THREAD
+  70:../src/wolfcrypt/src/logging.c **** THREAD_LS_T
+  71:../src/wolfcrypt/src/logging.c **** #endif
+  72:../src/wolfcrypt/src/logging.c **** struct wc_error_queue* wc_last_node;
+  73:../src/wolfcrypt/src/logging.c **** /* pointer to last node in queue to make insertion O(1) */
+  74:../src/wolfcrypt/src/logging.c **** 
+  75:../src/wolfcrypt/src/logging.c **** #ifndef ERROR_QUEUE_MAX
+  76:../src/wolfcrypt/src/logging.c ****     /* this breaks from compat of unlimited error queue size */
+  77:../src/wolfcrypt/src/logging.c ****     #define ERROR_QUEUE_MAX 100
+  78:../src/wolfcrypt/src/logging.c **** #endif
+  79:../src/wolfcrypt/src/logging.c **** static
+  80:../src/wolfcrypt/src/logging.c **** #ifdef ERROR_QUEUE_PER_THREAD
+  81:../src/wolfcrypt/src/logging.c **** THREAD_LS_T
+  82:../src/wolfcrypt/src/logging.c **** #endif
+  83:../src/wolfcrypt/src/logging.c **** int wc_error_queue_count = 0;
+  84:../src/wolfcrypt/src/logging.c **** 
+  85:../src/wolfcrypt/src/logging.c **** #endif
+  86:../src/wolfcrypt/src/logging.c **** 
+  87:../src/wolfcrypt/src/logging.c **** #ifdef WOLFSSL_FUNC_TIME
+  88:../src/wolfcrypt/src/logging.c **** /* WARNING: This code is only to be used for debugging performance.
+  89:../src/wolfcrypt/src/logging.c ****  *          The code is not thread-safe.
+  90:../src/wolfcrypt/src/logging.c ****  *          Do not use WOLFSSL_FUNC_TIME in production code.
+  91:../src/wolfcrypt/src/logging.c ****  */
+  92:../src/wolfcrypt/src/logging.c **** static double wc_func_start[WC_FUNC_COUNT];
+  93:../src/wolfcrypt/src/logging.c **** static double wc_func_time[WC_FUNC_COUNT] = { 0, };
+  94:../src/wolfcrypt/src/logging.c **** static const char* wc_func_name[WC_FUNC_COUNT] = {
+  95:../src/wolfcrypt/src/logging.c ****     "SendHelloRequest",
+  96:../src/wolfcrypt/src/logging.c ****     "DoHelloRequest",
+  97:../src/wolfcrypt/src/logging.c ****     "SendClientHello",
+  98:../src/wolfcrypt/src/logging.c ****     "DoClientHello",
+  99:../src/wolfcrypt/src/logging.c ****     "SendServerHello",
+ 100:../src/wolfcrypt/src/logging.c ****     "DoServerHello",
+ 101:../src/wolfcrypt/src/logging.c ****     "SendEncryptedExtensions",
+ 102:../src/wolfcrypt/src/logging.c ****     "DoEncryptedExtensions",
+ 103:../src/wolfcrypt/src/logging.c ****     "SendCertificateRequest",
+ 104:../src/wolfcrypt/src/logging.c ****     "DoCertificateRequest",
+ 105:../src/wolfcrypt/src/logging.c ****     "SendCertificate",
+ 106:../src/wolfcrypt/src/logging.c ****     "DoCertificate",
+ 107:../src/wolfcrypt/src/logging.c ****     "SendCertificateVerify",
+ 108:../src/wolfcrypt/src/logging.c ****     "DoCertificateVerify",
+ 109:../src/wolfcrypt/src/logging.c ****     "SendFinished",
+ 110:../src/wolfcrypt/src/logging.c ****     "DoFinished",
+ 111:../src/wolfcrypt/src/logging.c ****     "SendKeyUpdate",
+ 112:../src/wolfcrypt/src/logging.c ****     "DoKeyUpdate",
+ 113:../src/wolfcrypt/src/logging.c ****     "SendEarlyData",
+ 114:../src/wolfcrypt/src/logging.c ****     "DoEarlyData",
+ 115:../src/wolfcrypt/src/logging.c ****     "SendNewSessionTicket",
+ 116:../src/wolfcrypt/src/logging.c ****     "DoNewSessionTicket",
+ 117:../src/wolfcrypt/src/logging.c ****     "SendServerHelloDone",
+ 118:../src/wolfcrypt/src/logging.c ****     "DoServerHelloDone",
+ 119:../src/wolfcrypt/src/logging.c ****     "SendTicket",
+ 120:../src/wolfcrypt/src/logging.c ****     "DoTicket",
+ 121:../src/wolfcrypt/src/logging.c ****     "SendClientKeyExchange",
+ 122:../src/wolfcrypt/src/logging.c ****     "DoClientKeyExchange",
+ 123:../src/wolfcrypt/src/logging.c ****     "SendCertificateStatus",
+ 124:../src/wolfcrypt/src/logging.c ****     "DoCertificateStatus",
+ 125:../src/wolfcrypt/src/logging.c ****     "SendServerKeyExchange",
+ 126:../src/wolfcrypt/src/logging.c ****     "DoServerKeyExchange",
+ 127:../src/wolfcrypt/src/logging.c ****     "SendEarlyData",
+ 128:../src/wolfcrypt/src/logging.c ****     "DoEarlyData",
+ 129:../src/wolfcrypt/src/logging.c **** };
+ 130:../src/wolfcrypt/src/logging.c **** 
+ 131:../src/wolfcrypt/src/logging.c **** #include <sys/time.h>
+ 132:../src/wolfcrypt/src/logging.c **** 
+ 133:../src/wolfcrypt/src/logging.c **** /* WARNING: This function is not portable. */
+ 134:../src/wolfcrypt/src/logging.c **** static WC_INLINE double current_time(int reset)
+ 135:../src/wolfcrypt/src/logging.c **** {
+ 136:../src/wolfcrypt/src/logging.c ****     struct timeval tv;
+ 137:../src/wolfcrypt/src/logging.c ****     gettimeofday(&tv, 0);
+ 138:../src/wolfcrypt/src/logging.c ****     (void)reset;
+ 139:../src/wolfcrypt/src/logging.c **** 
+ 140:../src/wolfcrypt/src/logging.c ****     return (double)tv.tv_sec + (double)tv.tv_usec / 1000000;
+ 141:../src/wolfcrypt/src/logging.c **** }
+ 142:../src/wolfcrypt/src/logging.c **** #endif /* WOLFSSL_FUNC_TIME */
+ 143:../src/wolfcrypt/src/logging.c **** 
+ 144:../src/wolfcrypt/src/logging.c **** #ifdef HAVE_WC_INTROSPECTION
+ 145:../src/wolfcrypt/src/logging.c **** 
+ 146:../src/wolfcrypt/src/logging.c **** const char *wolfSSL_configure_args(void) {
+ 147:../src/wolfcrypt/src/logging.c **** #ifdef LIBWOLFSSL_CONFIGURE_ARGS
+ 148:../src/wolfcrypt/src/logging.c ****   /* the spaces on either side are to make matching simple and efficient. */
+ 149:../src/wolfcrypt/src/logging.c ****   return " " LIBWOLFSSL_CONFIGURE_ARGS " ";
+ 150:../src/wolfcrypt/src/logging.c **** #else
+ 151:../src/wolfcrypt/src/logging.c ****   return NULL;
+ 152:../src/wolfcrypt/src/logging.c **** #endif
+ 153:../src/wolfcrypt/src/logging.c **** }
+ 154:../src/wolfcrypt/src/logging.c **** 
+ 155:../src/wolfcrypt/src/logging.c **** PEDANTIC_EXTENSION const char *wolfSSL_global_cflags(void) {
+ 156:../src/wolfcrypt/src/logging.c **** #ifdef LIBWOLFSSL_GLOBAL_CFLAGS
+ 157:../src/wolfcrypt/src/logging.c ****   /* the spaces on either side are to make matching simple and efficient. */
+ 158:../src/wolfcrypt/src/logging.c ****   return " " LIBWOLFSSL_GLOBAL_CFLAGS " ";
+ 159:../src/wolfcrypt/src/logging.c **** #else
+ 160:../src/wolfcrypt/src/logging.c ****   return NULL;
+ 161:../src/wolfcrypt/src/logging.c **** #endif
+ 162:../src/wolfcrypt/src/logging.c **** }
+ 163:../src/wolfcrypt/src/logging.c **** 
+ 164:../src/wolfcrypt/src/logging.c **** #endif /* HAVE_WC_INTROSPECTION */
+ 165:../src/wolfcrypt/src/logging.c **** 
+ 166:../src/wolfcrypt/src/logging.c **** #ifdef HAVE_STACK_SIZE_VERBOSE
+ 167:../src/wolfcrypt/src/logging.c **** 
+ 168:../src/wolfcrypt/src/logging.c **** THREAD_LS_T unsigned char *StackSizeCheck_myStack = NULL;
+ 169:../src/wolfcrypt/src/logging.c **** THREAD_LS_T size_t StackSizeCheck_stackSize = 0;
+ 170:../src/wolfcrypt/src/logging.c **** THREAD_LS_T size_t StackSizeCheck_stackSizeHWM = 0;
+ 171:../src/wolfcrypt/src/logging.c **** THREAD_LS_T size_t *StackSizeCheck_stackSizeHWM_ptr = 0;
+ 172:../src/wolfcrypt/src/logging.c **** THREAD_LS_T void *StackSizeCheck_stackOffsetPointer = 0;
+ 173:../src/wolfcrypt/src/logging.c **** 
+ 174:../src/wolfcrypt/src/logging.c **** #endif /* HAVE_STACK_SIZE_VERBOSE */
+ 175:../src/wolfcrypt/src/logging.c **** 
+ 176:../src/wolfcrypt/src/logging.c **** #ifdef DEBUG_WOLFSSL
+ 177:../src/wolfcrypt/src/logging.c **** 
+ 178:../src/wolfcrypt/src/logging.c **** /* Set these to default values initially. */
+ 179:../src/wolfcrypt/src/logging.c **** static wolfSSL_Logging_cb log_function = NULL;
+ 180:../src/wolfcrypt/src/logging.c **** static int loggingEnabled = 0;
+ 181:../src/wolfcrypt/src/logging.c **** 
+ 182:../src/wolfcrypt/src/logging.c **** #if defined(WOLFSSL_APACHE_MYNEWT)
+ 183:../src/wolfcrypt/src/logging.c **** #include "log/log.h"
+ 184:../src/wolfcrypt/src/logging.c **** static struct log mynewt_log;
+ 185:../src/wolfcrypt/src/logging.c **** #endif /* WOLFSSL_APACHE_MYNEWT */
+ 186:../src/wolfcrypt/src/logging.c **** 
+ 187:../src/wolfcrypt/src/logging.c **** #endif /* DEBUG_WOLFSSL */
+ 188:../src/wolfcrypt/src/logging.c **** 
+ 189:../src/wolfcrypt/src/logging.c **** #ifdef DEBUG_VECTOR_REGISTER_ACCESS
+ 190:../src/wolfcrypt/src/logging.c **** THREAD_LS_T int wc_svr_count = 0;
+ 191:../src/wolfcrypt/src/logging.c **** THREAD_LS_T const char *wc_svr_last_file = NULL;
+ 192:../src/wolfcrypt/src/logging.c **** THREAD_LS_T int wc_svr_last_line = -1;
+ 193:../src/wolfcrypt/src/logging.c **** #endif
+ 194:../src/wolfcrypt/src/logging.c **** 
+ 195:../src/wolfcrypt/src/logging.c **** 
+ 196:../src/wolfcrypt/src/logging.c **** /* allow this to be set to NULL, so logs can be redirected to default output */
+ 197:../src/wolfcrypt/src/logging.c **** int wolfSSL_SetLoggingCb(wolfSSL_Logging_cb f)
+ 198:../src/wolfcrypt/src/logging.c **** {
+  22                             		.loc 1 198 1
+  23 0000 7E AA                   		push.l	r10
+  24                             	.LCFI0:
+  25 0002 71 0A FC                		add	#-4, r0, r10
+  26                             	.LCFI1:
+  27 0005 EF A0                   		mov.L	r10, r0
+  28 0007 E3 A1                   		mov.L	r1, [r10]
+ 199:../src/wolfcrypt/src/logging.c **** #ifdef DEBUG_WOLFSSL
+ 200:../src/wolfcrypt/src/logging.c ****     log_function = f;
+  29                             		.loc 1 200 18
+  30 0009 FB 52 00 00 00 00       		mov.L	#_log_function, r5
+  31 000f EC A4                   		mov.L	[r10], r4
+  32 0011 E3 54                   		mov.L	r4, [r5]
+ 201:../src/wolfcrypt/src/logging.c ****     return 0;
+  33                             		.loc 1 201 12
+  34 0013 66 05                   		mov.L	#0, r5
+ 202:../src/wolfcrypt/src/logging.c **** #else
+ 203:../src/wolfcrypt/src/logging.c ****     (void)f;
+ 204:../src/wolfcrypt/src/logging.c ****     return NOT_COMPILED_IN;
+ 205:../src/wolfcrypt/src/logging.c **** #endif
+ 206:../src/wolfcrypt/src/logging.c **** }
+  35                             		.loc 1 206 1
+  36 0015 EF 51                   		mov.L	r5, r1
+  37 0017 3F AA 02                		rtsd	#8, r10-r10
+  38                             	.LFE1:
+  40                             		.section	.text.wolfSSL_GetLoggingCb,"ax",@progbits
+  41                             		.global	_wolfSSL_GetLoggingCb
+  43                             	_wolfSSL_GetLoggingCb:
+  44                             	.LFB2:
+ 207:../src/wolfcrypt/src/logging.c **** 
+ 208:../src/wolfcrypt/src/logging.c **** /* allow this to be set to NULL, so logs can be redirected to default output */
+ 209:../src/wolfcrypt/src/logging.c **** wolfSSL_Logging_cb wolfSSL_GetLoggingCb(void)
+ 210:../src/wolfcrypt/src/logging.c **** {
+  45                             		.loc 1 210 1
+  46 0000 7E AA                   		push.l	r10
+  47                             	.LCFI2:
+  48 0002 EF 0A                   		mov.L	r0, r10
+  49                             	.LCFI3:
+ 211:../src/wolfcrypt/src/logging.c **** #ifdef DEBUG_WOLFSSL
+ 212:../src/wolfcrypt/src/logging.c ****     return log_function;
+  50                             		.loc 1 212 12
+  51 0004 FB 52 00 00 00 00       		mov.L	#_log_function, r5
+  52 000a EC 55                   		mov.L	[r5], r5
+ 213:../src/wolfcrypt/src/logging.c **** #else
+ 214:../src/wolfcrypt/src/logging.c ****     return NULL;
+ 215:../src/wolfcrypt/src/logging.c **** #endif
+ 216:../src/wolfcrypt/src/logging.c **** }
+  53                             		.loc 1 216 1
+  54 000c EF 51                   		mov.L	r5, r1
+  55 000e 3F AA 01                		rtsd	#4, r10-r10
+  56                             	.LFE2:
+  58                             		.section	.text.wolfSSL_Debugging_ON,"ax",@progbits
+  59                             		.global	_wolfSSL_Debugging_ON
+  61                             	_wolfSSL_Debugging_ON:
+  62                             	.LFB3:
+ 217:../src/wolfcrypt/src/logging.c **** 
+ 218:../src/wolfcrypt/src/logging.c **** 
+ 219:../src/wolfcrypt/src/logging.c **** int wolfSSL_Debugging_ON(void)
+ 220:../src/wolfcrypt/src/logging.c **** {
+  63                             		.loc 1 220 1
+  64 0000 7E AA                   		push.l	r10
+  65                             	.LCFI4:
+  66 0002 EF 0A                   		mov.L	r0, r10
+  67                             	.LCFI5:
+ 221:../src/wolfcrypt/src/logging.c **** #ifdef DEBUG_WOLFSSL
+ 222:../src/wolfcrypt/src/logging.c ****     loggingEnabled = 1;
+  68                             		.loc 1 222 20
+  69 0004 FB 52 00 00 00 00       		mov.L	#_loggingEnabled, r5
+  70 000a F8 56 01                		mov.L	#1, [r5]
+ 223:../src/wolfcrypt/src/logging.c **** #if defined(WOLFSSL_APACHE_MYNEWT)
+ 224:../src/wolfcrypt/src/logging.c ****     log_register("wolfcrypt", &mynewt_log, &log_console_handler, NULL, LOG_SYSLEVEL);
+ 225:../src/wolfcrypt/src/logging.c **** #endif /* WOLFSSL_APACHE_MYNEWT */
+ 226:../src/wolfcrypt/src/logging.c ****     return 0;
+  71                             		.loc 1 226 12
+  72 000d 66 05                   		mov.L	#0, r5
+ 227:../src/wolfcrypt/src/logging.c **** #else
+ 228:../src/wolfcrypt/src/logging.c ****     return NOT_COMPILED_IN;
+ 229:../src/wolfcrypt/src/logging.c **** #endif
+ 230:../src/wolfcrypt/src/logging.c **** }
+  73                             		.loc 1 230 1
+  74 000f EF 51                   		mov.L	r5, r1
+  75 0011 3F AA 01                		rtsd	#4, r10-r10
+  76                             	.LFE3:
+  78                             		.section	.text.wolfSSL_Debugging_OFF,"ax",@progbits
+  79                             		.global	_wolfSSL_Debugging_OFF
+  81                             	_wolfSSL_Debugging_OFF:
+  82                             	.LFB4:
+ 231:../src/wolfcrypt/src/logging.c **** 
+ 232:../src/wolfcrypt/src/logging.c **** 
+ 233:../src/wolfcrypt/src/logging.c **** void wolfSSL_Debugging_OFF(void)
+ 234:../src/wolfcrypt/src/logging.c **** {
+  83                             		.loc 1 234 1
+  84 0000 7E AA                   		push.l	r10
+  85                             	.LCFI6:
+  86 0002 EF 0A                   		mov.L	r0, r10
+  87                             	.LCFI7:
+ 235:../src/wolfcrypt/src/logging.c **** #ifdef DEBUG_WOLFSSL
+ 236:../src/wolfcrypt/src/logging.c ****     loggingEnabled = 0;
+  88                             		.loc 1 236 20
+  89 0004 FB 52 00 00 00 00       		mov.L	#_loggingEnabled, r5
+  90 000a F8 56 00                		mov.L	#0, [r5]
+ 237:../src/wolfcrypt/src/logging.c **** #endif
+ 238:../src/wolfcrypt/src/logging.c **** }
+  91                             		.loc 1 238 1
+  92 000d 03                      		nop
+  93 000e 3F AA 01                		rtsd	#4, r10-r10
+  94                             	.LFE4:
+  96                             		.section	.text.wolfssl_log,"ax",@progbits
+  98                             	_wolfssl_log:
+  99                             	.LFB8:
+ 239:../src/wolfcrypt/src/logging.c **** 
+ 240:../src/wolfcrypt/src/logging.c **** #ifdef WOLFSSL_FUNC_TIME
+ 241:../src/wolfcrypt/src/logging.c **** /* WARNING: This code is only to be used for debugging performance.
+ 242:../src/wolfcrypt/src/logging.c ****  *          The code is not thread-safe.
+ 243:../src/wolfcrypt/src/logging.c ****  *          Do not use WOLFSSL_FUNC_TIME in production code.
+ 244:../src/wolfcrypt/src/logging.c ****  */
+ 245:../src/wolfcrypt/src/logging.c **** void WOLFSSL_START(int funcNum)
+ 246:../src/wolfcrypt/src/logging.c **** {
+ 247:../src/wolfcrypt/src/logging.c ****     if (funcNum < WC_FUNC_COUNT) {
+ 248:../src/wolfcrypt/src/logging.c ****         double now = current_time(0) * 1000.0;
+ 249:../src/wolfcrypt/src/logging.c ****     #ifdef WOLFSSL_FUNC_TIME_LOG
+ 250:../src/wolfcrypt/src/logging.c ****         fprintf(stderr, "%17.3f: START - %s\n", now, wc_func_name[funcNum]);
+ 251:../src/wolfcrypt/src/logging.c ****     #endif
+ 252:../src/wolfcrypt/src/logging.c ****         wc_func_start[funcNum] = now;
+ 253:../src/wolfcrypt/src/logging.c ****     }
+ 254:../src/wolfcrypt/src/logging.c **** }
+ 255:../src/wolfcrypt/src/logging.c **** 
+ 256:../src/wolfcrypt/src/logging.c **** void WOLFSSL_END(int funcNum)
+ 257:../src/wolfcrypt/src/logging.c **** {
+ 258:../src/wolfcrypt/src/logging.c ****     if (funcNum < WC_FUNC_COUNT) {
+ 259:../src/wolfcrypt/src/logging.c ****         double now = current_time(0) * 1000.0;
+ 260:../src/wolfcrypt/src/logging.c ****         wc_func_time[funcNum] += now - wc_func_start[funcNum];
+ 261:../src/wolfcrypt/src/logging.c ****     #ifdef WOLFSSL_FUNC_TIME_LOG
+ 262:../src/wolfcrypt/src/logging.c ****         fprintf(stderr, "%17.3f: END   - %s\n", now, wc_func_name[funcNum]);
+ 263:../src/wolfcrypt/src/logging.c ****     #endif
+ 264:../src/wolfcrypt/src/logging.c ****     }
+ 265:../src/wolfcrypt/src/logging.c **** }
+ 266:../src/wolfcrypt/src/logging.c **** 
+ 267:../src/wolfcrypt/src/logging.c **** void WOLFSSL_TIME(int count)
+ 268:../src/wolfcrypt/src/logging.c **** {
+ 269:../src/wolfcrypt/src/logging.c ****     int i;
+ 270:../src/wolfcrypt/src/logging.c ****     double avg, total = 0;
+ 271:../src/wolfcrypt/src/logging.c **** 
+ 272:../src/wolfcrypt/src/logging.c ****     for (i = 0; i < WC_FUNC_COUNT; i++) {
+ 273:../src/wolfcrypt/src/logging.c ****         if (wc_func_time[i] > 0) {
+ 274:../src/wolfcrypt/src/logging.c ****             avg = wc_func_time[i] / count;
+ 275:../src/wolfcrypt/src/logging.c ****             fprintf(stderr, "%8.3f ms: %s\n", avg, wc_func_name[i]);
+ 276:../src/wolfcrypt/src/logging.c ****             total += avg;
+ 277:../src/wolfcrypt/src/logging.c ****         }
+ 278:../src/wolfcrypt/src/logging.c ****     }
+ 279:../src/wolfcrypt/src/logging.c ****     fprintf(stderr, "%8.3f ms\n", total);
+ 280:../src/wolfcrypt/src/logging.c **** }
+ 281:../src/wolfcrypt/src/logging.c **** #endif
+ 282:../src/wolfcrypt/src/logging.c **** 
+ 283:../src/wolfcrypt/src/logging.c **** #ifdef DEBUG_WOLFSSL
+ 284:../src/wolfcrypt/src/logging.c **** 
+ 285:../src/wolfcrypt/src/logging.c **** #if defined(FREESCALE_MQX) || defined(FREESCALE_KSDK_MQX)
+ 286:../src/wolfcrypt/src/logging.c ****     /* see wc_port.h for fio.h and nio.h includes */
+ 287:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_SGX)
+ 288:../src/wolfcrypt/src/logging.c ****     /* Declare sprintf for ocall */
+ 289:../src/wolfcrypt/src/logging.c ****     int sprintf(char* buf, const char *fmt, ...);
+ 290:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_DEOS)
+ 291:../src/wolfcrypt/src/logging.c **** #elif defined(MICRIUM)
+ 292:../src/wolfcrypt/src/logging.c ****     #if (BSP_SER_COMM_EN  == DEF_ENABLED)
+ 293:../src/wolfcrypt/src/logging.c ****         #include <bsp_ser.h>
+ 294:../src/wolfcrypt/src/logging.c ****     #endif
+ 295:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_USER_LOG)
+ 296:../src/wolfcrypt/src/logging.c ****     /* user includes their own headers */
+ 297:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_ESPIDF)
+ 298:../src/wolfcrypt/src/logging.c ****     #include "esp_types.h"
+ 299:../src/wolfcrypt/src/logging.c ****     #include "esp_log.h"
+ 300:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_TELIT_M2MB)
+ 301:../src/wolfcrypt/src/logging.c ****     #include <stdio.h>
+ 302:../src/wolfcrypt/src/logging.c ****     #include "m2m_log.h"
+ 303:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_ANDROID_DEBUG)
+ 304:../src/wolfcrypt/src/logging.c ****     #include <android/log.h>
+ 305:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_XILINX)
+ 306:../src/wolfcrypt/src/logging.c ****     #include "xil_printf.h"
+ 307:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_LINUXKM)
+ 308:../src/wolfcrypt/src/logging.c ****     /* the requisite linux/kernel.h is included in wc_port.h, with incompatible warnings masked out
+ 309:../src/wolfcrypt/src/logging.c **** #elif defined(FUSION_RTOS)
+ 310:../src/wolfcrypt/src/logging.c ****     #include <fclstdio.h>
+ 311:../src/wolfcrypt/src/logging.c ****     #include <wolfssl/wolfcrypt/wc_port.h>
+ 312:../src/wolfcrypt/src/logging.c ****     #define fprintf FCL_FPRINTF
+ 313:../src/wolfcrypt/src/logging.c **** #else
+ 314:../src/wolfcrypt/src/logging.c ****     #include <stdio.h>  /* for default printf stuff */
+ 315:../src/wolfcrypt/src/logging.c **** #endif
+ 316:../src/wolfcrypt/src/logging.c **** 
+ 317:../src/wolfcrypt/src/logging.c **** #if defined(THREADX) && !defined(THREADX_NO_DC_PRINTF)
+ 318:../src/wolfcrypt/src/logging.c ****     int dc_log_printf(char*, ...);
+ 319:../src/wolfcrypt/src/logging.c **** #endif
+ 320:../src/wolfcrypt/src/logging.c **** 
+ 321:../src/wolfcrypt/src/logging.c **** static void wolfssl_log(const int logLevel, const char *const logMessage)
+ 322:../src/wolfcrypt/src/logging.c **** {
+ 100                             		.loc 1 322 1
+ 101 0000 7E AA                   		push.l	r10
+ 102                             	.LCFI8:
+ 103 0002 71 0A F8                		add	#-8, r0, r10
+ 104                             	.LCFI9:
+ 105 0005 EF A0                   		mov.L	r10, r0
+ 106 0007 E3 A1                   		mov.L	r1, [r10]
+ 107 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 323:../src/wolfcrypt/src/logging.c ****     if (log_function)
+ 108                             		.loc 1 323 9
+ 109 000c FB 52 00 00 00 00       		mov.L	#_log_function, r5
+ 110 0012 EC 55                   		mov.L	[r5], r5
+ 111                             		.loc 1 323 8
+ 112 0014 61 05                   		cmp	#0, r5
+ 113 0016 20 12                   		beq	.L9
+ 324:../src/wolfcrypt/src/logging.c ****         log_function(logLevel, logMessage);
+ 114                             		.loc 1 324 9
+ 115 0018 FB 52 00 00 00 00       		mov.L	#_log_function, r5
+ 116 001e EC 55                   		mov.L	[r5], r5
+ 117 0020 ED A2 01                		mov.L	4[r10], r2
+ 118 0023 EC A1                   		mov.L	[r10], r1
+ 119 0025 7F 15                   		jsr	r5
+ 120                             	.LVL0:
+ 325:../src/wolfcrypt/src/logging.c ****     else {
+ 326:../src/wolfcrypt/src/logging.c **** #if defined(WOLFSSL_USER_LOG)
+ 327:../src/wolfcrypt/src/logging.c ****         WOLFSSL_USER_LOG(logMessage);
+ 328:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_LOG_PRINTF)
+ 329:../src/wolfcrypt/src/logging.c ****         printf("%s\n", logMessage);
+ 330:../src/wolfcrypt/src/logging.c **** 
+ 331:../src/wolfcrypt/src/logging.c **** #elif defined(THREADX) && !defined(THREADX_NO_DC_PRINTF)
+ 332:../src/wolfcrypt/src/logging.c ****         dc_log_printf("%s\n", logMessage);
+ 333:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_DEOS)
+ 334:../src/wolfcrypt/src/logging.c ****         printf("%s\r\n", logMessage);
+ 335:../src/wolfcrypt/src/logging.c **** #elif defined(MICRIUM)
+ 336:../src/wolfcrypt/src/logging.c ****         BSP_Ser_Printf("%s\r\n", logMessage);
+ 337:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_MDK_ARM)
+ 338:../src/wolfcrypt/src/logging.c ****         fflush(stdout) ;
+ 339:../src/wolfcrypt/src/logging.c ****         printf("%s\n", logMessage);
+ 340:../src/wolfcrypt/src/logging.c ****         fflush(stdout) ;
+ 341:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_UTASKER)
+ 342:../src/wolfcrypt/src/logging.c ****         fnDebugMsg((char*)logMessage);
+ 343:../src/wolfcrypt/src/logging.c ****         fnDebugMsg("\r\n");
+ 344:../src/wolfcrypt/src/logging.c **** #elif defined(MQX_USE_IO_OLD)
+ 345:../src/wolfcrypt/src/logging.c ****         fprintf(_mqxio_stderr, "%s\n", logMessage);
+ 346:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_APACHE_MYNEWT)
+ 347:../src/wolfcrypt/src/logging.c ****         LOG_DEBUG(&mynewt_log, LOG_MODULE_DEFAULT, "%s\n", logMessage);
+ 348:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_ESPIDF)
+ 349:../src/wolfcrypt/src/logging.c ****         ESP_LOGI("wolfssl", "%s", logMessage);
+ 350:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_ZEPHYR)
+ 351:../src/wolfcrypt/src/logging.c ****         printk("%s\n", logMessage);
+ 352:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_TELIT_M2MB)
+ 353:../src/wolfcrypt/src/logging.c ****         M2M_LOG_INFO("%s\n", logMessage);
+ 354:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_ANDROID_DEBUG)
+ 355:../src/wolfcrypt/src/logging.c ****         __android_log_print(ANDROID_LOG_VERBOSE, "[wolfSSL]", "%s", logMessage);
+ 356:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_XILINX)
+ 357:../src/wolfcrypt/src/logging.c ****         xil_printf("%s\r\n", logMessage);
+ 358:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_LINUXKM)
+ 359:../src/wolfcrypt/src/logging.c ****         printk("%s\n", logMessage);
+ 360:../src/wolfcrypt/src/logging.c **** #elif defined(WOLFSSL_RENESAS_RA6M4)
+ 361:../src/wolfcrypt/src/logging.c ****         myprintf("%s\n", logMessage);
+ 362:../src/wolfcrypt/src/logging.c **** #else
+ 363:../src/wolfcrypt/src/logging.c ****         fprintf(stderr, "%s\n", logMessage);
+ 364:../src/wolfcrypt/src/logging.c **** #endif
+ 365:../src/wolfcrypt/src/logging.c ****     }
+ 366:../src/wolfcrypt/src/logging.c **** }
+ 121                             		.loc 1 366 1
+ 122 0027 08                      		bra	.L11
+ 123                             	.L9:
+ 329:../src/wolfcrypt/src/logging.c **** 
+ 124                             		.loc 1 329 9
+ 125 0028 ED A1 01                		mov.L	4[r10], r1
+ 126 002b 05 00 00 00             		bsr	_puts
+ 127                             	.L11:
+ 128                             		.loc 1 366 1
+ 129 002f 03                      		nop
+ 130 0030 3F AA 03                		rtsd	#12, r10-r10
+ 131                             	.LFE8:
+ 133                             		.section	.text.WOLFSSL_MSG_EX,"ax",@progbits
+ 134                             		.global	_WOLFSSL_MSG_EX
+ 136                             	_WOLFSSL_MSG_EX:
+ 137                             	.LFB9:
+ 367:../src/wolfcrypt/src/logging.c **** 
+ 368:../src/wolfcrypt/src/logging.c **** #ifndef WOLFSSL_DEBUG_ERRORS_ONLY
+ 369:../src/wolfcrypt/src/logging.c **** 
+ 370:../src/wolfcrypt/src/logging.c **** #if !defined(_WIN32) && defined(XVSNPRINTF) && !defined(NO_WOLFSSL_MSG_EX)
+ 371:../src/wolfcrypt/src/logging.c **** #include <stdarg.h> /* for var args */
+ 372:../src/wolfcrypt/src/logging.c **** #ifndef WOLFSSL_MSG_EX_BUF_SZ
+ 373:../src/wolfcrypt/src/logging.c **** #define WOLFSSL_MSG_EX_BUF_SZ 100
+ 374:../src/wolfcrypt/src/logging.c **** #endif
+ 375:../src/wolfcrypt/src/logging.c **** #ifdef __clang__
+ 376:../src/wolfcrypt/src/logging.c **** /* tell clang argument 1 is format */
+ 377:../src/wolfcrypt/src/logging.c **** __attribute__((__format__ (__printf__, 1, 0)))
+ 378:../src/wolfcrypt/src/logging.c **** #endif
+ 379:../src/wolfcrypt/src/logging.c **** void WOLFSSL_MSG_EX(const char* fmt, ...)
+ 380:../src/wolfcrypt/src/logging.c **** {
+ 138                             		.loc 1 380 1
+ 139 0000 7E AA                   		push.l	r10
+ 140                             	.LCFI10:
+ 141 0002 71 0A 90                		add	#-112, r0, r10
+ 142                             	.LCFI11:
+ 143 0005 EF A0                   		mov.L	r10, r0
+ 144 0007 75 45 78                		mov.L	#0x78, r5
+ 145 000a 4B A5                   		add	r10, r5
+ 381:../src/wolfcrypt/src/logging.c ****     if (loggingEnabled) {
+ 146                             		.loc 1 381 9
+ 147 000c FB 42 00 00 00 00       		mov.L	#_loggingEnabled, r4
+ 148 0012 EC 44                   		mov.L	[r4], r4
+ 149                             		.loc 1 381 8
+ 150 0014 61 04                   		cmp	#0, r4
+ 151 0016 20 2A                   		beq	.L15
+ 152                             	.LBB2:
+ 382:../src/wolfcrypt/src/logging.c ****         char msg[WOLFSSL_MSG_EX_BUF_SZ];
+ 383:../src/wolfcrypt/src/logging.c ****         int written;
+ 384:../src/wolfcrypt/src/logging.c ****         va_list args;
+ 385:../src/wolfcrypt/src/logging.c ****         va_start(args, fmt);
+ 153                             		.loc 1 385 9
+ 154 0018 71 54 04                		add	#4, r5, r4
+ 155 001b E7 A4 01                		mov.L	r4, 4[r10]
+ 386:../src/wolfcrypt/src/logging.c ****         written = XVSNPRINTF(msg, sizeof(msg), fmt, args);
+ 156                             		.loc 1 386 19
+ 157 001e ED A4 01                		mov.L	4[r10], r4
+ 158 0021 71 A1 08                		add	#8, r10, r1
+ 159 0024 EC 53                   		mov.L	[r5], r3
+ 160 0026 75 42 64                		mov.L	#0x64, r2
+ 161 0029 05 00 00 00             		bsr	_vsnprintf
+ 162 002d E3 A1                   		mov.L	r1, [r10]
+ 387:../src/wolfcrypt/src/logging.c ****         va_end(args);
+ 388:../src/wolfcrypt/src/logging.c ****         if (written > 0)
+ 163                             		.loc 1 388 12
+ 164 002f EC A5                   		mov.L	[r10], r5
+ 165 0031 61 05                   		cmp	#0, r5
+ 166 0033 2B 0D                   		ble	.L15
+ 389:../src/wolfcrypt/src/logging.c ****             wolfssl_log(INFO_LOG , msg);
+ 167                             		.loc 1 389 13
+ 168 0035 71 A5 08                		add	#8, r10, r5
+ 169 0038 EF 52                   		mov.L	r5, r2
+ 170 003a 66 11                   		mov.L	#1, r1
+ 171 003c 05 00 00 00             		bsr	_wolfssl_log
+ 172                             	.L15:
+ 173                             	.LBE2:
+ 390:../src/wolfcrypt/src/logging.c ****     }
+ 391:../src/wolfcrypt/src/logging.c **** }
+ 174                             		.loc 1 391 1
+ 175 0040 03                      		nop
+ 176 0041 3F AA 1D                		rtsd	#116, r10-r10
+ 177                             	.LFE9:
+ 179                             		.section	.text.WOLFSSL_MSG,"ax",@progbits
+ 180                             		.global	_WOLFSSL_MSG
+ 182                             	_WOLFSSL_MSG:
+ 183                             	.LFB10:
+ 392:../src/wolfcrypt/src/logging.c **** #endif
+ 393:../src/wolfcrypt/src/logging.c **** 
+ 394:../src/wolfcrypt/src/logging.c **** void WOLFSSL_MSG(const char* msg)
+ 395:../src/wolfcrypt/src/logging.c **** {
+ 184                             		.loc 1 395 1
+ 185 0000 7E AA                   		push.l	r10
+ 186                             	.LCFI12:
+ 187 0002 71 0A FC                		add	#-4, r0, r10
+ 188                             	.LCFI13:
+ 189 0005 EF A0                   		mov.L	r10, r0
+ 190 0007 E3 A1                   		mov.L	r1, [r10]
+ 396:../src/wolfcrypt/src/logging.c ****     if (loggingEnabled)
+ 191                             		.loc 1 396 9
+ 192 0009 FB 52 00 00 00 00       		mov.L	#_loggingEnabled, r5
+ 193 000f EC 55                   		mov.L	[r5], r5
+ 194                             		.loc 1 396 8
+ 195 0011 61 05                   		cmp	#0, r5
+ 196 0013 11                      		beq	.L18
+ 397:../src/wolfcrypt/src/logging.c ****         wolfssl_log(INFO_LOG , msg);
+ 197                             		.loc 1 397 9
+ 198 0014 EC A2                   		mov.L	[r10], r2
+ 199 0016 66 11                   		mov.L	#1, r1
+ 200 0018 05 00 00 00             		bsr	_wolfssl_log
+ 201                             	.L18:
+ 398:../src/wolfcrypt/src/logging.c **** }
+ 202                             		.loc 1 398 1
+ 203 001c 03                      		nop
+ 204 001d 3F AA 02                		rtsd	#8, r10-r10
+ 205                             	.LFE10:
+ 207                             		.section C,"a",@progbits
+ 208                             		.p2align 2
+ 209                             	.LC0:
+ 210 0000 09 4E 55 4C 4C 00       		.string	"\tNULL"
+ 211                             	.LC1:
+ 212 0006 09 00                   		.string	"\t"
+ 213                             	.LC2:
+ 214 0008 25 30 32 78 20 00       		.string	"%02x "
+ 215                             	.LC3:
+ 216 000e 20 20 20 00             		.string	"   "
+ 217                             	.LC4:
+ 218 0012 7C 20 00                		.string	"| "
+ 219                             	.LC5:
+ 220 0015 25 63 00                		.string	"%c"
+ 221                             		.section	.text.WOLFSSL_BUFFER,"ax",@progbits
+ 222                             		.global	_WOLFSSL_BUFFER
+ 224                             	_WOLFSSL_BUFFER:
+ 225                             	.LFB11:
+ 399:../src/wolfcrypt/src/logging.c **** 
+ 400:../src/wolfcrypt/src/logging.c **** #ifndef LINE_LEN
+ 401:../src/wolfcrypt/src/logging.c **** #define LINE_LEN 16
+ 402:../src/wolfcrypt/src/logging.c **** #endif
+ 403:../src/wolfcrypt/src/logging.c **** void WOLFSSL_BUFFER(const byte* buffer, word32 length)
+ 404:../src/wolfcrypt/src/logging.c **** {
+ 226                             		.loc 1 404 1
+ 227 0000 7E AA                   		push.l	r10
+ 228                             	.LCFI14:
+ 229 0002 71 0A A8                		add	#-88, r0, r10
+ 230                             	.LCFI15:
+ 231 0005 71 A0 F8                		add	#-8, r10, r0
+ 232                             	.LCFI16:
+ 233 0008 E7 A1 14                		mov.L	r1, 80[r10]
+ 234 000b E7 A2 15                		mov.L	r2, 84[r10]
+ 405:../src/wolfcrypt/src/logging.c ****     int i, buflen = (int)length, bufidx;
+ 235                             		.loc 1 405 12
+ 236 000e ED A5 15                		mov.L	84[r10], r5
+ 237 0011 E7 A5 01                		mov.L	r5, 4[r10]
+ 406:../src/wolfcrypt/src/logging.c ****     char line[(LINE_LEN * 4) + 3]; /* \t00..0F | chars...chars\0 */
+ 407:../src/wolfcrypt/src/logging.c **** 
+ 408:../src/wolfcrypt/src/logging.c ****     if (!loggingEnabled) {
+ 238                             		.loc 1 408 9
+ 239 0014 FB 52 00 00 00 00       		mov.L	#_loggingEnabled, r5
+ 240 001a EC 55                   		mov.L	[r5], r5
+ 241                             		.loc 1 408 8
+ 242 001c 61 05                   		cmp	#0, r5
+ 243 001e 3A 77 01                		beq	.L35
+ 409:../src/wolfcrypt/src/logging.c ****         return;
+ 410:../src/wolfcrypt/src/logging.c ****     }
+ 411:../src/wolfcrypt/src/logging.c **** 
+ 412:../src/wolfcrypt/src/logging.c ****     if (!buffer) {
+ 244                             		.loc 1 412 8
+ 245 0021 ED A5 14                		mov.L	80[r10], r5
+ 246 0024 61 05                   		cmp	#0, r5
+ 247 0026 3B 63 01                		bne	.L23
+ 413:../src/wolfcrypt/src/logging.c ****         wolfssl_log(INFO_LOG, "\tNULL");
+ 248                             		.loc 1 413 9
+ 249 0029 FB 22 00 00 00 00       		mov.L	#.LC0, r2
+ 250 002f 66 11                   		mov.L	#1, r1
+ 251 0031 05 00 00 00             		bsr	_wolfssl_log
+ 414:../src/wolfcrypt/src/logging.c ****         return;
+ 252                             		.loc 1 414 9
+ 253 0035 38 61 01                		bra	.L19
+ 254                             	.L33:
+ 415:../src/wolfcrypt/src/logging.c ****     }
+ 416:../src/wolfcrypt/src/logging.c **** 
+ 417:../src/wolfcrypt/src/logging.c ****     while (buflen > 0) {
+ 418:../src/wolfcrypt/src/logging.c ****         bufidx = 0;
+ 255                             		.loc 1 418 16
+ 256 0038 F9 A6 02 00             		mov.L	#0, 8[r10]
+ 419:../src/wolfcrypt/src/logging.c ****         XSNPRINTF(&line[bufidx], sizeof(line)-bufidx, "\t");
+ 257                             		.loc 1 419 9
+ 258 003c 71 A5 0C                		add	#12, r10, r5
+ 259 003f EF 53                   		mov.L	r5, r3
+ 260 0041 06 89 A3 02             		add	8[r10].L, r3
+ 261 0045 ED A5 02                		mov.L	8[r10], r5
+ 262 0048 75 44 43                		mov.L	#0x43, r4
+ 263 004b FF 05 54                		sub	r5, r4, r5
+ 264 004e F8 02 06 00 00 00       		mov.L	#.LC1, [r0]
+ 265 0054 EF 52                   		mov.L	r5, r2
+ 266 0056 EF 31                   		mov.L	r3, r1
+ 267 0058 05 00 00 00             		bsr	_snprintf
+ 420:../src/wolfcrypt/src/logging.c ****         bufidx++;
+ 268                             		.loc 1 420 15
+ 269 005c ED A5 02                		mov.L	8[r10], r5
+ 270 005f 62 15                   		add	#1, r5
+ 271 0061 E7 A5 02                		mov.L	r5, 8[r10]
+ 421:../src/wolfcrypt/src/logging.c **** 
+ 422:../src/wolfcrypt/src/logging.c ****         for (i = 0; i < LINE_LEN; i++) {
+ 272                             		.loc 1 422 16
+ 273 0064 F8 A6 00                		mov.L	#0, [r10]
+ 274                             		.loc 1 422 9
+ 275 0067 2E 66                   		bra	.L24
+ 276                             	.L27:
+ 423:../src/wolfcrypt/src/logging.c ****             if (i < buflen) {
+ 277                             		.loc 1 423 16
+ 278 0069 EC A4                   		mov.L	[r10], r4
+ 279 006b ED A5 01                		mov.L	4[r10], r5
+ 280 006e 47 54                   		cmp	r5, r4
+ 281 0070 28 2F                   		bge	.L25
+ 424:../src/wolfcrypt/src/logging.c ****                 XSNPRINTF(&line[bufidx], sizeof(line)-bufidx, "%02x ", buffer[i]);
+ 282                             		.loc 1 424 17
+ 283 0072 71 A5 0C                		add	#12, r10, r5
+ 284 0075 EF 53                   		mov.L	r5, r3
+ 285 0077 06 89 A3 02             		add	8[r10].L, r3
+ 286 007b ED A5 02                		mov.L	8[r10], r5
+ 287 007e 75 44 43                		mov.L	#0x43, r4
+ 288 0081 FF 02 54                		sub	r5, r4, r2
+ 289                             		.loc 1 424 78
+ 290 0084 EC A5                   		mov.L	[r10], r5
+ 291 0086 ED A4 14                		mov.L	80[r10], r4
+ 292 0089 4B 45                   		add	r4, r5
+ 293 008b CC 55                   		mov.B	[r5], r5
+ 294                             		.loc 1 424 17
+ 295 008d 5B 55                   		movu.B	r5, r5
+ 296 008f A0 0D                   		mov.L	r5, 4[r0]
+ 297 0091 F8 02 08 00 00 00       		mov.L	#.LC2, [r0]
+ 298 0097 EF 31                   		mov.L	r3, r1
+ 299 0099 05 00 00 00             		bsr	_snprintf
+ 300 009d 2E 22                   		bra	.L26
+ 301                             	.L25:
+ 425:../src/wolfcrypt/src/logging.c ****             }
+ 426:../src/wolfcrypt/src/logging.c ****             else {
+ 427:../src/wolfcrypt/src/logging.c ****                 XSNPRINTF(&line[bufidx], sizeof(line)-bufidx, "   ");
+ 302                             		.loc 1 427 17
+ 303 009f 71 A5 0C                		add	#12, r10, r5
+ 304 00a2 EF 53                   		mov.L	r5, r3
+ 305 00a4 06 89 A3 02             		add	8[r10].L, r3
+ 306 00a8 ED A5 02                		mov.L	8[r10], r5
+ 307 00ab 75 44 43                		mov.L	#0x43, r4
+ 308 00ae FF 05 54                		sub	r5, r4, r5
+ 309 00b1 F8 02 0E 00 00 00       		mov.L	#.LC3, [r0]
+ 310 00b7 EF 52                   		mov.L	r5, r2
+ 311 00b9 EF 31                   		mov.L	r3, r1
+ 312 00bb 05 00 00 00             		bsr	_snprintf
+ 313                             	.L26:
+ 428:../src/wolfcrypt/src/logging.c ****             }
+ 429:../src/wolfcrypt/src/logging.c ****             bufidx += 3;
+ 314                             		.loc 1 429 20 discriminator 2
+ 315 00bf ED A5 02                		mov.L	8[r10], r5
+ 316 00c2 62 35                   		add	#3, r5
+ 317 00c4 E7 A5 02                		mov.L	r5, 8[r10]
+ 422:../src/wolfcrypt/src/logging.c ****             if (i < buflen) {
+ 318                             		.loc 1 422 36 discriminator 2
+ 319 00c7 EC A5                   		mov.L	[r10], r5
+ 320 00c9 62 15                   		add	#1, r5
+ 321 00cb E3 A5                   		mov.L	r5, [r10]
+ 322                             	.L24:
+ 422:../src/wolfcrypt/src/logging.c ****             if (i < buflen) {
+ 323                             		.loc 1 422 9 discriminator 1
+ 324 00cd EC A5                   		mov.L	[r10], r5
+ 325 00cf 61 F5                   		cmp	#15, r5
+ 326 00d1 2B 98                   		ble	.L27
+ 430:../src/wolfcrypt/src/logging.c ****         }
+ 431:../src/wolfcrypt/src/logging.c **** 
+ 432:../src/wolfcrypt/src/logging.c ****         XSNPRINTF(&line[bufidx], sizeof(line)-bufidx, "| ");
+ 327                             		.loc 1 432 9
+ 328 00d3 71 A5 0C                		add	#12, r10, r5
+ 329 00d6 EF 53                   		mov.L	r5, r3
+ 330 00d8 06 89 A3 02             		add	8[r10].L, r3
+ 331 00dc ED A5 02                		mov.L	8[r10], r5
+ 332 00df 75 44 43                		mov.L	#0x43, r4
+ 333 00e2 FF 05 54                		sub	r5, r4, r5
+ 334 00e5 F8 02 12 00 00 00       		mov.L	#.LC4, [r0]
+ 335 00eb EF 52                   		mov.L	r5, r2
+ 336 00ed EF 31                   		mov.L	r3, r1
+ 337 00ef 05 00 00 00             		bsr	_snprintf
+ 433:../src/wolfcrypt/src/logging.c ****         bufidx++;
+ 338                             		.loc 1 433 15
+ 339 00f3 ED A5 02                		mov.L	8[r10], r5
+ 340 00f6 62 15                   		add	#1, r5
+ 341 00f8 E7 A5 02                		mov.L	r5, 8[r10]
+ 434:../src/wolfcrypt/src/logging.c **** 
+ 435:../src/wolfcrypt/src/logging.c ****         for (i = 0; i < LINE_LEN; i++) {
+ 342                             		.loc 1 435 16
+ 343 00fb F8 A6 00                		mov.L	#0, [r10]
+ 344                             		.loc 1 435 9
+ 345 00fe 2E 68                   		bra	.L28
+ 346                             	.L32:
+ 436:../src/wolfcrypt/src/logging.c ****             if (i < buflen) {
+ 347                             		.loc 1 436 16
+ 348 0100 EC A4                   		mov.L	[r10], r4
+ 349 0102 ED A5 01                		mov.L	4[r10], r5
+ 350 0105 47 54                   		cmp	r5, r4
+ 351 0107 28 59                   		bge	.L29
+ 437:../src/wolfcrypt/src/logging.c ****                 XSNPRINTF(&line[bufidx], sizeof(line)-bufidx,
+ 352                             		.loc 1 437 17
+ 353 0109 71 A5 0C                		add	#12, r10, r5
+ 354 010c EF 53                   		mov.L	r5, r3
+ 355 010e 06 89 A3 02             		add	8[r10].L, r3
+ 356 0112 ED A5 02                		mov.L	8[r10], r5
+ 357 0115 75 44 43                		mov.L	#0x43, r4
+ 358 0118 FF 02 54                		sub	r5, r4, r2
+ 438:../src/wolfcrypt/src/logging.c ****                      "%c", 31 < buffer[i] && buffer[i] < 127 ? buffer[i] : '.');
+ 359                             		.loc 1 438 39
+ 360 011b EC A5                   		mov.L	[r10], r5
+ 361 011d ED A4 14                		mov.L	80[r10], r4
+ 362 0120 4B 45                   		add	r4, r5
+ 363 0122 CC 55                   		mov.B	[r5], r5
+ 437:../src/wolfcrypt/src/logging.c ****                 XSNPRINTF(&line[bufidx], sizeof(line)-bufidx,
+ 364                             		.loc 1 437 17
+ 365 0124 5B 55                   		movu.B	r5, r5
+ 366 0126 75 55 1F                		cmp	#31, r5
+ 367 0129 25 1E                   		bleu	.L30
+ 368                             		.loc 1 438 52
+ 369 012b EC A5                   		mov.L	[r10], r5
+ 370 012d ED A4 14                		mov.L	80[r10], r4
+ 371 0130 4B 45                   		add	r4, r5
+ 372 0132 CC 55                   		mov.B	[r5], r5
+ 373                             		.loc 1 438 43
+ 374 0134 5B 55                   		movu.B	r5, r5
+ 375 0136 75 55 7E                		cmp	#0x7e, r5
+ 376 0139 24 0E                   		bgtu	.L30
+ 377                             		.loc 1 438 70 discriminator 1
+ 378 013b EC A5                   		mov.L	[r10], r5
+ 379 013d ED A4 14                		mov.L	80[r10], r4
+ 380 0140 4B 45                   		add	r4, r5
+ 381 0142 CC 55                   		mov.B	[r5], r5
+ 437:../src/wolfcrypt/src/logging.c ****                 XSNPRINTF(&line[bufidx], sizeof(line)-bufidx,
+ 382                             		.loc 1 437 17 discriminator 1
+ 383 0144 5B 55                   		movu.B	r5, r5
+ 384 0146 0C                      		bra	.L31
+ 385                             	.L30:
+ 386 0147 75 45 2E                		mov.L	#46, r5
+ 387                             	.L31:
+ 437:../src/wolfcrypt/src/logging.c ****                 XSNPRINTF(&line[bufidx], sizeof(line)-bufidx,
+ 388                             		.loc 1 437 17 is_stmt 0 discriminator 3
+ 389 014a A0 0D                   		mov.L	r5, 4[r0]
+ 390 014c F8 02 15 00 00 00       		mov.L	#.LC5, [r0]
+ 391 0152 EF 31                   		mov.L	r3, r1
+ 392 0154 05 00 00 00             		bsr	_snprintf
+ 439:../src/wolfcrypt/src/logging.c ****                 bufidx++;
+ 393                             		.loc 1 439 23 is_stmt 1 discriminator 3
+ 394 0158 ED A5 02                		mov.L	8[r10], r5
+ 395 015b 62 15                   		add	#1, r5
+ 396 015d E7 A5 02                		mov.L	r5, 8[r10]
+ 397                             	.L29:
+ 435:../src/wolfcrypt/src/logging.c ****             if (i < buflen) {
+ 398                             		.loc 1 435 36 discriminator 2
+ 399 0160 EC A5                   		mov.L	[r10], r5
+ 400 0162 62 15                   		add	#1, r5
+ 401 0164 E3 A5                   		mov.L	r5, [r10]
+ 402                             	.L28:
+ 435:../src/wolfcrypt/src/logging.c ****             if (i < buflen) {
+ 403                             		.loc 1 435 9 discriminator 1
+ 404 0166 EC A5                   		mov.L	[r10], r5
+ 405 0168 61 F5                   		cmp	#15, r5
+ 406 016a 2B 96                   		ble	.L32
+ 440:../src/wolfcrypt/src/logging.c ****             }
+ 441:../src/wolfcrypt/src/logging.c ****         }
+ 442:../src/wolfcrypt/src/logging.c **** 
+ 443:../src/wolfcrypt/src/logging.c ****         wolfssl_log(INFO_LOG, line);
+ 407                             		.loc 1 443 9
+ 408 016c 71 A5 0C                		add	#12, r10, r5
+ 409 016f EF 52                   		mov.L	r5, r2
+ 410 0171 66 11                   		mov.L	#1, r1
+ 411 0173 05 00 00 00             		bsr	_wolfssl_log
+ 444:../src/wolfcrypt/src/logging.c ****         buffer += LINE_LEN;
+ 412                             		.loc 1 444 16
+ 413 0177 ED A5 14                		mov.L	80[r10], r5
+ 414 017a 71 55 10                		add	#16, r5
+ 415 017d E7 A5 14                		mov.L	r5, 80[r10]
+ 445:../src/wolfcrypt/src/logging.c ****         buflen -= LINE_LEN;
+ 416                             		.loc 1 445 16
+ 417 0180 ED A5 01                		mov.L	4[r10], r5
+ 418 0183 71 55 F0                		add	#-16, r5
+ 419 0186 E7 A5 01                		mov.L	r5, 4[r10]
+ 420                             	.L23:
+ 417:../src/wolfcrypt/src/logging.c ****         bufidx = 0;
+ 421                             		.loc 1 417 11
+ 422 0189 ED A5 01                		mov.L	4[r10], r5
+ 423 018c 61 05                   		cmp	#0, r5
+ 424 018e 2B 05 38 A8 FE          		bgt	.L33
+ 425 0193 2E 03                   		bra	.L19
+ 426                             	.L35:
+ 409:../src/wolfcrypt/src/logging.c ****     }
+ 427                             		.loc 1 409 9
+ 428 0195 03                      		nop
+ 429                             	.L19:
+ 446:../src/wolfcrypt/src/logging.c ****     }
+ 447:../src/wolfcrypt/src/logging.c **** }
+ 430                             		.loc 1 447 1
+ 431 0196 3F AA 19                		rtsd	#100, r10-r10
+ 432                             	.LFE11:
+ 434                             		.section C,"a",@progbits
+ 435                             		.p2align 2
+ 436                             	.LC6:
+ 437 0018 77 6F 6C 66 53 53 4C 20 		.string	"wolfSSL Entering %s"
+ 437      45 6E 74 65 72 69 6E 67 
+ 437      20 25 73 00 
+ 438                             		.section	.text.WOLFSSL_ENTER,"ax",@progbits
+ 439                             		.global	_WOLFSSL_ENTER
+ 441                             	_WOLFSSL_ENTER:
+ 442                             	.LFB12:
+ 448:../src/wolfcrypt/src/logging.c **** 
+ 449:../src/wolfcrypt/src/logging.c **** 
+ 450:../src/wolfcrypt/src/logging.c **** void WOLFSSL_ENTER(const char* msg)
+ 451:../src/wolfcrypt/src/logging.c **** {
+ 443                             		.loc 1 451 1
+ 444 0000 7E AA                   		push.l	r10
+ 445                             	.LCFI17:
+ 446 0002 71 0A AC                		add	#-84, r0, r10
+ 447                             	.LCFI18:
+ 448 0005 71 A0 F8                		add	#-8, r10, r0
+ 449                             	.LCFI19:
+ 450 0008 E7 A1 14                		mov.L	r1, 80[r10]
+ 452:../src/wolfcrypt/src/logging.c ****     if (loggingEnabled) {
+ 451                             		.loc 1 452 9
+ 452 000b FB 52 00 00 00 00       		mov.L	#_loggingEnabled, r5
+ 453 0011 EC 55                   		mov.L	[r5], r5
+ 454                             		.loc 1 452 8
+ 455 0013 61 05                   		cmp	#0, r5
+ 456 0015 20 1E                   		beq	.L38
+ 457                             	.LBB3:
+ 453:../src/wolfcrypt/src/logging.c ****         char buffer[WOLFSSL_MAX_ERROR_SZ];
+ 454:../src/wolfcrypt/src/logging.c ****         XSNPRINTF(buffer, sizeof(buffer), "wolfSSL Entering %s", msg);
+ 458                             		.loc 1 454 9
+ 459 0017 ED A5 14                		mov.L	80[r10], r5
+ 460 001a A0 0D                   		mov.L	r5, 4[r0]
+ 461 001c F8 02 18 00 00 00       		mov.L	#.LC6, [r0]
+ 462 0022 75 42 50                		mov.L	#0x50, r2
+ 463 0025 EF A1                   		mov.L	r10, r1
+ 464 0027 05 00 00 00             		bsr	_snprintf
+ 455:../src/wolfcrypt/src/logging.c ****         wolfssl_log(ENTER_LOG , buffer);
+ 465                             		.loc 1 455 9
+ 466 002b EF A2                   		mov.L	r10, r2
+ 467 002d 66 21                   		mov.L	#2, r1
+ 468 002f 05 00 00 00             		bsr	_wolfssl_log
+ 469                             	.L38:
+ 470                             	.LBE3:
+ 456:../src/wolfcrypt/src/logging.c ****     }
+ 457:../src/wolfcrypt/src/logging.c **** }
+ 471                             		.loc 1 457 1
+ 472 0033 03                      		nop
+ 473 0034 3F AA 18                		rtsd	#96, r10-r10
+ 474                             	.LFE12:
+ 476                             		.section C,"a",@progbits
+ 477                             		.p2align 2
+ 478                             	.LC7:
+ 479 002c 77 6F 6C 66 53 53 4C 20 		.string	"wolfSSL Leaving %s, return %d"
+ 479      4C 65 61 76 69 6E 67 20 
+ 479      25 73 2C 20 72 65 74 75 
+ 479      72 6E 20 25 64 00 
+ 480                             		.section	.text.WOLFSSL_LEAVE,"ax",@progbits
+ 481                             		.global	_WOLFSSL_LEAVE
+ 483                             	_WOLFSSL_LEAVE:
+ 484                             	.LFB13:
+ 458:../src/wolfcrypt/src/logging.c **** 
+ 459:../src/wolfcrypt/src/logging.c **** 
+ 460:../src/wolfcrypt/src/logging.c **** void WOLFSSL_LEAVE(const char* msg, int ret)
+ 461:../src/wolfcrypt/src/logging.c **** {
+ 485                             		.loc 1 461 1
+ 486 0000 7E AA                   		push.l	r10
+ 487                             	.LCFI20:
+ 488 0002 71 0A A8                		add	#-88, r0, r10
+ 489                             	.LCFI21:
+ 490 0005 71 A0 F4                		add	#-12, r10, r0
+ 491                             	.LCFI22:
+ 492 0008 E7 A1 14                		mov.L	r1, 80[r10]
+ 493 000b E7 A2 15                		mov.L	r2, 84[r10]
+ 462:../src/wolfcrypt/src/logging.c ****     if (loggingEnabled) {
+ 494                             		.loc 1 462 9
+ 495 000e FB 52 00 00 00 00       		mov.L	#_loggingEnabled, r5
+ 496 0014 EC 55                   		mov.L	[r5], r5
+ 497                             		.loc 1 462 8
+ 498 0016 61 05                   		cmp	#0, r5
+ 499 0018 20 23                   		beq	.L41
+ 500                             	.LBB4:
+ 463:../src/wolfcrypt/src/logging.c ****         char buffer[WOLFSSL_MAX_ERROR_SZ];
+ 464:../src/wolfcrypt/src/logging.c ****         XSNPRINTF(buffer, sizeof(buffer), "wolfSSL Leaving %s, return %d",
+ 501                             		.loc 1 464 9
+ 502 001a ED A5 15                		mov.L	84[r10], r5
+ 503 001d A0 85                   		mov.L	r5, 8[r0]
+ 504 001f ED A5 14                		mov.L	80[r10], r5
+ 505 0022 A0 0D                   		mov.L	r5, 4[r0]
+ 506 0024 F8 02 2C 00 00 00       		mov.L	#.LC7, [r0]
+ 507 002a 75 42 50                		mov.L	#0x50, r2
+ 508 002d EF A1                   		mov.L	r10, r1
+ 509 002f 05 00 00 00             		bsr	_snprintf
+ 465:../src/wolfcrypt/src/logging.c ****                 msg, ret);
+ 466:../src/wolfcrypt/src/logging.c ****         wolfssl_log(LEAVE_LOG , buffer);
+ 510                             		.loc 1 466 9
+ 511 0033 EF A2                   		mov.L	r10, r2
+ 512 0035 66 31                   		mov.L	#3, r1
+ 513 0037 05 00 00 00             		bsr	_wolfssl_log
+ 514                             	.L41:
+ 515                             	.LBE4:
+ 467:../src/wolfcrypt/src/logging.c ****     }
+ 468:../src/wolfcrypt/src/logging.c **** }
+ 516                             		.loc 1 468 1
+ 517 003b 03                      		nop
+ 518 003c 3F AA 1A                		rtsd	#104, r10-r10
+ 519                             	.LFE13:
+ 521                             		.section	.text.WOLFSSL_IS_DEBUG_ON,"ax",@progbits
+ 522                             		.global	_WOLFSSL_IS_DEBUG_ON
+ 524                             	_WOLFSSL_IS_DEBUG_ON:
+ 525                             	.LFB14:
+ 469:../src/wolfcrypt/src/logging.c **** 
+ 470:../src/wolfcrypt/src/logging.c **** WOLFSSL_API int WOLFSSL_IS_DEBUG_ON(void)
+ 471:../src/wolfcrypt/src/logging.c **** {
+ 526                             		.loc 1 471 1
+ 527 0000 7E AA                   		push.l	r10
+ 528                             	.LCFI23:
+ 529 0002 EF 0A                   		mov.L	r0, r10
+ 530                             	.LCFI24:
+ 472:../src/wolfcrypt/src/logging.c ****     return loggingEnabled;
+ 531                             		.loc 1 472 12
+ 532 0004 FB 52 00 00 00 00       		mov.L	#_loggingEnabled, r5
+ 533 000a EC 55                   		mov.L	[r5], r5
+ 473:../src/wolfcrypt/src/logging.c **** }
+ 534                             		.loc 1 473 1
+ 535 000c EF 51                   		mov.L	r5, r1
+ 536 000e 3F AA 01                		rtsd	#4, r10-r10
+ 537                             	.LFE14:
+ 539                             		.section C,"a",@progbits
+ 540 004a 00 00                   		.p2align 2
+ 541                             	.LC8:
+ 542 004c 77 6F 6C 66 53 53 4C 20 		.string	"wolfSSL error occurred, error = %d"
+ 542      65 72 72 6F 72 20 6F 63 
+ 542      63 75 72 72 65 64 2C 20 
+ 542      65 72 72 6F 72 20 3D 20 
+ 542      25 64 00 
+ 543 006f 00                      		.section	.text.WOLFSSL_ERROR,"ax",@progbits
+ 544                             		.global	_WOLFSSL_ERROR
+ 546                             	_WOLFSSL_ERROR:
+ 547                             	.LFB15:
+ 474:../src/wolfcrypt/src/logging.c **** #endif /* !WOLFSSL_DEBUG_ERRORS_ONLY */
+ 475:../src/wolfcrypt/src/logging.c **** #endif /* DEBUG_WOLFSSL */
+ 476:../src/wolfcrypt/src/logging.c **** 
+ 477:../src/wolfcrypt/src/logging.c **** /*
+ 478:../src/wolfcrypt/src/logging.c ****  * When using OPENSSL_EXTRA or DEBUG_WOLFSSL_VERBOSE macro then WOLFSSL_ERROR is
+ 479:../src/wolfcrypt/src/logging.c ****  * mapped to new function WOLFSSL_ERROR_LINE which gets the line # and function
+ 480:../src/wolfcrypt/src/logging.c ****  * name where WOLFSSL_ERROR is called at.
+ 481:../src/wolfcrypt/src/logging.c ****  */
+ 482:../src/wolfcrypt/src/logging.c **** #if defined(DEBUG_WOLFSSL) || defined(OPENSSL_ALL) || \
+ 483:../src/wolfcrypt/src/logging.c ****     defined(WOLFSSL_NGINX) || defined(WOLFSSL_HAPROXY) || \
+ 484:../src/wolfcrypt/src/logging.c ****     defined(OPENSSL_EXTRA)
+ 485:../src/wolfcrypt/src/logging.c **** 
+ 486:../src/wolfcrypt/src/logging.c **** #ifdef WOLFSSL_HAVE_ERROR_QUEUE
+ 487:../src/wolfcrypt/src/logging.c **** void WOLFSSL_ERROR_LINE(int error, const char* func, unsigned int line,
+ 488:../src/wolfcrypt/src/logging.c ****         const char* file, void* usrCtx)
+ 489:../src/wolfcrypt/src/logging.c **** #else
+ 490:../src/wolfcrypt/src/logging.c **** void WOLFSSL_ERROR(int error)
+ 491:../src/wolfcrypt/src/logging.c **** #endif
+ 492:../src/wolfcrypt/src/logging.c **** {
+ 548                             		.loc 1 492 1
+ 549 0000 7E AA                   		push.l	r10
+ 550                             	.LCFI25:
+ 551 0002 71 0A AC                		add	#-84, r0, r10
+ 552                             	.LCFI26:
+ 553 0005 71 A0 F8                		add	#-8, r10, r0
+ 554                             	.LCFI27:
+ 555 0008 E7 A1 14                		mov.L	r1, 80[r10]
+ 556                             	.LBB5:
+ 493:../src/wolfcrypt/src/logging.c **** #ifdef WOLFSSL_ASYNC_CRYPT
+ 494:../src/wolfcrypt/src/logging.c ****     if (error != WC_PENDING_E)
+ 495:../src/wolfcrypt/src/logging.c **** #endif
+ 496:../src/wolfcrypt/src/logging.c ****     {
+ 497:../src/wolfcrypt/src/logging.c ****         char buffer[WOLFSSL_MAX_ERROR_SZ];
+ 498:../src/wolfcrypt/src/logging.c **** 
+ 499:../src/wolfcrypt/src/logging.c ****     #ifdef WOLFSSL_HAVE_ERROR_QUEUE
+ 500:../src/wolfcrypt/src/logging.c ****         (void)usrCtx; /* a user ctx for future flexibility */
+ 501:../src/wolfcrypt/src/logging.c ****         (void)func;
+ 502:../src/wolfcrypt/src/logging.c **** 
+ 503:../src/wolfcrypt/src/logging.c ****         if (wc_LockMutex(&debug_mutex) != 0) {
+ 504:../src/wolfcrypt/src/logging.c ****             WOLFSSL_MSG("Lock debug mutex failed");
+ 505:../src/wolfcrypt/src/logging.c ****             XSNPRINTF(buffer, sizeof(buffer),
+ 506:../src/wolfcrypt/src/logging.c ****                     "wolfSSL error occurred, error = %d", error);
+ 507:../src/wolfcrypt/src/logging.c ****         }
+ 508:../src/wolfcrypt/src/logging.c ****         else {
+ 509:../src/wolfcrypt/src/logging.c ****             #if defined(OPENSSL_EXTRA) && !defined(WOLFCRYPT_ONLY)
+ 510:../src/wolfcrypt/src/logging.c ****             /* If running in compatibility mode do not add want read and
+ 511:../src/wolfcrypt/src/logging.c ****                want right to error queue */
+ 512:../src/wolfcrypt/src/logging.c ****             if (error != WANT_READ && error != WANT_WRITE) {
+ 513:../src/wolfcrypt/src/logging.c ****             #endif
+ 514:../src/wolfcrypt/src/logging.c ****             if (error < 0)
+ 515:../src/wolfcrypt/src/logging.c ****                 error = error - (2 * error); /* get absolute value */
+ 516:../src/wolfcrypt/src/logging.c ****             XSNPRINTF(buffer, sizeof(buffer),
+ 517:../src/wolfcrypt/src/logging.c ****                     "wolfSSL error occurred, error = %d line:%u file:%s",
+ 518:../src/wolfcrypt/src/logging.c ****                     error, line, file);
+ 519:../src/wolfcrypt/src/logging.c **** 
+ 520:../src/wolfcrypt/src/logging.c ****             if (wc_AddErrorNode(error, line, buffer, (char*)file) != 0) {
+ 521:../src/wolfcrypt/src/logging.c ****                 WOLFSSL_MSG("Error creating logging node");
+ 522:../src/wolfcrypt/src/logging.c ****                 /* with void function there is no return here, continue on
+ 523:../src/wolfcrypt/src/logging.c ****                  * to unlock mutex and log what buffer was created. */
+ 524:../src/wolfcrypt/src/logging.c ****             }
+ 525:../src/wolfcrypt/src/logging.c ****             #if defined(OPENSSL_EXTRA) && !defined(WOLFCRYPT_ONLY)
+ 526:../src/wolfcrypt/src/logging.c ****             }
+ 527:../src/wolfcrypt/src/logging.c ****             else {
+ 528:../src/wolfcrypt/src/logging.c ****                 XSNPRINTF(buffer, sizeof(buffer),
+ 529:../src/wolfcrypt/src/logging.c ****                     "wolfSSL error occurred, error = %d", error);
+ 530:../src/wolfcrypt/src/logging.c ****             }
+ 531:../src/wolfcrypt/src/logging.c ****             #endif
+ 532:../src/wolfcrypt/src/logging.c **** 
+ 533:../src/wolfcrypt/src/logging.c ****             wc_UnLockMutex(&debug_mutex);
+ 534:../src/wolfcrypt/src/logging.c ****         }
+ 535:../src/wolfcrypt/src/logging.c ****     #else
+ 536:../src/wolfcrypt/src/logging.c ****         XSNPRINTF(buffer, sizeof(buffer),
+ 557                             		.loc 1 536 9
+ 558 000b ED A5 14                		mov.L	80[r10], r5
+ 559 000e A0 0D                   		mov.L	r5, 4[r0]
+ 560 0010 F8 02 4C 00 00 00       		mov.L	#.LC8, [r0]
+ 561 0016 75 42 50                		mov.L	#0x50, r2
+ 562 0019 EF A1                   		mov.L	r10, r1
+ 563 001b 05 00 00 00             		bsr	_snprintf
+ 537:../src/wolfcrypt/src/logging.c ****                 "wolfSSL error occurred, error = %d", error);
+ 538:../src/wolfcrypt/src/logging.c ****     #endif
+ 539:../src/wolfcrypt/src/logging.c **** 
+ 540:../src/wolfcrypt/src/logging.c ****     #ifdef DEBUG_WOLFSSL
+ 541:../src/wolfcrypt/src/logging.c ****         if (loggingEnabled)
+ 564                             		.loc 1 541 13
+ 565 001f FB 52 00 00 00 00       		mov.L	#_loggingEnabled, r5
+ 566 0025 EC 55                   		mov.L	[r5], r5
+ 567                             		.loc 1 541 12
+ 568 0027 61 05                   		cmp	#0, r5
+ 569 0029 11                      		beq	.L46
+ 542:../src/wolfcrypt/src/logging.c ****             wolfssl_log(ERROR_LOG , buffer);
+ 570                             		.loc 1 542 13
+ 571 002a EF A2                   		mov.L	r10, r2
+ 572 002c 66 01                   		mov.L	#0, r1
+ 573 002e 05 00 00 00             		bsr	_wolfssl_log
+ 574                             	.L46:
+ 575                             	.LBE5:
+ 543:../src/wolfcrypt/src/logging.c ****     #endif
+ 544:../src/wolfcrypt/src/logging.c ****     }
+ 545:../src/wolfcrypt/src/logging.c **** }
+ 576                             		.loc 1 545 1
+ 577 0032 03                      		nop
+ 578 0033 3F AA 18                		rtsd	#96, r10-r10
+ 579                             	.LFE15:
+ 581                             		.section	.text.WOLFSSL_ERROR_MSG,"ax",@progbits
+ 582                             		.global	_WOLFSSL_ERROR_MSG
+ 584                             	_WOLFSSL_ERROR_MSG:
+ 585                             	.LFB16:
+ 546:../src/wolfcrypt/src/logging.c **** 
+ 547:../src/wolfcrypt/src/logging.c **** void WOLFSSL_ERROR_MSG(const char* msg)
+ 548:../src/wolfcrypt/src/logging.c **** {
+ 586                             		.loc 1 548 1
+ 587 0000 7E AA                   		push.l	r10
+ 588                             	.LCFI28:
+ 589 0002 71 0A FC                		add	#-4, r0, r10
+ 590                             	.LCFI29:
+ 591 0005 EF A0                   		mov.L	r10, r0
+ 592 0007 E3 A1                   		mov.L	r1, [r10]
+ 549:../src/wolfcrypt/src/logging.c **** #ifdef DEBUG_WOLFSSL
+ 550:../src/wolfcrypt/src/logging.c ****     if (loggingEnabled)
+ 593                             		.loc 1 550 9
+ 594 0009 FB 52 00 00 00 00       		mov.L	#_loggingEnabled, r5
+ 595 000f EC 55                   		mov.L	[r5], r5
+ 596                             		.loc 1 550 8
+ 597 0011 61 05                   		cmp	#0, r5
+ 598 0013 11                      		beq	.L49
+ 551:../src/wolfcrypt/src/logging.c ****         wolfssl_log(ERROR_LOG , msg);
+ 599                             		.loc 1 551 9
+ 600 0014 EC A2                   		mov.L	[r10], r2
+ 601 0016 66 01                   		mov.L	#0, r1
+ 602 0018 05 00 00 00             		bsr	_wolfssl_log
+ 603                             	.L49:
+ 552:../src/wolfcrypt/src/logging.c **** #else
+ 553:../src/wolfcrypt/src/logging.c ****     (void)msg;
+ 554:../src/wolfcrypt/src/logging.c **** #endif
+ 555:../src/wolfcrypt/src/logging.c **** }
+ 604                             		.loc 1 555 1
+ 605 001c 03                      		nop
+ 606 001d 3F AA 02                		rtsd	#8, r10-r10
+ 607                             	.LFE16:
+ 890                             	.Letext0:
+ 891                             		.file 2 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 892                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 893                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 894                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 895                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 896                             		.file 7 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/types.h"
+ 897                             		.file 8 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 898                             		.file 9 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 899                             		.file 10 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/logging.h"
+ 900                             		.file 11 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx
+ 901                             		.file 12 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\incl

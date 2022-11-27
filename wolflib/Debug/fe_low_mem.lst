@@ -1,0 +1,2828 @@
+   1                             		.file	"fe_low_mem.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.rodata.c25519_base_x,"a"
+   7                             	_c25519_base_x:
+   8 0000 09                      		.byte	9
+   9 0001 00 00 00 00 00 00 00 00 		.zero	31
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 
+  10                             		.section	.rodata.f25519_zero,"a"
+  13                             	_f25519_zero:
+  14 0000 00 00 00 00 00 00 00 00 		.zero	32
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  15                             		.section	.rodata.f25519_one,"a"
+  18                             	_f25519_one:
+  19 0000 01                      		.byte	1
+  20 0001 00 00 00 00 00 00 00 00 		.zero	31
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 
+  21                             		.section	.rodata.fprime_zero,"a"
+  24                             	_fprime_zero:
+  25 0000 00 00 00 00 00 00 00 00 		.zero	32
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  26                             		.section	.rodata.fprime_one,"a"
+  29                             	_fprime_one:
+  30 0000 01                      		.byte	1
+  31 0001 00 00 00 00 00 00 00 00 		.zero	31
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 
+  32                             		.section	.text.fprime_copy,"ax",@progbits
+  33                             		.global	_fprime_copy
+  35                             	_fprime_copy:
+  36                             	.LFB43:
+  37                             		.file 1 "../src/wolfcrypt/src/fe_low_mem.c"
+   1:../src/wolfcrypt/src/fe_low_mem.c **** /* fe_low_mem.c
+   2:../src/wolfcrypt/src/fe_low_mem.c ****  *
+   3:../src/wolfcrypt/src/fe_low_mem.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/wolfcrypt/src/fe_low_mem.c ****  *
+   5:../src/wolfcrypt/src/fe_low_mem.c ****  * This file is part of wolfSSL.
+   6:../src/wolfcrypt/src/fe_low_mem.c ****  *
+   7:../src/wolfcrypt/src/fe_low_mem.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/wolfcrypt/src/fe_low_mem.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/wolfcrypt/src/fe_low_mem.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/wolfcrypt/src/fe_low_mem.c ****  * (at your option) any later version.
+  11:../src/wolfcrypt/src/fe_low_mem.c ****  *
+  12:../src/wolfcrypt/src/fe_low_mem.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/wolfcrypt/src/fe_low_mem.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/wolfcrypt/src/fe_low_mem.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/wolfcrypt/src/fe_low_mem.c ****  * GNU General Public License for more details.
+  16:../src/wolfcrypt/src/fe_low_mem.c ****  *
+  17:../src/wolfcrypt/src/fe_low_mem.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/wolfcrypt/src/fe_low_mem.c ****  * along with this program; if not, write to the Free Software
+  19:../src/wolfcrypt/src/fe_low_mem.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/wolfcrypt/src/fe_low_mem.c ****  */
+  21:../src/wolfcrypt/src/fe_low_mem.c **** 
+  22:../src/wolfcrypt/src/fe_low_mem.c **** 
+  23:../src/wolfcrypt/src/fe_low_mem.c **** /* Based from Daniel Beer's public domain work. */
+  24:../src/wolfcrypt/src/fe_low_mem.c **** 
+  25:../src/wolfcrypt/src/fe_low_mem.c **** #ifdef HAVE_CONFIG_H
+  26:../src/wolfcrypt/src/fe_low_mem.c ****     #include <config.h>
+  27:../src/wolfcrypt/src/fe_low_mem.c **** #endif
+  28:../src/wolfcrypt/src/fe_low_mem.c **** 
+  29:../src/wolfcrypt/src/fe_low_mem.c **** #include <wolfssl/wolfcrypt/settings.h>
+  30:../src/wolfcrypt/src/fe_low_mem.c **** 
+  31:../src/wolfcrypt/src/fe_low_mem.c **** #if defined(HAVE_CURVE25519) || defined(HAVE_ED25519)
+  32:../src/wolfcrypt/src/fe_low_mem.c **** #if defined(CURVE25519_SMALL) || defined(ED25519_SMALL) /* use slower code that takes less memory *
+  33:../src/wolfcrypt/src/fe_low_mem.c **** 
+  34:../src/wolfcrypt/src/fe_low_mem.c **** #include <wolfssl/wolfcrypt/fe_operations.h>
+  35:../src/wolfcrypt/src/fe_low_mem.c **** 
+  36:../src/wolfcrypt/src/fe_low_mem.c **** #ifdef NO_INLINE
+  37:../src/wolfcrypt/src/fe_low_mem.c ****     #include <wolfssl/wolfcrypt/misc.h>
+  38:../src/wolfcrypt/src/fe_low_mem.c **** #else
+  39:../src/wolfcrypt/src/fe_low_mem.c ****     #define WOLFSSL_MISC_INCLUDED
+  40:../src/wolfcrypt/src/fe_low_mem.c ****     #include <wolfcrypt/src/misc.c>
+  41:../src/wolfcrypt/src/fe_low_mem.c **** #endif
+  42:../src/wolfcrypt/src/fe_low_mem.c **** 
+  43:../src/wolfcrypt/src/fe_low_mem.c **** void fprime_copy(byte *x, const byte *a)
+  44:../src/wolfcrypt/src/fe_low_mem.c **** {
+  38                             		.loc 1 44 1
+  39 0000 7E AA                   		push.l	r10
+  40                             	.LCFI0:
+  41 0002 71 0A F4                		add	#-12, r0, r10
+  42                             	.LCFI1:
+  43 0005 EF A0                   		mov.L	r10, r0
+  44 0007 E7 A1 01                		mov.L	r1, 4[r10]
+  45 000a E7 A2 02                		mov.L	r2, 8[r10]
+  45:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+  46:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++)
+  46                             		.loc 1 46 12
+  47 000d F8 A6 00                		mov.L	#0, [r10]
+  48                             		.loc 1 46 5
+  49 0010 2E 1A                   		bra	.L2
+  50                             	.L3:
+  47:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = a[i];
+  51                             		.loc 1 47 17 discriminator 3
+  52 0012 EC A5                   		mov.L	[r10], r5
+  53 0014 ED A4 02                		mov.L	8[r10], r4
+  54 0017 4B 54                   		add	r5, r4
+  55                             		.loc 1 47 10 discriminator 3
+  56 0019 EC A5                   		mov.L	[r10], r5
+  57 001b ED A3 01                		mov.L	4[r10], r3
+  58 001e 4B 35                   		add	r3, r5
+  59                             		.loc 1 47 17 discriminator 3
+  60 0020 CC 44                   		mov.B	[r4], r4
+  61                             		.loc 1 47 14 discriminator 3
+  62 0022 C3 54                   		mov.B	r4, [r5]
+  46:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = a[i];
+  63                             		.loc 1 46 35 discriminator 3
+  64 0024 EC A5                   		mov.L	[r10], r5
+  65 0026 62 15                   		add	#1, r5
+  66 0028 E3 A5                   		mov.L	r5, [r10]
+  67                             	.L2:
+  46:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = a[i];
+  68                             		.loc 1 46 5 discriminator 1
+  69 002a EC A5                   		mov.L	[r10], r5
+  70 002c 75 55 1F                		cmp	#31, r5
+  71 002f 2B E3                   		ble	.L3
+  48:../src/wolfcrypt/src/fe_low_mem.c **** }
+  72                             		.loc 1 48 1
+  73 0031 03                      		nop
+  74 0032 3F AA 04                		rtsd	#16, r10-r10
+  75                             	.LFE43:
+  77                             		.section	.text.lm_copy,"ax",@progbits
+  78                             		.global	_lm_copy
+  80                             	_lm_copy:
+  81                             	.LFB44:
+  49:../src/wolfcrypt/src/fe_low_mem.c **** 
+  50:../src/wolfcrypt/src/fe_low_mem.c **** 
+  51:../src/wolfcrypt/src/fe_low_mem.c **** void lm_copy(byte* x, const byte* a)
+  52:../src/wolfcrypt/src/fe_low_mem.c **** {
+  82                             		.loc 1 52 1
+  83 0000 7E AA                   		push.l	r10
+  84                             	.LCFI2:
+  85 0002 71 0A F4                		add	#-12, r0, r10
+  86                             	.LCFI3:
+  87 0005 EF A0                   		mov.L	r10, r0
+  88 0007 E7 A1 01                		mov.L	r1, 4[r10]
+  89 000a E7 A2 02                		mov.L	r2, 8[r10]
+  53:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+  54:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++)
+  90                             		.loc 1 54 12
+  91 000d F8 A6 00                		mov.L	#0, [r10]
+  92                             		.loc 1 54 5
+  93 0010 2E 1A                   		bra	.L5
+  94                             	.L6:
+  55:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = a[i];
+  95                             		.loc 1 55 17 discriminator 3
+  96 0012 EC A5                   		mov.L	[r10], r5
+  97 0014 ED A4 02                		mov.L	8[r10], r4
+  98 0017 4B 54                   		add	r5, r4
+  99                             		.loc 1 55 10 discriminator 3
+ 100 0019 EC A5                   		mov.L	[r10], r5
+ 101 001b ED A3 01                		mov.L	4[r10], r3
+ 102 001e 4B 35                   		add	r3, r5
+ 103                             		.loc 1 55 17 discriminator 3
+ 104 0020 CC 44                   		mov.B	[r4], r4
+ 105                             		.loc 1 55 14 discriminator 3
+ 106 0022 C3 54                   		mov.B	r4, [r5]
+  54:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = a[i];
+ 107                             		.loc 1 54 35 discriminator 3
+ 108 0024 EC A5                   		mov.L	[r10], r5
+ 109 0026 62 15                   		add	#1, r5
+ 110 0028 E3 A5                   		mov.L	r5, [r10]
+ 111                             	.L5:
+  54:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = a[i];
+ 112                             		.loc 1 54 5 discriminator 1
+ 113 002a EC A5                   		mov.L	[r10], r5
+ 114 002c 75 55 1F                		cmp	#31, r5
+ 115 002f 2B E3                   		ble	.L6
+  56:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 116                             		.loc 1 56 1
+ 117 0031 03                      		nop
+ 118 0032 3F AA 04                		rtsd	#16, r10-r10
+ 119                             	.LFE44:
+ 121                             		.section	.text.xc_double,"ax",@progbits
+ 123                             	_xc_double:
+ 124                             	.LFB45:
+  57:../src/wolfcrypt/src/fe_low_mem.c **** 
+  58:../src/wolfcrypt/src/fe_low_mem.c **** #if ((defined(HAVE_CURVE25519) && !defined(CURVE25519_SMALL)) || \
+  59:../src/wolfcrypt/src/fe_low_mem.c ****     (defined(HAVE_ED25519) && !defined(ED25519_SMALL))) &&      \
+  60:../src/wolfcrypt/src/fe_low_mem.c ****     !defined(FREESCALE_LTC_ECC)
+  61:../src/wolfcrypt/src/fe_low_mem.c ****     /* to be Complementary to fe_low_mem.c */
+  62:../src/wolfcrypt/src/fe_low_mem.c **** #else
+  63:../src/wolfcrypt/src/fe_low_mem.c **** void fe_init(void)
+  64:../src/wolfcrypt/src/fe_low_mem.c **** {
+  65:../src/wolfcrypt/src/fe_low_mem.c **** }
+  66:../src/wolfcrypt/src/fe_low_mem.c **** #endif
+  67:../src/wolfcrypt/src/fe_low_mem.c **** 
+  68:../src/wolfcrypt/src/fe_low_mem.c **** #ifdef CURVE25519_SMALL
+  69:../src/wolfcrypt/src/fe_low_mem.c **** 
+  70:../src/wolfcrypt/src/fe_low_mem.c **** /* Double an X-coordinate */
+  71:../src/wolfcrypt/src/fe_low_mem.c **** static void xc_double(byte *x3, byte *z3,
+  72:../src/wolfcrypt/src/fe_low_mem.c ****                       const byte *x1, const byte *z1)
+  73:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 125                             		.loc 1 73 1
+ 126 0000 7E AA                   		push.l	r10
+ 127                             	.LCFI4:
+ 128 0002 72 0A 70 FF             		add	#-144, r0, r10
+ 129                             	.LCFI5:
+ 130 0006 EF A0                   		mov.L	r10, r0
+ 131 0008 E7 A1 20                		mov.L	r1, 128[r10]
+ 132 000b E7 A2 21                		mov.L	r2, 132[r10]
+ 133 000e E7 A3 22                		mov.L	r3, 136[r10]
+ 134 0011 E7 A4 23                		mov.L	r4, 140[r10]
+  74:../src/wolfcrypt/src/fe_low_mem.c ****     /* Explicit formulas database: dbl-1987-m
+  75:../src/wolfcrypt/src/fe_low_mem.c ****      *
+  76:../src/wolfcrypt/src/fe_low_mem.c ****      * source 1987 Montgomery "Speeding the Pollard and elliptic
+  77:../src/wolfcrypt/src/fe_low_mem.c ****      *   curve methods of factorization", page 261, fourth display
+  78:../src/wolfcrypt/src/fe_low_mem.c ****      * compute X3 = (X1^2-Z1^2)^2
+  79:../src/wolfcrypt/src/fe_low_mem.c ****      * compute Z3 = 4 X1 Z1 (X1^2 + a X1 Z1 + Z1^2)
+  80:../src/wolfcrypt/src/fe_low_mem.c ****      */
+  81:../src/wolfcrypt/src/fe_low_mem.c ****     byte x1sq[F25519_SIZE];
+  82:../src/wolfcrypt/src/fe_low_mem.c ****     byte z1sq[F25519_SIZE];
+  83:../src/wolfcrypt/src/fe_low_mem.c ****     byte x1z1[F25519_SIZE];
+  84:../src/wolfcrypt/src/fe_low_mem.c ****     byte a[F25519_SIZE];
+  85:../src/wolfcrypt/src/fe_low_mem.c **** 
+  86:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(x1sq, x1, x1);
+ 135                             		.loc 1 86 5
+ 136 0014 ED A3 22                		mov.L	136[r10], r3
+ 137 0017 ED A2 22                		mov.L	136[r10], r2
+ 138 001a EF A1                   		mov.L	r10, r1
+ 139 001c 05 00 00 00             		bsr	_fe_mul__distinct
+  87:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(z1sq, z1, z1);
+ 140                             		.loc 1 87 5
+ 141 0020 71 A5 20                		add	#32, r10, r5
+ 142 0023 ED A3 23                		mov.L	140[r10], r3
+ 143 0026 ED A2 23                		mov.L	140[r10], r2
+ 144 0029 EF 51                   		mov.L	r5, r1
+ 145 002b 05 00 00 00             		bsr	_fe_mul__distinct
+  88:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(x1z1, x1, z1);
+ 146                             		.loc 1 88 5
+ 147 002f 71 A5 40                		add	#0x40, r10, r5
+ 148 0032 ED A3 23                		mov.L	140[r10], r3
+ 149 0035 ED A2 22                		mov.L	136[r10], r2
+ 150 0038 EF 51                   		mov.L	r5, r1
+ 151 003a 05 00 00 00             		bsr	_fe_mul__distinct
+  89:../src/wolfcrypt/src/fe_low_mem.c **** 
+  90:../src/wolfcrypt/src/fe_low_mem.c ****     lm_sub(a, x1sq, z1sq);
+ 152                             		.loc 1 90 5
+ 153 003e 71 A4 20                		add	#32, r10, r4
+ 154 0041 71 A5 60                		add	#0x60, r10, r5
+ 155 0044 EF 43                   		mov.L	r4, r3
+ 156 0046 EF A2                   		mov.L	r10, r2
+ 157 0048 EF 51                   		mov.L	r5, r1
+ 158 004a 05 00 00 00             		bsr	_lm_sub
+  91:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(x3, a, a);
+ 159                             		.loc 1 91 5
+ 160 004e 71 A4 60                		add	#0x60, r10, r4
+ 161 0051 71 A5 60                		add	#0x60, r10, r5
+ 162 0054 EF 43                   		mov.L	r4, r3
+ 163 0056 EF 52                   		mov.L	r5, r2
+ 164 0058 ED A1 20                		mov.L	128[r10], r1
+ 165 005b 05 00 00 00             		bsr	_fe_mul__distinct
+  92:../src/wolfcrypt/src/fe_low_mem.c **** 
+  93:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul_c(a, x1z1, 486662);
+ 166                             		.loc 1 93 5
+ 167 005f 71 A4 40                		add	#0x40, r10, r4
+ 168 0062 71 A5 60                		add	#0x60, r10, r5
+ 169 0065 FB 3E 06 6D 07          		mov.L	#0x76d06, r3
+ 170 006a EF 42                   		mov.L	r4, r2
+ 171 006c EF 51                   		mov.L	r5, r1
+ 172 006e 05 00 00 00             		bsr	_fe_mul_c
+  94:../src/wolfcrypt/src/fe_low_mem.c ****     lm_add(a, x1sq, a);
+ 173                             		.loc 1 94 5
+ 174 0072 71 A4 60                		add	#0x60, r10, r4
+ 175 0075 71 A5 60                		add	#0x60, r10, r5
+ 176 0078 EF 43                   		mov.L	r4, r3
+ 177 007a EF A2                   		mov.L	r10, r2
+ 178 007c EF 51                   		mov.L	r5, r1
+ 179 007e 05 00 00 00             		bsr	_lm_add
+  95:../src/wolfcrypt/src/fe_low_mem.c ****     lm_add(a, z1sq, a);
+ 180                             		.loc 1 95 5
+ 181 0082 71 A3 60                		add	#0x60, r10, r3
+ 182 0085 71 A4 20                		add	#32, r10, r4
+ 183 0088 71 A5 60                		add	#0x60, r10, r5
+ 184 008b EF 42                   		mov.L	r4, r2
+ 185 008d EF 51                   		mov.L	r5, r1
+ 186 008f 05 00 00 00             		bsr	_lm_add
+  96:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(x1sq, x1z1, a);
+ 187                             		.loc 1 96 5
+ 188 0093 71 A4 60                		add	#0x60, r10, r4
+ 189 0096 71 A5 40                		add	#0x40, r10, r5
+ 190 0099 EF 43                   		mov.L	r4, r3
+ 191 009b EF 52                   		mov.L	r5, r2
+ 192 009d EF A1                   		mov.L	r10, r1
+ 193 009f 05 00 00 00             		bsr	_fe_mul__distinct
+  97:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul_c(z3, x1sq, 4);
+ 194                             		.loc 1 97 5
+ 195 00a3 66 43                   		mov.L	#4, r3
+ 196 00a5 EF A2                   		mov.L	r10, r2
+ 197 00a7 ED A1 21                		mov.L	132[r10], r1
+ 198 00aa 05 00 00 00             		bsr	_fe_mul_c
+  98:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 199                             		.loc 1 98 1
+ 200 00ae 03                      		nop
+ 201 00af 3F AA 25                		rtsd	#148, r10-r10
+ 202                             	.LFE45:
+ 204                             		.section	.text.xc_diffadd,"ax",@progbits
+ 206                             	_xc_diffadd:
+ 207                             	.LFB46:
+  99:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 100:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 101:../src/wolfcrypt/src/fe_low_mem.c **** /* Differential addition */
+ 102:../src/wolfcrypt/src/fe_low_mem.c **** static void xc_diffadd(byte *x5, byte *z5,
+ 103:../src/wolfcrypt/src/fe_low_mem.c ****                        const byte *x1, const byte *z1,
+ 104:../src/wolfcrypt/src/fe_low_mem.c ****                        const byte *x2, const byte *z2,
+ 105:../src/wolfcrypt/src/fe_low_mem.c ****                        const byte *x3, const byte *z3)
+ 106:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 208                             		.loc 1 106 1
+ 209 0000 7E AA                   		push.l	r10
+ 210                             	.LCFI6:
+ 211 0002 7E A6                   		push.l	r6
+ 212                             	.LCFI7:
+ 213 0004 72 0A 60 FF             		add	#-160, r0, r10
+ 214                             	.LCFI8:
+ 215 0008 EF A0                   		mov.L	r10, r0
+ 216 000a 75 46 AC                		mov.L	#0xac, r6
+ 217 000d 4B A6                   		add	r10, r6
+ 218 000f E7 A1 20                		mov.L	r1, 128[r10]
+ 219 0012 E7 A2 21                		mov.L	r2, 132[r10]
+ 220 0015 E7 A3 22                		mov.L	r3, 136[r10]
+ 221 0018 E7 A4 23                		mov.L	r4, 140[r10]
+ 107:../src/wolfcrypt/src/fe_low_mem.c ****     /* Explicit formulas database: dbl-1987-m3
+ 108:../src/wolfcrypt/src/fe_low_mem.c ****      *
+ 109:../src/wolfcrypt/src/fe_low_mem.c ****      * source 1987 Montgomery "Speeding the Pollard and elliptic curve
+ 110:../src/wolfcrypt/src/fe_low_mem.c ****      *   methods of factorization", page 261, fifth display, plus
+ 111:../src/wolfcrypt/src/fe_low_mem.c ****      *   common-subexpression elimination
+ 112:../src/wolfcrypt/src/fe_low_mem.c ****      * compute A = X2+Z2
+ 113:../src/wolfcrypt/src/fe_low_mem.c ****      * compute B = X2-Z2
+ 114:../src/wolfcrypt/src/fe_low_mem.c ****      * compute C = X3+Z3
+ 115:../src/wolfcrypt/src/fe_low_mem.c ****      * compute D = X3-Z3
+ 116:../src/wolfcrypt/src/fe_low_mem.c ****      * compute DA = D A
+ 117:../src/wolfcrypt/src/fe_low_mem.c ****      * compute CB = C B
+ 118:../src/wolfcrypt/src/fe_low_mem.c ****      * compute X5 = Z1(DA+CB)^2
+ 119:../src/wolfcrypt/src/fe_low_mem.c ****      * compute Z5 = X1(DA-CB)^2
+ 120:../src/wolfcrypt/src/fe_low_mem.c ****      */
+ 121:../src/wolfcrypt/src/fe_low_mem.c ****     byte da[F25519_SIZE];
+ 122:../src/wolfcrypt/src/fe_low_mem.c ****     byte cb[F25519_SIZE];
+ 123:../src/wolfcrypt/src/fe_low_mem.c ****     byte a[F25519_SIZE];
+ 124:../src/wolfcrypt/src/fe_low_mem.c ****     byte b[F25519_SIZE];
+ 125:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 126:../src/wolfcrypt/src/fe_low_mem.c ****     lm_add(a, x2, z2);
+ 222                             		.loc 1 126 5
+ 223 001b 71 A5 40                		add	#0x40, r10, r5
+ 224 001e A8 6B                   		mov.L	4[r6], r3
+ 225 0020 EC 62                   		mov.L	[r6], r2
+ 226 0022 EF 51                   		mov.L	r5, r1
+ 227 0024 05 00 00 00             		bsr	_lm_add
+ 127:../src/wolfcrypt/src/fe_low_mem.c ****     lm_sub(b, x3, z3); /* D */
+ 228                             		.loc 1 127 5
+ 229 0028 71 A5 60                		add	#0x60, r10, r5
+ 230 002b A8 EB                   		mov.L	12[r6], r3
+ 231 002d A8 E2                   		mov.L	8[r6], r2
+ 232 002f EF 51                   		mov.L	r5, r1
+ 233 0031 05 00 00 00             		bsr	_lm_sub
+ 128:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(da, a, b);
+ 234                             		.loc 1 128 5
+ 235 0035 71 A4 60                		add	#0x60, r10, r4
+ 236 0038 71 A5 40                		add	#0x40, r10, r5
+ 237 003b EF 43                   		mov.L	r4, r3
+ 238 003d EF 52                   		mov.L	r5, r2
+ 239 003f EF A1                   		mov.L	r10, r1
+ 240 0041 05 00 00 00             		bsr	_fe_mul__distinct
+ 129:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 130:../src/wolfcrypt/src/fe_low_mem.c ****     lm_sub(b, x2, z2);
+ 241                             		.loc 1 130 5
+ 242 0045 71 A5 60                		add	#0x60, r10, r5
+ 243 0048 A8 6B                   		mov.L	4[r6], r3
+ 244 004a EC 62                   		mov.L	[r6], r2
+ 245 004c EF 51                   		mov.L	r5, r1
+ 246 004e 05 00 00 00             		bsr	_lm_sub
+ 131:../src/wolfcrypt/src/fe_low_mem.c ****     lm_add(a, x3, z3); /* C */
+ 247                             		.loc 1 131 5
+ 248 0052 71 A5 40                		add	#0x40, r10, r5
+ 249 0055 A8 EB                   		mov.L	12[r6], r3
+ 250 0057 A8 E2                   		mov.L	8[r6], r2
+ 251 0059 EF 51                   		mov.L	r5, r1
+ 252 005b 05 00 00 00             		bsr	_lm_add
+ 132:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(cb, a, b);
+ 253                             		.loc 1 132 5
+ 254 005f 71 A3 60                		add	#0x60, r10, r3
+ 255 0062 71 A4 40                		add	#0x40, r10, r4
+ 256 0065 71 A5 20                		add	#32, r10, r5
+ 257 0068 EF 42                   		mov.L	r4, r2
+ 258 006a EF 51                   		mov.L	r5, r1
+ 259 006c 05 00 00 00             		bsr	_fe_mul__distinct
+ 133:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 134:../src/wolfcrypt/src/fe_low_mem.c ****     lm_add(a, da, cb);
+ 260                             		.loc 1 134 5
+ 261 0070 71 A4 20                		add	#32, r10, r4
+ 262 0073 71 A5 40                		add	#0x40, r10, r5
+ 263 0076 EF 43                   		mov.L	r4, r3
+ 264 0078 EF A2                   		mov.L	r10, r2
+ 265 007a EF 51                   		mov.L	r5, r1
+ 266 007c 05 00 00 00             		bsr	_lm_add
+ 135:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(b, a, a);
+ 267                             		.loc 1 135 5
+ 268 0080 71 A3 40                		add	#0x40, r10, r3
+ 269 0083 71 A4 40                		add	#0x40, r10, r4
+ 270 0086 71 A5 60                		add	#0x60, r10, r5
+ 271 0089 EF 42                   		mov.L	r4, r2
+ 272 008b EF 51                   		mov.L	r5, r1
+ 273 008d 05 00 00 00             		bsr	_fe_mul__distinct
+ 136:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(x5, z1, b);
+ 274                             		.loc 1 136 5
+ 275 0091 71 A5 60                		add	#0x60, r10, r5
+ 276 0094 EF 53                   		mov.L	r5, r3
+ 277 0096 ED A2 23                		mov.L	140[r10], r2
+ 278 0099 ED A1 20                		mov.L	128[r10], r1
+ 279 009c 05 00 00 00             		bsr	_fe_mul__distinct
+ 137:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 138:../src/wolfcrypt/src/fe_low_mem.c ****     lm_sub(a, da, cb);
+ 280                             		.loc 1 138 5
+ 281 00a0 71 A4 20                		add	#32, r10, r4
+ 282 00a3 71 A5 40                		add	#0x40, r10, r5
+ 283 00a6 EF 43                   		mov.L	r4, r3
+ 284 00a8 EF A2                   		mov.L	r10, r2
+ 285 00aa EF 51                   		mov.L	r5, r1
+ 286 00ac 05 00 00 00             		bsr	_lm_sub
+ 139:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(b, a, a);
+ 287                             		.loc 1 139 5
+ 288 00b0 71 A3 40                		add	#0x40, r10, r3
+ 289 00b3 71 A4 40                		add	#0x40, r10, r4
+ 290 00b6 71 A5 60                		add	#0x60, r10, r5
+ 291 00b9 EF 42                   		mov.L	r4, r2
+ 292 00bb EF 51                   		mov.L	r5, r1
+ 293 00bd 05 00 00 00             		bsr	_fe_mul__distinct
+ 140:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(z5, x1, b);
+ 294                             		.loc 1 140 5
+ 295 00c1 71 A5 60                		add	#0x60, r10, r5
+ 296 00c4 EF 53                   		mov.L	r5, r3
+ 297 00c6 ED A2 22                		mov.L	136[r10], r2
+ 298 00c9 ED A1 21                		mov.L	132[r10], r1
+ 299 00cc 05 00 00 00             		bsr	_fe_mul__distinct
+ 141:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 300                             		.loc 1 141 1
+ 301 00d0 03                      		nop
+ 302 00d1 72 00 A0 00             		add	#0xa0, r0
+ 303 00d5 7E B6                   		pop	r6
+ 304 00d7 7E BA                   		pop	r10
+ 305 00d9 02                      		rts
+ 306                             	.LFE46:
+ 308                             		.section	.text.curve25519,"ax",@progbits
+ 309                             		.global	_curve25519
+ 311                             	_curve25519:
+ 312                             	.LFB47:
+ 142:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 143:../src/wolfcrypt/src/fe_low_mem.c **** #ifndef FREESCALE_LTC_ECC
+ 144:../src/wolfcrypt/src/fe_low_mem.c **** int curve25519(byte *result, const byte *n, const byte *p)
+ 145:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 313                             		.loc 1 145 1
+ 314 0000 6E 7A                   		pushm	r7-r10
+ 315                             	.LCFI9:
+ 316 0002 72 0A 2C FF             		add	#-212, r0, r10
+ 317                             	.LCFI10:
+ 318 0006 71 A0 F0                		add	#-16, r10, r0
+ 319                             	.LCFI11:
+ 320 0009 E7 A1 32                		mov.L	r1, 200[r10]
+ 321 000c E7 A2 33                		mov.L	r2, 204[r10]
+ 322 000f E7 A3 34                		mov.L	r3, 208[r10]
+ 146:../src/wolfcrypt/src/fe_low_mem.c ****     /* Current point: P_m */
+ 147:../src/wolfcrypt/src/fe_low_mem.c ****     byte xm[F25519_SIZE];
+ 148:../src/wolfcrypt/src/fe_low_mem.c ****     byte zm[F25519_SIZE] = {1};
+ 323                             		.loc 1 148 10
+ 324 0012 71 A5 28                		add	#40, r10, r5
+ 325 0015 EF 51                   		mov.L	r5, r1
+ 326 0017 75 43 20                		mov.L	#32, r3
+ 327 001a 66 02                   		mov	#0, r2
+ 328 001c 7F 88                   		sstr.b
+ 329 001e F9 A4 28 01             		mov.B	#1, 40[r10]
+ 149:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 150:../src/wolfcrypt/src/fe_low_mem.c ****     /* Predecessor: P_(m-1) */
+ 151:../src/wolfcrypt/src/fe_low_mem.c ****     byte xm1[F25519_SIZE] = {1};
+ 330                             		.loc 1 151 10
+ 331 0022 71 A5 48                		add	#0x48, r10, r5
+ 332 0025 EF 51                   		mov.L	r5, r1
+ 333 0027 75 43 20                		mov.L	#32, r3
+ 334 002a 66 02                   		mov	#0, r2
+ 335 002c 7F 88                   		sstr.b
+ 336 002e F9 A4 48 01             		mov.B	#1, 72[r10]
+ 152:../src/wolfcrypt/src/fe_low_mem.c ****     byte zm1[F25519_SIZE] = {0};
+ 337                             		.loc 1 152 10
+ 338 0032 71 A5 68                		add	#0x68, r10, r5
+ 339 0035 EF 51                   		mov.L	r5, r1
+ 340 0037 75 43 20                		mov.L	#32, r3
+ 341 003a 66 02                   		mov	#0, r2
+ 342 003c 7F 88                   		sstr.b
+ 153:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 154:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 155:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 156:../src/wolfcrypt/src/fe_low_mem.c ****     /* Note: bit 254 is assumed to be 1 */
+ 157:../src/wolfcrypt/src/fe_low_mem.c ****     lm_copy(xm, p);
+ 343                             		.loc 1 157 5
+ 344 003e 71 A5 08                		add	#8, r10, r5
+ 345 0041 ED A2 34                		mov.L	208[r10], r2
+ 346 0044 EF 51                   		mov.L	r5, r1
+ 347 0046 05 00 00 00             		bsr	_lm_copy
+ 158:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 159:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 253; i >= 0; i--) {
+ 348                             		.loc 1 159 12
+ 349 004a F8 AA FD 00             		mov.L	#0xfd, [r10]
+ 350                             		.loc 1 159 5
+ 351 004e 38 DD 00                		bra	.L10
+ 352                             	.L11:
+ 353                             	.LBB2:
+ 160:../src/wolfcrypt/src/fe_low_mem.c ****         const int bit = (n[i >> 3] >> (i & 7)) & 1;
+ 354                             		.loc 1 160 30 discriminator 3
+ 355 0051 EC A5                   		mov.L	[r10], r5
+ 356 0053 6A 35                   		shar	#3, r5
+ 357                             		.loc 1 160 27 discriminator 3
+ 358 0055 ED A4 33                		mov.L	204[r10], r4
+ 359 0058 4B 45                   		add	r4, r5
+ 360 005a CC 55                   		mov.B	[r5], r5
+ 361 005c 5B 54                   		movu.B	r5, r4
+ 362                             		.loc 1 160 42 discriminator 3
+ 363 005e EC A5                   		mov.L	[r10], r5
+ 364 0060 64 75                   		and	#7, r5
+ 365                             		.loc 1 160 36 discriminator 3
+ 366 0062 EF 47                   		mov.L	r4, r7
+ 367 0064 FD 61 57                		shar	r5, r7
+ 368 0067 EF 75                   		mov.L	r7, r5
+ 369                             		.loc 1 160 19 discriminator 3
+ 370 0069 64 15                   		and	#1, r5
+ 371 006b E7 A5 01                		mov.L	r5, 4[r10]
+ 161:../src/wolfcrypt/src/fe_low_mem.c ****         byte xms[F25519_SIZE];
+ 162:../src/wolfcrypt/src/fe_low_mem.c ****         byte zms[F25519_SIZE];
+ 163:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 164:../src/wolfcrypt/src/fe_low_mem.c ****         /* From P_m and P_(m-1), compute P_(2m) and P_(2m-1) */
+ 165:../src/wolfcrypt/src/fe_low_mem.c ****         xc_diffadd(xm1, zm1, p, f25519_one, xm, zm, xm1, zm1);
+ 372                             		.loc 1 165 9 discriminator 3
+ 373 006e 71 A2 68                		add	#0x68, r10, r2
+ 374 0071 71 A5 48                		add	#0x48, r10, r5
+ 375 0074 71 A4 68                		add	#0x68, r10, r4
+ 376 0077 A0 8C                   		mov.L	r4, 12[r0]
+ 377 0079 71 A4 48                		add	#0x48, r10, r4
+ 378 007c A0 84                   		mov.L	r4, 8[r0]
+ 379 007e 71 A4 28                		add	#40, r10, r4
+ 380 0081 A0 0C                   		mov.L	r4, 4[r0]
+ 381 0083 71 A4 08                		add	#8, r10, r4
+ 382 0086 E3 04                   		mov.L	r4, [r0]
+ 383 0088 FB 42 00 00 00 00       		mov.L	#_f25519_one, r4
+ 384 008e ED A3 34                		mov.L	208[r10], r3
+ 385 0091 EF 51                   		mov.L	r5, r1
+ 386 0093 05 00 00 00             		bsr	_xc_diffadd
+ 166:../src/wolfcrypt/src/fe_low_mem.c ****         xc_double(xm, zm, xm, zm);
+ 387                             		.loc 1 166 9 discriminator 3
+ 388 0097 71 A4 28                		add	#40, r10, r4
+ 389 009a 71 A3 08                		add	#8, r10, r3
+ 390 009d 71 A2 28                		add	#40, r10, r2
+ 391 00a0 71 A5 08                		add	#8, r10, r5
+ 392 00a3 EF 51                   		mov.L	r5, r1
+ 393 00a5 05 00 00 00             		bsr	_xc_double
+ 167:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 168:../src/wolfcrypt/src/fe_low_mem.c ****         /* Compute P_(2m+1) */
+ 169:../src/wolfcrypt/src/fe_low_mem.c ****         xc_diffadd(xms, zms, xm1, zm1, xm, zm, p, f25519_one);
+ 394                             		.loc 1 169 9 discriminator 3
+ 395 00a9 71 A4 68                		add	#0x68, r10, r4
+ 396 00ac 71 A3 48                		add	#0x48, r10, r3
+ 397 00af 72 A2 88 00             		add	#0x88, r10, r2
+ 398 00b3 72 A5 A8 00             		add	#0xa8, r10, r5
+ 399 00b7 F9 02 03 00 00 00 00    		mov.L	#_f25519_one, 12[r0]
+ 400 00be ED A1 34                		mov.L	208[r10], r1
+ 401 00c1 A0 81                   		mov.L	r1, 8[r0]
+ 402 00c3 71 A1 28                		add	#40, r10, r1
+ 403 00c6 A0 09                   		mov.L	r1, 4[r0]
+ 404 00c8 71 A1 08                		add	#8, r10, r1
+ 405 00cb E3 01                   		mov.L	r1, [r0]
+ 406 00cd EF 51                   		mov.L	r5, r1
+ 407 00cf 05 00 00 00             		bsr	_xc_diffadd
+ 170:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 171:../src/wolfcrypt/src/fe_low_mem.c ****         /* Select:
+ 172:../src/wolfcrypt/src/fe_low_mem.c ****          *   bit = 1 --> (P_(2m+1), P_(2m))
+ 173:../src/wolfcrypt/src/fe_low_mem.c ****          *   bit = 0 --> (P_(2m), P_(2m-1))
+ 174:../src/wolfcrypt/src/fe_low_mem.c ****          */
+ 175:../src/wolfcrypt/src/fe_low_mem.c ****         fe_select(xm1, xm1, xm, bit);
+ 408                             		.loc 1 175 9 discriminator 3
+ 409 00d3 ED A5 01                		mov.L	4[r10], r5
+ 410 00d6 CF 54                   		mov.B	r5, r4
+ 411 00d8 71 A3 08                		add	#8, r10, r3
+ 412 00db 71 A2 48                		add	#0x48, r10, r2
+ 413 00de 71 A5 48                		add	#0x48, r10, r5
+ 414 00e1 EF 51                   		mov.L	r5, r1
+ 415 00e3 05 00 00 00             		bsr	_fe_select
+ 176:../src/wolfcrypt/src/fe_low_mem.c ****         fe_select(zm1, zm1, zm, bit);
+ 416                             		.loc 1 176 9 discriminator 3
+ 417 00e7 ED A5 01                		mov.L	4[r10], r5
+ 418 00ea CF 54                   		mov.B	r5, r4
+ 419 00ec 71 A3 28                		add	#40, r10, r3
+ 420 00ef 71 A2 68                		add	#0x68, r10, r2
+ 421 00f2 71 A5 68                		add	#0x68, r10, r5
+ 422 00f5 EF 51                   		mov.L	r5, r1
+ 423 00f7 05 00 00 00             		bsr	_fe_select
+ 177:../src/wolfcrypt/src/fe_low_mem.c ****         fe_select(xm, xm, xms, bit);
+ 424                             		.loc 1 177 9 discriminator 3
+ 425 00fb ED A5 01                		mov.L	4[r10], r5
+ 426 00fe CF 54                   		mov.B	r5, r4
+ 427 0100 72 A3 A8 00             		add	#0xa8, r10, r3
+ 428 0104 71 A2 08                		add	#8, r10, r2
+ 429 0107 71 A5 08                		add	#8, r10, r5
+ 430 010a EF 51                   		mov.L	r5, r1
+ 431 010c 05 00 00 00             		bsr	_fe_select
+ 178:../src/wolfcrypt/src/fe_low_mem.c ****         fe_select(zm, zm, zms, bit);
+ 432                             		.loc 1 178 9 discriminator 3
+ 433 0110 ED A5 01                		mov.L	4[r10], r5
+ 434 0113 CF 54                   		mov.B	r5, r4
+ 435 0115 72 A3 88 00             		add	#0x88, r10, r3
+ 436 0119 71 A2 28                		add	#40, r10, r2
+ 437 011c 71 A5 28                		add	#40, r10, r5
+ 438 011f EF 51                   		mov.L	r5, r1
+ 439 0121 05 00 00 00             		bsr	_fe_select
+ 440                             	.LBE2:
+ 159:../src/wolfcrypt/src/fe_low_mem.c ****         const int bit = (n[i >> 3] >> (i & 7)) & 1;
+ 441                             		.loc 1 159 28 discriminator 3
+ 442 0125 EC A5                   		mov.L	[r10], r5
+ 443 0127 60 15                   		sub	#1, r5
+ 444 0129 E3 A5                   		mov.L	r5, [r10]
+ 445                             	.L10:
+ 159:../src/wolfcrypt/src/fe_low_mem.c ****         const int bit = (n[i >> 3] >> (i & 7)) & 1;
+ 446                             		.loc 1 159 5 discriminator 1
+ 447 012b EC A5                   		mov.L	[r10], r5
+ 448 012d 61 05                   		cmp	#0, r5
+ 449 012f 29 05 38 20 FF          		bge	.L11
+ 179:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 180:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 181:../src/wolfcrypt/src/fe_low_mem.c ****     /* Freeze out of projective coordinates */
+ 182:../src/wolfcrypt/src/fe_low_mem.c ****     fe_inv__distinct(zm1, zm);
+ 450                             		.loc 1 182 5
+ 451 0134 71 A4 28                		add	#40, r10, r4
+ 452 0137 71 A5 68                		add	#0x68, r10, r5
+ 453 013a EF 42                   		mov.L	r4, r2
+ 454 013c EF 51                   		mov.L	r5, r1
+ 455 013e 05 00 00 00             		bsr	_fe_inv__distinct
+ 183:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(result, zm1, xm);
+ 456                             		.loc 1 183 5
+ 457 0142 71 A4 08                		add	#8, r10, r4
+ 458 0145 71 A5 68                		add	#0x68, r10, r5
+ 459 0148 EF 43                   		mov.L	r4, r3
+ 460 014a EF 52                   		mov.L	r5, r2
+ 461 014c ED A1 32                		mov.L	200[r10], r1
+ 462 014f 05 00 00 00             		bsr	_fe_mul__distinct
+ 184:../src/wolfcrypt/src/fe_low_mem.c ****     fe_normalize(result);
+ 463                             		.loc 1 184 5
+ 464 0153 ED A1 32                		mov.L	200[r10], r1
+ 465 0156 05 00 00 00             		bsr	_fe_normalize
+ 185:../src/wolfcrypt/src/fe_low_mem.c ****     return 0;
+ 466                             		.loc 1 185 12
+ 467 015a 66 05                   		mov.L	#0, r5
+ 186:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 468                             		.loc 1 186 1
+ 469 015c EF 51                   		mov.L	r5, r1
+ 470 015e 3F 7A 3D                		rtsd	#244, r7-r10
+ 471                             	.LFE47:
+ 473                             		.section	.text.raw_add,"ax",@progbits
+ 475                             	_raw_add:
+ 476                             	.LFB48:
+ 187:../src/wolfcrypt/src/fe_low_mem.c **** #endif /* !FREESCALE_LTC_ECC */
+ 188:../src/wolfcrypt/src/fe_low_mem.c **** #endif /* CURVE25519_SMALL */
+ 189:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 190:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 191:../src/wolfcrypt/src/fe_low_mem.c **** static void raw_add(byte *x, const byte *p)
+ 192:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 477                             		.loc 1 192 1
+ 478 0000 7E AA                   		push.l	r10
+ 479                             	.LCFI12:
+ 480 0002 71 0A F0                		add	#-16, r0, r10
+ 481                             	.LCFI13:
+ 482 0005 EF A0                   		mov.L	r10, r0
+ 483 0007 E7 A1 02                		mov.L	r1, 8[r10]
+ 484 000a E7 A2 03                		mov.L	r2, 12[r10]
+ 193:../src/wolfcrypt/src/fe_low_mem.c ****     word16 c = 0;
+ 485                             		.loc 1 193 12
+ 486 000d F8 A5 00                		mov.W	#0, [r10]
+ 194:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 195:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 196:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 487                             		.loc 1 196 12
+ 488 0010 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 489                             		.loc 1 196 5
+ 490 0014 2E 3E                   		bra	.L14
+ 491                             	.L15:
+ 197:../src/wolfcrypt/src/fe_low_mem.c ****         c += ((word16)x[i]) + ((word16)p[i]);
+ 492                             		.loc 1 197 24 discriminator 3
+ 493 0016 ED A5 01                		mov.L	4[r10], r5
+ 494 0019 ED A4 02                		mov.L	8[r10], r4
+ 495 001c 4B 45                   		add	r4, r5
+ 496 001e CC 55                   		mov.B	[r5], r5
+ 497 0020 5B 55                   		movu.B	r5, r5
+ 498 0022 DF 54                   		mov.W	r5, r4
+ 499                             		.loc 1 197 41 discriminator 3
+ 500 0024 ED A5 01                		mov.L	4[r10], r5
+ 501 0027 ED A3 03                		mov.L	12[r10], r3
+ 502 002a 4B 35                   		add	r3, r5
+ 503 002c CC 55                   		mov.B	[r5], r5
+ 504 002e 5B 55                   		movu.B	r5, r5
+ 505                             		.loc 1 197 29 discriminator 3
+ 506 0030 4B 45                   		add	r4, r5
+ 507                             		.loc 1 197 11 discriminator 3
+ 508 0032 DC A4                   		mov.W	[r10], r4
+ 509 0034 4B 45                   		add	r4, r5
+ 510 0036 D3 A5                   		mov.W	r5, [r10]
+ 198:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = (byte)c;
+ 511                             		.loc 1 198 10 discriminator 3
+ 512 0038 ED A5 01                		mov.L	4[r10], r5
+ 513 003b ED A4 02                		mov.L	8[r10], r4
+ 514 003e 4B 45                   		add	r4, r5
+ 515                             		.loc 1 198 16 discriminator 3
+ 516 0040 DC A4                   		mov.W	[r10], r4
+ 517                             		.loc 1 198 14 discriminator 3
+ 518 0042 C3 54                   		mov.B	r4, [r5]
+ 199:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 519                             		.loc 1 199 11 discriminator 3
+ 520 0044 5C A5                   		movu.W	[r10], r5
+ 521 0046 68 85                   		shlr	#8, r5
+ 522 0048 D3 A5                   		mov.W	r5, [r10]
+ 196:../src/wolfcrypt/src/fe_low_mem.c ****         c += ((word16)x[i]) + ((word16)p[i]);
+ 523                             		.loc 1 196 35 discriminator 3
+ 524 004a ED A5 01                		mov.L	4[r10], r5
+ 525 004d 62 15                   		add	#1, r5
+ 526 004f E7 A5 01                		mov.L	r5, 4[r10]
+ 527                             	.L14:
+ 196:../src/wolfcrypt/src/fe_low_mem.c ****         c += ((word16)x[i]) + ((word16)p[i]);
+ 528                             		.loc 1 196 5 discriminator 1
+ 529 0052 ED A5 01                		mov.L	4[r10], r5
+ 530 0055 75 55 1F                		cmp	#31, r5
+ 531 0058 2B BE                   		ble	.L15
+ 200:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 201:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 532                             		.loc 1 201 1
+ 533 005a 03                      		nop
+ 534 005b 3F AA 05                		rtsd	#20, r10-r10
+ 535                             	.LFE48:
+ 537                             		.section	.text.raw_try_sub,"ax",@progbits
+ 539                             	_raw_try_sub:
+ 540                             	.LFB49:
+ 202:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 203:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 204:../src/wolfcrypt/src/fe_low_mem.c **** static void raw_try_sub(byte *x, const byte *p)
+ 205:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 541                             		.loc 1 205 1
+ 542 0000 7E AA                   		push.l	r10
+ 543                             	.LCFI14:
+ 544 0002 71 0A D0                		add	#-48, r0, r10
+ 545                             	.LCFI15:
+ 546 0005 EF A0                   		mov.L	r10, r0
+ 547 0007 E7 A1 0A                		mov.L	r1, 40[r10]
+ 548 000a E7 A2 0B                		mov.L	r2, 44[r10]
+ 206:../src/wolfcrypt/src/fe_low_mem.c ****     byte minusp[F25519_SIZE];
+ 207:../src/wolfcrypt/src/fe_low_mem.c ****     word16 c = 0;
+ 549                             		.loc 1 207 12
+ 550 000d F8 A5 00                		mov.W	#0, [r10]
+ 208:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 209:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 210:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 551                             		.loc 1 210 12
+ 552 0010 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 553                             		.loc 1 210 5
+ 554 0014 2E 45                   		bra	.L17
+ 555                             	.L18:
+ 211:../src/wolfcrypt/src/fe_low_mem.c ****         c = ((word16)x[i]) - ((word16)p[i]) - c;
+ 556                             		.loc 1 211 23 discriminator 3
+ 557 0016 ED A5 01                		mov.L	4[r10], r5
+ 558 0019 ED A4 0A                		mov.L	40[r10], r4
+ 559 001c 4B 45                   		add	r4, r5
+ 560 001e CC 55                   		mov.B	[r5], r5
+ 561 0020 5B 55                   		movu.B	r5, r5
+ 562 0022 DF 54                   		mov.W	r5, r4
+ 563                             		.loc 1 211 40 discriminator 3
+ 564 0024 ED A5 01                		mov.L	4[r10], r5
+ 565 0027 ED A3 0B                		mov.L	44[r10], r3
+ 566 002a 4B 35                   		add	r3, r5
+ 567 002c CC 55                   		mov.B	[r5], r5
+ 568 002e 5B 55                   		movu.B	r5, r5
+ 569                             		.loc 1 211 28 discriminator 3
+ 570 0030 FF 05 54                		sub	r5, r4, r5
+ 571 0033 DF 54                   		mov.W	r5, r4
+ 572                             		.loc 1 211 11 discriminator 3
+ 573 0035 DC A5                   		mov.W	[r10], r5
+ 574 0037 FF 05 54                		sub	r5, r4, r5
+ 575 003a D3 A5                   		mov.W	r5, [r10]
+ 212:../src/wolfcrypt/src/fe_low_mem.c ****         minusp[i] = (byte)c;
+ 576                             		.loc 1 212 21 discriminator 3
+ 577 003c DC A5                   		mov.W	[r10], r5
+ 578 003e CF 54                   		mov.B	r5, r4
+ 579                             		.loc 1 212 19 discriminator 3
+ 580 0040 71 A5 08                		add	#8, r10, r5
+ 581 0043 06 89 A5 01             		add	4[r10].L, r5
+ 582 0047 C3 54                   		mov.B	r4, [r5]
+ 213:../src/wolfcrypt/src/fe_low_mem.c ****         c = (c >> 8) & 1;
+ 583                             		.loc 1 213 22 discriminator 3
+ 584 0049 5C A5                   		movu.W	[r10], r5
+ 585 004b 68 85                   		shlr	#8, r5
+ 586                             		.loc 1 213 11 discriminator 3
+ 587 004d 64 15                   		and	#1, r5
+ 588 004f D3 A5                   		mov.W	r5, [r10]
+ 210:../src/wolfcrypt/src/fe_low_mem.c ****         c = ((word16)x[i]) - ((word16)p[i]) - c;
+ 589                             		.loc 1 210 35 discriminator 3
+ 590 0051 ED A5 01                		mov.L	4[r10], r5
+ 591 0054 62 15                   		add	#1, r5
+ 592 0056 E7 A5 01                		mov.L	r5, 4[r10]
+ 593                             	.L17:
+ 210:../src/wolfcrypt/src/fe_low_mem.c ****         c = ((word16)x[i]) - ((word16)p[i]) - c;
+ 594                             		.loc 1 210 5 discriminator 1
+ 595 0059 ED A5 01                		mov.L	4[r10], r5
+ 596 005c 75 55 1F                		cmp	#31, r5
+ 597 005f 2B B7                   		ble	.L18
+ 214:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 215:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 216:../src/wolfcrypt/src/fe_low_mem.c ****     fprime_select(x, minusp, x, (byte)c);
+ 598                             		.loc 1 216 5
+ 599 0061 DC A5                   		mov.W	[r10], r5
+ 600 0063 CF 54                   		mov.B	r5, r4
+ 601 0065 71 A5 08                		add	#8, r10, r5
+ 602 0068 ED A3 0A                		mov.L	40[r10], r3
+ 603 006b EF 52                   		mov.L	r5, r2
+ 604 006d ED A1 0A                		mov.L	40[r10], r1
+ 605 0070 05 00 00 00             		bsr	_fprime_select
+ 217:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 606                             		.loc 1 217 1
+ 607 0074 03                      		nop
+ 608 0075 3F AA 0D                		rtsd	#52, r10-r10
+ 609                             	.LFE49:
+ 611                             		.section	.text.prime_msb,"ax",@progbits
+ 613                             	_prime_msb:
+ 614                             	.LFB50:
+ 218:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 219:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 220:../src/wolfcrypt/src/fe_low_mem.c **** static int prime_msb(const byte *p)
+ 221:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 615                             		.loc 1 221 1
+ 616 0000 6E 7A                   		pushm	r7-r10
+ 617                             	.LCFI16:
+ 618 0002 71 0A EC                		add	#-20, r0, r10
+ 619                             	.LCFI17:
+ 620 0005 EF A0                   		mov.L	r10, r0
+ 621 0007 E7 A1 04                		mov.L	r1, 16[r10]
+ 222:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 223:../src/wolfcrypt/src/fe_low_mem.c ****     byte x;
+ 224:../src/wolfcrypt/src/fe_low_mem.c ****     int shift = 1;
+ 622                             		.loc 1 224 9
+ 623 000a F9 A6 01 01             		mov.L	#1, 4[r10]
+ 225:../src/wolfcrypt/src/fe_low_mem.c ****     int z     = F25519_SIZE - 1;
+ 624                             		.loc 1 225 9
+ 625 000e F9 A6 02 1F             		mov.L	#31, 8[r10]
+ 226:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 227:../src/wolfcrypt/src/fe_low_mem.c ****     /*
+ 228:../src/wolfcrypt/src/fe_low_mem.c ****        Test for any hot bits.
+ 229:../src/wolfcrypt/src/fe_low_mem.c ****        As soon as one instance is encountered set shift to 0.
+ 230:../src/wolfcrypt/src/fe_low_mem.c ****     */
+ 231:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = F25519_SIZE - 1; i >= 0; i--) {
+ 626                             		.loc 1 231 12
+ 627 0012 F8 A6 1F                		mov.L	#31, [r10]
+ 628                             		.loc 1 231 5
+ 629 0015 2E 40                   		bra	.L20
+ 630                             	.L21:
+ 232:../src/wolfcrypt/src/fe_low_mem.c ****         shift &= ((shift ^ ((-p[i] | p[i]) >> 7)) & 1);
+ 631                             		.loc 1 232 32 discriminator 3
+ 632 0017 EC A5                   		mov.L	[r10], r5
+ 633 0019 ED A4 04                		mov.L	16[r10], r4
+ 634 001c 4B 45                   		add	r4, r5
+ 635 001e CC 55                   		mov.B	[r5], r5
+ 636 0020 5B 55                   		movu.B	r5, r5
+ 637                             		.loc 1 232 30 discriminator 3
+ 638 0022 FC 07 54                		neg	r5, r4
+ 639                             		.loc 1 232 39 discriminator 3
+ 640 0025 EC A5                   		mov.L	[r10], r5
+ 641 0027 ED A3 04                		mov.L	16[r10], r3
+ 642 002a 4B 35                   		add	r3, r5
+ 643 002c CC 55                   		mov.B	[r5], r5
+ 644 002e 5B 55                   		movu.B	r5, r5
+ 645                             		.loc 1 232 36 discriminator 3
+ 646 0030 57 45                   		or	r4, r5
+ 647                             		.loc 1 232 44 discriminator 3
+ 648 0032 6A 75                   		shar	#7, r5
+ 649                             		.loc 1 232 26 discriminator 3
+ 650 0034 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 651                             		.loc 1 232 51 discriminator 3
+ 652 0039 64 15                   		and	#1, r5
+ 653                             		.loc 1 232 15 discriminator 3
+ 654 003b ED A4 01                		mov.L	4[r10], r4
+ 655 003e 53 45                   		and	r4, r5
+ 656 0040 E7 A5 01                		mov.L	r5, 4[r10]
+ 233:../src/wolfcrypt/src/fe_low_mem.c ****         z -= shift;
+ 657                             		.loc 1 233 11 discriminator 3
+ 658 0043 ED A4 02                		mov.L	8[r10], r4
+ 659 0046 ED A5 01                		mov.L	4[r10], r5
+ 660 0049 FF 05 54                		sub	r5, r4, r5
+ 661 004c E7 A5 02                		mov.L	r5, 8[r10]
+ 231:../src/wolfcrypt/src/fe_low_mem.c ****         shift &= ((shift ^ ((-p[i] | p[i]) >> 7)) & 1);
+ 662                             		.loc 1 231 40 discriminator 3
+ 663 004f EC A5                   		mov.L	[r10], r5
+ 664 0051 60 15                   		sub	#1, r5
+ 665 0053 E3 A5                   		mov.L	r5, [r10]
+ 666                             	.L20:
+ 231:../src/wolfcrypt/src/fe_low_mem.c ****         shift &= ((shift ^ ((-p[i] | p[i]) >> 7)) & 1);
+ 667                             		.loc 1 231 5 discriminator 1
+ 668 0055 EC A5                   		mov.L	[r10], r5
+ 669 0057 61 05                   		cmp	#0, r5
+ 670 0059 28 BE                   		bge	.L21
+ 234:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 235:../src/wolfcrypt/src/fe_low_mem.c ****     x = p[z];
+ 671                             		.loc 1 235 10
+ 672 005b ED A5 02                		mov.L	8[r10], r5
+ 673 005e ED A4 04                		mov.L	16[r10], r4
+ 674 0061 4B 45                   		add	r4, r5
+ 675                             		.loc 1 235 7
+ 676 0063 CC 55                   		mov.B	[r5], r5
+ 677 0065 C7 A5 0C                		mov.B	r5, 12[r10]
+ 236:../src/wolfcrypt/src/fe_low_mem.c ****     z <<= 3;
+ 678                             		.loc 1 236 7
+ 679 0068 ED A5 02                		mov.L	8[r10], r5
+ 680 006b 6C 35                   		shll	#3, r5
+ 681 006d E7 A5 02                		mov.L	r5, 8[r10]
+ 237:../src/wolfcrypt/src/fe_low_mem.c ****     shift = 1;
+ 682                             		.loc 1 237 11
+ 683 0070 F9 A6 01 01             		mov.L	#1, 4[r10]
+ 238:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < 8; i++) {
+ 684                             		.loc 1 238 12
+ 685 0074 F8 A6 00                		mov.L	#0, [r10]
+ 686                             		.loc 1 238 5
+ 687 0077 2E 3F                   		bra	.L22
+ 688                             	.L23:
+ 239:../src/wolfcrypt/src/fe_low_mem.c ****         shift &= ((-(x >> i) | (x >> i)) >> (7 - i) & 1);
+ 689                             		.loc 1 239 24 discriminator 3
+ 690 0079 59 A5 0C                		movu.B	12[r10], r5
+ 691 007c EC A4                   		mov.L	[r10], r4
+ 692 007e FD 61 45                		shar	r4, r5
+ 693                             		.loc 1 239 20 discriminator 3
+ 694 0081 FC 07 54                		neg	r5, r4
+ 695                             		.loc 1 239 35 discriminator 3
+ 696 0084 59 A5 0C                		movu.B	12[r10], r5
+ 697 0087 EC A3                   		mov.L	[r10], r3
+ 698 0089 FD 61 35                		shar	r3, r5
+ 699                             		.loc 1 239 30 discriminator 3
+ 700 008c 57 54                   		or	r5, r4
+ 701                             		.loc 1 239 48 discriminator 3
+ 702 008e 66 73                   		mov.L	#7, r3
+ 703 0090 EC A5                   		mov.L	[r10], r5
+ 704 0092 FF 05 53                		sub	r5, r3, r5
+ 705                             		.loc 1 239 42 discriminator 3
+ 706 0095 EF 47                   		mov.L	r4, r7
+ 707 0097 FD 61 57                		shar	r5, r7
+ 708 009a EF 75                   		mov.L	r7, r5
+ 709                             		.loc 1 239 53 discriminator 3
+ 710 009c 64 15                   		and	#1, r5
+ 711                             		.loc 1 239 15 discriminator 3
+ 712 009e ED A4 01                		mov.L	4[r10], r4
+ 713 00a1 53 45                   		and	r4, r5
+ 714 00a3 E7 A5 01                		mov.L	r5, 4[r10]
+ 240:../src/wolfcrypt/src/fe_low_mem.c ****         z += shift;
+ 715                             		.loc 1 240 11 discriminator 3
+ 716 00a6 ED A5 02                		mov.L	8[r10], r5
+ 717 00a9 06 89 A5 01             		add	4[r10].L, r5
+ 718 00ad E7 A5 02                		mov.L	r5, 8[r10]
+ 238:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < 8; i++) {
+ 719                             		.loc 1 238 25 discriminator 3
+ 720 00b0 EC A5                   		mov.L	[r10], r5
+ 721 00b2 62 15                   		add	#1, r5
+ 722 00b4 E3 A5                   		mov.L	r5, [r10]
+ 723                             	.L22:
+ 238:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < 8; i++) {
+ 724                             		.loc 1 238 5 discriminator 1
+ 725 00b6 EC A5                   		mov.L	[r10], r5
+ 726 00b8 61 75                   		cmp	#7, r5
+ 727 00ba 2B BF                   		ble	.L23
+ 241:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 242:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 243:../src/wolfcrypt/src/fe_low_mem.c ****     return z - 1;
+ 728                             		.loc 1 243 14
+ 729 00bc ED A5 02                		mov.L	8[r10], r5
+ 730 00bf 60 15                   		sub	#1, r5
+ 244:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 731                             		.loc 1 244 1
+ 732 00c1 EF 51                   		mov.L	r5, r1
+ 733 00c3 3F 7A 09                		rtsd	#36, r7-r10
+ 734                             	.LFE50:
+ 736                             		.section	.text.fprime_select,"ax",@progbits
+ 737                             		.global	_fprime_select
+ 739                             	_fprime_select:
+ 740                             	.LFB51:
+ 245:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 246:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 247:../src/wolfcrypt/src/fe_low_mem.c **** void fprime_select(byte *dst, const byte *zero, const byte *one, byte condition)
+ 248:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 741                             		.loc 1 248 1
+ 742 0000 7E AA                   		push.l	r10
+ 743                             	.LCFI18:
+ 744 0002 71 0A E8                		add	#-24, r0, r10
+ 745                             	.LCFI19:
+ 746 0005 EF A0                   		mov.L	r10, r0
+ 747 0007 E7 A1 02                		mov.L	r1, 8[r10]
+ 748 000a E7 A2 03                		mov.L	r2, 12[r10]
+ 749 000d E7 A3 04                		mov.L	r3, 16[r10]
+ 750 0010 C7 A4 14                		mov.B	r4, 20[r10]
+ 249:../src/wolfcrypt/src/fe_low_mem.c ****     const byte mask = -condition;
+ 751                             		.loc 1 249 16
+ 752 0013 CD A5 14                		mov.B	20[r10], r5
+ 753 0016 7E 15                   		neg	r5
+ 754 0018 C7 A5 04                		mov.B	r5, 4[r10]
+ 250:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 251:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 252:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++)
+ 755                             		.loc 1 252 12
+ 756 001b F8 A6 00                		mov.L	#0, [r10]
+ 757                             		.loc 1 252 5
+ 758 001e 2E 3B                   		bra	.L26
+ 759                             	.L27:
+ 253:../src/wolfcrypt/src/fe_low_mem.c ****         dst[i] = zero[i] ^ (mask & (one[i] ^ zero[i]));
+ 760                             		.loc 1 253 22 discriminator 3
+ 761 0020 EC A5                   		mov.L	[r10], r5
+ 762 0022 ED A4 03                		mov.L	12[r10], r4
+ 763 0025 4B 45                   		add	r4, r5
+ 764 0027 CC 52                   		mov.B	[r5], r2
+ 765                             		.loc 1 253 40 discriminator 3
+ 766 0029 EC A5                   		mov.L	[r10], r5
+ 767 002b ED A4 04                		mov.L	16[r10], r4
+ 768 002e 4B 45                   		add	r4, r5
+ 769 0030 CC 53                   		mov.B	[r5], r3
+ 770                             		.loc 1 253 50 discriminator 3
+ 771 0032 EC A5                   		mov.L	[r10], r5
+ 772 0034 ED A4 03                		mov.L	12[r10], r4
+ 773 0037 4B 45                   		add	r4, r5
+ 774 0039 CC 55                   		mov.B	[r5], r5
+ 775                             		.loc 1 253 16 discriminator 3
+ 776 003b FC 37 35                		xor	r3, r5
+ 777 003e CD A4 04                		mov.B	4[r10], r4
+ 778 0041 53 45                   		and	r4, r5
+ 779 0043 CF 53                   		mov.B	r5, r3
+ 780                             		.loc 1 253 12 discriminator 3
+ 781 0045 EC A5                   		mov.L	[r10], r5
+ 782 0047 ED A4 02                		mov.L	8[r10], r4
+ 783 004a 4B 45                   		add	r4, r5
+ 784                             		.loc 1 253 16 discriminator 3
+ 785 004c EF 24                   		mov.L	r2, r4
+ 786 004e FC 37 34                		xor	r3, r4
+ 787 0051 C3 54                   		mov.B	r4, [r5]
+ 252:../src/wolfcrypt/src/fe_low_mem.c ****         dst[i] = zero[i] ^ (mask & (one[i] ^ zero[i]));
+ 788                             		.loc 1 252 35 discriminator 3
+ 789 0053 EC A5                   		mov.L	[r10], r5
+ 790 0055 62 15                   		add	#1, r5
+ 791 0057 E3 A5                   		mov.L	r5, [r10]
+ 792                             	.L26:
+ 252:../src/wolfcrypt/src/fe_low_mem.c ****         dst[i] = zero[i] ^ (mask & (one[i] ^ zero[i]));
+ 793                             		.loc 1 252 5 discriminator 1
+ 794 0059 EC A5                   		mov.L	[r10], r5
+ 795 005b 75 55 1F                		cmp	#31, r5
+ 796 005e 2B C2                   		ble	.L27
+ 254:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 797                             		.loc 1 254 1
+ 798 0060 03                      		nop
+ 799 0061 3F AA 07                		rtsd	#28, r10-r10
+ 800                             	.LFE51:
+ 802                             		.section	.text.fprime_add,"ax",@progbits
+ 803                             		.global	_fprime_add
+ 805                             	_fprime_add:
+ 806                             	.LFB52:
+ 255:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 256:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 257:../src/wolfcrypt/src/fe_low_mem.c **** void fprime_add(byte *r, const byte *a, const byte *modulus)
+ 258:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 807                             		.loc 1 258 1
+ 808 0000 7E AA                   		push.l	r10
+ 809                             	.LCFI20:
+ 810 0002 71 0A F4                		add	#-12, r0, r10
+ 811                             	.LCFI21:
+ 812 0005 EF A0                   		mov.L	r10, r0
+ 813 0007 E3 A1                   		mov.L	r1, [r10]
+ 814 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 815 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 259:../src/wolfcrypt/src/fe_low_mem.c ****     raw_add(r, a);
+ 816                             		.loc 1 259 5
+ 817 000f ED A2 01                		mov.L	4[r10], r2
+ 818 0012 EC A1                   		mov.L	[r10], r1
+ 819 0014 05 00 00 00             		bsr	_raw_add
+ 260:../src/wolfcrypt/src/fe_low_mem.c ****     raw_try_sub(r, modulus);
+ 820                             		.loc 1 260 5
+ 821 0018 ED A2 02                		mov.L	8[r10], r2
+ 822 001b EC A1                   		mov.L	[r10], r1
+ 823 001d 05 00 00 00             		bsr	_raw_try_sub
+ 261:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 824                             		.loc 1 261 1
+ 825 0021 03                      		nop
+ 826 0022 3F AA 04                		rtsd	#16, r10-r10
+ 827                             	.LFE52:
+ 829                             		.section	.text.fprime_sub,"ax",@progbits
+ 830                             		.global	_fprime_sub
+ 832                             	_fprime_sub:
+ 833                             	.LFB53:
+ 262:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 263:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 264:../src/wolfcrypt/src/fe_low_mem.c **** void fprime_sub(byte *r, const byte *a, const byte *modulus)
+ 265:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 834                             		.loc 1 265 1
+ 835 0000 7E AA                   		push.l	r10
+ 836                             	.LCFI22:
+ 837 0002 71 0A F4                		add	#-12, r0, r10
+ 838                             	.LCFI23:
+ 839 0005 EF A0                   		mov.L	r10, r0
+ 840 0007 E3 A1                   		mov.L	r1, [r10]
+ 841 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 842 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 266:../src/wolfcrypt/src/fe_low_mem.c ****     raw_add(r, modulus);
+ 843                             		.loc 1 266 5
+ 844 000f ED A2 02                		mov.L	8[r10], r2
+ 845 0012 EC A1                   		mov.L	[r10], r1
+ 846 0014 05 00 00 00             		bsr	_raw_add
+ 267:../src/wolfcrypt/src/fe_low_mem.c ****     raw_try_sub(r, a);
+ 847                             		.loc 1 267 5
+ 848 0018 ED A2 01                		mov.L	4[r10], r2
+ 849 001b EC A1                   		mov.L	[r10], r1
+ 850 001d 05 00 00 00             		bsr	_raw_try_sub
+ 268:../src/wolfcrypt/src/fe_low_mem.c ****     raw_try_sub(r, modulus);
+ 851                             		.loc 1 268 5
+ 852 0021 ED A2 02                		mov.L	8[r10], r2
+ 853 0024 EC A1                   		mov.L	[r10], r1
+ 854 0026 05 00 00 00             		bsr	_raw_try_sub
+ 269:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 855                             		.loc 1 269 1
+ 856 002a 03                      		nop
+ 857 002b 3F AA 04                		rtsd	#16, r10-r10
+ 858                             	.LFE53:
+ 860                             		.section	.text.fprime_mul,"ax",@progbits
+ 861                             		.global	_fprime_mul
+ 863                             	_fprime_mul:
+ 864                             	.LFB54:
+ 270:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 271:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 272:../src/wolfcrypt/src/fe_low_mem.c **** void fprime_mul(byte *r, const byte *a, const byte *b,
+ 273:../src/wolfcrypt/src/fe_low_mem.c ****                 const byte *modulus)
+ 274:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 865                             		.loc 1 274 1
+ 866 0000 6E 7A                   		pushm	r7-r10
+ 867                             	.LCFI24:
+ 868 0002 71 0A C0                		add	#-64, r0, r10
+ 869                             	.LCFI25:
+ 870 0005 EF A0                   		mov.L	r10, r0
+ 871 0007 E7 A1 0C                		mov.L	r1, 48[r10]
+ 872 000a E7 A2 0D                		mov.L	r2, 52[r10]
+ 873 000d E7 A3 0E                		mov.L	r3, 56[r10]
+ 874 0010 E7 A4 0F                		mov.L	r4, 60[r10]
+ 275:../src/wolfcrypt/src/fe_low_mem.c ****     word16 c = 0;
+ 875                             		.loc 1 275 12
+ 876 0013 F8 A5 00                		mov.W	#0, [r10]
+ 276:../src/wolfcrypt/src/fe_low_mem.c ****     int i,j;
+ 277:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 278:../src/wolfcrypt/src/fe_low_mem.c ****     XMEMSET(r, 0, F25519_SIZE);
+ 877                             		.loc 1 278 5
+ 878 0016 75 43 20                		mov.L	#32, r3
+ 879 0019 66 02                   		mov.L	#0, r2
+ 880 001b ED A1 0C                		mov.L	48[r10], r1
+ 881 001e 05 00 00 00             		bsr	_memset
+ 279:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 280:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = prime_msb(modulus); i >= 0; i--) {
+ 882                             		.loc 1 280 14
+ 883 0022 ED A1 0F                		mov.L	60[r10], r1
+ 884 0025 05 00 00 00             		bsr	_prime_msb
+ 885 0029 E7 A1 01                		mov.L	r1, 4[r10]
+ 886                             		.loc 1 280 5
+ 887 002c 38 9F 00                		bra	.L31
+ 888                             	.L34:
+ 889                             	.LBB3:
+ 281:../src/wolfcrypt/src/fe_low_mem.c ****         const byte bit = (b[i >> 3] >> (i & 7)) & 1;
+ 890                             		.loc 1 281 31
+ 891 002f ED A5 01                		mov.L	4[r10], r5
+ 892 0032 6A 35                   		shar	#3, r5
+ 893                             		.loc 1 281 28
+ 894 0034 ED A4 0E                		mov.L	56[r10], r4
+ 895 0037 4B 45                   		add	r4, r5
+ 896 0039 CC 55                   		mov.B	[r5], r5
+ 897 003b 5B 54                   		movu.B	r5, r4
+ 898                             		.loc 1 281 43
+ 899 003d ED A5 01                		mov.L	4[r10], r5
+ 900 0040 64 75                   		and	#7, r5
+ 901                             		.loc 1 281 37
+ 902 0042 EF 47                   		mov.L	r4, r7
+ 903 0044 FD 61 57                		shar	r5, r7
+ 904 0047 EF 75                   		mov.L	r7, r5
+ 905                             		.loc 1 281 20
+ 906 0049 64 15                   		and	#1, r5
+ 907 004b C7 A5 0C                		mov.B	r5, 12[r10]
+ 282:../src/wolfcrypt/src/fe_low_mem.c ****         byte plusa[F25519_SIZE];
+ 283:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 284:../src/wolfcrypt/src/fe_low_mem.c ****         for (j = 0; j < F25519_SIZE; j++) {
+ 908                             		.loc 1 284 16
+ 909 004e F9 A6 02 00             		mov.L	#0, 8[r10]
+ 910                             		.loc 1 284 9
+ 911 0052 2E 32                   		bra	.L32
+ 912                             	.L33:
+ 285:../src/wolfcrypt/src/fe_low_mem.c ****             c |= ((word16)r[j]) << 1;
+ 913                             		.loc 1 285 28 discriminator 3
+ 914 0054 ED A5 02                		mov.L	8[r10], r5
+ 915 0057 ED A4 0C                		mov.L	48[r10], r4
+ 916 005a 4B 45                   		add	r4, r5
+ 917 005c CC 55                   		mov.B	[r5], r5
+ 918                             		.loc 1 285 19 discriminator 3
+ 919 005e 5B 55                   		movu.B	r5, r5
+ 920                             		.loc 1 285 33 discriminator 3
+ 921 0060 4B 55                   		add	r5, r5
+ 922                             		.loc 1 285 15 discriminator 3
+ 923 0062 DF 54                   		mov.W	r5, r4
+ 924 0064 DC A5                   		mov.W	[r10], r5
+ 925 0066 57 45                   		or	r4, r5
+ 926 0068 D3 A5                   		mov.W	r5, [r10]
+ 286:../src/wolfcrypt/src/fe_low_mem.c ****             r[j] = (byte)c;
+ 927                             		.loc 1 286 14 discriminator 3
+ 928 006a ED A5 02                		mov.L	8[r10], r5
+ 929 006d ED A4 0C                		mov.L	48[r10], r4
+ 930 0070 4B 45                   		add	r4, r5
+ 931                             		.loc 1 286 20 discriminator 3
+ 932 0072 DC A4                   		mov.W	[r10], r4
+ 933                             		.loc 1 286 18 discriminator 3
+ 934 0074 C3 54                   		mov.B	r4, [r5]
+ 287:../src/wolfcrypt/src/fe_low_mem.c ****             c >>= 8;
+ 935                             		.loc 1 287 15 discriminator 3
+ 936 0076 5C A5                   		movu.W	[r10], r5
+ 937 0078 68 85                   		shlr	#8, r5
+ 938 007a D3 A5                   		mov.W	r5, [r10]
+ 284:../src/wolfcrypt/src/fe_low_mem.c ****             c |= ((word16)r[j]) << 1;
+ 939                             		.loc 1 284 39 discriminator 3
+ 940 007c ED A5 02                		mov.L	8[r10], r5
+ 941 007f 62 15                   		add	#1, r5
+ 942 0081 E7 A5 02                		mov.L	r5, 8[r10]
+ 943                             	.L32:
+ 284:../src/wolfcrypt/src/fe_low_mem.c ****             c |= ((word16)r[j]) << 1;
+ 944                             		.loc 1 284 9 discriminator 1
+ 945 0084 ED A5 02                		mov.L	8[r10], r5
+ 946 0087 75 55 1F                		cmp	#31, r5
+ 947 008a 2B CA                   		ble	.L33
+ 288:../src/wolfcrypt/src/fe_low_mem.c ****         }
+ 289:../src/wolfcrypt/src/fe_low_mem.c ****         raw_try_sub(r, modulus);
+ 948                             		.loc 1 289 9 discriminator 2
+ 949 008c ED A2 0F                		mov.L	60[r10], r2
+ 950 008f ED A1 0C                		mov.L	48[r10], r1
+ 951 0092 05 00 00 00             		bsr	_raw_try_sub
+ 290:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 291:../src/wolfcrypt/src/fe_low_mem.c ****         fprime_copy(plusa, r);
+ 952                             		.loc 1 291 9 discriminator 2
+ 953 0096 71 A5 0D                		add	#13, r10, r5
+ 954 0099 ED A2 0C                		mov.L	48[r10], r2
+ 955 009c EF 51                   		mov.L	r5, r1
+ 956 009e 05 00 00 00             		bsr	_fprime_copy
+ 292:../src/wolfcrypt/src/fe_low_mem.c ****         fprime_add(plusa, a, modulus);
+ 957                             		.loc 1 292 9 discriminator 2
+ 958 00a2 71 A5 0D                		add	#13, r10, r5
+ 959 00a5 ED A3 0F                		mov.L	60[r10], r3
+ 960 00a8 ED A2 0D                		mov.L	52[r10], r2
+ 961 00ab EF 51                   		mov.L	r5, r1
+ 962 00ad 05 00 00 00             		bsr	_fprime_add
+ 293:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 294:../src/wolfcrypt/src/fe_low_mem.c ****         fprime_select(r, r, plusa, bit);
+ 963                             		.loc 1 294 9 discriminator 2
+ 964 00b1 71 A5 0D                		add	#13, r10, r5
+ 965 00b4 CD A4 0C                		mov.B	12[r10], r4
+ 966 00b7 EF 53                   		mov.L	r5, r3
+ 967 00b9 ED A2 0C                		mov.L	48[r10], r2
+ 968 00bc ED A1 0C                		mov.L	48[r10], r1
+ 969 00bf 05 00 00 00             		bsr	_fprime_select
+ 970                             	.LBE3:
+ 280:../src/wolfcrypt/src/fe_low_mem.c ****         const byte bit = (b[i >> 3] >> (i & 7)) & 1;
+ 971                             		.loc 1 280 43 discriminator 2
+ 972 00c3 ED A5 01                		mov.L	4[r10], r5
+ 973 00c6 60 15                   		sub	#1, r5
+ 974 00c8 E7 A5 01                		mov.L	r5, 4[r10]
+ 975                             	.L31:
+ 280:../src/wolfcrypt/src/fe_low_mem.c ****         const byte bit = (b[i >> 3] >> (i & 7)) & 1;
+ 976                             		.loc 1 280 5 discriminator 1
+ 977 00cb ED A5 01                		mov.L	4[r10], r5
+ 978 00ce 61 05                   		cmp	#0, r5
+ 979 00d0 29 05 38 5D FF          		bge	.L34
+ 295:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 296:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 980                             		.loc 1 296 1
+ 981 00d5 03                      		nop
+ 982 00d6 3F 7A 14                		rtsd	#80, r7-r10
+ 983                             	.LFE54:
+ 985                             		.section	.text.fe_load,"ax",@progbits
+ 986                             		.global	_fe_load
+ 988                             	_fe_load:
+ 989                             	.LFB55:
+ 297:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 298:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 299:../src/wolfcrypt/src/fe_low_mem.c **** void fe_load(byte *x, word32 c)
+ 300:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 990                             		.loc 1 300 1
+ 991 0000 7E AA                   		push.l	r10
+ 992                             	.LCFI26:
+ 993 0002 71 0A F4                		add	#-12, r0, r10
+ 994                             	.LCFI27:
+ 995 0005 EF A0                   		mov.L	r10, r0
+ 996 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 997 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 301:../src/wolfcrypt/src/fe_low_mem.c ****     word32 i;
+ 302:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 303:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < sizeof(c); i++) {
+ 998                             		.loc 1 303 12
+ 999 000d F8 A6 00                		mov.L	#0, [r10]
+ 1000                             		.loc 1 303 5
+ 1001 0010 2E 1B                   		bra	.L36
+ 1002                             	.L37:
+ 304:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = c;
+ 1003                             		.loc 1 304 10 discriminator 3
+ 1004 0012 ED A5 01                		mov.L	4[r10], r5
+ 1005 0015 06 88 A5                		add	[r10].L, r5
+ 1006                             		.loc 1 304 14 discriminator 3
+ 1007 0018 ED A4 02                		mov.L	8[r10], r4
+ 1008 001b C3 54                   		mov.B	r4, [r5]
+ 305:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1009                             		.loc 1 305 11 discriminator 3
+ 1010 001d ED A5 02                		mov.L	8[r10], r5
+ 1011 0020 68 85                   		shlr	#8, r5
+ 1012 0022 E7 A5 02                		mov.L	r5, 8[r10]
+ 303:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = c;
+ 1013                             		.loc 1 303 33 discriminator 3
+ 1014 0025 EC A5                   		mov.L	[r10], r5
+ 1015 0027 62 15                   		add	#1, r5
+ 1016 0029 E3 A5                   		mov.L	r5, [r10]
+ 1017                             	.L36:
+ 303:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = c;
+ 1018                             		.loc 1 303 5 discriminator 1
+ 1019 002b EC A5                   		mov.L	[r10], r5
+ 1020 002d 61 35                   		cmp	#3, r5
+ 1021 002f 25 E3                   		bleu	.L37
+ 306:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 307:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 308:../src/wolfcrypt/src/fe_low_mem.c ****     for (; i < F25519_SIZE; i++)
+ 1022                             		.loc 1 308 5
+ 1023 0031 2E 11                   		bra	.L38
+ 1024                             	.L39:
+ 309:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = 0;
+ 1025                             		.loc 1 309 10 discriminator 2
+ 1026 0033 ED A5 01                		mov.L	4[r10], r5
+ 1027 0036 06 88 A5                		add	[r10].L, r5
+ 1028                             		.loc 1 309 14 discriminator 2
+ 1029 0039 F8 54 00                		mov.B	#0, [r5]
+ 308:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = 0;
+ 1030                             		.loc 1 308 30 discriminator 2
+ 1031 003c EC A5                   		mov.L	[r10], r5
+ 1032 003e 62 15                   		add	#1, r5
+ 1033 0040 E3 A5                   		mov.L	r5, [r10]
+ 1034                             	.L38:
+ 308:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = 0;
+ 1035                             		.loc 1 308 5 discriminator 1
+ 1036 0042 EC A5                   		mov.L	[r10], r5
+ 1037 0044 75 55 1F                		cmp	#31, r5
+ 1038 0047 25 EC                   		bleu	.L39
+ 310:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 1039                             		.loc 1 310 1
+ 1040 0049 03                      		nop
+ 1041 004a 3F AA 04                		rtsd	#16, r10-r10
+ 1042                             	.LFE55:
+ 1044                             		.section	.text.fe_normalize,"ax",@progbits
+ 1045                             		.global	_fe_normalize
+ 1047                             	_fe_normalize:
+ 1048                             	.LFB56:
+ 311:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 312:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 313:../src/wolfcrypt/src/fe_low_mem.c **** void fe_normalize(byte *x)
+ 314:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 1049                             		.loc 1 314 1
+ 1050 0000 7E AA                   		push.l	r10
+ 1051                             	.LCFI28:
+ 1052 0002 71 0A D4                		add	#-44, r0, r10
+ 1053                             	.LCFI29:
+ 1054 0005 EF A0                   		mov.L	r10, r0
+ 1055 0007 E7 A1 0A                		mov.L	r1, 40[r10]
+ 315:../src/wolfcrypt/src/fe_low_mem.c ****     byte minusp[F25519_SIZE];
+ 316:../src/wolfcrypt/src/fe_low_mem.c ****     word16 c;
+ 317:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 318:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 319:../src/wolfcrypt/src/fe_low_mem.c ****     /* Reduce using 2^255 = 19 mod p */
+ 320:../src/wolfcrypt/src/fe_low_mem.c ****     c = (x[31] >> 7) * 19;
+ 1056                             		.loc 1 320 11
+ 1057 000a ED A5 0A                		mov.L	40[r10], r5
+ 1058 000d 71 55 1F                		add	#31, r5
+ 1059 0010 CC 55                   		mov.B	[r5], r5
+ 1060                             		.loc 1 320 7
+ 1061 0012 5B 55                   		movu.B	r5, r5
+ 1062 0014 68 75                   		shlr	#7, r5
+ 1063 0016 5B 55                   		movu.B	r5, r5
+ 1064 0018 75 15 13                		mul	#19, r5
+ 1065 001b D3 A5                   		mov.W	r5, [r10]
+ 321:../src/wolfcrypt/src/fe_low_mem.c ****     x[31] &= 127;
+ 1066                             		.loc 1 321 11
+ 1067 001d ED A5 0A                		mov.L	40[r10], r5
+ 1068 0020 71 55 1F                		add	#31, r5
+ 1069 0023 CC 54                   		mov.B	[r5], r4
+ 1070 0025 ED A5 0A                		mov.L	40[r10], r5
+ 1071 0028 71 55 1F                		add	#31, r5
+ 1072 002b 75 24 7F                		and	#0x7f, r4
+ 1073 002e C3 54                   		mov.B	r4, [r5]
+ 322:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 323:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 1074                             		.loc 1 323 12
+ 1075 0030 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1076                             		.loc 1 323 5
+ 1077 0034 2E 2E                   		bra	.L41
+ 1078                             	.L42:
+ 324:../src/wolfcrypt/src/fe_low_mem.c ****         c += x[i];
+ 1079                             		.loc 1 324 15 discriminator 3
+ 1080 0036 ED A5 01                		mov.L	4[r10], r5
+ 1081 0039 ED A4 0A                		mov.L	40[r10], r4
+ 1082 003c 4B 45                   		add	r4, r5
+ 1083 003e CC 55                   		mov.B	[r5], r5
+ 1084 0040 5B 55                   		movu.B	r5, r5
+ 1085                             		.loc 1 324 11 discriminator 3
+ 1086 0042 DC A4                   		mov.W	[r10], r4
+ 1087 0044 4B 45                   		add	r4, r5
+ 1088 0046 D3 A5                   		mov.W	r5, [r10]
+ 325:../src/wolfcrypt/src/fe_low_mem.c ****         x[i] = (byte)c;
+ 1089                             		.loc 1 325 10 discriminator 3
+ 1090 0048 ED A5 01                		mov.L	4[r10], r5
+ 1091 004b ED A4 0A                		mov.L	40[r10], r4
+ 1092 004e 4B 45                   		add	r4, r5
+ 1093                             		.loc 1 325 16 discriminator 3
+ 1094 0050 DC A4                   		mov.W	[r10], r4
+ 1095                             		.loc 1 325 14 discriminator 3
+ 1096 0052 C3 54                   		mov.B	r4, [r5]
+ 326:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1097                             		.loc 1 326 11 discriminator 3
+ 1098 0054 5C A5                   		movu.W	[r10], r5
+ 1099 0056 68 85                   		shlr	#8, r5
+ 1100 0058 D3 A5                   		mov.W	r5, [r10]
+ 323:../src/wolfcrypt/src/fe_low_mem.c ****         c += x[i];
+ 1101                             		.loc 1 323 35 discriminator 3
+ 1102 005a ED A5 01                		mov.L	4[r10], r5
+ 1103 005d 62 15                   		add	#1, r5
+ 1104 005f E7 A5 01                		mov.L	r5, 4[r10]
+ 1105                             	.L41:
+ 323:../src/wolfcrypt/src/fe_low_mem.c ****         c += x[i];
+ 1106                             		.loc 1 323 5 discriminator 1
+ 1107 0062 ED A5 01                		mov.L	4[r10], r5
+ 1108 0065 75 55 1F                		cmp	#31, r5
+ 1109 0068 2B CE                   		ble	.L42
+ 327:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 328:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 329:../src/wolfcrypt/src/fe_low_mem.c ****     /* The number is now less than 2^255 + 18, and therefore less than
+ 330:../src/wolfcrypt/src/fe_low_mem.c ****      * 2p. Try subtracting p, and conditionally load the subtracted
+ 331:../src/wolfcrypt/src/fe_low_mem.c ****      * value if underflow did not occur.
+ 332:../src/wolfcrypt/src/fe_low_mem.c ****      */
+ 333:../src/wolfcrypt/src/fe_low_mem.c ****     c = 19;
+ 1110                             		.loc 1 333 7
+ 1111 006a F8 A5 13                		mov.W	#19, [r10]
+ 334:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 335:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i + 1 < F25519_SIZE; i++) {
+ 1112                             		.loc 1 335 12
+ 1113 006d F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1114                             		.loc 1 335 5
+ 1115 0071 2E 2F                   		bra	.L43
+ 1116                             	.L44:
+ 336:../src/wolfcrypt/src/fe_low_mem.c ****         c += x[i];
+ 1117                             		.loc 1 336 15 discriminator 3
+ 1118 0073 ED A5 01                		mov.L	4[r10], r5
+ 1119 0076 ED A4 0A                		mov.L	40[r10], r4
+ 1120 0079 4B 45                   		add	r4, r5
+ 1121 007b CC 55                   		mov.B	[r5], r5
+ 1122 007d 5B 55                   		movu.B	r5, r5
+ 1123                             		.loc 1 336 11 discriminator 3
+ 1124 007f DC A4                   		mov.W	[r10], r4
+ 1125 0081 4B 45                   		add	r4, r5
+ 1126 0083 D3 A5                   		mov.W	r5, [r10]
+ 337:../src/wolfcrypt/src/fe_low_mem.c ****         minusp[i] = (byte)c;
+ 1127                             		.loc 1 337 21 discriminator 3
+ 1128 0085 DC A5                   		mov.W	[r10], r5
+ 1129 0087 CF 54                   		mov.B	r5, r4
+ 1130                             		.loc 1 337 19 discriminator 3
+ 1131 0089 71 A5 08                		add	#8, r10, r5
+ 1132 008c 06 89 A5 01             		add	4[r10].L, r5
+ 1133 0090 C3 54                   		mov.B	r4, [r5]
+ 338:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1134                             		.loc 1 338 11 discriminator 3
+ 1135 0092 5C A5                   		movu.W	[r10], r5
+ 1136 0094 68 85                   		shlr	#8, r5
+ 1137 0096 D3 A5                   		mov.W	r5, [r10]
+ 335:../src/wolfcrypt/src/fe_low_mem.c ****         c += x[i];
+ 1138                             		.loc 1 335 39 discriminator 3
+ 1139 0098 ED A5 01                		mov.L	4[r10], r5
+ 1140 009b 62 15                   		add	#1, r5
+ 1141 009d E7 A5 01                		mov.L	r5, 4[r10]
+ 1142                             	.L43:
+ 335:../src/wolfcrypt/src/fe_low_mem.c ****         c += x[i];
+ 1143                             		.loc 1 335 5 discriminator 1
+ 1144 00a0 ED A5 01                		mov.L	4[r10], r5
+ 1145 00a3 75 55 1E                		cmp	#30, r5
+ 1146 00a6 2B CD                   		ble	.L44
+ 339:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 340:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 341:../src/wolfcrypt/src/fe_low_mem.c ****     c += ((word16)x[i]) - 128;
+ 1147                             		.loc 1 341 20
+ 1148 00a8 ED A5 01                		mov.L	4[r10], r5
+ 1149 00ab ED A4 0A                		mov.L	40[r10], r4
+ 1150 00ae 4B 45                   		add	r4, r5
+ 1151 00b0 CC 55                   		mov.B	[r5], r5
+ 1152 00b2 5B 55                   		movu.B	r5, r5
+ 1153                             		.loc 1 341 7
+ 1154 00b4 DC A4                   		mov.W	[r10], r4
+ 1155 00b6 4B 45                   		add	r4, r5
+ 1156 00b8 71 55 80                		add	#-128, r5
+ 1157 00bb D3 A5                   		mov.W	r5, [r10]
+ 342:../src/wolfcrypt/src/fe_low_mem.c ****     minusp[31] = (byte)c;
+ 1158                             		.loc 1 342 18
+ 1159 00bd DC A5                   		mov.W	[r10], r5
+ 1160                             		.loc 1 342 16
+ 1161 00bf C7 A5 27                		mov.B	r5, 39[r10]
+ 343:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 344:../src/wolfcrypt/src/fe_low_mem.c ****     /* Load x-p if no underflow */
+ 345:../src/wolfcrypt/src/fe_low_mem.c ****     fe_select(x, minusp, x, (c >> 15) & 1);
+ 1162                             		.loc 1 345 39
+ 1163 00c2 5C A5                   		movu.W	[r10], r5
+ 1164 00c4 68 F5                   		shlr	#15, r5
+ 1165                             		.loc 1 345 5
+ 1166 00c6 64 15                   		and	#1, r5
+ 1167 00c8 CF 54                   		mov.B	r5, r4
+ 1168 00ca 71 A5 08                		add	#8, r10, r5
+ 1169 00cd ED A3 0A                		mov.L	40[r10], r3
+ 1170 00d0 EF 52                   		mov.L	r5, r2
+ 1171 00d2 ED A1 0A                		mov.L	40[r10], r1
+ 1172 00d5 05 00 00 00             		bsr	_fe_select
+ 346:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 1173                             		.loc 1 346 1
+ 1174 00d9 03                      		nop
+ 1175 00da 3F AA 0C                		rtsd	#48, r10-r10
+ 1176                             	.LFE56:
+ 1178                             		.section	.text.fe_select,"ax",@progbits
+ 1179                             		.global	_fe_select
+ 1181                             	_fe_select:
+ 1182                             	.LFB57:
+ 347:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 348:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 349:../src/wolfcrypt/src/fe_low_mem.c **** void fe_select(byte *dst,
+ 350:../src/wolfcrypt/src/fe_low_mem.c ****                const byte *zero, const byte *one,
+ 351:../src/wolfcrypt/src/fe_low_mem.c ****                byte condition)
+ 352:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 1183                             		.loc 1 352 1
+ 1184 0000 7E AA                   		push.l	r10
+ 1185                             	.LCFI30:
+ 1186 0002 71 0A E8                		add	#-24, r0, r10
+ 1187                             	.LCFI31:
+ 1188 0005 EF A0                   		mov.L	r10, r0
+ 1189 0007 E7 A1 02                		mov.L	r1, 8[r10]
+ 1190 000a E7 A2 03                		mov.L	r2, 12[r10]
+ 1191 000d E7 A3 04                		mov.L	r3, 16[r10]
+ 1192 0010 C7 A4 14                		mov.B	r4, 20[r10]
+ 353:../src/wolfcrypt/src/fe_low_mem.c ****     const byte mask = -condition;
+ 1193                             		.loc 1 353 16
+ 1194 0013 CD A5 14                		mov.B	20[r10], r5
+ 1195 0016 7E 15                   		neg	r5
+ 1196 0018 C7 A5 04                		mov.B	r5, 4[r10]
+ 354:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 355:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 356:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++)
+ 1197                             		.loc 1 356 12
+ 1198 001b F8 A6 00                		mov.L	#0, [r10]
+ 1199                             		.loc 1 356 5
+ 1200 001e 2E 3B                   		bra	.L46
+ 1201                             	.L47:
+ 357:../src/wolfcrypt/src/fe_low_mem.c ****         dst[i] = zero[i] ^ (mask & (one[i] ^ zero[i]));
+ 1202                             		.loc 1 357 22 discriminator 3
+ 1203 0020 EC A5                   		mov.L	[r10], r5
+ 1204 0022 ED A4 03                		mov.L	12[r10], r4
+ 1205 0025 4B 45                   		add	r4, r5
+ 1206 0027 CC 52                   		mov.B	[r5], r2
+ 1207                             		.loc 1 357 40 discriminator 3
+ 1208 0029 EC A5                   		mov.L	[r10], r5
+ 1209 002b ED A4 04                		mov.L	16[r10], r4
+ 1210 002e 4B 45                   		add	r4, r5
+ 1211 0030 CC 53                   		mov.B	[r5], r3
+ 1212                             		.loc 1 357 50 discriminator 3
+ 1213 0032 EC A5                   		mov.L	[r10], r5
+ 1214 0034 ED A4 03                		mov.L	12[r10], r4
+ 1215 0037 4B 45                   		add	r4, r5
+ 1216 0039 CC 55                   		mov.B	[r5], r5
+ 1217                             		.loc 1 357 16 discriminator 3
+ 1218 003b FC 37 35                		xor	r3, r5
+ 1219 003e CD A4 04                		mov.B	4[r10], r4
+ 1220 0041 53 45                   		and	r4, r5
+ 1221 0043 CF 53                   		mov.B	r5, r3
+ 1222                             		.loc 1 357 12 discriminator 3
+ 1223 0045 EC A5                   		mov.L	[r10], r5
+ 1224 0047 ED A4 02                		mov.L	8[r10], r4
+ 1225 004a 4B 45                   		add	r4, r5
+ 1226                             		.loc 1 357 16 discriminator 3
+ 1227 004c EF 24                   		mov.L	r2, r4
+ 1228 004e FC 37 34                		xor	r3, r4
+ 1229 0051 C3 54                   		mov.B	r4, [r5]
+ 356:../src/wolfcrypt/src/fe_low_mem.c ****         dst[i] = zero[i] ^ (mask & (one[i] ^ zero[i]));
+ 1230                             		.loc 1 356 35 discriminator 3
+ 1231 0053 EC A5                   		mov.L	[r10], r5
+ 1232 0055 62 15                   		add	#1, r5
+ 1233 0057 E3 A5                   		mov.L	r5, [r10]
+ 1234                             	.L46:
+ 356:../src/wolfcrypt/src/fe_low_mem.c ****         dst[i] = zero[i] ^ (mask & (one[i] ^ zero[i]));
+ 1235                             		.loc 1 356 5 discriminator 1
+ 1236 0059 EC A5                   		mov.L	[r10], r5
+ 1237 005b 75 55 1F                		cmp	#31, r5
+ 1238 005e 2B C2                   		ble	.L47
+ 358:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 1239                             		.loc 1 358 1
+ 1240 0060 03                      		nop
+ 1241 0061 3F AA 07                		rtsd	#28, r10-r10
+ 1242                             	.LFE57:
+ 1244                             		.section	.text.lm_add,"ax",@progbits
+ 1245                             		.global	_lm_add
+ 1247                             	_lm_add:
+ 1248                             	.LFB58:
+ 359:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 360:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 361:../src/wolfcrypt/src/fe_low_mem.c **** void lm_add(byte* r, const byte* a, const byte* b)
+ 362:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 1249                             		.loc 1 362 1
+ 1250 0000 7E AA                   		push.l	r10
+ 1251                             	.LCFI32:
+ 1252 0002 71 0A EC                		add	#-20, r0, r10
+ 1253                             	.LCFI33:
+ 1254 0005 EF A0                   		mov.L	r10, r0
+ 1255 0007 E7 A1 02                		mov.L	r1, 8[r10]
+ 1256 000a E7 A2 03                		mov.L	r2, 12[r10]
+ 1257 000d E7 A3 04                		mov.L	r3, 16[r10]
+ 363:../src/wolfcrypt/src/fe_low_mem.c ****     word16 c = 0;
+ 1258                             		.loc 1 363 12
+ 1259 0010 F8 A5 00                		mov.W	#0, [r10]
+ 364:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 365:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 366:../src/wolfcrypt/src/fe_low_mem.c ****     /* Add */
+ 367:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 1260                             		.loc 1 367 12
+ 1261 0013 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1262                             		.loc 1 367 5
+ 1263 0017 2E 3E                   		bra	.L49
+ 1264                             	.L50:
+ 368:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1265                             		.loc 1 368 11 discriminator 3
+ 1266 0019 5C A5                   		movu.W	[r10], r5
+ 1267 001b 68 85                   		shlr	#8, r5
+ 1268 001d D3 A5                   		mov.W	r5, [r10]
+ 369:../src/wolfcrypt/src/fe_low_mem.c ****         c += ((word16)a[i]) + ((word16)b[i]);
+ 1269                             		.loc 1 369 24 discriminator 3
+ 1270 001f ED A5 01                		mov.L	4[r10], r5
+ 1271 0022 ED A4 03                		mov.L	12[r10], r4
+ 1272 0025 4B 45                   		add	r4, r5
+ 1273 0027 CC 55                   		mov.B	[r5], r5
+ 1274 0029 5B 55                   		movu.B	r5, r5
+ 1275 002b DF 54                   		mov.W	r5, r4
+ 1276                             		.loc 1 369 41 discriminator 3
+ 1277 002d ED A5 01                		mov.L	4[r10], r5
+ 1278 0030 ED A3 04                		mov.L	16[r10], r3
+ 1279 0033 4B 35                   		add	r3, r5
+ 1280 0035 CC 55                   		mov.B	[r5], r5
+ 1281 0037 5B 55                   		movu.B	r5, r5
+ 1282                             		.loc 1 369 29 discriminator 3
+ 1283 0039 4B 45                   		add	r4, r5
+ 1284                             		.loc 1 369 11 discriminator 3
+ 1285 003b DC A4                   		mov.W	[r10], r4
+ 1286 003d 4B 45                   		add	r4, r5
+ 1287 003f D3 A5                   		mov.W	r5, [r10]
+ 370:../src/wolfcrypt/src/fe_low_mem.c ****         r[i] = (byte)c;
+ 1288                             		.loc 1 370 10 discriminator 3
+ 1289 0041 ED A5 01                		mov.L	4[r10], r5
+ 1290 0044 ED A4 02                		mov.L	8[r10], r4
+ 1291 0047 4B 45                   		add	r4, r5
+ 1292                             		.loc 1 370 16 discriminator 3
+ 1293 0049 DC A4                   		mov.W	[r10], r4
+ 1294                             		.loc 1 370 14 discriminator 3
+ 1295 004b C3 54                   		mov.B	r4, [r5]
+ 367:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1296                             		.loc 1 367 35 discriminator 3
+ 1297 004d ED A5 01                		mov.L	4[r10], r5
+ 1298 0050 62 15                   		add	#1, r5
+ 1299 0052 E7 A5 01                		mov.L	r5, 4[r10]
+ 1300                             	.L49:
+ 367:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1301                             		.loc 1 367 5 discriminator 1
+ 1302 0055 ED A5 01                		mov.L	4[r10], r5
+ 1303 0058 75 55 1F                		cmp	#31, r5
+ 1304 005b 2B BE                   		ble	.L50
+ 371:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 372:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 373:../src/wolfcrypt/src/fe_low_mem.c ****     /* Reduce with 2^255 = 19 mod p */
+ 374:../src/wolfcrypt/src/fe_low_mem.c ****     r[31] &= 127;
+ 1305                             		.loc 1 374 11
+ 1306 005d ED A5 02                		mov.L	8[r10], r5
+ 1307 0060 71 55 1F                		add	#31, r5
+ 1308 0063 CC 54                   		mov.B	[r5], r4
+ 1309 0065 ED A5 02                		mov.L	8[r10], r5
+ 1310 0068 71 55 1F                		add	#31, r5
+ 1311 006b 75 24 7F                		and	#0x7f, r4
+ 1312 006e C3 54                   		mov.B	r4, [r5]
+ 375:../src/wolfcrypt/src/fe_low_mem.c ****     c = (c >> 7) * 19;
+ 1313                             		.loc 1 375 7
+ 1314 0070 5C A5                   		movu.W	[r10], r5
+ 1315 0072 68 75                   		shlr	#7, r5
+ 1316 0074 75 15 13                		mul	#19, r5
+ 1317 0077 D3 A5                   		mov.W	r5, [r10]
+ 376:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 377:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 1318                             		.loc 1 377 12
+ 1319 0079 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1320                             		.loc 1 377 5
+ 1321 007d 2E 2E                   		bra	.L51
+ 1322                             	.L52:
+ 378:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1323                             		.loc 1 378 15 discriminator 3
+ 1324 007f ED A5 01                		mov.L	4[r10], r5
+ 1325 0082 ED A4 02                		mov.L	8[r10], r4
+ 1326 0085 4B 45                   		add	r4, r5
+ 1327 0087 CC 55                   		mov.B	[r5], r5
+ 1328 0089 5B 55                   		movu.B	r5, r5
+ 1329                             		.loc 1 378 11 discriminator 3
+ 1330 008b DC A4                   		mov.W	[r10], r4
+ 1331 008d 4B 45                   		add	r4, r5
+ 1332 008f D3 A5                   		mov.W	r5, [r10]
+ 379:../src/wolfcrypt/src/fe_low_mem.c ****         r[i] = (byte)c;
+ 1333                             		.loc 1 379 10 discriminator 3
+ 1334 0091 ED A5 01                		mov.L	4[r10], r5
+ 1335 0094 ED A4 02                		mov.L	8[r10], r4
+ 1336 0097 4B 45                   		add	r4, r5
+ 1337                             		.loc 1 379 16 discriminator 3
+ 1338 0099 DC A4                   		mov.W	[r10], r4
+ 1339                             		.loc 1 379 14 discriminator 3
+ 1340 009b C3 54                   		mov.B	r4, [r5]
+ 380:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1341                             		.loc 1 380 11 discriminator 3
+ 1342 009d 5C A5                   		movu.W	[r10], r5
+ 1343 009f 68 85                   		shlr	#8, r5
+ 1344 00a1 D3 A5                   		mov.W	r5, [r10]
+ 377:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1345                             		.loc 1 377 35 discriminator 3
+ 1346 00a3 ED A5 01                		mov.L	4[r10], r5
+ 1347 00a6 62 15                   		add	#1, r5
+ 1348 00a8 E7 A5 01                		mov.L	r5, 4[r10]
+ 1349                             	.L51:
+ 377:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1350                             		.loc 1 377 5 discriminator 1
+ 1351 00ab ED A5 01                		mov.L	4[r10], r5
+ 1352 00ae 75 55 1F                		cmp	#31, r5
+ 1353 00b1 2B CE                   		ble	.L52
+ 381:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 382:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 1354                             		.loc 1 382 1
+ 1355 00b3 03                      		nop
+ 1356 00b4 3F AA 06                		rtsd	#24, r10-r10
+ 1357                             	.LFE58:
+ 1359                             		.section	.text.lm_sub,"ax",@progbits
+ 1360                             		.global	_lm_sub
+ 1362                             	_lm_sub:
+ 1363                             	.LFB59:
+ 383:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 384:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 385:../src/wolfcrypt/src/fe_low_mem.c **** void lm_sub(byte* r, const byte* a, const byte* b)
+ 386:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 1364                             		.loc 1 386 1
+ 1365 0000 7E AA                   		push.l	r10
+ 1366                             	.LCFI34:
+ 1367 0002 71 0A EC                		add	#-20, r0, r10
+ 1368                             	.LCFI35:
+ 1369 0005 EF A0                   		mov.L	r10, r0
+ 1370 0007 E7 A1 02                		mov.L	r1, 8[r10]
+ 1371 000a E7 A2 03                		mov.L	r2, 12[r10]
+ 1372 000d E7 A3 04                		mov.L	r3, 16[r10]
+ 387:../src/wolfcrypt/src/fe_low_mem.c ****     word32 c = 0;
+ 1373                             		.loc 1 387 12
+ 1374 0010 F8 A6 00                		mov.L	#0, [r10]
+ 388:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 389:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 390:../src/wolfcrypt/src/fe_low_mem.c ****     /* Calculate a + 2p - b, to avoid underflow */
+ 391:../src/wolfcrypt/src/fe_low_mem.c ****     c = 218;
+ 1375                             		.loc 1 391 7
+ 1376 0013 F8 AA DA 00             		mov.L	#0xda, [r10]
+ 392:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i + 1 < F25519_SIZE; i++) {
+ 1377                             		.loc 1 392 12
+ 1378 0017 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1379                             		.loc 1 392 5
+ 1380 001b 2E 41                   		bra	.L54
+ 1381                             	.L55:
+ 393:../src/wolfcrypt/src/fe_low_mem.c ****         c += 65280 + ((word32)a[i]) - ((word32)b[i]);
+ 1382                             		.loc 1 393 32 discriminator 3
+ 1383 001d ED A5 01                		mov.L	4[r10], r5
+ 1384 0020 ED A4 03                		mov.L	12[r10], r4
+ 1385 0023 4B 45                   		add	r4, r5
+ 1386 0025 CC 55                   		mov.B	[r5], r5
+ 1387                             		.loc 1 393 23 discriminator 3
+ 1388 0027 5B 54                   		movu.B	r5, r4
+ 1389                             		.loc 1 393 49 discriminator 3
+ 1390 0029 ED A5 01                		mov.L	4[r10], r5
+ 1391 002c ED A3 04                		mov.L	16[r10], r3
+ 1392 002f 4B 35                   		add	r3, r5
+ 1393 0031 CC 55                   		mov.B	[r5], r5
+ 1394                             		.loc 1 393 40 discriminator 3
+ 1395 0033 5B 55                   		movu.B	r5, r5
+ 1396                             		.loc 1 393 37 discriminator 3
+ 1397 0035 FF 05 54                		sub	r5, r4, r5
+ 1398                             		.loc 1 393 11 discriminator 3
+ 1399 0038 06 88 A5                		add	[r10].L, r5
+ 1400 003b 73 55 00 FF 00          		add	#0xff00, r5
+ 1401 0040 E3 A5                   		mov.L	r5, [r10]
+ 394:../src/wolfcrypt/src/fe_low_mem.c ****         r[i] = c;
+ 1402                             		.loc 1 394 10 discriminator 3
+ 1403 0042 ED A5 01                		mov.L	4[r10], r5
+ 1404 0045 ED A4 02                		mov.L	8[r10], r4
+ 1405 0048 4B 45                   		add	r4, r5
+ 1406                             		.loc 1 394 14 discriminator 3
+ 1407 004a EC A4                   		mov.L	[r10], r4
+ 1408 004c C3 54                   		mov.B	r4, [r5]
+ 395:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1409                             		.loc 1 395 11 discriminator 3
+ 1410 004e EC A5                   		mov.L	[r10], r5
+ 1411 0050 68 85                   		shlr	#8, r5
+ 1412 0052 E3 A5                   		mov.L	r5, [r10]
+ 392:../src/wolfcrypt/src/fe_low_mem.c ****         c += 65280 + ((word32)a[i]) - ((word32)b[i]);
+ 1413                             		.loc 1 392 39 discriminator 3
+ 1414 0054 ED A5 01                		mov.L	4[r10], r5
+ 1415 0057 62 15                   		add	#1, r5
+ 1416 0059 E7 A5 01                		mov.L	r5, 4[r10]
+ 1417                             	.L54:
+ 392:../src/wolfcrypt/src/fe_low_mem.c ****         c += 65280 + ((word32)a[i]) - ((word32)b[i]);
+ 1418                             		.loc 1 392 5 discriminator 1
+ 1419 005c ED A5 01                		mov.L	4[r10], r5
+ 1420 005f 75 55 1E                		cmp	#30, r5
+ 1421 0062 2B BB                   		ble	.L55
+ 396:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 397:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 398:../src/wolfcrypt/src/fe_low_mem.c ****     c += ((word32)a[31]) - ((word32)b[31]);
+ 1422                             		.loc 1 398 20
+ 1423 0064 ED A5 03                		mov.L	12[r10], r5
+ 1424 0067 71 55 1F                		add	#31, r5
+ 1425 006a CC 55                   		mov.B	[r5], r5
+ 1426                             		.loc 1 398 11
+ 1427 006c 5B 54                   		movu.B	r5, r4
+ 1428                             		.loc 1 398 38
+ 1429 006e ED A5 04                		mov.L	16[r10], r5
+ 1430 0071 71 55 1F                		add	#31, r5
+ 1431 0074 CC 55                   		mov.B	[r5], r5
+ 1432                             		.loc 1 398 29
+ 1433 0076 5B 55                   		movu.B	r5, r5
+ 1434                             		.loc 1 398 26
+ 1435 0078 FF 05 54                		sub	r5, r4, r5
+ 1436                             		.loc 1 398 7
+ 1437 007b EC A4                   		mov.L	[r10], r4
+ 1438 007d 4B 45                   		add	r4, r5
+ 1439 007f E3 A5                   		mov.L	r5, [r10]
+ 399:../src/wolfcrypt/src/fe_low_mem.c ****     r[31] = c & 127;
+ 1440                             		.loc 1 399 15
+ 1441 0081 EC A5                   		mov.L	[r10], r5
+ 1442 0083 CF 54                   		mov.B	r5, r4
+ 1443                             		.loc 1 399 6
+ 1444 0085 ED A5 02                		mov.L	8[r10], r5
+ 1445 0088 71 55 1F                		add	#31, r5
+ 1446                             		.loc 1 399 15
+ 1447 008b 75 24 7F                		and	#0x7f, r4
+ 1448                             		.loc 1 399 11
+ 1449 008e C3 54                   		mov.B	r4, [r5]
+ 400:../src/wolfcrypt/src/fe_low_mem.c ****     c = (c >> 7) * 19;
+ 1450                             		.loc 1 400 12
+ 1451 0090 EC A5                   		mov.L	[r10], r5
+ 1452 0092 68 75                   		shlr	#7, r5
+ 1453                             		.loc 1 400 7
+ 1454 0094 75 15 13                		mul	#19, r5
+ 1455 0097 E3 A5                   		mov.L	r5, [r10]
+ 401:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 402:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 1456                             		.loc 1 402 12
+ 1457 0099 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1458                             		.loc 1 402 5
+ 1459 009d 2E 2E                   		bra	.L56
+ 1460                             	.L57:
+ 403:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1461                             		.loc 1 403 15 discriminator 3
+ 1462 009f ED A5 01                		mov.L	4[r10], r5
+ 1463 00a2 ED A4 02                		mov.L	8[r10], r4
+ 1464 00a5 4B 45                   		add	r4, r5
+ 1465 00a7 CC 55                   		mov.B	[r5], r5
+ 1466 00a9 5B 55                   		movu.B	r5, r5
+ 1467                             		.loc 1 403 11 discriminator 3
+ 1468 00ab EC A4                   		mov.L	[r10], r4
+ 1469 00ad 4B 45                   		add	r4, r5
+ 1470 00af E3 A5                   		mov.L	r5, [r10]
+ 404:../src/wolfcrypt/src/fe_low_mem.c ****         r[i] = c;
+ 1471                             		.loc 1 404 10 discriminator 3
+ 1472 00b1 ED A5 01                		mov.L	4[r10], r5
+ 1473 00b4 ED A4 02                		mov.L	8[r10], r4
+ 1474 00b7 4B 45                   		add	r4, r5
+ 1475                             		.loc 1 404 14 discriminator 3
+ 1476 00b9 EC A4                   		mov.L	[r10], r4
+ 1477 00bb C3 54                   		mov.B	r4, [r5]
+ 405:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1478                             		.loc 1 405 11 discriminator 3
+ 1479 00bd EC A5                   		mov.L	[r10], r5
+ 1480 00bf 68 85                   		shlr	#8, r5
+ 1481 00c1 E3 A5                   		mov.L	r5, [r10]
+ 402:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1482                             		.loc 1 402 35 discriminator 3
+ 1483 00c3 ED A5 01                		mov.L	4[r10], r5
+ 1484 00c6 62 15                   		add	#1, r5
+ 1485 00c8 E7 A5 01                		mov.L	r5, 4[r10]
+ 1486                             	.L56:
+ 402:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1487                             		.loc 1 402 5 discriminator 1
+ 1488 00cb ED A5 01                		mov.L	4[r10], r5
+ 1489 00ce 75 55 1F                		cmp	#31, r5
+ 1490 00d1 2B CE                   		ble	.L57
+ 406:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 407:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 1491                             		.loc 1 407 1
+ 1492 00d3 03                      		nop
+ 1493 00d4 3F AA 06                		rtsd	#24, r10-r10
+ 1494                             	.LFE59:
+ 1496                             		.section	.text.lm_neg,"ax",@progbits
+ 1497                             		.global	_lm_neg
+ 1499                             	_lm_neg:
+ 1500                             	.LFB60:
+ 408:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 409:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 410:../src/wolfcrypt/src/fe_low_mem.c **** void lm_neg(byte* r, const byte* a)
+ 411:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 1501                             		.loc 1 411 1
+ 1502 0000 7E AA                   		push.l	r10
+ 1503                             	.LCFI36:
+ 1504 0002 71 0A F0                		add	#-16, r0, r10
+ 1505                             	.LCFI37:
+ 1506 0005 EF A0                   		mov.L	r10, r0
+ 1507 0007 E7 A1 02                		mov.L	r1, 8[r10]
+ 1508 000a E7 A2 03                		mov.L	r2, 12[r10]
+ 412:../src/wolfcrypt/src/fe_low_mem.c ****     word32 c = 0;
+ 1509                             		.loc 1 412 12
+ 1510 000d F8 A6 00                		mov.L	#0, [r10]
+ 413:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 414:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 415:../src/wolfcrypt/src/fe_low_mem.c ****     /* Calculate 2p - a, to avoid underflow */
+ 416:../src/wolfcrypt/src/fe_low_mem.c ****     c = 218;
+ 1511                             		.loc 1 416 7
+ 1512 0010 F8 AA DA 00             		mov.L	#0xda, [r10]
+ 417:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i + 1 < F25519_SIZE; i++) {
+ 1513                             		.loc 1 417 12
+ 1514 0014 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1515                             		.loc 1 417 5
+ 1516 0018 2E 34                   		bra	.L59
+ 1517                             	.L60:
+ 418:../src/wolfcrypt/src/fe_low_mem.c ****         c += 65280 - ((word32)a[i]);
+ 1518                             		.loc 1 418 32 discriminator 3
+ 1519 001a ED A5 01                		mov.L	4[r10], r5
+ 1520 001d ED A4 03                		mov.L	12[r10], r4
+ 1521 0020 4B 45                   		add	r4, r5
+ 1522 0022 CC 55                   		mov.B	[r5], r5
+ 1523                             		.loc 1 418 11 discriminator 3
+ 1524 0024 5B 55                   		movu.B	r5, r5
+ 1525 0026 EC A4                   		mov.L	[r10], r4
+ 1526 0028 FF 05 54                		sub	r5, r4, r5
+ 1527 002b 73 55 00 FF 00          		add	#0xff00, r5
+ 1528 0030 E3 A5                   		mov.L	r5, [r10]
+ 419:../src/wolfcrypt/src/fe_low_mem.c ****         r[i] = c;
+ 1529                             		.loc 1 419 10 discriminator 3
+ 1530 0032 ED A5 01                		mov.L	4[r10], r5
+ 1531 0035 ED A4 02                		mov.L	8[r10], r4
+ 1532 0038 4B 45                   		add	r4, r5
+ 1533                             		.loc 1 419 14 discriminator 3
+ 1534 003a EC A4                   		mov.L	[r10], r4
+ 1535 003c C3 54                   		mov.B	r4, [r5]
+ 420:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1536                             		.loc 1 420 11 discriminator 3
+ 1537 003e EC A5                   		mov.L	[r10], r5
+ 1538 0040 68 85                   		shlr	#8, r5
+ 1539 0042 E3 A5                   		mov.L	r5, [r10]
+ 417:../src/wolfcrypt/src/fe_low_mem.c ****         c += 65280 - ((word32)a[i]);
+ 1540                             		.loc 1 417 39 discriminator 3
+ 1541 0044 ED A5 01                		mov.L	4[r10], r5
+ 1542 0047 62 15                   		add	#1, r5
+ 1543 0049 E7 A5 01                		mov.L	r5, 4[r10]
+ 1544                             	.L59:
+ 417:../src/wolfcrypt/src/fe_low_mem.c ****         c += 65280 - ((word32)a[i]);
+ 1545                             		.loc 1 417 5 discriminator 1
+ 1546 004c ED A5 01                		mov.L	4[r10], r5
+ 1547 004f 75 55 1E                		cmp	#30, r5
+ 1548 0052 2B C8                   		ble	.L60
+ 421:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 422:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 423:../src/wolfcrypt/src/fe_low_mem.c ****     c -= ((word32)a[31]);
+ 1549                             		.loc 1 423 20
+ 1550 0054 ED A5 03                		mov.L	12[r10], r5
+ 1551 0057 71 55 1F                		add	#31, r5
+ 1552 005a CC 55                   		mov.B	[r5], r5
+ 1553                             		.loc 1 423 11
+ 1554 005c 5B 55                   		movu.B	r5, r5
+ 1555                             		.loc 1 423 7
+ 1556 005e EC A4                   		mov.L	[r10], r4
+ 1557 0060 FF 05 54                		sub	r5, r4, r5
+ 1558 0063 E3 A5                   		mov.L	r5, [r10]
+ 424:../src/wolfcrypt/src/fe_low_mem.c ****     r[31] = c & 127;
+ 1559                             		.loc 1 424 15
+ 1560 0065 EC A5                   		mov.L	[r10], r5
+ 1561 0067 CF 54                   		mov.B	r5, r4
+ 1562                             		.loc 1 424 6
+ 1563 0069 ED A5 02                		mov.L	8[r10], r5
+ 1564 006c 71 55 1F                		add	#31, r5
+ 1565                             		.loc 1 424 15
+ 1566 006f 75 24 7F                		and	#0x7f, r4
+ 1567                             		.loc 1 424 11
+ 1568 0072 C3 54                   		mov.B	r4, [r5]
+ 425:../src/wolfcrypt/src/fe_low_mem.c ****     c = (c >> 7) * 19;
+ 1569                             		.loc 1 425 12
+ 1570 0074 EC A5                   		mov.L	[r10], r5
+ 1571 0076 68 75                   		shlr	#7, r5
+ 1572                             		.loc 1 425 7
+ 1573 0078 75 15 13                		mul	#19, r5
+ 1574 007b E3 A5                   		mov.L	r5, [r10]
+ 426:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 427:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 1575                             		.loc 1 427 12
+ 1576 007d F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1577                             		.loc 1 427 5
+ 1578 0081 2E 2E                   		bra	.L61
+ 1579                             	.L62:
+ 428:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1580                             		.loc 1 428 15 discriminator 3
+ 1581 0083 ED A5 01                		mov.L	4[r10], r5
+ 1582 0086 ED A4 02                		mov.L	8[r10], r4
+ 1583 0089 4B 45                   		add	r4, r5
+ 1584 008b CC 55                   		mov.B	[r5], r5
+ 1585 008d 5B 55                   		movu.B	r5, r5
+ 1586                             		.loc 1 428 11 discriminator 3
+ 1587 008f EC A4                   		mov.L	[r10], r4
+ 1588 0091 4B 45                   		add	r4, r5
+ 1589 0093 E3 A5                   		mov.L	r5, [r10]
+ 429:../src/wolfcrypt/src/fe_low_mem.c ****         r[i] = c;
+ 1590                             		.loc 1 429 10 discriminator 3
+ 1591 0095 ED A5 01                		mov.L	4[r10], r5
+ 1592 0098 ED A4 02                		mov.L	8[r10], r4
+ 1593 009b 4B 45                   		add	r4, r5
+ 1594                             		.loc 1 429 14 discriminator 3
+ 1595 009d EC A4                   		mov.L	[r10], r4
+ 1596 009f C3 54                   		mov.B	r4, [r5]
+ 430:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1597                             		.loc 1 430 11 discriminator 3
+ 1598 00a1 EC A5                   		mov.L	[r10], r5
+ 1599 00a3 68 85                   		shlr	#8, r5
+ 1600 00a5 E3 A5                   		mov.L	r5, [r10]
+ 427:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1601                             		.loc 1 427 35 discriminator 3
+ 1602 00a7 ED A5 01                		mov.L	4[r10], r5
+ 1603 00aa 62 15                   		add	#1, r5
+ 1604 00ac E7 A5 01                		mov.L	r5, 4[r10]
+ 1605                             	.L61:
+ 427:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1606                             		.loc 1 427 5 discriminator 1
+ 1607 00af ED A5 01                		mov.L	4[r10], r5
+ 1608 00b2 75 55 1F                		cmp	#31, r5
+ 1609 00b5 2B CE                   		ble	.L62
+ 431:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 432:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 1610                             		.loc 1 432 1
+ 1611 00b7 03                      		nop
+ 1612 00b8 3F AA 05                		rtsd	#20, r10-r10
+ 1613                             	.LFE60:
+ 1615                             		.section	.text.fe_mul__distinct,"ax",@progbits
+ 1616                             		.global	_fe_mul__distinct
+ 1618                             	_fe_mul__distinct:
+ 1619                             	.LFB61:
+ 433:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 434:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 435:../src/wolfcrypt/src/fe_low_mem.c **** void fe_mul__distinct(byte *r, const byte *a, const byte *b)
+ 436:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 1620                             		.loc 1 436 1
+ 1621 0000 7E AA                   		push.l	r10
+ 1622                             	.LCFI38:
+ 1623 0002 71 0A E8                		add	#-24, r0, r10
+ 1624                             	.LCFI39:
+ 1625 0005 EF A0                   		mov.L	r10, r0
+ 1626 0007 E7 A1 03                		mov.L	r1, 12[r10]
+ 1627 000a E7 A2 04                		mov.L	r2, 16[r10]
+ 1628 000d E7 A3 05                		mov.L	r3, 20[r10]
+ 437:../src/wolfcrypt/src/fe_low_mem.c ****     word32 c = 0;
+ 1629                             		.loc 1 437 12
+ 1630 0010 F8 A6 00                		mov.L	#0, [r10]
+ 438:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 439:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 440:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 1631                             		.loc 1 440 12
+ 1632 0013 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1633                             		.loc 1 440 5
+ 1634 0017 38 98 00                		bra	.L64
+ 1635                             	.L69:
+ 1636                             	.LBB4:
+ 441:../src/wolfcrypt/src/fe_low_mem.c ****         int j;
+ 442:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 443:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1637                             		.loc 1 443 11
+ 1638 001a EC A5                   		mov.L	[r10], r5
+ 1639 001c 68 85                   		shlr	#8, r5
+ 1640 001e E3 A5                   		mov.L	r5, [r10]
+ 444:../src/wolfcrypt/src/fe_low_mem.c ****         for (j = 0; j <= i; j++)
+ 1641                             		.loc 1 444 16
+ 1642 0020 F9 A6 02 00             		mov.L	#0, 8[r10]
+ 1643                             		.loc 1 444 9
+ 1644 0024 2E 30                   		bra	.L65
+ 1645                             	.L66:
+ 445:../src/wolfcrypt/src/fe_low_mem.c ****             c += ((word32)a[j]) * ((word32)b[i - j]);
+ 1646                             		.loc 1 445 28 discriminator 3
+ 1647 0026 ED A5 02                		mov.L	8[r10], r5
+ 1648 0029 ED A4 04                		mov.L	16[r10], r4
+ 1649 002c 4B 45                   		add	r4, r5
+ 1650 002e CC 55                   		mov.B	[r5], r5
+ 1651                             		.loc 1 445 19 discriminator 3
+ 1652 0030 5B 54                   		movu.B	r5, r4
+ 1653                             		.loc 1 445 48 discriminator 3
+ 1654 0032 ED A3 01                		mov.L	4[r10], r3
+ 1655 0035 ED A5 02                		mov.L	8[r10], r5
+ 1656 0038 FF 05 53                		sub	r5, r3, r5
+ 1657                             		.loc 1 445 45 discriminator 3
+ 1658 003b ED A3 05                		mov.L	20[r10], r3
+ 1659 003e 4B 35                   		add	r3, r5
+ 1660 0040 CC 55                   		mov.B	[r5], r5
+ 1661                             		.loc 1 445 36 discriminator 3
+ 1662 0042 5B 55                   		movu.B	r5, r5
+ 1663                             		.loc 1 445 33 discriminator 3
+ 1664 0044 4F 45                   		mul	r4, r5
+ 1665                             		.loc 1 445 15 discriminator 3
+ 1666 0046 EC A4                   		mov.L	[r10], r4
+ 1667 0048 4B 45                   		add	r4, r5
+ 1668 004a E3 A5                   		mov.L	r5, [r10]
+ 444:../src/wolfcrypt/src/fe_low_mem.c ****         for (j = 0; j <= i; j++)
+ 1669                             		.loc 1 444 30 discriminator 3
+ 1670 004c ED A5 02                		mov.L	8[r10], r5
+ 1671 004f 62 15                   		add	#1, r5
+ 1672 0051 E7 A5 02                		mov.L	r5, 8[r10]
+ 1673                             	.L65:
+ 444:../src/wolfcrypt/src/fe_low_mem.c ****         for (j = 0; j <= i; j++)
+ 1674                             		.loc 1 444 9 discriminator 1
+ 1675 0054 ED A4 02                		mov.L	8[r10], r4
+ 1676 0057 ED A5 01                		mov.L	4[r10], r5
+ 1677 005a 47 54                   		cmp	r5, r4
+ 1678 005c 2B CA                   		ble	.L66
+ 446:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 447:../src/wolfcrypt/src/fe_low_mem.c ****         for (; j < F25519_SIZE; j++)
+ 1679                             		.loc 1 447 9
+ 1680 005e 2E 35                   		bra	.L67
+ 1681                             	.L68:
+ 448:../src/wolfcrypt/src/fe_low_mem.c ****             c += ((word32)a[j]) *
+ 1682                             		.loc 1 448 28 discriminator 2
+ 1683 0060 ED A5 02                		mov.L	8[r10], r5
+ 1684 0063 ED A4 04                		mov.L	16[r10], r4
+ 1685 0066 4B 45                   		add	r4, r5
+ 1686 0068 CC 55                   		mov.B	[r5], r5
+ 1687                             		.loc 1 448 19 discriminator 2
+ 1688 006a 5B 54                   		movu.B	r5, r4
+ 449:../src/wolfcrypt/src/fe_low_mem.c ****                 ((word32)b[i + F25519_SIZE - j]) * 38;
+ 1689                             		.loc 1 449 30 discriminator 2
+ 1690 006c ED A5 01                		mov.L	4[r10], r5
+ 1691 006f 71 55 20                		add	#32, r5
+ 1692                             		.loc 1 449 44 discriminator 2
+ 1693 0072 ED A3 02                		mov.L	8[r10], r3
+ 1694 0075 43 35                   		sub	r3, r5
+ 1695                             		.loc 1 449 27 discriminator 2
+ 1696 0077 ED A3 05                		mov.L	20[r10], r3
+ 1697 007a 4B 35                   		add	r3, r5
+ 1698 007c CC 55                   		mov.B	[r5], r5
+ 1699                             		.loc 1 449 18 discriminator 2
+ 1700 007e 5B 55                   		movu.B	r5, r5
+ 448:../src/wolfcrypt/src/fe_low_mem.c ****             c += ((word32)a[j]) *
+ 1701                             		.loc 1 448 33 discriminator 2
+ 1702 0080 4F 45                   		mul	r4, r5
+ 1703                             		.loc 1 449 50 discriminator 2
+ 1704 0082 75 15 26                		mul	#38, r5
+ 448:../src/wolfcrypt/src/fe_low_mem.c ****             c += ((word32)a[j]) *
+ 1705                             		.loc 1 448 15 discriminator 2
+ 1706 0085 EC A4                   		mov.L	[r10], r4
+ 1707 0087 4B 45                   		add	r4, r5
+ 1708 0089 E3 A5                   		mov.L	r5, [r10]
+ 447:../src/wolfcrypt/src/fe_low_mem.c ****             c += ((word32)a[j]) *
+ 1709                             		.loc 1 447 34 discriminator 2
+ 1710 008b ED A5 02                		mov.L	8[r10], r5
+ 1711 008e 62 15                   		add	#1, r5
+ 1712 0090 E7 A5 02                		mov.L	r5, 8[r10]
+ 1713                             	.L67:
+ 447:../src/wolfcrypt/src/fe_low_mem.c ****             c += ((word32)a[j]) *
+ 1714                             		.loc 1 447 9 discriminator 1
+ 1715 0093 ED A5 02                		mov.L	8[r10], r5
+ 1716 0096 75 55 1F                		cmp	#31, r5
+ 1717 0099 2B C7                   		ble	.L68
+ 450:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 451:../src/wolfcrypt/src/fe_low_mem.c ****         r[i] = c;
+ 1718                             		.loc 1 451 10 discriminator 2
+ 1719 009b ED A5 01                		mov.L	4[r10], r5
+ 1720 009e ED A4 03                		mov.L	12[r10], r4
+ 1721 00a1 4B 45                   		add	r4, r5
+ 1722                             		.loc 1 451 14 discriminator 2
+ 1723 00a3 EC A4                   		mov.L	[r10], r4
+ 1724 00a5 C3 54                   		mov.B	r4, [r5]
+ 1725                             	.LBE4:
+ 440:../src/wolfcrypt/src/fe_low_mem.c ****         int j;
+ 1726                             		.loc 1 440 35 discriminator 2
+ 1727 00a7 ED A5 01                		mov.L	4[r10], r5
+ 1728 00aa 62 15                   		add	#1, r5
+ 1729 00ac E7 A5 01                		mov.L	r5, 4[r10]
+ 1730                             	.L64:
+ 440:../src/wolfcrypt/src/fe_low_mem.c ****         int j;
+ 1731                             		.loc 1 440 5 discriminator 1
+ 1732 00af ED A5 01                		mov.L	4[r10], r5
+ 1733 00b2 75 55 1F                		cmp	#31, r5
+ 1734 00b5 2A 05 38 63 FF          		ble	.L69
+ 452:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 453:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 454:../src/wolfcrypt/src/fe_low_mem.c ****     r[31] &= 127;
+ 1735                             		.loc 1 454 11
+ 1736 00ba ED A5 03                		mov.L	12[r10], r5
+ 1737 00bd 71 55 1F                		add	#31, r5
+ 1738 00c0 CC 54                   		mov.B	[r5], r4
+ 1739 00c2 ED A5 03                		mov.L	12[r10], r5
+ 1740 00c5 71 55 1F                		add	#31, r5
+ 1741 00c8 75 24 7F                		and	#0x7f, r4
+ 1742 00cb C3 54                   		mov.B	r4, [r5]
+ 455:../src/wolfcrypt/src/fe_low_mem.c ****     c = (c >> 7) * 19;
+ 1743                             		.loc 1 455 12
+ 1744 00cd EC A5                   		mov.L	[r10], r5
+ 1745 00cf 68 75                   		shlr	#7, r5
+ 1746                             		.loc 1 455 7
+ 1747 00d1 75 15 13                		mul	#19, r5
+ 1748 00d4 E3 A5                   		mov.L	r5, [r10]
+ 456:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 457:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 1749                             		.loc 1 457 12
+ 1750 00d6 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1751                             		.loc 1 457 5
+ 1752 00da 2E 2E                   		bra	.L70
+ 1753                             	.L71:
+ 458:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1754                             		.loc 1 458 15 discriminator 3
+ 1755 00dc ED A5 01                		mov.L	4[r10], r5
+ 1756 00df ED A4 03                		mov.L	12[r10], r4
+ 1757 00e2 4B 45                   		add	r4, r5
+ 1758 00e4 CC 55                   		mov.B	[r5], r5
+ 1759 00e6 5B 55                   		movu.B	r5, r5
+ 1760                             		.loc 1 458 11 discriminator 3
+ 1761 00e8 EC A4                   		mov.L	[r10], r4
+ 1762 00ea 4B 45                   		add	r4, r5
+ 1763 00ec E3 A5                   		mov.L	r5, [r10]
+ 459:../src/wolfcrypt/src/fe_low_mem.c ****         r[i] = c;
+ 1764                             		.loc 1 459 10 discriminator 3
+ 1765 00ee ED A5 01                		mov.L	4[r10], r5
+ 1766 00f1 ED A4 03                		mov.L	12[r10], r4
+ 1767 00f4 4B 45                   		add	r4, r5
+ 1768                             		.loc 1 459 14 discriminator 3
+ 1769 00f6 EC A4                   		mov.L	[r10], r4
+ 1770 00f8 C3 54                   		mov.B	r4, [r5]
+ 460:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1771                             		.loc 1 460 11 discriminator 3
+ 1772 00fa EC A5                   		mov.L	[r10], r5
+ 1773 00fc 68 85                   		shlr	#8, r5
+ 1774 00fe E3 A5                   		mov.L	r5, [r10]
+ 457:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1775                             		.loc 1 457 35 discriminator 3
+ 1776 0100 ED A5 01                		mov.L	4[r10], r5
+ 1777 0103 62 15                   		add	#1, r5
+ 1778 0105 E7 A5 01                		mov.L	r5, 4[r10]
+ 1779                             	.L70:
+ 457:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1780                             		.loc 1 457 5 discriminator 1
+ 1781 0108 ED A5 01                		mov.L	4[r10], r5
+ 1782 010b 75 55 1F                		cmp	#31, r5
+ 1783 010e 2B CE                   		ble	.L71
+ 461:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 462:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 1784                             		.loc 1 462 1
+ 1785 0110 03                      		nop
+ 1786 0111 3F AA 07                		rtsd	#28, r10-r10
+ 1787                             	.LFE61:
+ 1789                             		.section	.text.lm_mul,"ax",@progbits
+ 1790                             		.global	_lm_mul
+ 1792                             	_lm_mul:
+ 1793                             	.LFB62:
+ 463:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 464:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 465:../src/wolfcrypt/src/fe_low_mem.c **** void lm_mul(byte *r, const byte* a, const byte *b)
+ 466:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 1794                             		.loc 1 466 1
+ 1795 0000 7E AA                   		push.l	r10
+ 1796                             	.LCFI40:
+ 1797 0002 71 0A D4                		add	#-44, r0, r10
+ 1798                             	.LCFI41:
+ 1799 0005 EF A0                   		mov.L	r10, r0
+ 1800 0007 E7 A1 08                		mov.L	r1, 32[r10]
+ 1801 000a E7 A2 09                		mov.L	r2, 36[r10]
+ 1802 000d E7 A3 0A                		mov.L	r3, 40[r10]
+ 467:../src/wolfcrypt/src/fe_low_mem.c ****     byte tmp[F25519_SIZE];
+ 468:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 469:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(tmp, a, b);
+ 1803                             		.loc 1 469 5
+ 1804 0010 ED A3 0A                		mov.L	40[r10], r3
+ 1805 0013 ED A2 09                		mov.L	36[r10], r2
+ 1806 0016 EF A1                   		mov.L	r10, r1
+ 1807 0018 05 00 00 00             		bsr	_fe_mul__distinct
+ 470:../src/wolfcrypt/src/fe_low_mem.c ****     lm_copy(r, tmp);
+ 1808                             		.loc 1 470 5
+ 1809 001c EF A2                   		mov.L	r10, r2
+ 1810 001e ED A1 08                		mov.L	32[r10], r1
+ 1811 0021 05 00 00 00             		bsr	_lm_copy
+ 471:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 1812                             		.loc 1 471 1
+ 1813 0025 03                      		nop
+ 1814 0026 3F AA 0C                		rtsd	#48, r10-r10
+ 1815                             	.LFE62:
+ 1817                             		.section	.text.fe_mul_c,"ax",@progbits
+ 1818                             		.global	_fe_mul_c
+ 1820                             	_fe_mul_c:
+ 1821                             	.LFB63:
+ 472:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 473:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 474:../src/wolfcrypt/src/fe_low_mem.c **** void fe_mul_c(byte *r, const byte *a, word32 b)
+ 475:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 1822                             		.loc 1 475 1
+ 1823 0000 7E AA                   		push.l	r10
+ 1824                             	.LCFI42:
+ 1825 0002 71 0A EC                		add	#-20, r0, r10
+ 1826                             	.LCFI43:
+ 1827 0005 EF A0                   		mov.L	r10, r0
+ 1828 0007 E7 A1 02                		mov.L	r1, 8[r10]
+ 1829 000a E7 A2 03                		mov.L	r2, 12[r10]
+ 1830 000d E7 A3 04                		mov.L	r3, 16[r10]
+ 476:../src/wolfcrypt/src/fe_low_mem.c ****     word32 c = 0;
+ 1831                             		.loc 1 476 12
+ 1832 0010 F8 A6 00                		mov.L	#0, [r10]
+ 477:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 478:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 479:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 1833                             		.loc 1 479 12
+ 1834 0013 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1835                             		.loc 1 479 5
+ 1836 0017 2E 33                   		bra	.L74
+ 1837                             	.L75:
+ 480:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1838                             		.loc 1 480 11 discriminator 3
+ 1839 0019 EC A5                   		mov.L	[r10], r5
+ 1840 001b 68 85                   		shlr	#8, r5
+ 1841 001d E3 A5                   		mov.L	r5, [r10]
+ 481:../src/wolfcrypt/src/fe_low_mem.c ****         c += b * ((word32)a[i]);
+ 1842                             		.loc 1 481 28 discriminator 3
+ 1843 001f ED A5 01                		mov.L	4[r10], r5
+ 1844 0022 ED A4 03                		mov.L	12[r10], r4
+ 1845 0025 4B 45                   		add	r4, r5
+ 1846 0027 CC 55                   		mov.B	[r5], r5
+ 1847                             		.loc 1 481 19 discriminator 3
+ 1848 0029 5B 55                   		movu.B	r5, r5
+ 1849                             		.loc 1 481 16 discriminator 3
+ 1850 002b ED A4 04                		mov.L	16[r10], r4
+ 1851 002e 4F 45                   		mul	r4, r5
+ 1852                             		.loc 1 481 11 discriminator 3
+ 1853 0030 EC A4                   		mov.L	[r10], r4
+ 1854 0032 4B 45                   		add	r4, r5
+ 1855 0034 E3 A5                   		mov.L	r5, [r10]
+ 482:../src/wolfcrypt/src/fe_low_mem.c ****         r[i] = c;
+ 1856                             		.loc 1 482 10 discriminator 3
+ 1857 0036 ED A5 01                		mov.L	4[r10], r5
+ 1858 0039 ED A4 02                		mov.L	8[r10], r4
+ 1859 003c 4B 45                   		add	r4, r5
+ 1860                             		.loc 1 482 14 discriminator 3
+ 1861 003e EC A4                   		mov.L	[r10], r4
+ 1862 0040 C3 54                   		mov.B	r4, [r5]
+ 479:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1863                             		.loc 1 479 35 discriminator 3
+ 1864 0042 ED A5 01                		mov.L	4[r10], r5
+ 1865 0045 62 15                   		add	#1, r5
+ 1866 0047 E7 A5 01                		mov.L	r5, 4[r10]
+ 1867                             	.L74:
+ 479:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1868                             		.loc 1 479 5 discriminator 1
+ 1869 004a ED A5 01                		mov.L	4[r10], r5
+ 1870 004d 75 55 1F                		cmp	#31, r5
+ 1871 0050 2B C9                   		ble	.L75
+ 483:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 484:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 485:../src/wolfcrypt/src/fe_low_mem.c ****     r[31] &= 127;
+ 1872                             		.loc 1 485 11
+ 1873 0052 ED A5 02                		mov.L	8[r10], r5
+ 1874 0055 71 55 1F                		add	#31, r5
+ 1875 0058 CC 54                   		mov.B	[r5], r4
+ 1876 005a ED A5 02                		mov.L	8[r10], r5
+ 1877 005d 71 55 1F                		add	#31, r5
+ 1878 0060 75 24 7F                		and	#0x7f, r4
+ 1879 0063 C3 54                   		mov.B	r4, [r5]
+ 486:../src/wolfcrypt/src/fe_low_mem.c ****     c >>= 7;
+ 1880                             		.loc 1 486 7
+ 1881 0065 EC A5                   		mov.L	[r10], r5
+ 1882 0067 68 75                   		shlr	#7, r5
+ 1883 0069 E3 A5                   		mov.L	r5, [r10]
+ 487:../src/wolfcrypt/src/fe_low_mem.c ****     c *= 19;
+ 1884                             		.loc 1 487 7
+ 1885 006b EC A5                   		mov.L	[r10], r5
+ 1886 006d 75 15 13                		mul	#19, r5
+ 1887 0070 E3 A5                   		mov.L	r5, [r10]
+ 488:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 489:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < F25519_SIZE; i++) {
+ 1888                             		.loc 1 489 12
+ 1889 0072 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 1890                             		.loc 1 489 5
+ 1891 0076 2E 2E                   		bra	.L76
+ 1892                             	.L77:
+ 490:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1893                             		.loc 1 490 15 discriminator 3
+ 1894 0078 ED A5 01                		mov.L	4[r10], r5
+ 1895 007b ED A4 02                		mov.L	8[r10], r4
+ 1896 007e 4B 45                   		add	r4, r5
+ 1897 0080 CC 55                   		mov.B	[r5], r5
+ 1898 0082 5B 55                   		movu.B	r5, r5
+ 1899                             		.loc 1 490 11 discriminator 3
+ 1900 0084 EC A4                   		mov.L	[r10], r4
+ 1901 0086 4B 45                   		add	r4, r5
+ 1902 0088 E3 A5                   		mov.L	r5, [r10]
+ 491:../src/wolfcrypt/src/fe_low_mem.c ****         r[i] = c;
+ 1903                             		.loc 1 491 10 discriminator 3
+ 1904 008a ED A5 01                		mov.L	4[r10], r5
+ 1905 008d ED A4 02                		mov.L	8[r10], r4
+ 1906 0090 4B 45                   		add	r4, r5
+ 1907                             		.loc 1 491 14 discriminator 3
+ 1908 0092 EC A4                   		mov.L	[r10], r4
+ 1909 0094 C3 54                   		mov.B	r4, [r5]
+ 492:../src/wolfcrypt/src/fe_low_mem.c ****         c >>= 8;
+ 1910                             		.loc 1 492 11 discriminator 3
+ 1911 0096 EC A5                   		mov.L	[r10], r5
+ 1912 0098 68 85                   		shlr	#8, r5
+ 1913 009a E3 A5                   		mov.L	r5, [r10]
+ 489:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1914                             		.loc 1 489 35 discriminator 3
+ 1915 009c ED A5 01                		mov.L	4[r10], r5
+ 1916 009f 62 15                   		add	#1, r5
+ 1917 00a1 E7 A5 01                		mov.L	r5, 4[r10]
+ 1918                             	.L76:
+ 489:../src/wolfcrypt/src/fe_low_mem.c ****         c += r[i];
+ 1919                             		.loc 1 489 5 discriminator 1
+ 1920 00a4 ED A5 01                		mov.L	4[r10], r5
+ 1921 00a7 75 55 1F                		cmp	#31, r5
+ 1922 00aa 2B CE                   		ble	.L77
+ 493:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 494:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 1923                             		.loc 1 494 1
+ 1924 00ac 03                      		nop
+ 1925 00ad 3F AA 06                		rtsd	#24, r10-r10
+ 1926                             	.LFE63:
+ 1928                             		.section	.text.fe_inv__distinct,"ax",@progbits
+ 1929                             		.global	_fe_inv__distinct
+ 1931                             	_fe_inv__distinct:
+ 1932                             	.LFB64:
+ 495:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 496:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 497:../src/wolfcrypt/src/fe_low_mem.c **** void fe_inv__distinct(byte *r, const byte *x)
+ 498:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 1933                             		.loc 1 498 1
+ 1934 0000 7E AA                   		push.l	r10
+ 1935                             	.LCFI44:
+ 1936 0002 71 0A D4                		add	#-44, r0, r10
+ 1937                             	.LCFI45:
+ 1938 0005 EF A0                   		mov.L	r10, r0
+ 1939 0007 E7 A1 09                		mov.L	r1, 36[r10]
+ 1940 000a E7 A2 0A                		mov.L	r2, 40[r10]
+ 499:../src/wolfcrypt/src/fe_low_mem.c ****     byte s[F25519_SIZE];
+ 500:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 501:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 502:../src/wolfcrypt/src/fe_low_mem.c ****     /* This is a prime field, so by Fermat's little theorem:
+ 503:../src/wolfcrypt/src/fe_low_mem.c ****      *
+ 504:../src/wolfcrypt/src/fe_low_mem.c ****      *     x^(p-1) = 1 mod p
+ 505:../src/wolfcrypt/src/fe_low_mem.c ****      *
+ 506:../src/wolfcrypt/src/fe_low_mem.c ****      * Therefore, raise to (p-2) = 2^255-21 to get a multiplicative
+ 507:../src/wolfcrypt/src/fe_low_mem.c ****      * inverse.
+ 508:../src/wolfcrypt/src/fe_low_mem.c ****      *
+ 509:../src/wolfcrypt/src/fe_low_mem.c ****      * This is a 255-bit binary number with the digits:
+ 510:../src/wolfcrypt/src/fe_low_mem.c ****      *
+ 511:../src/wolfcrypt/src/fe_low_mem.c ****      *     11111111... 01011
+ 512:../src/wolfcrypt/src/fe_low_mem.c ****      *
+ 513:../src/wolfcrypt/src/fe_low_mem.c ****      * We compute the result by the usual binary chain, but
+ 514:../src/wolfcrypt/src/fe_low_mem.c ****      * alternate between keeping the accumulator in r and s, so as
+ 515:../src/wolfcrypt/src/fe_low_mem.c ****      * to avoid copying temporaries.
+ 516:../src/wolfcrypt/src/fe_low_mem.c ****      */
+ 517:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 518:../src/wolfcrypt/src/fe_low_mem.c ****     /* 1 1 */
+ 519:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(s, x, x);
+ 1941                             		.loc 1 519 5
+ 1942 000d 71 A5 04                		add	#4, r10, r5
+ 1943 0010 ED A3 0A                		mov.L	40[r10], r3
+ 1944 0013 ED A2 0A                		mov.L	40[r10], r2
+ 1945 0016 EF 51                   		mov.L	r5, r1
+ 1946 0018 05 00 00 00             		bsr	_fe_mul__distinct
+ 520:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(r, s, x);
+ 1947                             		.loc 1 520 5
+ 1948 001c 71 A5 04                		add	#4, r10, r5
+ 1949 001f ED A3 0A                		mov.L	40[r10], r3
+ 1950 0022 EF 52                   		mov.L	r5, r2
+ 1951 0024 ED A1 09                		mov.L	36[r10], r1
+ 1952 0027 05 00 00 00             		bsr	_fe_mul__distinct
+ 521:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 522:../src/wolfcrypt/src/fe_low_mem.c ****     /* 1 x 248 */
+ 523:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < 248; i++) {
+ 1953                             		.loc 1 523 12
+ 1954 002b F8 A6 00                		mov.L	#0, [r10]
+ 1955                             		.loc 1 523 5
+ 1956 002e 2E 26                   		bra	.L79
+ 1957                             	.L80:
+ 524:../src/wolfcrypt/src/fe_low_mem.c ****         fe_mul__distinct(s, r, r);
+ 1958                             		.loc 1 524 9 discriminator 3
+ 1959 0030 71 A5 04                		add	#4, r10, r5
+ 1960 0033 ED A3 09                		mov.L	36[r10], r3
+ 1961 0036 ED A2 09                		mov.L	36[r10], r2
+ 1962 0039 EF 51                   		mov.L	r5, r1
+ 1963 003b 05 00 00 00             		bsr	_fe_mul__distinct
+ 525:../src/wolfcrypt/src/fe_low_mem.c ****         fe_mul__distinct(r, s, x);
+ 1964                             		.loc 1 525 9 discriminator 3
+ 1965 003f 71 A5 04                		add	#4, r10, r5
+ 1966 0042 ED A3 0A                		mov.L	40[r10], r3
+ 1967 0045 EF 52                   		mov.L	r5, r2
+ 1968 0047 ED A1 09                		mov.L	36[r10], r1
+ 1969 004a 05 00 00 00             		bsr	_fe_mul__distinct
+ 523:../src/wolfcrypt/src/fe_low_mem.c ****         fe_mul__distinct(s, r, r);
+ 1970                             		.loc 1 523 27 discriminator 3
+ 1971 004e EC A5                   		mov.L	[r10], r5
+ 1972 0050 62 15                   		add	#1, r5
+ 1973 0052 E3 A5                   		mov.L	r5, [r10]
+ 1974                             	.L79:
+ 523:../src/wolfcrypt/src/fe_low_mem.c ****         fe_mul__distinct(s, r, r);
+ 1975                             		.loc 1 523 5 discriminator 1
+ 1976 0054 EC A5                   		mov.L	[r10], r5
+ 1977 0056 75 55 F7                		cmp	#0xf7, r5
+ 1978 0059 2B D7                   		ble	.L80
+ 526:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 527:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 528:../src/wolfcrypt/src/fe_low_mem.c ****     /* 0 */
+ 529:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(s, r, r);
+ 1979                             		.loc 1 529 5
+ 1980 005b 71 A5 04                		add	#4, r10, r5
+ 1981 005e ED A3 09                		mov.L	36[r10], r3
+ 1982 0061 ED A2 09                		mov.L	36[r10], r2
+ 1983 0064 EF 51                   		mov.L	r5, r1
+ 1984 0066 05 00 00 00             		bsr	_fe_mul__distinct
+ 530:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 531:../src/wolfcrypt/src/fe_low_mem.c ****     /* 1 */
+ 532:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(r, s, s);
+ 1985                             		.loc 1 532 5
+ 1986 006a 71 A4 04                		add	#4, r10, r4
+ 1987 006d 71 A5 04                		add	#4, r10, r5
+ 1988 0070 EF 43                   		mov.L	r4, r3
+ 1989 0072 EF 52                   		mov.L	r5, r2
+ 1990 0074 ED A1 09                		mov.L	36[r10], r1
+ 1991 0077 05 00 00 00             		bsr	_fe_mul__distinct
+ 533:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(s, r, x);
+ 1992                             		.loc 1 533 5
+ 1993 007b 71 A5 04                		add	#4, r10, r5
+ 1994 007e ED A3 0A                		mov.L	40[r10], r3
+ 1995 0081 ED A2 09                		mov.L	36[r10], r2
+ 1996 0084 EF 51                   		mov.L	r5, r1
+ 1997 0086 05 00 00 00             		bsr	_fe_mul__distinct
+ 534:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 535:../src/wolfcrypt/src/fe_low_mem.c ****     /* 0 */
+ 536:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(r, s, s);
+ 1998                             		.loc 1 536 5
+ 1999 008a 71 A4 04                		add	#4, r10, r4
+ 2000 008d 71 A5 04                		add	#4, r10, r5
+ 2001 0090 EF 43                   		mov.L	r4, r3
+ 2002 0092 EF 52                   		mov.L	r5, r2
+ 2003 0094 ED A1 09                		mov.L	36[r10], r1
+ 2004 0097 05 00 00 00             		bsr	_fe_mul__distinct
+ 537:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 538:../src/wolfcrypt/src/fe_low_mem.c ****     /* 1 */
+ 539:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(s, r, r);
+ 2005                             		.loc 1 539 5
+ 2006 009b 71 A5 04                		add	#4, r10, r5
+ 2007 009e ED A3 09                		mov.L	36[r10], r3
+ 2008 00a1 ED A2 09                		mov.L	36[r10], r2
+ 2009 00a4 EF 51                   		mov.L	r5, r1
+ 2010 00a6 05 00 00 00             		bsr	_fe_mul__distinct
+ 540:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(r, s, x);
+ 2011                             		.loc 1 540 5
+ 2012 00aa 71 A5 04                		add	#4, r10, r5
+ 2013 00ad ED A3 0A                		mov.L	40[r10], r3
+ 2014 00b0 EF 52                   		mov.L	r5, r2
+ 2015 00b2 ED A1 09                		mov.L	36[r10], r1
+ 2016 00b5 05 00 00 00             		bsr	_fe_mul__distinct
+ 541:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 542:../src/wolfcrypt/src/fe_low_mem.c ****     /* 1 */
+ 543:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(s, r, r);
+ 2017                             		.loc 1 543 5
+ 2018 00b9 71 A5 04                		add	#4, r10, r5
+ 2019 00bc ED A3 09                		mov.L	36[r10], r3
+ 2020 00bf ED A2 09                		mov.L	36[r10], r2
+ 2021 00c2 EF 51                   		mov.L	r5, r1
+ 2022 00c4 05 00 00 00             		bsr	_fe_mul__distinct
+ 544:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(r, s, x);
+ 2023                             		.loc 1 544 5
+ 2024 00c8 71 A5 04                		add	#4, r10, r5
+ 2025 00cb ED A3 0A                		mov.L	40[r10], r3
+ 2026 00ce EF 52                   		mov.L	r5, r2
+ 2027 00d0 ED A1 09                		mov.L	36[r10], r1
+ 2028 00d3 05 00 00 00             		bsr	_fe_mul__distinct
+ 545:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 2029                             		.loc 1 545 1
+ 2030 00d7 03                      		nop
+ 2031 00d8 3F AA 0C                		rtsd	#48, r10-r10
+ 2032                             	.LFE64:
+ 2034                             		.section	.text.lm_invert,"ax",@progbits
+ 2035                             		.global	_lm_invert
+ 2037                             	_lm_invert:
+ 2038                             	.LFB65:
+ 546:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 547:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 548:../src/wolfcrypt/src/fe_low_mem.c **** void lm_invert(byte *r, const byte *x)
+ 549:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 2039                             		.loc 1 549 1
+ 2040 0000 7E AA                   		push.l	r10
+ 2041                             	.LCFI46:
+ 2042 0002 71 0A D8                		add	#-40, r0, r10
+ 2043                             	.LCFI47:
+ 2044 0005 EF A0                   		mov.L	r10, r0
+ 2045 0007 E7 A1 08                		mov.L	r1, 32[r10]
+ 2046 000a E7 A2 09                		mov.L	r2, 36[r10]
+ 550:../src/wolfcrypt/src/fe_low_mem.c ****     byte tmp[F25519_SIZE];
+ 551:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 552:../src/wolfcrypt/src/fe_low_mem.c ****     fe_inv__distinct(tmp, x);
+ 2047                             		.loc 1 552 5
+ 2048 000d ED A2 09                		mov.L	36[r10], r2
+ 2049 0010 EF A1                   		mov.L	r10, r1
+ 2050 0012 05 00 00 00             		bsr	_fe_inv__distinct
+ 553:../src/wolfcrypt/src/fe_low_mem.c ****     lm_copy(r, tmp);
+ 2051                             		.loc 1 553 5
+ 2052 0016 EF A2                   		mov.L	r10, r2
+ 2053 0018 ED A1 08                		mov.L	32[r10], r1
+ 2054 001b 05 00 00 00             		bsr	_lm_copy
+ 554:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 2055                             		.loc 1 554 1
+ 2056 001f 03                      		nop
+ 2057 0020 3F AA 0B                		rtsd	#44, r10-r10
+ 2058                             	.LFE65:
+ 2060                             		.section	.text.exp2523,"ax",@progbits
+ 2062                             	_exp2523:
+ 2063                             	.LFB66:
+ 555:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 556:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 557:../src/wolfcrypt/src/fe_low_mem.c **** /* Raise x to the power of (p-5)/8 = 2^252-3, using s for temporary
+ 558:../src/wolfcrypt/src/fe_low_mem.c ****  * storage.
+ 559:../src/wolfcrypt/src/fe_low_mem.c ****  */
+ 560:../src/wolfcrypt/src/fe_low_mem.c **** static void exp2523(byte *r, const byte *x, byte *s)
+ 561:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 2064                             		.loc 1 561 1
+ 2065 0000 7E AA                   		push.l	r10
+ 2066                             	.LCFI48:
+ 2067 0002 71 0A F0                		add	#-16, r0, r10
+ 2068                             	.LCFI49:
+ 2069 0005 EF A0                   		mov.L	r10, r0
+ 2070 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 2071 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 2072 000d E7 A3 03                		mov.L	r3, 12[r10]
+ 562:../src/wolfcrypt/src/fe_low_mem.c ****     int i;
+ 563:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 564:../src/wolfcrypt/src/fe_low_mem.c ****     /* This number is a 252-bit number with the binary expansion:
+ 565:../src/wolfcrypt/src/fe_low_mem.c ****      *
+ 566:../src/wolfcrypt/src/fe_low_mem.c ****      *     111111... 01
+ 567:../src/wolfcrypt/src/fe_low_mem.c ****      */
+ 568:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 569:../src/wolfcrypt/src/fe_low_mem.c ****     /* 1 1 */
+ 570:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(r, x, x);
+ 2073                             		.loc 1 570 5
+ 2074 0010 ED A3 02                		mov.L	8[r10], r3
+ 2075 0013 ED A2 02                		mov.L	8[r10], r2
+ 2076 0016 ED A1 01                		mov.L	4[r10], r1
+ 2077 0019 05 00 00 00             		bsr	_fe_mul__distinct
+ 571:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(s, r, x);
+ 2078                             		.loc 1 571 5
+ 2079 001d ED A3 02                		mov.L	8[r10], r3
+ 2080 0020 ED A2 01                		mov.L	4[r10], r2
+ 2081 0023 ED A1 03                		mov.L	12[r10], r1
+ 2082 0026 05 00 00 00             		bsr	_fe_mul__distinct
+ 572:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 573:../src/wolfcrypt/src/fe_low_mem.c ****     /* 1 x 248 */
+ 574:../src/wolfcrypt/src/fe_low_mem.c ****     for (i = 0; i < 248; i++) {
+ 2083                             		.loc 1 574 12
+ 2084 002a F8 A6 00                		mov.L	#0, [r10]
+ 2085                             		.loc 1 574 5
+ 2086 002d 2E 22                   		bra	.L83
+ 2087                             	.L84:
+ 575:../src/wolfcrypt/src/fe_low_mem.c ****         fe_mul__distinct(r, s, s);
+ 2088                             		.loc 1 575 9 discriminator 3
+ 2089 002f ED A3 03                		mov.L	12[r10], r3
+ 2090 0032 ED A2 03                		mov.L	12[r10], r2
+ 2091 0035 ED A1 01                		mov.L	4[r10], r1
+ 2092 0038 05 00 00 00             		bsr	_fe_mul__distinct
+ 576:../src/wolfcrypt/src/fe_low_mem.c ****         fe_mul__distinct(s, r, x);
+ 2093                             		.loc 1 576 9 discriminator 3
+ 2094 003c ED A3 02                		mov.L	8[r10], r3
+ 2095 003f ED A2 01                		mov.L	4[r10], r2
+ 2096 0042 ED A1 03                		mov.L	12[r10], r1
+ 2097 0045 05 00 00 00             		bsr	_fe_mul__distinct
+ 574:../src/wolfcrypt/src/fe_low_mem.c ****         fe_mul__distinct(r, s, s);
+ 2098                             		.loc 1 574 27 discriminator 3
+ 2099 0049 EC A5                   		mov.L	[r10], r5
+ 2100 004b 62 15                   		add	#1, r5
+ 2101 004d E3 A5                   		mov.L	r5, [r10]
+ 2102                             	.L83:
+ 574:../src/wolfcrypt/src/fe_low_mem.c ****         fe_mul__distinct(r, s, s);
+ 2103                             		.loc 1 574 5 discriminator 1
+ 2104 004f EC A5                   		mov.L	[r10], r5
+ 2105 0051 75 55 F7                		cmp	#0xf7, r5
+ 2106 0054 2B DB                   		ble	.L84
+ 577:../src/wolfcrypt/src/fe_low_mem.c ****     }
+ 578:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 579:../src/wolfcrypt/src/fe_low_mem.c ****     /* 0 */
+ 580:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(r, s, s);
+ 2107                             		.loc 1 580 5
+ 2108 0056 ED A3 03                		mov.L	12[r10], r3
+ 2109 0059 ED A2 03                		mov.L	12[r10], r2
+ 2110 005c ED A1 01                		mov.L	4[r10], r1
+ 2111 005f 05 00 00 00             		bsr	_fe_mul__distinct
+ 581:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 582:../src/wolfcrypt/src/fe_low_mem.c ****     /* 1 */
+ 583:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(s, r, r);
+ 2112                             		.loc 1 583 5
+ 2113 0063 ED A3 01                		mov.L	4[r10], r3
+ 2114 0066 ED A2 01                		mov.L	4[r10], r2
+ 2115 0069 ED A1 03                		mov.L	12[r10], r1
+ 2116 006c 05 00 00 00             		bsr	_fe_mul__distinct
+ 584:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(r, s, x);
+ 2117                             		.loc 1 584 5
+ 2118 0070 ED A3 02                		mov.L	8[r10], r3
+ 2119 0073 ED A2 03                		mov.L	12[r10], r2
+ 2120 0076 ED A1 01                		mov.L	4[r10], r1
+ 2121 0079 05 00 00 00             		bsr	_fe_mul__distinct
+ 585:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 2122                             		.loc 1 585 1
+ 2123 007d 03                      		nop
+ 2124 007e 3F AA 05                		rtsd	#20, r10-r10
+ 2125                             	.LFE66:
+ 2127                             		.section	.text.fe_sqrt,"ax",@progbits
+ 2128                             		.global	_fe_sqrt
+ 2130                             	_fe_sqrt:
+ 2131                             	.LFB67:
+ 586:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 587:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 588:../src/wolfcrypt/src/fe_low_mem.c **** void fe_sqrt(byte *r, const byte *a)
+ 589:../src/wolfcrypt/src/fe_low_mem.c **** {
+ 2132                             		.loc 1 589 1
+ 2133 0000 7E AA                   		push.l	r10
+ 2134                             	.LCFI50:
+ 2135 0002 72 0A 78 FF             		add	#-136, r0, r10
+ 2136                             	.LCFI51:
+ 2137 0006 EF A0                   		mov.L	r10, r0
+ 2138 0008 E7 A1 20                		mov.L	r1, 128[r10]
+ 2139 000b E7 A2 21                		mov.L	r2, 132[r10]
+ 590:../src/wolfcrypt/src/fe_low_mem.c ****     byte v[F25519_SIZE];
+ 591:../src/wolfcrypt/src/fe_low_mem.c ****     byte i[F25519_SIZE];
+ 592:../src/wolfcrypt/src/fe_low_mem.c ****     byte x[F25519_SIZE];
+ 593:../src/wolfcrypt/src/fe_low_mem.c ****     byte y[F25519_SIZE];
+ 594:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 595:../src/wolfcrypt/src/fe_low_mem.c ****     /* v = (2a)^((p-5)/8) [x = 2a] */
+ 596:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul_c(x, a, 2);
+ 2140                             		.loc 1 596 5
+ 2141 000e 71 A5 40                		add	#0x40, r10, r5
+ 2142 0011 66 23                   		mov.L	#2, r3
+ 2143 0013 ED A2 21                		mov.L	132[r10], r2
+ 2144 0016 EF 51                   		mov.L	r5, r1
+ 2145 0018 05 00 00 00             		bsr	_fe_mul_c
+ 597:../src/wolfcrypt/src/fe_low_mem.c ****     exp2523(v, x, y);
+ 2146                             		.loc 1 597 5
+ 2147 001c 71 A4 60                		add	#0x60, r10, r4
+ 2148 001f 71 A5 40                		add	#0x40, r10, r5
+ 2149 0022 EF 43                   		mov.L	r4, r3
+ 2150 0024 EF 52                   		mov.L	r5, r2
+ 2151 0026 EF A1                   		mov.L	r10, r1
+ 2152 0028 05 00 00 00             		bsr	_exp2523
+ 598:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 599:../src/wolfcrypt/src/fe_low_mem.c ****     /* i = 2av^2 - 1 */
+ 600:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(y, v, v);
+ 2153                             		.loc 1 600 5
+ 2154 002c 71 A5 60                		add	#0x60, r10, r5
+ 2155 002f EF A3                   		mov.L	r10, r3
+ 2156 0031 EF A2                   		mov.L	r10, r2
+ 2157 0033 EF 51                   		mov.L	r5, r1
+ 2158 0035 05 00 00 00             		bsr	_fe_mul__distinct
+ 601:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(i, x, y);
+ 2159                             		.loc 1 601 5
+ 2160 0039 71 A3 60                		add	#0x60, r10, r3
+ 2161 003c 71 A4 40                		add	#0x40, r10, r4
+ 2162 003f 71 A5 20                		add	#32, r10, r5
+ 2163 0042 EF 42                   		mov.L	r4, r2
+ 2164 0044 EF 51                   		mov.L	r5, r1
+ 2165 0046 05 00 00 00             		bsr	_fe_mul__distinct
+ 602:../src/wolfcrypt/src/fe_low_mem.c ****     fe_load(y, 1);
+ 2166                             		.loc 1 602 5
+ 2167 004a 71 A5 60                		add	#0x60, r10, r5
+ 2168 004d 66 12                   		mov.L	#1, r2
+ 2169 004f EF 51                   		mov.L	r5, r1
+ 2170 0051 05 00 00 00             		bsr	_fe_load
+ 603:../src/wolfcrypt/src/fe_low_mem.c ****     lm_sub(i, i, y);
+ 2171                             		.loc 1 603 5
+ 2172 0055 71 A3 60                		add	#0x60, r10, r3
+ 2173 0058 71 A4 20                		add	#32, r10, r4
+ 2174 005b 71 A5 20                		add	#32, r10, r5
+ 2175 005e EF 42                   		mov.L	r4, r2
+ 2176 0060 EF 51                   		mov.L	r5, r1
+ 2177 0062 05 00 00 00             		bsr	_lm_sub
+ 604:../src/wolfcrypt/src/fe_low_mem.c **** 
+ 605:../src/wolfcrypt/src/fe_low_mem.c ****     /* r = avi */
+ 606:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(x, v, a);
+ 2178                             		.loc 1 606 5
+ 2179 0066 71 A5 40                		add	#0x40, r10, r5
+ 2180 0069 ED A3 21                		mov.L	132[r10], r3
+ 2181 006c EF A2                   		mov.L	r10, r2
+ 2182 006e EF 51                   		mov.L	r5, r1
+ 2183 0070 05 00 00 00             		bsr	_fe_mul__distinct
+ 607:../src/wolfcrypt/src/fe_low_mem.c ****     fe_mul__distinct(r, x, i);
+ 2184                             		.loc 1 607 5
+ 2185 0074 71 A4 20                		add	#32, r10, r4
+ 2186 0077 71 A5 40                		add	#0x40, r10, r5
+ 2187 007a EF 43                   		mov.L	r4, r3
+ 2188 007c EF 52                   		mov.L	r5, r2
+ 2189 007e ED A1 20                		mov.L	128[r10], r1
+ 2190 0081 05 00 00 00             		bsr	_fe_mul__distinct
+ 608:../src/wolfcrypt/src/fe_low_mem.c **** }
+ 2191                             		.loc 1 608 1
+ 2192 0085 03                      		nop
+ 2193 0086 3F AA 23                		rtsd	#140, r10-r10
+ 2194                             	.LFE67:
+ 2718                             	.Letext0:
+ 2719                             		.file 2 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 2720                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2721                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2722                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2723                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2724                             		.file 7 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/types.h"
+ 2725                             		.file 8 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2726                             		.file 9 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2727                             		.file 10 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/fe_operations.h"

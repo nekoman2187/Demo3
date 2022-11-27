@@ -1,0 +1,2618 @@
+   1                             		.file	"ocsp.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.rodata.c25519_base_x,"a"
+   7                             	_c25519_base_x:
+   8 0000 09                      		.byte	9
+   9 0001 00 00 00 00 00 00 00 00 		.zero	31
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 
+  10                             		.section	.rodata.f25519_zero,"a"
+  13                             	_f25519_zero:
+  14 0000 00 00 00 00 00 00 00 00 		.zero	32
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  15                             		.section	.rodata.f25519_one,"a"
+  18                             	_f25519_one:
+  19 0000 01                      		.byte	1
+  20 0001 00 00 00 00 00 00 00 00 		.zero	31
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 
+  21                             		.section	.rodata.fprime_zero,"a"
+  24                             	_fprime_zero:
+  25 0000 00 00 00 00 00 00 00 00 		.zero	32
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  26                             		.section	.rodata.fprime_one,"a"
+  29                             	_fprime_one:
+  30 0000 01                      		.byte	1
+  31 0001 00 00 00 00 00 00 00 00 		.zero	31
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 
+  32                             		.section	.rodata.client,"a"
+  35                             	_client:
+  36 0000 43                      		.byte	0x43
+  37 0001 4C                      		.byte	0x4c
+  38 0002 4E                      		.byte	0x4e
+  39 0003 54                      		.byte	0x54
+  40 0004 00                      		.byte	0
+  41                             		.section	.rodata.server,"a"
+  44                             	_server:
+  45 0000 53                      		.byte	0x53
+  46 0001 52                      		.byte	0x52
+  47 0002 56                      		.byte	0x56
+  48 0003 52                      		.byte	0x52
+  49 0004 00                      		.byte	0
+  50                             		.section	.rodata.tls_client,"a"
+  53                             	_tls_client:
+  54 0000 63 6C 69 65 6E 74 20 66 		.string	"client finished"
+  54      69 6E 69 73 68 65 64 00 
+  55                             		.section	.rodata.tls_server,"a"
+  58                             	_tls_server:
+  59 0000 73 65 72 76 65 72 20 66 		.string	"server finished"
+  59      69 6E 69 73 68 65 64 00 
+  60                             		.section	.text.ForceZero,"ax",@progbits
+  62                             	_ForceZero:
+  63                             	.LFB13:
+  64                             		.file 1 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfcrypt/src/misc.c"
+   1:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* misc.c
+   2:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   3:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   5:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * This file is part of wolfSSL.
+   6:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   7:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * it under the terms of the GNU General Public License as published by
+   9:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * (at your option) any later version.
+  11:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+  12:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * GNU General Public License for more details.
+  16:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+  17:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * You should have received a copy of the GNU General Public License
+  18:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * along with this program; if not, write to the Free Software
+  19:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  */
+  21:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /*
+  22:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  23:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** DESCRIPTION
+  24:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** This module implements the arithmetic-shift right, left, byte swapping, XOR,
+  25:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** masking and clearing memory logic.
+  26:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  27:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** */
+  28:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef HAVE_CONFIG_H
+  29:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <config.h>
+  30:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  31:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  32:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #include <wolfssl/wolfcrypt/settings.h>
+  33:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  34:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLF_CRYPT_MISC_C
+  35:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #define WOLF_CRYPT_MISC_C
+  36:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  37:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #include <wolfssl/wolfcrypt/misc.h>
+  38:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  39:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* inlining these functions is a huge speed increase and a small size decrease,
+  40:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    because the functions are smaller than function call setup/cleanup, e.g.,
+  41:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    md5 benchmark is twice as fast with inline.  If you don't want it, then
+  42:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    define NO_INLINE and compile this file into wolfssl, otherwise it's used as
+  43:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    a source header
+  44:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  */
+  45:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  46:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef NO_INLINE
+  47:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WC_STATIC
+  48:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+  49:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WC_STATIC static
+  50:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  51:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  52:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* Check for if compiling misc.c when not needed. */
+  53:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if !defined(WOLFSSL_MISC_INCLUDED) && !defined(NO_INLINE)
+  54:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #ifndef WOLFSSL_IGNORE_FILE_WARN
+  55:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         #warning misc.c does not need to be compiled when using inline (NO_INLINE not defined)
+  56:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+  57:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  58:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+  59:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  60:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  61:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(__ICCARM__)
+  62:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <intrinsics.h>
+  63:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  64:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  65:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  66:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef INTEL_INTRINSICS
+  67:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  68:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <stdlib.h>      /* get intrinsic definitions */
+  69:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  70:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* for non visual studio probably need no long version, 32 bit only
+  71:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****      * i.e., _rotl and _rotr */
+  72:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #pragma intrinsic(_lrotl, _lrotr)
+  73:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  74:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+  75:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  76:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return y ? _lrotl(x, y) : x;
+  77:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  78:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  79:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+  80:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  81:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return y ? _lrotr(x, y) : x;
+  82:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  83:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  84:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__CCRX__)
+  85:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  86:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <builtin.h>      /* get intrinsic definitions */
+  87:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  88:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #if !defined(NO_INLINE)
+  89:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  90:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define rotlFixed(x, y) _builtin_rotl(x, y)
+  91:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  92:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define rotrFixed(x, y) _builtin_rotr(x, y)
+  93:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  94:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #else /* create real function */
+  95:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  96:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+  97:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  98:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return _builtin_rotl(x, y);
+  99:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 100:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 101:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+ 102:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 103:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return _builtin_rotr(x, y);
+ 104:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 105:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 106:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 107:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 108:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else /* generic */
+ 109:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a left circular arithmetic shift of <x> by <y> value. */
+ 110:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 111:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+ 112:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 113:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 114:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 115:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 116:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a right circular arithmetic shift of <x> by <y> value. */
+ 117:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+ 118:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 119:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 120:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 121:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 122:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 123:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 124:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef WC_RC2
+ 125:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 126:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a left circular arithmetic shift of <x> by <y> value */
+ 127:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word16 rotlFixed16(word16 x, word16 y)
+ 128:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 129:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 130:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 131:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 132:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 133:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a right circular arithmetic shift of <x> by <y> value */
+ 134:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word16 rotrFixed16(word16 x, word16 y)
+ 135:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 136:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 137:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 138:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 139:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* WC_RC2 */
+ 140:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 141:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a byte swap of 32-bit word value. */
+ 142:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(__CCRX__) && !defined(NO_INLINE) /* shortest version for CC-RX */
+ 143:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define ByteReverseWord32(value) _builtin_revl(value)
+ 144:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 145:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word32 ByteReverseWord32(word32 value)
+ 146:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 147:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef PPC_INTRINSICS
+ 148:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* PPC: load reverse indexed instruction */
+ 149:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__lwbrx(&value,0);
+ 150:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__ICCARM__)
+ 151:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__REV(value);
+ 152:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(KEIL_INTRINSICS)
+ 153:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__rev(value);
+ 154:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__CCRX__)
+ 155:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)_builtin_revl(value);
+ 156:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLF_ALLOW_BUILTIN) && \
+ 157:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         defined(__GNUC_PREREQ) && __GNUC_PREREQ(4, 3)
+ 158:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__builtin_bswap32(value);
+ 159:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFSSL_BYTESWAP32_ASM) && defined(__GNUC__) && \
+ 160:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****       defined(__aarch64__)
+ 161:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     __asm__ volatile (
+ 162:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         "REV32 %0, %0  \n"
+ 163:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         : "+r" (value)
+ 164:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         :
+ 165:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     );
+ 166:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return value;
+ 167:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFSSL_BYTESWAP32_ASM) && defined(__GNUC__) && \
+ 168:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****       (defined(__thumb__) || defined(__arm__))
+ 169:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     __asm__ volatile (
+ 170:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         "REV %0, %0  \n"
+ 171:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         : "+r" (value)
+ 172:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         :
+ 173:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     );
+ 174:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return value;
+ 175:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(FAST_ROTATE)
+ 176:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* 5 instructions with rotate instruction, 9 without */
+ 177:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (rotrFixed(value, 8U) & 0xff00ff00) |
+ 178:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****            (rotlFixed(value, 8U) & 0x00ff00ff);
+ 179:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 180:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* 6 instructions with rotate instruction, 8 without */
+ 181:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & 0xFF00FF00) >> 8) | ((value & 0x00FF00FF) << 8);
+ 182:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return rotlFixed(value, 16U);
+ 183:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 184:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 185:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* __CCRX__ */
+ 186:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a byte swap of words array of a given count. */
+ 187:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ByteReverseWords(word32* out, const word32* in,
+ 188:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                     word32 byteCount)
+ 189:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 190:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 count = byteCount/(word32)sizeof(word32), i;
+ 191:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 192:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < count; i++)
+ 193:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         out[i] = ByteReverseWord32(in[i]);
+ 194:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 195:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 196:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 197:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(WORD64_AVAILABLE) && !defined(WOLFSSL_NO_WORD64_OPS)
+ 198:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 199:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 200:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 rotlFixed64(word64 x, word64 y)
+ 201:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 202:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 203:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 204:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 205:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 206:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 rotrFixed64(word64 x, word64 y)
+ 207:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 208:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 209:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 210:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 211:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 212:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 ByteReverseWord64(word64 value)
+ 213:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 214:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(WOLF_ALLOW_BUILTIN) && defined(__GNUC_PREREQ) && __GNUC_PREREQ(4, 3)
+ 215:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word64)__builtin_bswap64(value);
+ 216:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFCRYPT_SLOW_WORD64)
+ 217:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word64)((word64)ByteReverseWord32((word32) value)) << 32 |
+ 218:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         (word64)ByteReverseWord32((word32)(value   >> 32));
+ 219:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 220:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & W64LIT(0xFF00FF00FF00FF00)) >> 8) |
+ 221:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         ((value & W64LIT(0x00FF00FF00FF00FF)) << 8);
+ 222:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & W64LIT(0xFFFF0000FFFF0000)) >> 16) |
+ 223:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         ((value & W64LIT(0x0000FFFF0000FFFF)) << 16);
+ 224:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return rotlFixed64(value, 32U);
+ 225:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 226:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 227:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 228:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 229:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ByteReverseWords64(word64* out, const word64* in,
+ 230:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                       word32 byteCount)
+ 231:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 232:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 count = byteCount/(word32)sizeof(word64), i;
+ 233:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 234:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < count; i++)
+ 235:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         out[i] = ByteReverseWord64(in[i]);
+ 236:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 237:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 238:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 239:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* WORD64_AVAILABLE && !WOLFSSL_NO_WORD64_OPS */
+ 240:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 241:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_XOR_OPS
+ 242:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*r> and <*a> for <n> number
+ 243:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** of wolfssl_words, placing the result in <*r>. */
+ 244:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void XorWordsOut(wolfssl_word* r, const wolfssl_word* a,
+ 245:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                      const wolfssl_word* b, word32 n)
+ 246:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 247:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 i;
+ 248:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 249:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < n; i++) r[i] = a[i] ^ b[i];
+ 250:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 251:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 252:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*buf> and <*mask> of n
+ 253:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** counts, placing the result in <*buf>. */
+ 254:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 255:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void xorbufout(void*out, const void* buf, const void* mask,
+ 256:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                    word32 count)
+ 257:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 258:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     if (((wc_ptr_t)out | (wc_ptr_t)buf | (wc_ptr_t)mask | count) %
+ 259:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                                          WOLFSSL_WORD_SIZE == 0)
+ 260:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         XorWordsOut( (wolfssl_word*)out, (wolfssl_word*)buf,
+ 261:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                      (const wolfssl_word*)mask, count / WOLFSSL_WORD_SIZE);
+ 262:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     else {
+ 263:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 i;
+ 264:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       o = (byte*)out;
+ 265:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       b = (byte*)buf;
+ 266:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+ 267:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 268:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         for (i = 0; i < count; i++) o[i] = b[i] ^ m[i];
+ 269:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 270:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 271:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 272:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*r> and <*a> for <n> number
+ 273:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** of wolfssl_words, placing the result in <*r>. */
+ 274:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void XorWords(wolfssl_word* r, const wolfssl_word* a, word32 n)
+ 275:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 276:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 i;
+ 277:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 278:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < n; i++) r[i] ^= a[i];
+ 279:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 280:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 281:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*buf> and <*mask> of n
+ 282:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** counts, placing the result in <*buf>. */
+ 283:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 284:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void xorbuf(void* buf, const void* mask, word32 count)
+ 285:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 286:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     if (((wc_ptr_t)buf | (wc_ptr_t)mask | count) % WOLFSSL_WORD_SIZE == 0)
+ 287:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         XorWords( (wolfssl_word*)buf,
+ 288:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                   (const wolfssl_word*)mask, count / WOLFSSL_WORD_SIZE);
+ 289:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     else {
+ 290:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 i;
+ 291:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       b = (byte*)buf;
+ 292:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+ 293:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         for (i = 0; i < count; i++) b[i] ^= m[i];
+ 295:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 296:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 297:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 298:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 299:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_FORCE_ZERO
+ 300:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine fills the first len bytes of the memory area pointed by mem
+ 301:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    with zeros. It ensures compiler optimizations doesn't skip it  */
+ 302:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ForceZero(void* mem, word32 len)
+ 303:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+  65                             		.loc 1 303 1
+  66 0000 7E AA                   		push.l	r10
+  67                             	.LCFI0:
+  68 0002 71 0A F4                		add	#-12, r0, r10
+  69                             	.LCFI1:
+  70 0005 EF A0                   		mov.L	r10, r0
+  71 0007 E7 A1 01                		mov.L	r1, 4[r10]
+  72 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 304:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     volatile byte* z = (volatile byte*)mem;
+  73                             		.loc 1 304 20
+  74 000d ED A5 01                		mov.L	4[r10], r5
+  75 0010 E3 A5                   		mov.L	r5, [r10]
+ 305:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 306:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if (defined(WOLFSSL_X86_64_BUILD) || defined(WOLFSSL_AARCH64_BUILD)) \
+ 307:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****             && defined(WORD64_AVAILABLE)
+ 308:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     volatile word64* w;
+ 309:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #ifndef WOLFSSL_UNALIGNED_64BIT_ACCESS
+ 310:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 l = (sizeof(word64) - ((size_t)z & (sizeof(word64)-1))) &
+ 311:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                                              (sizeof(word64)-1);
+ 312:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 313:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         if (len < l) l = len;
+ 314:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         len -= l;
+ 315:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         while (l--) *z++ = 0;
+ 316:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 317:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (w = (volatile word64*)z; len >= sizeof(*w); len -= sizeof(*w))
+ 318:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         *w++ = 0;
+ 319:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     z = (volatile byte*)w;
+ 320:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 321:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 322:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     while (len--) *z++ = 0;
+  76                             		.loc 1 322 11
+  77 0012 2E 0C                   		bra	.L2
+  78                             	.L3:
+  79                             		.loc 1 322 21 discriminator 2
+  80 0014 EC A5                   		mov.L	[r10], r5
+  81 0016 71 54 01                		add	#1, r5, r4
+  82 0019 E3 A4                   		mov.L	r4, [r10]
+  83                             		.loc 1 322 24 discriminator 2
+  84 001b F8 54 00                		mov.B	#0, [r5]
+  85                             	.L2:
+  86                             		.loc 1 322 15 discriminator 1
+  87 001e ED A5 02                		mov.L	8[r10], r5
+  88 0021 71 54 FF                		add	#-1, r5, r4
+  89 0024 E7 A4 02                		mov.L	r4, 8[r10]
+  90                             		.loc 1 322 11 discriminator 1
+  91 0027 61 05                   		cmp	#0, r5
+  92 0029 21 EB                   		bne	.L3
+ 323:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+  93                             		.loc 1 323 1
+  94 002b 03                      		nop
+  95 002c 3F AA 04                		rtsd	#16, r10-r10
+  96                             	.LFE13:
+  98                             		.section C,"a",@progbits
+  99                             		.p2align 2
+ 100                             	.LC0:
+ 101 0000 49 6E 69 74 4F 43 53 50 		.string	"InitOCSP"
+ 101      00 
+ 102                             		.section	.text.InitOCSP,"ax",@progbits
+ 103                             		.global	_InitOCSP
+ 105                             	_InitOCSP:
+ 106                             	.LFB43:
+ 107                             		.file 2 "../src/src/ocsp.c"
+   1:../src/src/ocsp.c **** /* ocsp.c
+   2:../src/src/ocsp.c ****  *
+   3:../src/src/ocsp.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/src/ocsp.c ****  *
+   5:../src/src/ocsp.c ****  * This file is part of wolfSSL.
+   6:../src/src/ocsp.c ****  *
+   7:../src/src/ocsp.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/src/ocsp.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/src/ocsp.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/src/ocsp.c ****  * (at your option) any later version.
+  11:../src/src/ocsp.c ****  *
+  12:../src/src/ocsp.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/src/ocsp.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/src/ocsp.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/src/ocsp.c ****  * GNU General Public License for more details.
+  16:../src/src/ocsp.c ****  *
+  17:../src/src/ocsp.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/src/ocsp.c ****  * along with this program; if not, write to the Free Software
+  19:../src/src/ocsp.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/src/ocsp.c ****  */
+  21:../src/src/ocsp.c **** 
+  22:../src/src/ocsp.c **** 
+  23:../src/src/ocsp.c ****   /* Name change compatibility layer no longer needs to be included here */
+  24:../src/src/ocsp.c **** 
+  25:../src/src/ocsp.c **** #ifdef HAVE_CONFIG_H
+  26:../src/src/ocsp.c ****     #include <config.h>
+  27:../src/src/ocsp.c **** #endif
+  28:../src/src/ocsp.c **** 
+  29:../src/src/ocsp.c **** #include <wolfssl/wolfcrypt/settings.h>
+  30:../src/src/ocsp.c **** 
+  31:../src/src/ocsp.c **** #ifndef WOLFCRYPT_ONLY
+  32:../src/src/ocsp.c **** #ifdef HAVE_OCSP
+  33:../src/src/ocsp.c **** 
+  34:../src/src/ocsp.c **** #include <wolfssl/error-ssl.h>
+  35:../src/src/ocsp.c **** #include <wolfssl/ocsp.h>
+  36:../src/src/ocsp.c **** #include <wolfssl/internal.h>
+  37:../src/src/ocsp.c **** 
+  38:../src/src/ocsp.c **** #ifdef NO_INLINE
+  39:../src/src/ocsp.c ****     #include <wolfssl/wolfcrypt/misc.h>
+  40:../src/src/ocsp.c **** #else
+  41:../src/src/ocsp.c ****     #define WOLFSSL_MISC_INCLUDED
+  42:../src/src/ocsp.c ****     #include <wolfcrypt/src/misc.c>
+  43:../src/src/ocsp.c **** #endif
+  44:../src/src/ocsp.c **** 
+  45:../src/src/ocsp.c **** 
+  46:../src/src/ocsp.c **** int InitOCSP(WOLFSSL_OCSP* ocsp, WOLFSSL_CERT_MANAGER* cm)
+  47:../src/src/ocsp.c **** {
+ 108                             		.loc 2 47 1
+ 109 0000 7E AA                   		push.l	r10
+ 110                             	.LCFI2:
+ 111 0002 71 0A F8                		add	#-8, r0, r10
+ 112                             	.LCFI3:
+ 113 0005 EF A0                   		mov.L	r10, r0
+ 114 0007 E3 A1                   		mov.L	r1, [r10]
+ 115 0009 E7 A2 01                		mov.L	r2, 4[r10]
+  48:../src/src/ocsp.c ****     WOLFSSL_ENTER("InitOCSP");
+ 116                             		.loc 2 48 5
+ 117 000c FB 12 00 00 00 00       		mov.L	#.LC0, r1
+ 118 0012 05 00 00 00             		bsr	_WOLFSSL_ENTER
+  49:../src/src/ocsp.c **** 
+  50:../src/src/ocsp.c ****     ForceZero(ocsp, sizeof(WOLFSSL_OCSP));
+ 119                             		.loc 2 50 5
+ 120 0016 75 42 10                		mov.L	#16, r2
+ 121 0019 EC A1                   		mov.L	[r10], r1
+ 122 001b 05 00 00 00             		bsr	_ForceZero
+  51:../src/src/ocsp.c **** 
+  52:../src/src/ocsp.c ****     if (wc_InitMutex(&ocsp->ocspLock) != 0)
+ 123                             		.loc 2 52 9
+ 124 001f EC A5                   		mov.L	[r10], r5
+ 125 0021 62 85                   		add	#8, r5
+ 126 0023 EF 51                   		mov.L	r5, r1
+ 127 0025 05 00 00 00             		bsr	_wc_InitMutex
+ 128 0029 EF 15                   		mov.L	r1, r5
+ 129                             		.loc 2 52 8
+ 130 002b 61 05                   		cmp	#0, r5
+ 131 002d 15                      		beq	.L5
+  53:../src/src/ocsp.c ****         return BAD_MUTEX_E;
+ 132                             		.loc 2 53 16
+ 133 002e FB 56 96                		mov.L	#-106, r5
+ 134 0031 0A                      		bra	.L6
+ 135                             	.L5:
+  54:../src/src/ocsp.c **** 
+  55:../src/src/ocsp.c ****     ocsp->cm = cm;
+ 136                             		.loc 2 55 14
+ 137 0032 EC A5                   		mov.L	[r10], r5
+ 138 0034 ED A4 01                		mov.L	4[r10], r4
+ 139 0037 E3 54                   		mov.L	r4, [r5]
+  56:../src/src/ocsp.c **** 
+  57:../src/src/ocsp.c ****     return 0;
+ 140                             		.loc 2 57 12
+ 141 0039 66 05                   		mov.L	#0, r5
+ 142                             	.L6:
+  58:../src/src/ocsp.c **** }
+ 143                             		.loc 2 58 1
+ 144 003b EF 51                   		mov.L	r5, r1
+ 145 003d 3F AA 03                		rtsd	#12, r10-r10
+ 146                             	.LFE43:
+ 148                             		.section C,"a",@progbits
+ 149 0009 00 00 00                		.p2align 2
+ 150                             	.LC1:
+ 151 000c 49 6E 69 74 4F 63 73 70 		.string	"InitOcspEntry"
+ 151      45 6E 74 72 79 00 
+ 152                             		.section	.text.InitOcspEntry,"ax",@progbits
+ 154                             	_InitOcspEntry:
+ 155                             	.LFB44:
+  59:../src/src/ocsp.c **** 
+  60:../src/src/ocsp.c **** 
+  61:../src/src/ocsp.c **** static int InitOcspEntry(OcspEntry* entry, OcspRequest* request)
+  62:../src/src/ocsp.c **** {
+ 156                             		.loc 2 62 1
+ 157 0000 7E AA                   		push.l	r10
+ 158                             	.LCFI4:
+ 159 0002 71 0A F8                		add	#-8, r0, r10
+ 160                             	.LCFI5:
+ 161 0005 EF A0                   		mov.L	r10, r0
+ 162 0007 E3 A1                   		mov.L	r1, [r10]
+ 163 0009 E7 A2 01                		mov.L	r2, 4[r10]
+  63:../src/src/ocsp.c ****     WOLFSSL_ENTER("InitOcspEntry");
+ 164                             		.loc 2 63 5
+ 165 000c FB 12 0C 00 00 00       		mov.L	#.LC1, r1
+ 166 0012 05 00 00 00             		bsr	_WOLFSSL_ENTER
+  64:../src/src/ocsp.c **** 
+  65:../src/src/ocsp.c ****     ForceZero(entry, sizeof(OcspEntry));
+ 167                             		.loc 2 65 5
+ 168 0016 75 42 44                		mov.L	#0x44, r2
+ 169 0019 EC A1                   		mov.L	[r10], r1
+ 170 001b 05 00 00 00             		bsr	_ForceZero
+  66:../src/src/ocsp.c **** 
+  67:../src/src/ocsp.c ****     XMEMCPY(entry->issuerHash,    request->issuerHash,    OCSP_DIGEST_SIZE);
+ 171                             		.loc 2 67 5
+ 172 001f EC A5                   		mov.L	[r10], r5
+ 173 0021 62 85                   		add	#8, r5
+ 174 0023 ED A4 01                		mov.L	4[r10], r4
+ 175 0026 75 43 14                		mov.L	#20, r3
+ 176 0029 EF 42                   		mov.L	r4, r2
+ 177 002b EF 51                   		mov.L	r5, r1
+ 178 002d 05 00 00 00             		bsr	_memcpy
+  68:../src/src/ocsp.c ****     XMEMCPY(entry->issuerKeyHash, request->issuerKeyHash, OCSP_DIGEST_SIZE);
+ 179                             		.loc 2 68 5
+ 180 0031 EC A5                   		mov.L	[r10], r5
+ 181 0033 71 54 1C                		add	#28, r5, r4
+ 182 0036 ED A5 01                		mov.L	4[r10], r5
+ 183 0039 71 55 14                		add	#20, r5
+ 184 003c 75 43 14                		mov.L	#20, r3
+ 185 003f EF 52                   		mov.L	r5, r2
+ 186 0041 EF 41                   		mov.L	r4, r1
+ 187 0043 05 00 00 00             		bsr	_memcpy
+  69:../src/src/ocsp.c **** 
+  70:../src/src/ocsp.c ****     return 0;
+ 188                             		.loc 2 70 12
+ 189 0047 66 05                   		mov.L	#0, r5
+  71:../src/src/ocsp.c **** }
+ 190                             		.loc 2 71 1
+ 191 0049 EF 51                   		mov.L	r5, r1
+ 192 004b 3F AA 03                		rtsd	#12, r10-r10
+ 193                             	.LFE44:
+ 195                             		.section C,"a",@progbits
+ 196 001a 00 00                   		.p2align 2
+ 197                             	.LC2:
+ 198 001c 46 72 65 65 4F 63 73 70 		.string	"FreeOcspEntry"
+ 198      45 6E 74 72 79 00 
+ 199                             		.section	.text.FreeOcspEntry,"ax",@progbits
+ 201                             	_FreeOcspEntry:
+ 202                             	.LFB45:
+  72:../src/src/ocsp.c **** 
+  73:../src/src/ocsp.c **** 
+  74:../src/src/ocsp.c **** static void FreeOcspEntry(OcspEntry* entry, void* heap)
+  75:../src/src/ocsp.c **** {
+ 203                             		.loc 2 75 1
+ 204 0000 7E AA                   		push.l	r10
+ 205                             	.LCFI6:
+ 206 0002 71 0A E8                		add	#-24, r0, r10
+ 207                             	.LCFI7:
+ 208 0005 EF A0                   		mov.L	r10, r0
+ 209 0007 E7 A1 04                		mov.L	r1, 16[r10]
+ 210 000a E7 A2 05                		mov.L	r2, 20[r10]
+  76:../src/src/ocsp.c ****     CertStatus *status, *next;
+  77:../src/src/ocsp.c **** 
+  78:../src/src/ocsp.c ****     if (entry == NULL || !entry->ownStatus)
+ 211                             		.loc 2 78 8
+ 212 000d ED A5 04                		mov.L	16[r10], r5
+ 213 0010 61 05                   		cmp	#0, r5
+ 214 0012 20 65                   		beq	.L17
+ 215                             		.loc 2 78 26 discriminator 1
+ 216 0014 ED A5 04                		mov.L	16[r10], r5
+ 217 0017 CD 55 40                		mov.B	64[r5], r5
+ 218 001a 64 15                   		and	#1, r5
+ 219                             		.loc 2 78 23 discriminator 1
+ 220 001c 5B 55                   		movu.B	r5, r5
+ 221 001e 61 05                   		cmp	#0, r5
+ 222 0020 20 57                   		beq	.L17
+  79:../src/src/ocsp.c ****         return;
+  80:../src/src/ocsp.c **** 
+  81:../src/src/ocsp.c ****     WOLFSSL_ENTER("FreeOcspEntry");
+ 223                             		.loc 2 81 5
+ 224 0022 FB 12 1C 00 00 00       		mov.L	#.LC2, r1
+ 225 0028 05 00 00 00             		bsr	_WOLFSSL_ENTER
+  82:../src/src/ocsp.c **** 
+  83:../src/src/ocsp.c ****     for (status = entry->status; status; status = next) {
+ 226                             		.loc 2 83 17
+ 227 002c ED A5 04                		mov.L	16[r10], r5
+ 228 002f AB 55                   		mov.L	48[r5], r5
+ 229 0031 E3 A5                   		mov.L	r5, [r10]
+ 230                             		.loc 2 83 5
+ 231 0033 2E 3C                   		bra	.L13
+ 232                             	.L16:
+  84:../src/src/ocsp.c ****         next = status->next;
+ 233                             		.loc 2 84 14
+ 234 0035 EC A5                   		mov.L	[r10], r5
+ 235 0037 EC 55                   		mov.L	[r5], r5
+ 236 0039 E7 A5 01                		mov.L	r5, 4[r10]
+  85:../src/src/ocsp.c **** 
+  86:../src/src/ocsp.c ****         if (status->rawOcspResponse)
+ 237                             		.loc 2 86 19
+ 238 003c EC A5                   		mov.L	[r10], r5
+ 239 003e AF 55                   		mov.L	112[r5], r5
+ 240                             		.loc 2 86 12
+ 241 0040 61 05                   		cmp	#0, r5
+ 242 0042 20 16                   		beq	.L14
+ 243                             	.LBB2:
+  87:../src/src/ocsp.c ****             XFREE(status->rawOcspResponse, heap, DYNAMIC_TYPE_OCSP_STATUS);
+ 244                             		.loc 2 87 13
+ 245 0044 EC A5                   		mov.L	[r10], r5
+ 246 0046 AF 55                   		mov.L	112[r5], r5
+ 247 0048 E7 A5 02                		mov.L	r5, 8[r10]
+ 248 004b ED A5 02                		mov.L	8[r10], r5
+ 249 004e 61 05                   		cmp	#0, r5
+ 250 0050 10                      		beq	.L14
+ 251                             		.loc 2 87 13 is_stmt 0 discriminator 1
+ 252 0051 ED A1 02                		mov.L	8[r10], r1
+ 253 0054 05 00 00 00             		bsr	_wolfSSL_Free
+ 254                             	.L14:
+ 255                             	.LBE2:
+ 256                             	.LBB3:
+  88:../src/src/ocsp.c **** 
+  89:../src/src/ocsp.c **** #ifdef OPENSSL_EXTRA
+  90:../src/src/ocsp.c ****         if (status->serialInt) {
+  91:../src/src/ocsp.c ****             if (status->serialInt->isDynamic) {
+  92:../src/src/ocsp.c ****                 XFREE(status->serialInt->data, NULL, DYNAMIC_TYPE_OPENSSL);
+  93:../src/src/ocsp.c ****             }
+  94:../src/src/ocsp.c ****             XFREE(status->serialInt, NULL, DYNAMIC_TYPE_OPENSSL);
+  95:../src/src/ocsp.c ****         }
+  96:../src/src/ocsp.c ****         status->serialInt = NULL;
+  97:../src/src/ocsp.c **** #endif
+  98:../src/src/ocsp.c **** 
+  99:../src/src/ocsp.c ****         XFREE(status, heap, DYNAMIC_TYPE_OCSP_STATUS);
+ 257                             		.loc 2 99 9 is_stmt 1
+ 258 0058 EC A5                   		mov.L	[r10], r5
+ 259 005a E7 A5 03                		mov.L	r5, 12[r10]
+ 260 005d ED A5 03                		mov.L	12[r10], r5
+ 261 0060 61 05                   		cmp	#0, r5
+ 262 0062 10                      		beq	.L15
+ 263                             		.loc 2 99 9 is_stmt 0 discriminator 1
+ 264 0063 ED A1 03                		mov.L	12[r10], r1
+ 265 0066 05 00 00 00             		bsr	_wolfSSL_Free
+ 266                             	.L15:
+ 267                             	.LBE3:
+  83:../src/src/ocsp.c ****         next = status->next;
+ 268                             		.loc 2 83 49 is_stmt 1 discriminator 2
+ 269 006a ED A5 01                		mov.L	4[r10], r5
+ 270 006d E3 A5                   		mov.L	r5, [r10]
+ 271                             	.L13:
+  83:../src/src/ocsp.c ****         next = status->next;
+ 272                             		.loc 2 83 5 discriminator 1
+ 273 006f EC A5                   		mov.L	[r10], r5
+ 274 0071 61 05                   		cmp	#0, r5
+ 275 0073 21 C2                   		bne	.L16
+ 276 0075 2E 03                   		bra	.L9
+ 277                             	.L17:
+  79:../src/src/ocsp.c **** 
+ 278                             		.loc 2 79 9
+ 279 0077 03                      		nop
+ 280                             	.L9:
+ 100:../src/src/ocsp.c ****     }
+ 101:../src/src/ocsp.c **** 
+ 102:../src/src/ocsp.c ****     (void)heap;
+ 103:../src/src/ocsp.c **** }
+ 281                             		.loc 2 103 1
+ 282 0078 3F AA 07                		rtsd	#28, r10-r10
+ 283                             	.LFE45:
+ 285                             		.section C,"a",@progbits
+ 286 002a 00 00                   		.p2align 2
+ 287                             	.LC3:
+ 288 002c 46 72 65 65 4F 43 53 50 		.string	"FreeOCSP"
+ 288      00 
+ 289                             		.section	.text.FreeOCSP,"ax",@progbits
+ 290                             		.global	_FreeOCSP
+ 292                             	_FreeOCSP:
+ 293                             	.LFB46:
+ 104:../src/src/ocsp.c **** 
+ 105:../src/src/ocsp.c **** 
+ 106:../src/src/ocsp.c **** void FreeOCSP(WOLFSSL_OCSP* ocsp, int dynamic)
+ 107:../src/src/ocsp.c **** {
+ 294                             		.loc 2 107 1
+ 295 0000 7E AA                   		push.l	r10
+ 296                             	.LCFI8:
+ 297 0002 71 0A E8                		add	#-24, r0, r10
+ 298                             	.LCFI9:
+ 299 0005 EF A0                   		mov.L	r10, r0
+ 300 0007 E7 A1 04                		mov.L	r1, 16[r10]
+ 301 000a E7 A2 05                		mov.L	r2, 20[r10]
+ 108:../src/src/ocsp.c ****     OcspEntry *entry, *next;
+ 109:../src/src/ocsp.c **** 
+ 110:../src/src/ocsp.c ****     WOLFSSL_ENTER("FreeOCSP");
+ 302                             		.loc 2 110 5
+ 303 000d FB 12 2C 00 00 00       		mov.L	#.LC3, r1
+ 304 0013 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 111:../src/src/ocsp.c **** 
+ 112:../src/src/ocsp.c ****     for (entry = ocsp->ocspList; entry; entry = next) {
+ 305                             		.loc 2 112 16
+ 306 0017 ED A5 04                		mov.L	16[r10], r5
+ 307 001a A8 5D                   		mov.L	4[r5], r5
+ 308 001c E3 A5                   		mov.L	r5, [r10]
+ 309                             		.loc 2 112 5
+ 310 001e 2E 2F                   		bra	.L19
+ 311                             	.L21:
+ 113:../src/src/ocsp.c ****         next = entry->next;
+ 312                             		.loc 2 113 14
+ 313 0020 EC A5                   		mov.L	[r10], r5
+ 314 0022 EC 55                   		mov.L	[r5], r5
+ 315 0024 E7 A5 01                		mov.L	r5, 4[r10]
+ 114:../src/src/ocsp.c ****         FreeOcspEntry(entry, ocsp->cm->heap);
+ 316                             		.loc 2 114 34
+ 317 0027 ED A5 04                		mov.L	16[r10], r5
+ 318 002a EC 55                   		mov.L	[r5], r5
+ 319                             		.loc 2 114 9
+ 320 002c AA DD                   		mov.L	44[r5], r5
+ 321 002e EF 52                   		mov.L	r5, r2
+ 322 0030 EC A1                   		mov.L	[r10], r1
+ 323 0032 05 00 00 00             		bsr	_FreeOcspEntry
+ 324                             	.LBB4:
+ 115:../src/src/ocsp.c ****         XFREE(entry, ocsp->cm->heap, DYNAMIC_TYPE_OCSP_ENTRY);
+ 325                             		.loc 2 115 9
+ 326 0036 EC A5                   		mov.L	[r10], r5
+ 327 0038 E7 A5 02                		mov.L	r5, 8[r10]
+ 328 003b ED A5 02                		mov.L	8[r10], r5
+ 329 003e 61 05                   		cmp	#0, r5
+ 330 0040 10                      		beq	.L20
+ 331                             		.loc 2 115 9 is_stmt 0 discriminator 1
+ 332 0041 ED A1 02                		mov.L	8[r10], r1
+ 333 0044 05 00 00 00             		bsr	_wolfSSL_Free
+ 334                             	.L20:
+ 335                             	.LBE4:
+ 112:../src/src/ocsp.c ****         next = entry->next;
+ 336                             		.loc 2 112 47 is_stmt 1 discriminator 2
+ 337 0048 ED A5 01                		mov.L	4[r10], r5
+ 338 004b E3 A5                   		mov.L	r5, [r10]
+ 339                             	.L19:
+ 112:../src/src/ocsp.c ****         next = entry->next;
+ 340                             		.loc 2 112 5 discriminator 1
+ 341 004d EC A5                   		mov.L	[r10], r5
+ 342 004f 61 05                   		cmp	#0, r5
+ 343 0051 21 CF                   		bne	.L21
+ 116:../src/src/ocsp.c ****     }
+ 117:../src/src/ocsp.c **** 
+ 118:../src/src/ocsp.c ****     wc_FreeMutex(&ocsp->ocspLock);
+ 344                             		.loc 2 118 5
+ 345 0053 ED A5 04                		mov.L	16[r10], r5
+ 346 0056 62 85                   		add	#8, r5
+ 347 0058 EF 51                   		mov.L	r5, r1
+ 348 005a 05 00 00 00             		bsr	_wc_FreeMutex
+ 119:../src/src/ocsp.c **** 
+ 120:../src/src/ocsp.c ****     if (dynamic)
+ 349                             		.loc 2 120 8
+ 350 005e ED A5 05                		mov.L	20[r10], r5
+ 351 0061 61 05                   		cmp	#0, r5
+ 352 0063 20 15                   		beq	.L23
+ 353                             	.LBB5:
+ 121:../src/src/ocsp.c ****         XFREE(ocsp, ocsp->cm->heap, DYNAMIC_TYPE_OCSP);
+ 354                             		.loc 2 121 9
+ 355 0065 ED A5 04                		mov.L	16[r10], r5
+ 356 0068 E7 A5 03                		mov.L	r5, 12[r10]
+ 357 006b ED A5 03                		mov.L	12[r10], r5
+ 358 006e 61 05                   		cmp	#0, r5
+ 359 0070 10                      		beq	.L23
+ 360                             		.loc 2 121 9 is_stmt 0 discriminator 1
+ 361 0071 ED A1 03                		mov.L	12[r10], r1
+ 362 0074 05 00 00 00             		bsr	_wolfSSL_Free
+ 363                             	.L23:
+ 364                             	.LBE5:
+ 122:../src/src/ocsp.c **** 
+ 123:../src/src/ocsp.c **** }
+ 365                             		.loc 2 123 1 is_stmt 1
+ 366 0078 03                      		nop
+ 367 0079 3F AA 07                		rtsd	#28, r10-r10
+ 368                             	.LFE46:
+ 370                             		.section	.text.xstat2err,"ax",@progbits
+ 372                             	_xstat2err:
+ 373                             	.LFB47:
+ 124:../src/src/ocsp.c **** 
+ 125:../src/src/ocsp.c **** 
+ 126:../src/src/ocsp.c **** static int xstat2err(int st)
+ 127:../src/src/ocsp.c **** {
+ 374                             		.loc 2 127 1
+ 375 0000 7E AA                   		push.l	r10
+ 376                             	.LCFI10:
+ 377 0002 71 0A FC                		add	#-4, r0, r10
+ 378                             	.LCFI11:
+ 379 0005 EF A0                   		mov.L	r10, r0
+ 380 0007 E3 A1                   		mov.L	r1, [r10]
+ 128:../src/src/ocsp.c ****     switch (st) {
+ 381                             		.loc 2 128 5
+ 382 0009 EC A5                   		mov.L	[r10], r5
+ 383 000b 61 05                   		cmp	#0, r5
+ 384 000d 17                      		beq	.L25
+ 385 000e EC A5                   		mov.L	[r10], r5
+ 386 0010 61 15                   		cmp	#1, r5
+ 387 0012 15                      		beq	.L26
+ 388 0013 09                      		bra	.L29
+ 389                             	.L25:
+ 129:../src/src/ocsp.c ****         case CERT_GOOD:
+ 130:../src/src/ocsp.c ****             return 0;
+ 390                             		.loc 2 130 20
+ 391 0014 66 05                   		mov.L	#0, r5
+ 392 0016 0A                      		bra	.L28
+ 393                             	.L26:
+ 131:../src/src/ocsp.c ****         case CERT_REVOKED:
+ 132:../src/src/ocsp.c ****             return OCSP_CERT_REVOKED;
+ 394                             		.loc 2 132 20
+ 395 0017 FB 5A 98 FE             		mov.L	#-360, r5
+ 396 001b 0D                      		bra	.L28
+ 397                             	.L29:
+ 133:../src/src/ocsp.c ****         default:
+ 134:../src/src/ocsp.c ****             return OCSP_CERT_UNKNOWN;
+ 398                             		.loc 2 134 20
+ 399 001c FB 5A 92 FE             		mov.L	#-366, r5
+ 400                             	.L28:
+ 135:../src/src/ocsp.c ****     }
+ 136:../src/src/ocsp.c **** }
+ 401                             		.loc 2 136 1
+ 402 0020 EF 51                   		mov.L	r5, r1
+ 403 0022 3F AA 02                		rtsd	#8, r10-r10
+ 404                             	.LFE47:
+ 406                             		.section C,"a",@progbits
+ 407 0035 00 00 00                		.p2align 2
+ 408                             	.LC4:
+ 409 0038 43 68 65 63 6B 43 65 72 		.string	"CheckCertOCSP"
+ 409      74 4F 43 53 50 00 
+ 410                             		.section	.text.CheckCertOCSP_ex,"ax",@progbits
+ 411                             		.global	_CheckCertOCSP_ex
+ 413                             	_CheckCertOCSP_ex:
+ 414                             	.LFB48:
+ 137:../src/src/ocsp.c **** 
+ 138:../src/src/ocsp.c **** int CheckCertOCSP_ex(WOLFSSL_OCSP* ocsp, DecodedCert* cert, buffer* responseBuffer, WOLFSSL* ssl)
+ 139:../src/src/ocsp.c **** {
+ 415                             		.loc 2 139 1
+ 416 0000 7E AA                   		push.l	r10
+ 417                             	.LCFI12:
+ 418 0002 71 0A E4                		add	#-28, r0, r10
+ 419                             	.LCFI13:
+ 420 0005 EF A0                   		mov.L	r10, r0
+ 421 0007 E7 A1 03                		mov.L	r1, 12[r10]
+ 422 000a E7 A2 04                		mov.L	r2, 16[r10]
+ 423 000d E7 A3 05                		mov.L	r3, 20[r10]
+ 424 0010 E7 A4 06                		mov.L	r4, 24[r10]
+ 140:../src/src/ocsp.c ****     int ret = OCSP_LOOKUP_FAIL;
+ 425                             		.loc 2 140 9
+ 426 0013 F8 AA 91 FE             		mov.L	#-367, [r10]
+ 141:../src/src/ocsp.c **** 
+ 142:../src/src/ocsp.c **** #ifdef WOLFSSL_SMALL_STACK
+ 143:../src/src/ocsp.c ****     OcspRequest* ocspRequest;
+ 144:../src/src/ocsp.c **** #else
+ 145:../src/src/ocsp.c ****     OcspRequest ocspRequest[1];
+ 146:../src/src/ocsp.c **** #endif
+ 147:../src/src/ocsp.c **** 
+ 148:../src/src/ocsp.c ****     WOLFSSL_ENTER("CheckCertOCSP");
+ 427                             		.loc 2 148 5
+ 428 0017 FB 12 38 00 00 00       		mov.L	#.LC4, r1
+ 429 001d 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 149:../src/src/ocsp.c **** 
+ 150:../src/src/ocsp.c **** 
+ 151:../src/src/ocsp.c **** #ifdef WOLFSSL_SMALL_STACK
+ 152:../src/src/ocsp.c ****     ocspRequest = (OcspRequest*)XMALLOC(sizeof(OcspRequest), NULL,
+ 430                             		.loc 2 152 33
+ 431 0021 75 41 54                		mov.L	#0x54, r1
+ 432 0024 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 433 0028 E7 A1 01                		mov.L	r1, 4[r10]
+ 153:../src/src/ocsp.c ****                                                        DYNAMIC_TYPE_TMP_BUFFER);
+ 154:../src/src/ocsp.c ****     if (ocspRequest == NULL) {
+ 434                             		.loc 2 154 8
+ 435 002b ED A5 01                		mov.L	4[r10], r5
+ 436 002e 61 05                   		cmp	#0, r5
+ 437 0030 21 15                   		bne	.L31
+ 155:../src/src/ocsp.c ****         WOLFSSL_LEAVE("CheckCertOCSP", MEMORY_ERROR);
+ 438                             		.loc 2 155 9
+ 439 0032 FB 2A D1 FE             		mov.L	#-303, r2
+ 440 0036 FB 12 38 00 00 00       		mov.L	#.LC4, r1
+ 441 003c 05 00 00 00             		bsr	_WOLFSSL_LEAVE
+ 156:../src/src/ocsp.c ****         return MEMORY_E;
+ 442                             		.loc 2 156 16
+ 443 0040 FB 56 83                		mov.L	#-125, r5
+ 444 0043 2E 67                   		bra	.L32
+ 445                             	.L31:
+ 157:../src/src/ocsp.c ****     }
+ 158:../src/src/ocsp.c **** #endif
+ 159:../src/src/ocsp.c **** 
+ 160:../src/src/ocsp.c ****     if (InitOcspRequest(ocspRequest, cert, ocsp->cm->ocspSendNonce,
+ 446                             		.loc 2 160 48
+ 447 0045 ED A5 03                		mov.L	12[r10], r5
+ 448 0048 EC 55                   		mov.L	[r5], r5
+ 449                             		.loc 2 160 52
+ 450 004a AD DD                   		mov.L	92[r5], r5
+ 451 004c 68 45                   		shlr	#4, r5
+ 452 004e 64 15                   		and	#1, r5
+ 453                             		.loc 2 160 9
+ 454 0050 CF 53                   		mov.B	r5, r3
+ 161:../src/src/ocsp.c ****                                                          ocsp->cm->heap) == 0) {
+ 455                             		.loc 2 161 62
+ 456 0052 ED A5 03                		mov.L	12[r10], r5
+ 457 0055 EC 55                   		mov.L	[r5], r5
+ 160:../src/src/ocsp.c ****                                                          ocsp->cm->heap) == 0) {
+ 458                             		.loc 2 160 9
+ 459 0057 AA DD                   		mov.L	44[r5], r5
+ 460 0059 EF 54                   		mov.L	r5, r4
+ 461 005b ED A2 04                		mov.L	16[r10], r2
+ 462 005e ED A1 01                		mov.L	4[r10], r1
+ 463 0061 05 00 00 00             		bsr	_InitOcspRequest
+ 464 0065 EF 15                   		mov.L	r1, r5
+ 160:../src/src/ocsp.c ****                                                          ocsp->cm->heap) == 0) {
+ 465                             		.loc 2 160 8
+ 466 0067 61 05                   		cmp	#0, r5
+ 467 0069 21 20                   		bne	.L33
+ 162:../src/src/ocsp.c ****         ocspRequest->ssl = ssl;
+ 468                             		.loc 2 162 26
+ 469 006b ED A5 01                		mov.L	4[r10], r5
+ 470 006e ED A4 06                		mov.L	24[r10], r4
+ 471 0071 A5 54                   		mov.L	r4, 80[r5]
+ 163:../src/src/ocsp.c ****         ret = CheckOcspRequest(ocsp, ocspRequest, responseBuffer);
+ 472                             		.loc 2 163 15
+ 473 0073 ED A3 05                		mov.L	20[r10], r3
+ 474 0076 ED A2 01                		mov.L	4[r10], r2
+ 475 0079 ED A1 03                		mov.L	12[r10], r1
+ 476 007c 05 00 00 00             		bsr	_CheckOcspRequest
+ 477 0080 E3 A1                   		mov.L	r1, [r10]
+ 164:../src/src/ocsp.c **** 
+ 165:../src/src/ocsp.c ****         FreeOcspRequest(ocspRequest);
+ 478                             		.loc 2 165 9
+ 479 0082 ED A1 01                		mov.L	4[r10], r1
+ 480 0085 05 00 00 00             		bsr	_FreeOcspRequest
+ 481                             	.L33:
+ 482                             	.LBB6:
+ 166:../src/src/ocsp.c ****     }
+ 167:../src/src/ocsp.c **** 
+ 168:../src/src/ocsp.c **** #ifdef WOLFSSL_SMALL_STACK
+ 169:../src/src/ocsp.c ****     XFREE(ocspRequest, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 483                             		.loc 2 169 5
+ 484 0089 ED A5 01                		mov.L	4[r10], r5
+ 485 008c E7 A5 02                		mov.L	r5, 8[r10]
+ 486 008f ED A5 02                		mov.L	8[r10], r5
+ 487 0092 61 05                   		cmp	#0, r5
+ 488 0094 10                      		beq	.L34
+ 489                             		.loc 2 169 5 is_stmt 0 discriminator 1
+ 490 0095 ED A1 02                		mov.L	8[r10], r1
+ 491 0098 05 00 00 00             		bsr	_wolfSSL_Free
+ 492                             	.L34:
+ 493                             	.LBE6:
+ 170:../src/src/ocsp.c **** #endif
+ 171:../src/src/ocsp.c **** 
+ 172:../src/src/ocsp.c ****     WOLFSSL_LEAVE("CheckCertOCSP", ret);
+ 494                             		.loc 2 172 5 is_stmt 1
+ 495 009c EC A2                   		mov.L	[r10], r2
+ 496 009e FB 12 38 00 00 00       		mov.L	#.LC4, r1
+ 497 00a4 05 00 00 00             		bsr	_WOLFSSL_LEAVE
+ 173:../src/src/ocsp.c ****     return ret;
+ 498                             		.loc 2 173 12
+ 499 00a8 EC A5                   		mov.L	[r10], r5
+ 500                             	.L32:
+ 174:../src/src/ocsp.c **** }
+ 501                             		.loc 2 174 1
+ 502 00aa EF 51                   		mov.L	r5, r1
+ 503 00ac 3F AA 08                		rtsd	#32, r10-r10
+ 504                             	.LFE48:
+ 506                             		.section	.text.CheckCertOCSP,"ax",@progbits
+ 507                             		.global	_CheckCertOCSP
+ 509                             	_CheckCertOCSP:
+ 510                             	.LFB49:
+ 175:../src/src/ocsp.c **** int CheckCertOCSP(WOLFSSL_OCSP* ocsp, DecodedCert* cert, buffer* responseBuffer)
+ 176:../src/src/ocsp.c **** {
+ 511                             		.loc 2 176 1
+ 512 0000 7E AA                   		push.l	r10
+ 513                             	.LCFI14:
+ 514 0002 71 0A F4                		add	#-12, r0, r10
+ 515                             	.LCFI15:
+ 516 0005 EF A0                   		mov.L	r10, r0
+ 517 0007 E3 A1                   		mov.L	r1, [r10]
+ 518 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 519 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 177:../src/src/ocsp.c ****     return CheckCertOCSP_ex(ocsp, cert, responseBuffer, NULL);
+ 520                             		.loc 2 177 12
+ 521 000f 66 04                   		mov.L	#0, r4
+ 522 0011 ED A3 02                		mov.L	8[r10], r3
+ 523 0014 ED A2 01                		mov.L	4[r10], r2
+ 524 0017 EC A1                   		mov.L	[r10], r1
+ 525 0019 05 00 00 00             		bsr	_CheckCertOCSP_ex
+ 526 001d EF 15                   		mov.L	r1, r5
+ 178:../src/src/ocsp.c **** }
+ 527                             		.loc 2 178 1
+ 528 001f EF 51                   		mov.L	r5, r1
+ 529 0021 3F AA 04                		rtsd	#16, r10-r10
+ 530                             	.LFE49:
+ 532                             		.section C,"a",@progbits
+ 533 0046 00 00                   		.p2align 2
+ 534                             	.LC5:
+ 535 0048 47 65 74 4F 63 73 70 45 		.string	"GetOcspEntry"
+ 535      6E 74 72 79 00 
+ 536                             		.section	.text.GetOcspEntry,"ax",@progbits
+ 538                             	_GetOcspEntry:
+ 539                             	.LFB50:
+ 179:../src/src/ocsp.c **** 
+ 180:../src/src/ocsp.c **** static int GetOcspEntry(WOLFSSL_OCSP* ocsp, OcspRequest* request,
+ 181:../src/src/ocsp.c ****                                                               OcspEntry** entry)
+ 182:../src/src/ocsp.c **** {
+ 540                             		.loc 2 182 1
+ 541 0000 7E AA                   		push.l	r10
+ 542                             	.LCFI16:
+ 543 0002 71 0A F4                		add	#-12, r0, r10
+ 544                             	.LCFI17:
+ 545 0005 EF A0                   		mov.L	r10, r0
+ 546 0007 E3 A1                   		mov.L	r1, [r10]
+ 547 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 548 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 183:../src/src/ocsp.c ****     WOLFSSL_ENTER("GetOcspEntry");
+ 549                             		.loc 2 183 5
+ 550 000f FB 12 48 00 00 00       		mov.L	#.LC5, r1
+ 551 0015 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 184:../src/src/ocsp.c **** 
+ 185:../src/src/ocsp.c ****     *entry = NULL;
+ 552                             		.loc 2 185 12
+ 553 0019 ED A5 02                		mov.L	8[r10], r5
+ 554 001c F8 56 00                		mov.L	#0, [r5]
+ 186:../src/src/ocsp.c **** 
+ 187:../src/src/ocsp.c ****     if (wc_LockMutex(&ocsp->ocspLock) != 0) {
+ 555                             		.loc 2 187 9
+ 556 001f EC A5                   		mov.L	[r10], r5
+ 557 0021 62 85                   		add	#8, r5
+ 558 0023 EF 51                   		mov.L	r5, r1
+ 559 0025 05 00 00 00             		bsr	_wc_LockMutex
+ 560 0029 EF 15                   		mov.L	r1, r5
+ 561                             		.loc 2 187 8
+ 562 002b 61 05                   		cmp	#0, r5
+ 563 002d 20 15                   		beq	.L38
+ 188:../src/src/ocsp.c ****         WOLFSSL_LEAVE("CheckCertOCSP", BAD_MUTEX_E);
+ 564                             		.loc 2 188 9
+ 565 002f FB 26 96                		mov.L	#-106, r2
+ 566 0032 FB 12 38 00 00 00       		mov.L	#.LC4, r1
+ 567 0038 05 00 00 00             		bsr	_WOLFSSL_LEAVE
+ 189:../src/src/ocsp.c ****         return BAD_MUTEX_E;
+ 568                             		.loc 2 189 16
+ 569 003c FB 56 96                		mov.L	#-106, r5
+ 570 003f 38 BB 00                		bra	.L39
+ 571                             	.L38:
+ 190:../src/src/ocsp.c ****     }
+ 191:../src/src/ocsp.c **** 
+ 192:../src/src/ocsp.c ****     for (*entry = ocsp->ocspList; *entry; *entry = (*entry)->next)
+ 572                             		.loc 2 192 23
+ 573 0042 EC A5                   		mov.L	[r10], r5
+ 574 0044 A8 5C                   		mov.L	4[r5], r4
+ 575                             		.loc 2 192 17
+ 576 0046 ED A5 02                		mov.L	8[r10], r5
+ 577 0049 E3 54                   		mov.L	r4, [r5]
+ 578                             		.loc 2 192 5
+ 579 004b 2E 48                   		bra	.L40
+ 580                             	.L43:
+ 193:../src/src/ocsp.c ****         if (XMEMCMP((*entry)->issuerHash,    request->issuerHash,
+ 581                             		.loc 2 193 13
+ 582 004d ED A5 02                		mov.L	8[r10], r5
+ 583 0050 EC 55                   		mov.L	[r5], r5
+ 584 0052 62 85                   		add	#8, r5
+ 585 0054 ED A4 01                		mov.L	4[r10], r4
+ 586 0057 75 43 14                		mov.L	#20, r3
+ 587 005a EF 42                   		mov.L	r4, r2
+ 588 005c EF 51                   		mov.L	r5, r1
+ 589 005e 05 00 00 00             		bsr	_memcmp
+ 590 0062 EF 15                   		mov.L	r1, r5
+ 591                             		.loc 2 193 12
+ 592 0064 61 05                   		cmp	#0, r5
+ 593 0066 21 21                   		bne	.L41
+ 194:../src/src/ocsp.c ****                                                          OCSP_DIGEST_SIZE) == 0
+ 195:../src/src/ocsp.c ****         &&  XMEMCMP((*entry)->issuerKeyHash, request->issuerKeyHash,
+ 594                             		.loc 2 195 13
+ 595 0068 ED A5 02                		mov.L	8[r10], r5
+ 596 006b EC 55                   		mov.L	[r5], r5
+ 597 006d 71 54 1C                		add	#28, r5, r4
+ 598 0070 ED A5 01                		mov.L	4[r10], r5
+ 599 0073 71 55 14                		add	#20, r5
+ 600 0076 75 43 14                		mov.L	#20, r3
+ 601 0079 EF 52                   		mov.L	r5, r2
+ 602 007b EF 41                   		mov.L	r4, r1
+ 603 007d 05 00 00 00             		bsr	_memcmp
+ 604 0081 EF 15                   		mov.L	r1, r5
+ 605                             		.loc 2 195 9
+ 606 0083 61 05                   		cmp	#0, r5
+ 607 0085 20 19                   		beq	.L47
+ 608                             	.L41:
+ 192:../src/src/ocsp.c ****         if (XMEMCMP((*entry)->issuerHash,    request->issuerHash,
+ 609                             		.loc 2 192 53 discriminator 2
+ 610 0087 ED A5 02                		mov.L	8[r10], r5
+ 611 008a EC 55                   		mov.L	[r5], r5
+ 192:../src/src/ocsp.c ****         if (XMEMCMP((*entry)->issuerHash,    request->issuerHash,
+ 612                             		.loc 2 192 60 discriminator 2
+ 613 008c EC 54                   		mov.L	[r5], r4
+ 192:../src/src/ocsp.c ****         if (XMEMCMP((*entry)->issuerHash,    request->issuerHash,
+ 614                             		.loc 2 192 50 discriminator 2
+ 615 008e ED A5 02                		mov.L	8[r10], r5
+ 616 0091 E3 54                   		mov.L	r4, [r5]
+ 617                             	.L40:
+ 192:../src/src/ocsp.c ****         if (XMEMCMP((*entry)->issuerHash,    request->issuerHash,
+ 618                             		.loc 2 192 35 discriminator 1
+ 619 0093 ED A5 02                		mov.L	8[r10], r5
+ 620 0096 EC 55                   		mov.L	[r5], r5
+ 192:../src/src/ocsp.c ****         if (XMEMCMP((*entry)->issuerHash,    request->issuerHash,
+ 621                             		.loc 2 192 5 discriminator 1
+ 622 0098 61 05                   		cmp	#0, r5
+ 623 009a 21 B3                   		bne	.L43
+ 624 009c 2E 03                   		bra	.L42
+ 625                             	.L47:
+ 196:../src/src/ocsp.c ****                                                          OCSP_DIGEST_SIZE) == 0)
+ 197:../src/src/ocsp.c ****             break;
+ 626                             		.loc 2 197 13
+ 627 009e 03                      		nop
+ 628                             	.L42:
+ 198:../src/src/ocsp.c **** 
+ 199:../src/src/ocsp.c ****     if (*entry == NULL) {
+ 629                             		.loc 2 199 9
+ 630 009f ED A5 02                		mov.L	8[r10], r5
+ 631 00a2 EC 55                   		mov.L	[r5], r5
+ 632                             		.loc 2 199 8
+ 633 00a4 61 05                   		cmp	#0, r5
+ 634 00a6 21 3B                   		bne	.L44
+ 200:../src/src/ocsp.c ****         *entry = (OcspEntry*)XMALLOC(sizeof(OcspEntry),
+ 635                             		.loc 2 200 30
+ 636 00a8 75 41 44                		mov.L	#0x44, r1
+ 637 00ab 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 638 00af EF 14                   		mov.L	r1, r4
+ 639                             		.loc 2 200 16
+ 640 00b1 ED A5 02                		mov.L	8[r10], r5
+ 641 00b4 E3 54                   		mov.L	r4, [r5]
+ 201:../src/src/ocsp.c ****                                        ocsp->cm->heap, DYNAMIC_TYPE_OCSP_ENTRY);
+ 202:../src/src/ocsp.c ****         if (*entry) {
+ 642                             		.loc 2 202 13
+ 643 00b6 ED A5 02                		mov.L	8[r10], r5
+ 644 00b9 EC 55                   		mov.L	[r5], r5
+ 645                             		.loc 2 202 12
+ 646 00bb 61 05                   		cmp	#0, r5
+ 647 00bd 20 24                   		beq	.L44
+ 203:../src/src/ocsp.c ****             InitOcspEntry(*entry, request);
+ 648                             		.loc 2 203 13
+ 649 00bf ED A5 02                		mov.L	8[r10], r5
+ 650 00c2 EC 55                   		mov.L	[r5], r5
+ 651 00c4 ED A2 01                		mov.L	4[r10], r2
+ 652 00c7 EF 51                   		mov.L	r5, r1
+ 653 00c9 05 00 00 00             		bsr	_InitOcspEntry
+ 204:../src/src/ocsp.c ****             (*entry)->next = ocsp->ocspList;
+ 654                             		.loc 2 204 14
+ 655 00cd ED A5 02                		mov.L	8[r10], r5
+ 656 00d0 EC 55                   		mov.L	[r5], r5
+ 657                             		.loc 2 204 34
+ 658 00d2 EC A4                   		mov.L	[r10], r4
+ 659 00d4 A8 4C                   		mov.L	4[r4], r4
+ 660                             		.loc 2 204 28
+ 661 00d6 E3 54                   		mov.L	r4, [r5]
+ 205:../src/src/ocsp.c ****             ocsp->ocspList = *entry;
+ 662                             		.loc 2 205 30
+ 663 00d8 ED A5 02                		mov.L	8[r10], r5
+ 664 00db EC 54                   		mov.L	[r5], r4
+ 665                             		.loc 2 205 28
+ 666 00dd EC A5                   		mov.L	[r10], r5
+ 667 00df A0 5C                   		mov.L	r4, 4[r5]
+ 668                             	.L44:
+ 206:../src/src/ocsp.c ****         }
+ 207:../src/src/ocsp.c ****     }
+ 208:../src/src/ocsp.c **** 
+ 209:../src/src/ocsp.c ****     wc_UnLockMutex(&ocsp->ocspLock);
+ 669                             		.loc 2 209 5
+ 670 00e1 EC A5                   		mov.L	[r10], r5
+ 671 00e3 62 85                   		add	#8, r5
+ 672 00e5 EF 51                   		mov.L	r5, r1
+ 673 00e7 05 00 00 00             		bsr	_wc_UnLockMutex
+ 210:../src/src/ocsp.c **** 
+ 211:../src/src/ocsp.c ****     return *entry ? 0 : MEMORY_ERROR;
+ 674                             		.loc 2 211 12
+ 675 00eb ED A5 02                		mov.L	8[r10], r5
+ 676 00ee EC 55                   		mov.L	[r5], r5
+ 677                             		.loc 2 211 23
+ 678 00f0 61 05                   		cmp	#0, r5
+ 679 00f2 14                      		beq	.L45
+ 680                             		.loc 2 211 23 is_stmt 0 discriminator 1
+ 681 00f3 66 05                   		mov.L	#0, r5
+ 682 00f5 0D                      		bra	.L39
+ 683                             	.L45:
+ 684                             		.loc 2 211 23 discriminator 2
+ 685 00f6 FB 5A D1 FE             		mov.L	#-303, r5
+ 686                             	.L39:
+ 212:../src/src/ocsp.c **** }
+ 687                             		.loc 2 212 1 is_stmt 1
+ 688 00fa EF 51                   		mov.L	r5, r1
+ 689 00fc 3F AA 04                		rtsd	#16, r10-r10
+ 690                             	.LFE50:
+ 692                             		.section C,"a",@progbits
+ 693 0055 00 00 00                		.p2align 2
+ 694                             	.LC6:
+ 695 0058 47 65 74 4F 63 73 70 53 		.string	"GetOcspStatus"
+ 695      74 61 74 75 73 00 
+ 696                             		.section	.text.GetOcspStatus,"ax",@progbits
+ 698                             	_GetOcspStatus:
+ 699                             	.LFB51:
+ 213:../src/src/ocsp.c **** 
+ 214:../src/src/ocsp.c **** 
+ 215:../src/src/ocsp.c **** /* Mallocs responseBuffer->buffer and is up to caller to free on success
+ 216:../src/src/ocsp.c ****  *
+ 217:../src/src/ocsp.c ****  * Returns OCSP status
+ 218:../src/src/ocsp.c ****  */
+ 219:../src/src/ocsp.c **** static int GetOcspStatus(WOLFSSL_OCSP* ocsp, OcspRequest* request,
+ 220:../src/src/ocsp.c ****                   OcspEntry* entry, CertStatus** status, buffer* responseBuffer)
+ 221:../src/src/ocsp.c **** {
+ 700                             		.loc 2 221 1
+ 701 0000 7E AA                   		push.l	r10
+ 702                             	.LCFI18:
+ 703 0002 7E A6                   		push.l	r6
+ 704                             	.LCFI19:
+ 705 0004 71 0A E8                		add	#-24, r0, r10
+ 706                             	.LCFI20:
+ 707 0007 EF A0                   		mov.L	r10, r0
+ 708 0009 75 46 24                		mov.L	#36, r6
+ 709 000c 4B A6                   		add	r10, r6
+ 710 000e E7 A1 01                		mov.L	r1, 4[r10]
+ 711 0011 E7 A2 02                		mov.L	r2, 8[r10]
+ 712 0014 E7 A3 03                		mov.L	r3, 12[r10]
+ 713 0017 E7 A4 04                		mov.L	r4, 16[r10]
+ 222:../src/src/ocsp.c ****     int ret = OCSP_INVALID_STATUS;
+ 714                             		.loc 2 222 9
+ 715 001a F8 AA 69 FE             		mov.L	#-407, [r10]
+ 223:../src/src/ocsp.c **** 
+ 224:../src/src/ocsp.c ****     WOLFSSL_ENTER("GetOcspStatus");
+ 716                             		.loc 2 224 5
+ 717 001e FB 12 58 00 00 00       		mov.L	#.LC6, r1
+ 718 0024 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 225:../src/src/ocsp.c **** 
+ 226:../src/src/ocsp.c ****     *status = NULL;
+ 719                             		.loc 2 226 13
+ 720 0028 ED A5 04                		mov.L	16[r10], r5
+ 721 002b F8 56 00                		mov.L	#0, [r5]
+ 227:../src/src/ocsp.c **** 
+ 228:../src/src/ocsp.c ****     if (wc_LockMutex(&ocsp->ocspLock) != 0) {
+ 722                             		.loc 2 228 9
+ 723 002e ED A5 01                		mov.L	4[r10], r5
+ 724 0031 62 85                   		add	#8, r5
+ 725 0033 EF 51                   		mov.L	r5, r1
+ 726 0035 05 00 00 00             		bsr	_wc_LockMutex
+ 727 0039 EF 15                   		mov.L	r1, r5
+ 728                             		.loc 2 228 8
+ 729 003b 61 05                   		cmp	#0, r5
+ 730 003d 20 15                   		beq	.L49
+ 229:../src/src/ocsp.c ****         WOLFSSL_LEAVE("CheckCertOCSP", BAD_MUTEX_E);
+ 731                             		.loc 2 229 9
+ 732 003f FB 26 96                		mov.L	#-106, r2
+ 733 0042 FB 12 38 00 00 00       		mov.L	#.LC4, r1
+ 734 0048 05 00 00 00             		bsr	_WOLFSSL_LEAVE
+ 230:../src/src/ocsp.c ****         return BAD_MUTEX_E;
+ 735                             		.loc 2 230 16
+ 736 004c FB 56 96                		mov.L	#-106, r5
+ 737 004f 38 34 01                		bra	.L50
+ 738                             	.L49:
+ 231:../src/src/ocsp.c ****     }
+ 232:../src/src/ocsp.c **** 
+ 233:../src/src/ocsp.c ****     for (*status = entry->status; *status; *status = (*status)->next)
+ 739                             		.loc 2 233 25
+ 740 0052 ED A5 03                		mov.L	12[r10], r5
+ 741 0055 AB 54                   		mov.L	48[r5], r4
+ 742                             		.loc 2 233 18
+ 743 0057 ED A5 04                		mov.L	16[r10], r5
+ 744 005a E3 54                   		mov.L	r4, [r5]
+ 745                             		.loc 2 233 5
+ 746 005c 2E 40                   		bra	.L51
+ 747                             	.L54:
+ 234:../src/src/ocsp.c ****         if ((*status)->serialSz == request->serialSz
+ 748                             		.loc 2 234 14
+ 749 005e ED A5 04                		mov.L	16[r10], r5
+ 750 0061 EC 55                   		mov.L	[r5], r5
+ 751                             		.loc 2 234 22
+ 752 0063 AA 5C                   		mov.L	36[r5], r4
+ 753                             		.loc 2 234 43
+ 754 0065 ED A5 02                		mov.L	8[r10], r5
+ 755 0068 AA DD                   		mov.L	44[r5], r5
+ 756                             		.loc 2 234 12
+ 757 006a 47 54                   		cmp	r5, r4
+ 758 006c 21 24                   		bne	.L52
+ 235:../src/src/ocsp.c ****         &&  !XMEMCMP((*status)->serial, request->serial, (*status)->serialSz))
+ 759                             		.loc 2 235 14
+ 760 006e ED A5 04                		mov.L	16[r10], r5
+ 761 0071 EC 55                   		mov.L	[r5], r5
+ 762 0073 71 54 04                		add	#4, r5, r4
+ 763 0076 ED A5 02                		mov.L	8[r10], r5
+ 764 0079 AA D2                   		mov.L	40[r5], r2
+ 765 007b ED A5 04                		mov.L	16[r10], r5
+ 766 007e EC 55                   		mov.L	[r5], r5
+ 767 0080 AA 5D                   		mov.L	36[r5], r5
+ 768 0082 EF 53                   		mov.L	r5, r3
+ 769 0084 EF 41                   		mov.L	r4, r1
+ 770 0086 05 00 00 00             		bsr	_memcmp
+ 771 008a EF 15                   		mov.L	r1, r5
+ 772                             		.loc 2 235 9
+ 773 008c 61 05                   		cmp	#0, r5
+ 774 008e 20 19                   		beq	.L57
+ 775                             	.L52:
+ 233:../src/src/ocsp.c ****         if ((*status)->serialSz == request->serialSz
+ 776                             		.loc 2 233 55 discriminator 2
+ 777 0090 ED A5 04                		mov.L	16[r10], r5
+ 778 0093 EC 55                   		mov.L	[r5], r5
+ 233:../src/src/ocsp.c ****         if ((*status)->serialSz == request->serialSz
+ 779                             		.loc 2 233 63 discriminator 2
+ 780 0095 EC 54                   		mov.L	[r5], r4
+ 233:../src/src/ocsp.c ****         if ((*status)->serialSz == request->serialSz
+ 781                             		.loc 2 233 52 discriminator 2
+ 782 0097 ED A5 04                		mov.L	16[r10], r5
+ 783 009a E3 54                   		mov.L	r4, [r5]
+ 784                             	.L51:
+ 233:../src/src/ocsp.c ****         if ((*status)->serialSz == request->serialSz
+ 785                             		.loc 2 233 35 discriminator 1
+ 786 009c ED A5 04                		mov.L	16[r10], r5
+ 787 009f EC 55                   		mov.L	[r5], r5
+ 233:../src/src/ocsp.c ****         if ((*status)->serialSz == request->serialSz
+ 788                             		.loc 2 233 5 discriminator 1
+ 789 00a1 61 05                   		cmp	#0, r5
+ 790 00a3 21 BB                   		bne	.L54
+ 791 00a5 2E 03                   		bra	.L53
+ 792                             	.L57:
+ 236:../src/src/ocsp.c ****             break;
+ 793                             		.loc 2 236 13
+ 794 00a7 03                      		nop
+ 795                             	.L53:
+ 237:../src/src/ocsp.c **** 
+ 238:../src/src/ocsp.c ****     if (responseBuffer && *status && !(*status)->rawOcspResponse) {
+ 796                             		.loc 2 238 8
+ 797 00a8 EC 65                   		mov.L	[r6], r5
+ 798 00aa 61 05                   		cmp	#0, r5
+ 799 00ac 20 1C                   		beq	.L55
+ 800                             		.loc 2 238 27 discriminator 1
+ 801 00ae ED A5 04                		mov.L	16[r10], r5
+ 802 00b1 EC 55                   		mov.L	[r5], r5
+ 803                             		.loc 2 238 24 discriminator 1
+ 804 00b3 61 05                   		cmp	#0, r5
+ 805 00b5 20 13                   		beq	.L55
+ 806                             		.loc 2 238 40 discriminator 2
+ 807 00b7 ED A5 04                		mov.L	16[r10], r5
+ 808 00ba EC 55                   		mov.L	[r5], r5
+ 809                             		.loc 2 238 48 discriminator 2
+ 810 00bc AF 55                   		mov.L	112[r5], r5
+ 811                             		.loc 2 238 35 discriminator 2
+ 812 00be 61 05                   		cmp	#0, r5
+ 813 00c0 18                      		bne	.L55
+ 239:../src/src/ocsp.c ****         /* force fetching again */
+ 240:../src/src/ocsp.c ****         ret = OCSP_INVALID_STATUS;
+ 814                             		.loc 2 240 13
+ 815 00c1 F8 AA 69 FE             		mov.L	#-407, [r10]
+ 816 00c5 38 B1 00                		bra	.L56
+ 817                             	.L55:
+ 241:../src/src/ocsp.c ****     }
+ 242:../src/src/ocsp.c ****     else if (*status) {
+ 818                             		.loc 2 242 14
+ 819 00c8 ED A5 04                		mov.L	16[r10], r5
+ 820 00cb EC 55                   		mov.L	[r5], r5
+ 821                             		.loc 2 242 13
+ 822 00cd 61 05                   		cmp	#0, r5
+ 823 00cf 3A A7 00                		beq	.L56
+ 243:../src/src/ocsp.c **** #ifndef NO_ASN_TIME
+ 244:../src/src/ocsp.c ****         if (XVALIDATE_DATE((*status)->thisDate,
+ 824                             		.loc 2 244 13
+ 825 00d2 ED A5 04                		mov.L	16[r10], r5
+ 826 00d5 EC 55                   		mov.L	[r5], r5
+ 827 00d7 71 54 2C                		add	#44, r5, r4
+ 828 00da ED A5 04                		mov.L	16[r10], r5
+ 829 00dd EC 55                   		mov.L	[r5], r5
+ 830 00df CD 55 6C                		mov.B	108[r5], r5
+ 831 00e2 66 03                   		mov.L	#0, r3
+ 832 00e4 CF 52                   		mov.B	r5, r2
+ 833 00e6 EF 41                   		mov.L	r4, r1
+ 834 00e8 05 00 00 00             		bsr	_wc_ValidateDate
+ 835 00ec EF 15                   		mov.L	r1, r5
+ 836                             		.loc 2 244 12
+ 837 00ee 61 05                   		cmp	#0, r5
+ 838 00f0 3A 86 00                		beq	.L56
+ 245:../src/src/ocsp.c ****                                              (*status)->thisDateFormat, BEFORE)
+ 246:../src/src/ocsp.c ****         &&  ((*status)->nextDate[0] != 0)
+ 839                             		.loc 2 246 15
+ 840 00f3 ED A5 04                		mov.L	16[r10], r5
+ 841 00f6 EC 55                   		mov.L	[r5], r5
+ 842                             		.loc 2 246 33
+ 843 00f8 CD 55 4C                		mov.B	76[r5], r5
+ 844                             		.loc 2 246 9
+ 845 00fb 5B 55                   		movu.B	r5, r5
+ 846 00fd 61 05                   		cmp	#0, r5
+ 847 00ff 20 77                   		beq	.L56
+ 247:../src/src/ocsp.c ****         &&  XVALIDATE_DATE((*status)->nextDate,
+ 848                             		.loc 2 247 13
+ 849 0101 ED A5 04                		mov.L	16[r10], r5
+ 850 0104 EC 55                   		mov.L	[r5], r5
+ 851 0106 71 54 4C                		add	#0x4c, r5, r4
+ 852 0109 ED A5 04                		mov.L	16[r10], r5
+ 853 010c EC 55                   		mov.L	[r5], r5
+ 854 010e CD 55 6D                		mov.B	109[r5], r5
+ 855 0111 66 13                   		mov.L	#1, r3
+ 856 0113 CF 52                   		mov.B	r5, r2
+ 857 0115 EF 41                   		mov.L	r4, r1
+ 858 0117 05 00 00 00             		bsr	_wc_ValidateDate
+ 859 011b EF 15                   		mov.L	r1, r5
+ 860                             		.loc 2 247 9
+ 861 011d 61 05                   		cmp	#0, r5
+ 862 011f 20 57                   		beq	.L56
+ 248:../src/src/ocsp.c ****                                              (*status)->nextDateFormat, AFTER))
+ 249:../src/src/ocsp.c **** #endif
+ 250:../src/src/ocsp.c ****         {
+ 251:../src/src/ocsp.c ****             ret = xstat2err((*status)->status);
+ 863                             		.loc 2 251 30
+ 864 0121 ED A5 04                		mov.L	16[r10], r5
+ 865 0124 EC 55                   		mov.L	[r5], r5
+ 866                             		.loc 2 251 19
+ 867 0126 AA D5                   		mov.L	40[r5], r5
+ 868 0128 EF 51                   		mov.L	r5, r1
+ 869 012a 05 00 00 00             		bsr	_xstat2err
+ 870 012e E3 A1                   		mov.L	r1, [r10]
+ 252:../src/src/ocsp.c **** 
+ 253:../src/src/ocsp.c ****             if (responseBuffer) {
+ 871                             		.loc 2 253 16
+ 872 0130 EC 65                   		mov.L	[r6], r5
+ 873 0132 61 05                   		cmp	#0, r5
+ 874 0134 20 42                   		beq	.L56
+ 254:../src/src/ocsp.c ****                 responseBuffer->buffer = (byte*)XMALLOC(
+ 875                             		.loc 2 254 49
+ 876 0136 ED A5 04                		mov.L	16[r10], r5
+ 877 0139 EC 55                   		mov.L	[r5], r5
+ 878 013b AF 5D                   		mov.L	116[r5], r5
+ 879 013d EF 51                   		mov.L	r5, r1
+ 880 013f 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 881 0143 EF 14                   		mov.L	r1, r4
+ 882                             		.loc 2 254 40
+ 883 0145 EC 65                   		mov.L	[r6], r5
+ 884 0147 E3 54                   		mov.L	r4, [r5]
+ 255:../src/src/ocsp.c ****                    (*status)->rawOcspResponseSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 256:../src/src/ocsp.c **** 
+ 257:../src/src/ocsp.c ****                 if (responseBuffer->buffer) {
+ 885                             		.loc 2 257 35
+ 886 0149 EC 65                   		mov.L	[r6], r5
+ 887 014b EC 55                   		mov.L	[r5], r5
+ 888                             		.loc 2 257 20
+ 889 014d 61 05                   		cmp	#0, r5
+ 890 014f 20 27                   		beq	.L56
+ 258:../src/src/ocsp.c ****                     responseBuffer->length = (*status)->rawOcspResponseSz;
+ 891                             		.loc 2 258 47
+ 892 0151 ED A5 04                		mov.L	16[r10], r5
+ 893 0154 EC 55                   		mov.L	[r5], r5
+ 894                             		.loc 2 258 55
+ 895 0156 AF 5C                   		mov.L	116[r5], r4
+ 896                             		.loc 2 258 44
+ 897 0158 EC 65                   		mov.L	[r6], r5
+ 898 015a A0 5C                   		mov.L	r4, 4[r5]
+ 259:../src/src/ocsp.c ****                     XMEMCPY(responseBuffer->buffer,
+ 899                             		.loc 2 259 21
+ 900 015c EC 65                   		mov.L	[r6], r5
+ 901 015e EC 54                   		mov.L	[r5], r4
+ 902 0160 ED A5 04                		mov.L	16[r10], r5
+ 903 0163 EC 55                   		mov.L	[r5], r5
+ 904 0165 AF 52                   		mov.L	112[r5], r2
+ 905 0167 ED A5 04                		mov.L	16[r10], r5
+ 906 016a EC 55                   		mov.L	[r5], r5
+ 907 016c AF 5D                   		mov.L	116[r5], r5
+ 908 016e EF 53                   		mov.L	r5, r3
+ 909 0170 EF 41                   		mov.L	r4, r1
+ 910 0172 05 00 00 00             		bsr	_memcpy
+ 911                             		.balign 8,3,1
+ 912                             	.L56:
+ 260:../src/src/ocsp.c ****                             (*status)->rawOcspResponse,
+ 261:../src/src/ocsp.c ****                             (*status)->rawOcspResponseSz);
+ 262:../src/src/ocsp.c ****                 }
+ 263:../src/src/ocsp.c ****             }
+ 264:../src/src/ocsp.c ****         }
+ 265:../src/src/ocsp.c ****     }
+ 266:../src/src/ocsp.c **** 
+ 267:../src/src/ocsp.c ****     wc_UnLockMutex(&ocsp->ocspLock);
+ 913                             		.loc 2 267 5
+ 914 0176 ED A5 01                		mov.L	4[r10], r5
+ 915 0179 62 85                   		add	#8, r5
+ 916 017b EF 51                   		mov.L	r5, r1
+ 917 017d 05 00 00 00             		bsr	_wc_UnLockMutex
+ 268:../src/src/ocsp.c **** 
+ 269:../src/src/ocsp.c ****     return ret;
+ 918                             		.loc 2 269 12
+ 919 0181 EC A5                   		mov.L	[r10], r5
+ 920                             	.L50:
+ 270:../src/src/ocsp.c **** }
+ 921                             		.loc 2 270 1
+ 922 0183 EF 51                   		mov.L	r5, r1
+ 923 0185 71 00 18                		add	#24, r0
+ 924 0188 7E B6                   		pop	r6
+ 925 018a 7E BA                   		pop	r10
+ 926 018c 02                      		rts
+ 927                             	.LFE51:
+ 929 018d FC 13 00                		.section C,"a",@progbits
+ 930 0066 00 00                   		.p2align 2
+ 931                             	.LC7:
+ 932 0068 4F 63 73 70 52 65 73 70 		.string	"OcspResponseDecode failed"
+ 932      6F 6E 73 65 44 65 63 6F 
+ 932      64 65 20 66 61 69 6C 65 
+ 932      64 00 
+ 933                             	.LC8:
+ 934 0082 4F 63 73 70 52 65 73 70 		.string	"OcspResponse status bad"
+ 934      6F 6E 73 65 20 73 74 61 
+ 934      74 75 73 20 62 61 64 00 
+ 935                             	.LC9:
+ 936 009a 4E 65 77 20 4F 63 73 70 		.string	"New OcspResponse validated"
+ 936      52 65 73 70 6F 6E 73 65 
+ 936      20 76 61 6C 69 64 61 74 
+ 936      65 64 00 
+ 937                             		.section	.text.CheckOcspResponse,"ax",@progbits
+ 938                             		.global	_CheckOcspResponse
+ 940                             	_CheckOcspResponse:
+ 941                             	.LFB52:
+ 271:../src/src/ocsp.c **** 
+ 272:../src/src/ocsp.c **** /* Check that the response for validity. Store result in status.
+ 273:../src/src/ocsp.c ****  *
+ 274:../src/src/ocsp.c ****  * ocsp           Context object for OCSP status.
+ 275:../src/src/ocsp.c ****  * response       OCSP response message data.
+ 276:../src/src/ocsp.c ****  * responseSz     Length of OCSP response message data.
+ 277:../src/src/ocsp.c ****  * reponseBuffer  Buffer object to return the response with.
+ 278:../src/src/ocsp.c ****  * status         The certificate status object.
+ 279:../src/src/ocsp.c ****  * entry          The OCSP entry for this certificate.
+ 280:../src/src/ocsp.c ****  * returns OCSP_LOOKUP_FAIL when the response is bad and 0 otherwise.
+ 281:../src/src/ocsp.c ****  */
+ 282:../src/src/ocsp.c **** int CheckOcspResponse(WOLFSSL_OCSP *ocsp, byte *response, int responseSz,
+ 283:../src/src/ocsp.c ****                       WOLFSSL_BUFFER_INFO *responseBuffer, CertStatus *status,
+ 284:../src/src/ocsp.c ****                       OcspEntry *entry, OcspRequest *ocspRequest)
+ 285:../src/src/ocsp.c **** {
+ 942                             		.loc 2 285 1
+ 943 0000 7E AA                   		push.l	r10
+ 944                             	.LCFI21:
+ 945 0002 7E A6                   		push.l	r6
+ 946                             	.LCFI22:
+ 947 0004 71 0A B4                		add	#-76, r0, r10
+ 948                             	.LCFI23:
+ 949 0007 71 A0 F8                		add	#-8, r10, r0
+ 950                             	.LCFI24:
+ 951 000a 75 46 58                		mov.L	#0x58, r6
+ 952 000d 4B A6                   		add	r10, r6
+ 953 000f E7 A1 0C                		mov.L	r1, 48[r10]
+ 954 0012 E7 A2 0D                		mov.L	r2, 52[r10]
+ 955 0015 E7 A3 0E                		mov.L	r3, 56[r10]
+ 956 0018 E7 A4 0F                		mov.L	r4, 60[r10]
+ 286:../src/src/ocsp.c **** #ifdef WOLFSSL_SMALL_STACK
+ 287:../src/src/ocsp.c ****     CertStatus*   newStatus;
+ 288:../src/src/ocsp.c ****     OcspEntry*    newSingle;
+ 289:../src/src/ocsp.c ****     OcspResponse* ocspResponse;
+ 290:../src/src/ocsp.c **** #else
+ 291:../src/src/ocsp.c ****     CertStatus    newStatus[1];
+ 292:../src/src/ocsp.c ****     OcspEntry     newSingle[1];
+ 293:../src/src/ocsp.c ****     OcspResponse  ocspResponse[1];
+ 294:../src/src/ocsp.c **** #endif
+ 295:../src/src/ocsp.c ****     int           ret;
+ 296:../src/src/ocsp.c ****     int           validated      = 0;    /* ocsp validation flag */
+ 957                             		.loc 2 296 19
+ 958 001b F9 A6 01 00             		mov.L	#0, 4[r10]
+ 297:../src/src/ocsp.c **** 
+ 298:../src/src/ocsp.c **** #ifdef WOLFSSL_SMALL_STACK
+ 299:../src/src/ocsp.c ****     newStatus = (CertStatus*)XMALLOC(sizeof(CertStatus), NULL,
+ 959                             		.loc 2 299 30
+ 960 001f 75 41 78                		mov.L	#0x78, r1
+ 961 0022 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 962 0026 E7 A1 02                		mov.L	r1, 8[r10]
+ 300:../src/src/ocsp.c ****                                                        DYNAMIC_TYPE_OCSP_STATUS);
+ 301:../src/src/ocsp.c ****     newSingle = (OcspEntry*)XMALLOC(sizeof(OcspEntry), NULL,
+ 963                             		.loc 2 301 29
+ 964 0029 75 41 44                		mov.L	#0x44, r1
+ 965 002c 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 966 0030 E7 A1 03                		mov.L	r1, 12[r10]
+ 302:../src/src/ocsp.c ****                                                        DYNAMIC_TYPE_OCSP_ENTRY);
+ 303:../src/src/ocsp.c ****     ocspResponse = (OcspResponse*)XMALLOC(sizeof(OcspResponse), NULL,
+ 967                             		.loc 2 303 35
+ 968 0033 75 41 5C                		mov.L	#0x5c, r1
+ 969 0036 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 970 003a E7 A1 04                		mov.L	r1, 16[r10]
+ 304:../src/src/ocsp.c ****                                                        DYNAMIC_TYPE_OCSP_REQUEST);
+ 305:../src/src/ocsp.c **** 
+ 306:../src/src/ocsp.c ****     if (newStatus == NULL || newSingle == NULL || ocspResponse == NULL) {
+ 971                             		.loc 2 306 8
+ 972 003d ED A5 02                		mov.L	8[r10], r5
+ 973 0040 61 05                   		cmp	#0, r5
+ 974 0042 20 0F                   		beq	.L59
+ 975                             		.loc 2 306 27 discriminator 1
+ 976 0044 ED A5 03                		mov.L	12[r10], r5
+ 977 0047 61 05                   		cmp	#0, r5
+ 978 0049 10                      		beq	.L59
+ 979                             		.loc 2 306 48 discriminator 2
+ 980 004a ED A5 04                		mov.L	16[r10], r5
+ 981 004d 61 05                   		cmp	#0, r5
+ 982 004f 21 64                   		bne	.L60
+ 983                             	.L59:
+ 307:../src/src/ocsp.c ****         if (newStatus) XFREE(newStatus, NULL, DYNAMIC_TYPE_OCSP_STATUS);
+ 984                             		.loc 2 307 12
+ 985 0051 ED A5 02                		mov.L	8[r10], r5
+ 986 0054 61 05                   		cmp	#0, r5
+ 987 0056 20 15                   		beq	.L61
+ 988                             	.LBB7:
+ 989                             		.loc 2 307 24 discriminator 1
+ 990 0058 ED A5 02                		mov.L	8[r10], r5
+ 991 005b E7 A5 09                		mov.L	r5, 36[r10]
+ 992 005e ED A5 09                		mov.L	36[r10], r5
+ 993 0061 61 05                   		cmp	#0, r5
+ 994 0063 10                      		beq	.L61
+ 995                             		.loc 2 307 24 is_stmt 0 discriminator 2
+ 996 0064 ED A1 09                		mov.L	36[r10], r1
+ 997 0067 05 00 00 00             		bsr	_wolfSSL_Free
+ 998                             	.L61:
+ 999                             	.LBE7:
+ 308:../src/src/ocsp.c ****         if (newSingle) XFREE(newSingle, NULL, DYNAMIC_TYPE_OCSP_ENTRY);
+ 1000                             		.loc 2 308 12 is_stmt 1
+ 1001 006b ED A5 03                		mov.L	12[r10], r5
+ 1002 006e 61 05                   		cmp	#0, r5
+ 1003 0070 20 15                   		beq	.L62
+ 1004                             	.LBB8:
+ 1005                             		.loc 2 308 24 discriminator 1
+ 1006 0072 ED A5 03                		mov.L	12[r10], r5
+ 1007 0075 E7 A5 0A                		mov.L	r5, 40[r10]
+ 1008 0078 ED A5 0A                		mov.L	40[r10], r5
+ 1009 007b 61 05                   		cmp	#0, r5
+ 1010 007d 10                      		beq	.L62
+ 1011                             		.loc 2 308 24 is_stmt 0 discriminator 2
+ 1012 007e ED A1 0A                		mov.L	40[r10], r1
+ 1013 0081 05 00 00 00             		bsr	_wolfSSL_Free
+ 1014                             	.L62:
+ 1015                             	.LBE8:
+ 309:../src/src/ocsp.c ****         if (ocspResponse) XFREE(ocspResponse, NULL, DYNAMIC_TYPE_OCSP_REQUEST);
+ 1016                             		.loc 2 309 12 is_stmt 1
+ 1017 0085 ED A5 04                		mov.L	16[r10], r5
+ 1018 0088 61 05                   		cmp	#0, r5
+ 1019 008a 20 15                   		beq	.L63
+ 1020                             	.LBB9:
+ 1021                             		.loc 2 309 27 discriminator 1
+ 1022 008c ED A5 04                		mov.L	16[r10], r5
+ 1023 008f E7 A5 0B                		mov.L	r5, 44[r10]
+ 1024 0092 ED A5 0B                		mov.L	44[r10], r5
+ 1025 0095 61 05                   		cmp	#0, r5
+ 1026 0097 10                      		beq	.L63
+ 1027                             		.loc 2 309 27 is_stmt 0 discriminator 2
+ 1028 0098 ED A1 0B                		mov.L	44[r10], r1
+ 1029 009b 05 00 00 00             		bsr	_wolfSSL_Free
+ 1030                             	.L63:
+ 1031                             	.LBE9:
+ 310:../src/src/ocsp.c **** 
+ 311:../src/src/ocsp.c ****         WOLFSSL_LEAVE("CheckCertOCSP", MEMORY_ERROR);
+ 1032                             		.loc 2 311 9 is_stmt 1
+ 1033 009f FB 2A D1 FE             		mov.L	#-303, r2
+ 1034 00a3 FB 12 38 00 00 00       		mov.L	#.LC4, r1
+ 1035 00a9 05 00 00 00             		bsr	_WOLFSSL_LEAVE
+ 312:../src/src/ocsp.c ****         return MEMORY_E;
+ 1036                             		.loc 2 312 16
+ 1037 00ad FB 56 83                		mov.L	#-125, r5
+ 1038 00b0 38 30 02                		bra	.L64
+ 1039                             	.L60:
+ 313:../src/src/ocsp.c ****     }
+ 314:../src/src/ocsp.c **** #endif
+ 315:../src/src/ocsp.c ****     InitOcspResponse(ocspResponse, newSingle, newStatus, response, responseSz,
+ 1040                             		.loc 2 315 5
+ 1041 00b3 ED A4 0E                		mov.L	56[r10], r4
+ 316:../src/src/ocsp.c ****                      ocsp->cm->heap);
+ 1042                             		.loc 2 316 26
+ 1043 00b6 ED A5 0C                		mov.L	48[r10], r5
+ 1044 00b9 EC 55                   		mov.L	[r5], r5
+ 315:../src/src/ocsp.c ****                      ocsp->cm->heap);
+ 1045                             		.loc 2 315 5
+ 1046 00bb AA DD                   		mov.L	44[r5], r5
+ 1047 00bd A0 0D                   		mov.L	r5, 4[r0]
+ 1048 00bf E3 04                   		mov.L	r4, [r0]
+ 1049 00c1 ED A4 0D                		mov.L	52[r10], r4
+ 1050 00c4 ED A3 02                		mov.L	8[r10], r3
+ 1051 00c7 ED A2 03                		mov.L	12[r10], r2
+ 1052 00ca ED A1 04                		mov.L	16[r10], r1
+ 1053 00cd 05 00 00 00             		bsr	_InitOcspResponse
+ 317:../src/src/ocsp.c **** 
+ 318:../src/src/ocsp.c ****     ret = OcspResponseDecode(ocspResponse, ocsp->cm, ocsp->cm->heap, 0);
+ 1054                             		.loc 2 318 48
+ 1055 00d1 ED A5 0C                		mov.L	48[r10], r5
+ 1056 00d4 EC 52                   		mov.L	[r5], r2
+ 1057                             		.loc 2 318 58
+ 1058 00d6 ED A5 0C                		mov.L	48[r10], r5
+ 1059 00d9 EC 55                   		mov.L	[r5], r5
+ 1060                             		.loc 2 318 11
+ 1061 00db AA DD                   		mov.L	44[r5], r5
+ 1062 00dd 66 04                   		mov.L	#0, r4
+ 1063 00df EF 53                   		mov.L	r5, r3
+ 1064 00e1 ED A1 04                		mov.L	16[r10], r1
+ 1065 00e4 05 00 00 00             		bsr	_OcspResponseDecode
+ 1066 00e8 E3 A1                   		mov.L	r1, [r10]
+ 319:../src/src/ocsp.c ****     if (ret != 0) {
+ 1067                             		.loc 2 319 8
+ 1068 00ea EC A5                   		mov.L	[r10], r5
+ 1069 00ec 61 05                   		cmp	#0, r5
+ 1070 00ee 20 1D                   		beq	.L65
+ 320:../src/src/ocsp.c ****         ocsp->error = ret;
+ 1071                             		.loc 2 320 21
+ 1072 00f0 ED A5 0C                		mov.L	48[r10], r5
+ 1073 00f3 EC A4                   		mov.L	[r10], r4
+ 1074 00f5 A0 DC                   		mov.L	r4, 12[r5]
+ 321:../src/src/ocsp.c ****         WOLFSSL_LEAVE("OcspResponseDecode failed", ocsp->error);
+ 1075                             		.loc 2 321 9
+ 1076 00f7 ED A5 0C                		mov.L	48[r10], r5
+ 1077 00fa A8 DD                   		mov.L	12[r5], r5
+ 1078 00fc EF 52                   		mov.L	r5, r2
+ 1079 00fe FB 12 68 00 00 00       		mov.L	#.LC7, r1
+ 1080 0104 05 00 00 00             		bsr	_WOLFSSL_LEAVE
+ 322:../src/src/ocsp.c ****         goto end;
+ 1081                             		.loc 2 322 9
+ 1082 0108 38 79 01                		bra	.L66
+ 1083                             	.L65:
+ 323:../src/src/ocsp.c ****     }
+ 324:../src/src/ocsp.c **** 
+ 325:../src/src/ocsp.c ****     if (ocspResponse->responseStatus != OCSP_SUCCESSFUL) {
+ 1084                             		.loc 2 325 21
+ 1085 010b ED A5 04                		mov.L	16[r10], r5
+ 1086 010e EC 55                   		mov.L	[r5], r5
+ 1087                             		.loc 2 325 8
+ 1088 0110 61 05                   		cmp	#0, r5
+ 1089 0112 20 0F                   		beq	.L67
+ 326:../src/src/ocsp.c ****         WOLFSSL_MSG("OcspResponse status bad");
+ 1090                             		.loc 2 326 9
+ 1091 0114 FB 12 82 00 00 00       		mov.L	#.LC8, r1
+ 1092 011a 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 327:../src/src/ocsp.c ****         goto end;
+ 1093                             		.loc 2 327 9
+ 1094 011e 38 63 01                		bra	.L66
+ 1095                             	.L67:
+ 328:../src/src/ocsp.c ****     }
+ 329:../src/src/ocsp.c ****     if (ocspRequest != NULL) {
+ 1096                             		.loc 2 329 8
+ 1097 0121 A8 E5                   		mov.L	8[r6], r5
+ 1098 0123 61 05                   		cmp	#0, r5
+ 1099 0125 20 14                   		beq	.L68
+ 330:../src/src/ocsp.c ****         ret = CompareOcspReqResp(ocspRequest, ocspResponse);
+ 1100                             		.loc 2 330 15
+ 1101 0127 ED A2 04                		mov.L	16[r10], r2
+ 1102 012a A8 E1                   		mov.L	8[r6], r1
+ 1103 012c 05 00 00 00             		bsr	_CompareOcspReqResp
+ 1104 0130 E3 A1                   		mov.L	r1, [r10]
+ 331:../src/src/ocsp.c ****         if (ret != 0) {
+ 1105                             		.loc 2 331 12
+ 1106 0132 EC A5                   		mov.L	[r10], r5
+ 1107 0134 61 05                   		cmp	#0, r5
+ 1108 0136 3B 4A 01                		bne	.L81
+ 1109                             	.L68:
+ 332:../src/src/ocsp.c ****             goto end;
+ 333:../src/src/ocsp.c ****         }
+ 334:../src/src/ocsp.c ****     }
+ 335:../src/src/ocsp.c **** 
+ 336:../src/src/ocsp.c ****     if (responseBuffer) {
+ 1110                             		.loc 2 336 8
+ 1111 0139 ED A5 0F                		mov.L	60[r10], r5
+ 1112 013c 61 05                   		cmp	#0, r5
+ 1113 013e 20 36                   		beq	.L69
+ 337:../src/src/ocsp.c ****         responseBuffer->buffer = (byte*)XMALLOC(responseSz, ocsp->cm->heap,
+ 1114                             		.loc 2 337 41
+ 1115 0140 ED A5 0E                		mov.L	56[r10], r5
+ 1116 0143 EF 51                   		mov.L	r5, r1
+ 1117 0145 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1118 0149 EF 14                   		mov.L	r1, r4
+ 1119                             		.loc 2 337 32
+ 1120 014b ED A5 0F                		mov.L	60[r10], r5
+ 1121 014e E3 54                   		mov.L	r4, [r5]
+ 338:../src/src/ocsp.c ****                                                 DYNAMIC_TYPE_TMP_BUFFER);
+ 339:../src/src/ocsp.c **** 
+ 340:../src/src/ocsp.c ****         if (responseBuffer->buffer) {
+ 1122                             		.loc 2 340 27
+ 1123 0150 ED A5 0F                		mov.L	60[r10], r5
+ 1124 0153 EC 55                   		mov.L	[r5], r5
+ 1125                             		.loc 2 340 12
+ 1126 0155 61 05                   		cmp	#0, r5
+ 1127 0157 20 1D                   		beq	.L69
+ 341:../src/src/ocsp.c ****             responseBuffer->length = responseSz;
+ 1128                             		.loc 2 341 36
+ 1129 0159 ED A4 0E                		mov.L	56[r10], r4
+ 1130 015c ED A5 0F                		mov.L	60[r10], r5
+ 1131 015f A0 5C                   		mov.L	r4, 4[r5]
+ 342:../src/src/ocsp.c ****             XMEMCPY(responseBuffer->buffer, response, responseSz);
+ 1132                             		.loc 2 342 13
+ 1133 0161 ED A5 0F                		mov.L	60[r10], r5
+ 1134 0164 EC 55                   		mov.L	[r5], r5
+ 1135 0166 ED A4 0E                		mov.L	56[r10], r4
+ 1136 0169 EF 43                   		mov.L	r4, r3
+ 1137 016b ED A2 0D                		mov.L	52[r10], r2
+ 1138 016e EF 51                   		mov.L	r5, r1
+ 1139 0170 05 00 00 00             		bsr	_memcpy
+ 1140                             	.L69:
+ 343:../src/src/ocsp.c ****         }
+ 344:../src/src/ocsp.c ****     }
+ 345:../src/src/ocsp.c **** 
+ 346:../src/src/ocsp.c ****     ret = xstat2err(ocspResponse->single->status->status);
+ 1141                             		.loc 2 346 33
+ 1142 0174 ED A5 04                		mov.L	16[r10], r5
+ 1143 0177 AC 5D                   		mov.L	68[r5], r5
+ 1144                             		.loc 2 346 41
+ 1145 0179 AB 55                   		mov.L	48[r5], r5
+ 1146                             		.loc 2 346 11
+ 1147 017b AA D5                   		mov.L	40[r5], r5
+ 1148 017d EF 51                   		mov.L	r5, r1
+ 1149 017f 05 00 00 00             		bsr	_xstat2err
+ 1150 0183 E3 A1                   		mov.L	r1, [r10]
+ 347:../src/src/ocsp.c ****     if (ret == 0) {
+ 1151                             		.loc 2 347 8
+ 1152 0185 EC A5                   		mov.L	[r10], r5
+ 1153 0187 61 05                   		cmp	#0, r5
+ 1154 0189 1D                      		bne	.L70
+ 348:../src/src/ocsp.c ****         validated = 1;
+ 1155                             		.loc 2 348 19
+ 1156 018a F9 A6 01 01             		mov.L	#1, 4[r10]
+ 1157                             	.L70:
+ 349:../src/src/ocsp.c ****     }
+ 350:../src/src/ocsp.c **** 
+ 351:../src/src/ocsp.c ****     if (wc_LockMutex(&ocsp->ocspLock) != 0) {
+ 1158                             		.loc 2 351 9
+ 1159 018e ED A5 0C                		mov.L	48[r10], r5
+ 1160 0191 62 85                   		add	#8, r5
+ 1161 0193 EF 51                   		mov.L	r5, r1
+ 1162 0195 05 00 00 00             		bsr	_wc_LockMutex
+ 1163 0199 EF 15                   		mov.L	r1, r5
+ 1164                             		.loc 2 351 8
+ 1165 019b 61 05                   		cmp	#0, r5
+ 1166 019d 17                      		beq	.L71
+ 352:../src/src/ocsp.c ****         ret = BAD_MUTEX_E;
+ 1167                             		.loc 2 352 13
+ 1168 019e F8 A6 96                		mov.L	#-106, [r10]
+ 353:../src/src/ocsp.c ****         goto end;
+ 1169                             		.loc 2 353 9
+ 1170 01a1 38 E0 00                		bra	.L66
+ 1171                             	.L71:
+ 354:../src/src/ocsp.c ****     }
+ 355:../src/src/ocsp.c **** 
+ 356:../src/src/ocsp.c ****     if (status != NULL) {
+ 1172                             		.loc 2 356 8
+ 1173 01a4 EC 65                   		mov.L	[r6], r5
+ 1174 01a6 61 05                   		cmp	#0, r5
+ 1175 01a8 20 3B                   		beq	.L72
+ 357:../src/src/ocsp.c ****         if (status->rawOcspResponse) {
+ 1176                             		.loc 2 357 19
+ 1177 01aa EC 65                   		mov.L	[r6], r5
+ 1178 01ac AF 55                   		mov.L	112[r5], r5
+ 1179                             		.loc 2 357 12
+ 1180 01ae 61 05                   		cmp	#0, r5
+ 1181 01b0 20 16                   		beq	.L73
+ 1182                             	.LBB10:
+ 358:../src/src/ocsp.c ****             XFREE(status->rawOcspResponse, ocsp->cm->heap,
+ 1183                             		.loc 2 358 13
+ 1184 01b2 EC 65                   		mov.L	[r6], r5
+ 1185 01b4 AF 55                   		mov.L	112[r5], r5
+ 1186 01b6 E7 A5 05                		mov.L	r5, 20[r10]
+ 1187 01b9 ED A5 05                		mov.L	20[r10], r5
+ 1188 01bc 61 05                   		cmp	#0, r5
+ 1189 01be 10                      		beq	.L73
+ 1190                             		.loc 2 358 13 is_stmt 0 discriminator 1
+ 1191 01bf ED A1 05                		mov.L	20[r10], r1
+ 1192 01c2 05 00 00 00             		bsr	_wolfSSL_Free
+ 1193                             	.L73:
+ 1194                             	.LBE10:
+ 359:../src/src/ocsp.c ****                   DYNAMIC_TYPE_OCSP_STATUS);
+ 360:../src/src/ocsp.c ****         }
+ 361:../src/src/ocsp.c **** 
+ 362:../src/src/ocsp.c ****         /* Replace existing certificate entry with updated */
+ 363:../src/src/ocsp.c ****         newSingle->status->next = status->next;
+ 1195                             		.loc 2 363 18 is_stmt 1
+ 1196 01c6 ED A5 03                		mov.L	12[r10], r5
+ 1197 01c9 AB 55                   		mov.L	48[r5], r5
+ 1198                             		.loc 2 363 41
+ 1199 01cb EC 64                   		mov.L	[r6], r4
+ 1200 01cd EC 44                   		mov.L	[r4], r4
+ 1201                             		.loc 2 363 33
+ 1202 01cf E3 54                   		mov.L	r4, [r5]
+ 364:../src/src/ocsp.c ****         XMEMCPY(status, newSingle->status, sizeof(CertStatus));
+ 1203                             		.loc 2 364 9
+ 1204 01d1 ED A5 03                		mov.L	12[r10], r5
+ 1205 01d4 AB 55                   		mov.L	48[r5], r5
+ 1206 01d6 75 43 78                		mov.L	#0x78, r3
+ 1207 01d9 EF 52                   		mov.L	r5, r2
+ 1208 01db EC 61                   		mov.L	[r6], r1
+ 1209 01dd 05 00 00 00             		bsr	_memcpy
+ 1210 01e1 2E 44                   		bra	.L74
+ 1211                             	.L72:
+ 365:../src/src/ocsp.c ****     }
+ 366:../src/src/ocsp.c ****     else {
+ 367:../src/src/ocsp.c ****         /* Save new certificate entry */
+ 368:../src/src/ocsp.c ****         status = (CertStatus*)XMALLOC(sizeof(CertStatus),
+ 1212                             		.loc 2 368 31
+ 1213 01e3 75 41 78                		mov.L	#0x78, r1
+ 1214 01e6 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1215 01ea E3 61                   		mov.L	r1, [r6]
+ 369:../src/src/ocsp.c ****                                       ocsp->cm->heap, DYNAMIC_TYPE_OCSP_STATUS);
+ 370:../src/src/ocsp.c ****         if (status != NULL) {
+ 1216                             		.loc 2 370 12
+ 1217 01ec EC 65                   		mov.L	[r6], r5
+ 1218 01ee 61 05                   		cmp	#0, r5
+ 1219 01f0 20 35                   		beq	.L74
+ 371:../src/src/ocsp.c ****             XMEMCPY(status, newSingle->status, sizeof(CertStatus));
+ 1220                             		.loc 2 371 13
+ 1221 01f2 ED A5 03                		mov.L	12[r10], r5
+ 1222 01f5 AB 55                   		mov.L	48[r5], r5
+ 1223 01f7 75 43 78                		mov.L	#0x78, r3
+ 1224 01fa EF 52                   		mov.L	r5, r2
+ 1225 01fc EC 61                   		mov.L	[r6], r1
+ 1226 01fe 05 00 00 00             		bsr	_memcpy
+ 372:../src/src/ocsp.c ****             status->next  = entry->status;
+ 1227                             		.loc 2 372 34
+ 1228 0202 A8 6D                   		mov.L	4[r6], r5
+ 1229 0204 AB 54                   		mov.L	48[r5], r4
+ 1230                             		.loc 2 372 27
+ 1231 0206 EC 65                   		mov.L	[r6], r5
+ 1232 0208 E3 54                   		mov.L	r4, [r5]
+ 373:../src/src/ocsp.c ****             entry->status = status;
+ 1233                             		.loc 2 373 27
+ 1234 020a A8 6D                   		mov.L	4[r6], r5
+ 1235 020c EC 64                   		mov.L	[r6], r4
+ 1236 020e A3 54                   		mov.L	r4, 48[r5]
+ 374:../src/src/ocsp.c ****             entry->ownStatus = 1;
+ 1237                             		.loc 2 374 30
+ 1238 0210 A8 6C                   		mov.L	4[r6], r4
+ 1239 0212 CD 45 40                		mov.B	64[r4], r5
+ 1240 0215 78 05                   		bset	#0, r5
+ 1241 0217 C7 45 40                		mov.B	r5, 64[r4]
+ 375:../src/src/ocsp.c ****             entry->totalStatus++;
+ 1242                             		.loc 2 375 18
+ 1243 021a A8 6D                   		mov.L	4[r6], r5
+ 1244 021c AB 5D                   		mov.L	52[r5], r5
+ 1245                             		.loc 2 375 31
+ 1246 021e 71 54 01                		add	#1, r5, r4
+ 1247 0221 A8 6D                   		mov.L	4[r6], r5
+ 1248 0223 A3 5C                   		mov.L	r4, 52[r5]
+ 1249                             	.L74:
+ 376:../src/src/ocsp.c ****         }
+ 377:../src/src/ocsp.c ****     }
+ 378:../src/src/ocsp.c **** 
+ 379:../src/src/ocsp.c ****     if (status && responseBuffer && responseBuffer->buffer) {
+ 1250                             		.loc 2 379 8
+ 1251 0225 EC 65                   		mov.L	[r6], r5
+ 1252 0227 61 05                   		cmp	#0, r5
+ 1253 0229 20 4A                   		beq	.L75
+ 1254                             		.loc 2 379 16 discriminator 1
+ 1255 022b ED A5 0F                		mov.L	60[r10], r5
+ 1256 022e 61 05                   		cmp	#0, r5
+ 1257 0230 20 43                   		beq	.L75
+ 1258                             		.loc 2 379 51 discriminator 2
+ 1259 0232 ED A5 0F                		mov.L	60[r10], r5
+ 1260 0235 EC 55                   		mov.L	[r5], r5
+ 1261                             		.loc 2 379 34 discriminator 2
+ 1262 0237 61 05                   		cmp	#0, r5
+ 1263 0239 20 3A                   		beq	.L75
+ 380:../src/src/ocsp.c ****         status->rawOcspResponse = (byte*)XMALLOC(responseBuffer->length,
+ 1264                             		.loc 2 380 42
+ 1265 023b ED A5 0F                		mov.L	60[r10], r5
+ 1266 023e A8 5D                   		mov.L	4[r5], r5
+ 1267 0240 EF 51                   		mov.L	r5, r1
+ 1268 0242 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1269 0246 EF 14                   		mov.L	r1, r4
+ 1270                             		.loc 2 380 33
+ 1271 0248 EC 65                   		mov.L	[r6], r5
+ 1272 024a A7 54                   		mov.L	r4, 112[r5]
+ 381:../src/src/ocsp.c ****                                                  ocsp->cm->heap,
+ 382:../src/src/ocsp.c ****                                                  DYNAMIC_TYPE_OCSP_STATUS);
+ 383:../src/src/ocsp.c **** 
+ 384:../src/src/ocsp.c ****         if (status->rawOcspResponse) {
+ 1273                             		.loc 2 384 19
+ 1274 024c EC 65                   		mov.L	[r6], r5
+ 1275 024e AF 55                   		mov.L	112[r5], r5
+ 1276                             		.loc 2 384 12
+ 1277 0250 61 05                   		cmp	#0, r5
+ 1278 0252 20 21                   		beq	.L75
+ 385:../src/src/ocsp.c ****             status->rawOcspResponseSz = responseBuffer->length;
+ 1279                             		.loc 2 385 55
+ 1280 0254 ED A5 0F                		mov.L	60[r10], r5
+ 1281 0257 A8 5C                   		mov.L	4[r5], r4
+ 1282                             		.loc 2 385 39
+ 1283 0259 EC 65                   		mov.L	[r6], r5
+ 1284 025b A7 5C                   		mov.L	r4, 116[r5]
+ 386:../src/src/ocsp.c ****             XMEMCPY(status->rawOcspResponse, responseBuffer->buffer,
+ 1285                             		.loc 2 386 13
+ 1286 025d EC 65                   		mov.L	[r6], r5
+ 1287 025f AF 54                   		mov.L	112[r5], r4
+ 1288 0261 ED A5 0F                		mov.L	60[r10], r5
+ 1289 0264 EC 52                   		mov.L	[r5], r2
+ 1290 0266 ED A5 0F                		mov.L	60[r10], r5
+ 1291 0269 A8 5D                   		mov.L	4[r5], r5
+ 1292 026b EF 53                   		mov.L	r5, r3
+ 1293 026d EF 41                   		mov.L	r4, r1
+ 1294 026f 05 00 00 00             		bsr	_memcpy
+ 1295                             		.balign 8,3,1
+ 1296                             	.L75:
+ 387:../src/src/ocsp.c ****                     responseBuffer->length);
+ 388:../src/src/ocsp.c ****         }
+ 389:../src/src/ocsp.c ****     }
+ 390:../src/src/ocsp.c **** 
+ 391:../src/src/ocsp.c ****     wc_UnLockMutex(&ocsp->ocspLock);
+ 1297                             		.loc 2 391 5
+ 1298 0273 ED A5 0C                		mov.L	48[r10], r5
+ 1299 0276 62 85                   		add	#8, r5
+ 1300 0278 EF 51                   		mov.L	r5, r1
+ 1301 027a 05 00 00 00             		bsr	_wc_UnLockMutex
+ 1302 027e 2E 03                   		bra	.L66
+ 1303                             	.L81:
+ 332:../src/src/ocsp.c ****         }
+ 1304                             		.loc 2 332 13
+ 1305 0280 03                      		nop
+ 1306                             		.balign 8,3,1
+ 1307                             	.L66:
+ 392:../src/src/ocsp.c **** 
+ 393:../src/src/ocsp.c **** end:
+ 394:../src/src/ocsp.c ****     if (ret == 0 && validated == 1) {
+ 1308                             		.loc 2 394 8
+ 1309 0281 EC A5                   		mov.L	[r10], r5
+ 1310 0283 61 05                   		cmp	#0, r5
+ 1311 0285 21 15                   		bne	.L76
+ 1312                             		.loc 2 394 18 discriminator 1
+ 1313 0287 ED A5 01                		mov.L	4[r10], r5
+ 1314 028a 61 15                   		cmp	#1, r5
+ 1315 028c 21 0E                   		bne	.L76
+ 395:../src/src/ocsp.c ****         WOLFSSL_MSG("New OcspResponse validated");
+ 1316                             		.loc 2 395 9
+ 1317 028e FB 12 9A 00 00 00       		mov.L	#.LC9, r1
+ 1318 0294 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 1319 0298 2E 0D                   		bra	.L77
+ 1320                             	.L76:
+ 396:../src/src/ocsp.c ****     } else if (ret != OCSP_CERT_REVOKED) {
+ 1321                             		.loc 2 396 15
+ 1322 029a EC A5                   		mov.L	[r10], r5
+ 1323 029c 76 05 98 FE             		cmp	#-360, r5
+ 1324 02a0 15                      		beq	.L77
+ 397:../src/src/ocsp.c ****         ret = OCSP_LOOKUP_FAIL;
+ 1325                             		.loc 2 397 13
+ 1326 02a1 F8 AA 91 FE             		mov.L	#-367, [r10]
+ 1327                             	.L77:
+ 1328                             	.LBB11:
+ 398:../src/src/ocsp.c ****     }
+ 399:../src/src/ocsp.c **** 
+ 400:../src/src/ocsp.c **** #ifdef WOLFSSL_SMALL_STACK
+ 401:../src/src/ocsp.c ****     XFREE(newStatus,    NULL, DYNAMIC_TYPE_OCSP_STATUS);
+ 1329                             		.loc 2 401 5
+ 1330 02a5 ED A5 02                		mov.L	8[r10], r5
+ 1331 02a8 E7 A5 06                		mov.L	r5, 24[r10]
+ 1332 02ab ED A5 06                		mov.L	24[r10], r5
+ 1333 02ae 61 05                   		cmp	#0, r5
+ 1334 02b0 10                      		beq	.L78
+ 1335                             		.loc 2 401 5 is_stmt 0 discriminator 1
+ 1336 02b1 ED A1 06                		mov.L	24[r10], r1
+ 1337 02b4 05 00 00 00             		bsr	_wolfSSL_Free
+ 1338                             	.L78:
+ 1339                             	.LBE11:
+ 1340                             	.LBB12:
+ 402:../src/src/ocsp.c ****     XFREE(newSingle,    NULL, DYNAMIC_TYPE_OCSP_ENTRY);
+ 1341                             		.loc 2 402 5 is_stmt 1
+ 1342 02b8 ED A5 03                		mov.L	12[r10], r5
+ 1343 02bb E7 A5 07                		mov.L	r5, 28[r10]
+ 1344 02be ED A5 07                		mov.L	28[r10], r5
+ 1345 02c1 61 05                   		cmp	#0, r5
+ 1346 02c3 10                      		beq	.L79
+ 1347                             		.loc 2 402 5 is_stmt 0 discriminator 1
+ 1348 02c4 ED A1 07                		mov.L	28[r10], r1
+ 1349 02c7 05 00 00 00             		bsr	_wolfSSL_Free
+ 1350                             	.L79:
+ 1351                             	.LBE12:
+ 1352                             	.LBB13:
+ 403:../src/src/ocsp.c ****     XFREE(ocspResponse, NULL, DYNAMIC_TYPE_OCSP_REQUEST);
+ 1353                             		.loc 2 403 5 is_stmt 1
+ 1354 02cb ED A5 04                		mov.L	16[r10], r5
+ 1355 02ce E7 A5 08                		mov.L	r5, 32[r10]
+ 1356 02d1 ED A5 08                		mov.L	32[r10], r5
+ 1357 02d4 61 05                   		cmp	#0, r5
+ 1358 02d6 10                      		beq	.L80
+ 1359                             		.loc 2 403 5 is_stmt 0 discriminator 1
+ 1360 02d7 ED A1 08                		mov.L	32[r10], r1
+ 1361 02da 05 00 00 00             		bsr	_wolfSSL_Free
+ 1362                             	.L80:
+ 1363                             	.LBE13:
+ 404:../src/src/ocsp.c **** #endif
+ 405:../src/src/ocsp.c ****     return ret;
+ 1364                             		.loc 2 405 12 is_stmt 1
+ 1365 02de EC A5                   		mov.L	[r10], r5
+ 1366                             	.L64:
+ 406:../src/src/ocsp.c **** }
+ 1367                             		.loc 2 406 1
+ 1368 02e0 EF 51                   		mov.L	r5, r1
+ 1369 02e2 71 00 54                		add	#0x54, r0
+ 1370 02e5 7E B6                   		pop	r6
+ 1371 02e7 7E BA                   		pop	r10
+ 1372 02e9 02                      		rts
+ 1373                             	.LFE52:
+ 1375 02ea 74 10 01 00 00 00       		.section C,"a",@progbits
+ 1376 00b5 00 00 00                		.p2align 2
+ 1377                             	.LC10:
+ 1378 00b8 43 68 65 63 6B 4F 63 73 		.string	"CheckOcspRequest"
+ 1378      70 52 65 71 75 65 73 74 
+ 1378      00 
+ 1379                             	.LC11:
+ 1380 00c9 43 65 72 74 20 68 61 73 		.string	"Cert has no OCSP URL, assuming CERT_GOOD"
+ 1380      20 6E 6F 20 4F 43 53 50 
+ 1380      20 55 52 4C 2C 20 61 73 
+ 1380      73 75 6D 69 6E 67 20 43 
+ 1380      45 52 54 5F 47 4F 4F 44 
+ 1381 00f2 00 00                   		.section	.text.CheckOcspRequest,"ax",@progbits
+ 1382                             		.global	_CheckOcspRequest
+ 1384                             	_CheckOcspRequest:
+ 1385                             	.LFB53:
+ 407:../src/src/ocsp.c **** 
+ 408:../src/src/ocsp.c **** /* 0 on success */
+ 409:../src/src/ocsp.c **** /* allow user to override the maximum request size at build-time */
+ 410:../src/src/ocsp.c **** #ifndef OCSP_MAX_REQUEST_SZ
+ 411:../src/src/ocsp.c **** #define OCSP_MAX_REQUEST_SZ 2048
+ 412:../src/src/ocsp.c **** #endif
+ 413:../src/src/ocsp.c **** int CheckOcspRequest(WOLFSSL_OCSP* ocsp, OcspRequest* ocspRequest,
+ 414:../src/src/ocsp.c ****                                                       buffer* responseBuffer)
+ 415:../src/src/ocsp.c **** {
+ 1386                             		.loc 2 415 1
+ 1387 0000 7E AA                   		push.l	r10
+ 1388                             	.LCFI25:
+ 1389 0002 71 0A C0                		add	#-64, r0, r10
+ 1390                             	.LCFI26:
+ 1391 0005 71 A0 F4                		add	#-12, r10, r0
+ 1392                             	.LCFI27:
+ 1393 0008 E7 A1 0D                		mov.L	r1, 52[r10]
+ 1394 000b E7 A2 0E                		mov.L	r2, 56[r10]
+ 1395 000e E7 A3 0F                		mov.L	r3, 60[r10]
+ 416:../src/src/ocsp.c ****     OcspEntry*  entry          = NULL;
+ 1396                             		.loc 2 416 17
+ 1397 0011 F9 A6 0A 00             		mov.L	#0, 40[r10]
+ 417:../src/src/ocsp.c ****     CertStatus* status         = NULL;
+ 1398                             		.loc 2 417 17
+ 1399 0015 F9 A6 0B 00             		mov.L	#0, 44[r10]
+ 418:../src/src/ocsp.c ****     byte*       request        = NULL;
+ 1400                             		.loc 2 418 17
+ 1401 0019 F9 A6 04 00             		mov.L	#0, 16[r10]
+ 419:../src/src/ocsp.c ****     int         requestSz      = OCSP_MAX_REQUEST_SZ;
+ 1402                             		.loc 2 419 17
+ 1403 001d F9 AA 05 00 08          		mov.L	#0x800, 20[r10]
+ 420:../src/src/ocsp.c ****     int         responseSz     = 0;
+ 1404                             		.loc 2 420 17
+ 1405 0022 F8 A6 00                		mov.L	#0, [r10]
+ 421:../src/src/ocsp.c ****     byte*       response       = NULL;
+ 1406                             		.loc 2 421 17
+ 1407 0025 F9 A6 0C 00             		mov.L	#0, 48[r10]
+ 422:../src/src/ocsp.c ****     const char* url            = NULL;
+ 1408                             		.loc 2 422 17
+ 1409 0029 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 423:../src/src/ocsp.c ****     int         urlSz          = 0;
+ 1410                             		.loc 2 423 17
+ 1411 002d F9 A6 02 00             		mov.L	#0, 8[r10]
+ 424:../src/src/ocsp.c ****     int         ret            = -1;
+ 1412                             		.loc 2 424 17
+ 1413 0031 F9 A6 03 FF             		mov.L	#-1, 12[r10]
+ 425:../src/src/ocsp.c ****     WOLFSSL*    ssl;
+ 426:../src/src/ocsp.c ****     void*       ioCtx;
+ 427:../src/src/ocsp.c **** 
+ 428:../src/src/ocsp.c ****     WOLFSSL_ENTER("CheckOcspRequest");
+ 1414                             		.loc 2 428 5
+ 1415 0035 FB 12 B8 00 00 00       		mov.L	#.LC10, r1
+ 1416 003b 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 429:../src/src/ocsp.c **** 
+ 430:../src/src/ocsp.c ****     if (ocsp == NULL || ocspRequest == NULL)
+ 1417                             		.loc 2 430 8
+ 1418 003f ED A5 0D                		mov.L	52[r10], r5
+ 1419 0042 61 05                   		cmp	#0, r5
+ 1420 0044 17                      		beq	.L83
+ 1421                             		.loc 2 430 22 discriminator 1
+ 1422 0045 ED A5 0E                		mov.L	56[r10], r5
+ 1423 0048 61 05                   		cmp	#0, r5
+ 1424 004a 18                      		bne	.L84
+ 1425                             	.L83:
+ 431:../src/src/ocsp.c ****         return BAD_FUNC_ARG;
+ 1426                             		.loc 2 431 16
+ 1427 004b FB 5A 53 FF             		mov.L	#-173, r5
+ 1428 004f 38 0A 02                		bra	.L103
+ 1429                             	.L84:
+ 432:../src/src/ocsp.c **** 
+ 433:../src/src/ocsp.c ****     if (responseBuffer) {
+ 1430                             		.loc 2 433 8
+ 1431 0052 ED A5 0F                		mov.L	60[r10], r5
+ 1432 0055 61 05                   		cmp	#0, r5
+ 1433 0057 20 0E                   		beq	.L86
+ 434:../src/src/ocsp.c ****         responseBuffer->buffer = NULL;
+ 1434                             		.loc 2 434 32
+ 1435 0059 ED A5 0F                		mov.L	60[r10], r5
+ 1436 005c F8 56 00                		mov.L	#0, [r5]
+ 435:../src/src/ocsp.c ****         responseBuffer->length = 0;
+ 1437                             		.loc 2 435 32
+ 1438 005f ED A5 0F                		mov.L	60[r10], r5
+ 1439 0062 3E 51 00                		mov.L	#0, 4[r5]
+ 1440                             	.L86:
+ 436:../src/src/ocsp.c ****     }
+ 437:../src/src/ocsp.c **** 
+ 438:../src/src/ocsp.c ****     ret = GetOcspEntry(ocsp, ocspRequest, &entry);
+ 1441                             		.loc 2 438 11
+ 1442 0065 71 A5 28                		add	#40, r10, r5
+ 1443 0068 EF 53                   		mov.L	r5, r3
+ 1444 006a ED A2 0E                		mov.L	56[r10], r2
+ 1445 006d ED A1 0D                		mov.L	52[r10], r1
+ 1446 0070 05 00 00 00             		bsr	_GetOcspEntry
+ 1447 0074 E7 A1 03                		mov.L	r1, 12[r10]
+ 439:../src/src/ocsp.c ****     if (ret != 0)
+ 1448                             		.loc 2 439 8
+ 1449 0077 ED A5 03                		mov.L	12[r10], r5
+ 1450 007a 61 05                   		cmp	#0, r5
+ 1451 007c 17                      		beq	.L87
+ 440:../src/src/ocsp.c ****         return ret;
+ 1452                             		.loc 2 440 16
+ 1453 007d ED A5 03                		mov.L	12[r10], r5
+ 1454 0080 38 D9 01                		bra	.L103
+ 1455                             	.L87:
+ 441:../src/src/ocsp.c **** 
+ 442:../src/src/ocsp.c ****     ret = GetOcspStatus(ocsp, ocspRequest, entry, &status, responseBuffer);
+ 1456                             		.loc 2 442 11
+ 1457 0083 ED A3 0A                		mov.L	40[r10], r3
+ 1458 0086 71 A5 2C                		add	#44, r10, r5
+ 1459 0089 ED A4 0F                		mov.L	60[r10], r4
+ 1460 008c E3 04                   		mov.L	r4, [r0]
+ 1461 008e EF 54                   		mov.L	r5, r4
+ 1462 0090 ED A2 0E                		mov.L	56[r10], r2
+ 1463 0093 ED A1 0D                		mov.L	52[r10], r1
+ 1464 0096 05 00 00 00             		bsr	_GetOcspStatus
+ 1465 009a E7 A1 03                		mov.L	r1, 12[r10]
+ 443:../src/src/ocsp.c ****     if (ret != OCSP_INVALID_STATUS)
+ 1466                             		.loc 2 443 8
+ 1467 009d ED A5 03                		mov.L	12[r10], r5
+ 1468 00a0 76 05 69 FE             		cmp	#-407, r5
+ 1469 00a4 17                      		beq	.L88
+ 444:../src/src/ocsp.c ****         return ret;
+ 1470                             		.loc 2 444 16
+ 1471 00a5 ED A5 03                		mov.L	12[r10], r5
+ 1472 00a8 38 B1 01                		bra	.L103
+ 1473                             	.L88:
+ 445:../src/src/ocsp.c **** 
+ 446:../src/src/ocsp.c ****     /* get SSL and IOCtx */
+ 447:../src/src/ocsp.c ****     ssl = (WOLFSSL*)ocspRequest->ssl;
+ 1474                             		.loc 2 447 9
+ 1475 00ab ED A5 0E                		mov.L	56[r10], r5
+ 1476 00ae AD 55                   		mov.L	80[r5], r5
+ 1477 00b0 E7 A5 06                		mov.L	r5, 24[r10]
+ 448:../src/src/ocsp.c ****     ioCtx = (ssl && ssl->ocspIOCtx != NULL) ?
+ 449:../src/src/ocsp.c ****                                         ssl->ocspIOCtx : ocsp->cm->ocspIOCtx;
+ 1478                             		.loc 2 449 56
+ 1479 00b3 ED A5 06                		mov.L	24[r10], r5
+ 1480 00b6 61 05                   		cmp	#0, r5
+ 1481 00b8 20 12                   		beq	.L89
+ 448:../src/src/ocsp.c ****     ioCtx = (ssl && ssl->ocspIOCtx != NULL) ?
+ 1482                             		.loc 2 448 24
+ 1483 00ba ED A5 06                		mov.L	24[r10], r5
+ 1484 00bd ED 55 C1                		mov.L	772[r5], r5
+ 448:../src/src/ocsp.c ****     ioCtx = (ssl && ssl->ocspIOCtx != NULL) ?
+ 1485                             		.loc 2 448 18
+ 1486 00c0 61 05                   		cmp	#0, r5
+ 1487 00c2 10                      		beq	.L89
+ 1488                             		.loc 2 449 56
+ 1489 00c3 ED A5 06                		mov.L	24[r10], r5
+ 1490 00c6 ED 55 C1                		mov.L	772[r5], r5
+ 1491 00c9 08                      		bra	.L90
+ 1492                             	.L89:
+ 1493                             		.loc 2 449 62 discriminator 1
+ 1494 00ca ED A5 0D                		mov.L	52[r10], r5
+ 1495 00cd EC 55                   		mov.L	[r5], r5
+ 1496                             		.loc 2 449 56 discriminator 1
+ 1497 00cf AC 55                   		mov.L	64[r5], r5
+ 1498                             	.L90:
+ 448:../src/src/ocsp.c ****     ioCtx = (ssl && ssl->ocspIOCtx != NULL) ?
+ 1499                             		.loc 2 448 11
+ 1500 00d1 E7 A5 07                		mov.L	r5, 28[r10]
+ 450:../src/src/ocsp.c **** 
+ 451:../src/src/ocsp.c **** #if defined(OPENSSL_ALL) || defined(WOLFSSL_NGINX) || defined(WOLFSSL_HAPROXY)
+ 452:../src/src/ocsp.c ****     if (ocsp->statusCb != NULL && ssl != NULL) {
+ 453:../src/src/ocsp.c ****         ret = ocsp->statusCb(ssl, ioCtx);
+ 454:../src/src/ocsp.c ****         if (ret == 0) {
+ 455:../src/src/ocsp.c ****             ret = wolfSSL_get_ocsp_response(ssl, &response);
+ 456:../src/src/ocsp.c ****             ret = CheckOcspResponse(ocsp, response, ret, responseBuffer, status,
+ 457:../src/src/ocsp.c ****                                 entry, NULL);
+ 458:../src/src/ocsp.c ****             if (response != NULL)
+ 459:../src/src/ocsp.c ****                 XFREE(response, NULL, DYNAMIC_TYPE_OPENSSL);
+ 460:../src/src/ocsp.c ****             return ret;
+ 461:../src/src/ocsp.c ****         }
+ 462:../src/src/ocsp.c ****         WOLFSSL_LEAVE("CheckOcspRequest", ocsp->error);
+ 463:../src/src/ocsp.c ****         return OCSP_LOOKUP_FAIL;
+ 464:../src/src/ocsp.c ****     }
+ 465:../src/src/ocsp.c **** #endif
+ 466:../src/src/ocsp.c **** 
+ 467:../src/src/ocsp.c ****     if (ocsp->cm->ocspUseOverrideURL) {
+ 1501                             		.loc 2 467 13
+ 1502 00d4 ED A5 0D                		mov.L	52[r10], r5
+ 1503 00d7 EC 55                   		mov.L	[r5], r5
+ 1504                             		.loc 2 467 9
+ 1505 00d9 CD 55 5C                		mov.B	92[r5], r5
+ 1506 00dc 75 25 20                		and	#32, r5
+ 1507                             		.loc 2 467 8
+ 1508 00df 5B 55                   		movu.B	r5, r5
+ 1509 00e1 61 05                   		cmp	#0, r5
+ 1510 00e3 20 33                   		beq	.L91
+ 468:../src/src/ocsp.c ****         url = ocsp->cm->ocspOverrideURL;
+ 1511                             		.loc 2 468 19
+ 1512 00e5 ED A5 0D                		mov.L	52[r10], r5
+ 1513 00e8 EC 55                   		mov.L	[r5], r5
+ 1514                             		.loc 2 468 13
+ 1515 00ea AB DD                   		mov.L	60[r5], r5
+ 1516 00ec E7 A5 01                		mov.L	r5, 4[r10]
+ 469:../src/src/ocsp.c ****         if (url != NULL && url[0] != '\0')
+ 1517                             		.loc 2 469 12
+ 1518 00ef ED A5 01                		mov.L	4[r10], r5
+ 1519 00f2 61 05                   		cmp	#0, r5
+ 1520 00f4 20 1B                   		beq	.L92
+ 1521                             		.loc 2 469 31 discriminator 1
+ 1522 00f6 ED A5 01                		mov.L	4[r10], r5
+ 1523 00f9 CC 55                   		mov.B	[r5], r5
+ 1524                             		.loc 2 469 25 discriminator 1
+ 1525 00fb 5B 55                   		movu.B	r5, r5
+ 1526 00fd 61 05                   		cmp	#0, r5
+ 1527 00ff 20 10                   		beq	.L92
+ 470:../src/src/ocsp.c ****             urlSz = (int)XSTRLEN(url);
+ 1528                             		.loc 2 470 26
+ 1529 0101 ED A1 01                		mov.L	4[r10], r1
+ 1530 0104 05 00 00 00             		bsr	_strlen
+ 1531 0108 EF 15                   		mov.L	r1, r5
+ 1532                             		.loc 2 470 19
+ 1533 010a E7 A5 02                		mov.L	r5, 8[r10]
+ 1534 010d 2E 3C                   		bra	.L93
+ 1535                             	.L92:
+ 471:../src/src/ocsp.c ****         else
+ 472:../src/src/ocsp.c ****             return OCSP_NEED_URL;
+ 1536                             		.loc 2 472 20
+ 1537 010f FB 5A 93 FE             		mov.L	#-365, r5
+ 1538 0113 38 46 01                		bra	.L103
+ 1539                             	.L91:
+ 473:../src/src/ocsp.c ****     }
+ 474:../src/src/ocsp.c ****     else if (ocspRequest->urlSz != 0 && ocspRequest->url != NULL) {
+ 1540                             		.loc 2 474 25
+ 1541 0116 ED A5 0E                		mov.L	56[r10], r5
+ 1542 0119 AB 5D                   		mov.L	52[r5], r5
+ 1543                             		.loc 2 474 13
+ 1544 011b 61 05                   		cmp	#0, r5
+ 1545 011d 20 1D                   		beq	.L94
+ 1546                             		.loc 2 474 52 discriminator 1
+ 1547 011f ED A5 0E                		mov.L	56[r10], r5
+ 1548 0122 AB 55                   		mov.L	48[r5], r5
+ 1549                             		.loc 2 474 38 discriminator 1
+ 1550 0124 61 05                   		cmp	#0, r5
+ 1551 0126 20 14                   		beq	.L94
+ 475:../src/src/ocsp.c ****         url = (const char *)ocspRequest->url;
+ 1552                             		.loc 2 475 13
+ 1553 0128 ED A5 0E                		mov.L	56[r10], r5
+ 1554 012b AB 55                   		mov.L	48[r5], r5
+ 1555 012d E7 A5 01                		mov.L	r5, 4[r10]
+ 476:../src/src/ocsp.c ****         urlSz = ocspRequest->urlSz;
+ 1556                             		.loc 2 476 15
+ 1557 0130 ED A5 0E                		mov.L	56[r10], r5
+ 1558 0133 AB 5D                   		mov.L	52[r5], r5
+ 1559 0135 E7 A5 02                		mov.L	r5, 8[r10]
+ 1560 0138 2E 11                   		bra	.L93
+ 1561                             	.L94:
+ 477:../src/src/ocsp.c ****     }
+ 478:../src/src/ocsp.c ****     else {
+ 479:../src/src/ocsp.c ****         /* cert doesn't have extAuthInfo, assuming CERT_GOOD */
+ 480:../src/src/ocsp.c ****         WOLFSSL_MSG("Cert has no OCSP URL, assuming CERT_GOOD");
+ 1562                             		.loc 2 480 9
+ 1563 013a FB 12 C9 00 00 00       		mov.L	#.LC11, r1
+ 1564 0140 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 481:../src/src/ocsp.c ****         return 0;
+ 1565                             		.loc 2 481 16
+ 1566 0144 66 05                   		mov.L	#0, r5
+ 1567 0146 38 13 01                		bra	.L103
+ 1568                             	.L93:
+ 482:../src/src/ocsp.c ****     }
+ 483:../src/src/ocsp.c **** 
+ 484:../src/src/ocsp.c ****     request = (byte*)XMALLOC(requestSz, ocsp->cm->heap, DYNAMIC_TYPE_OCSP);
+ 1569                             		.loc 2 484 22
+ 1570 0149 ED A5 05                		mov.L	20[r10], r5
+ 1571 014c EF 51                   		mov.L	r5, r1
+ 1572 014e 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1573 0152 E7 A1 04                		mov.L	r1, 16[r10]
+ 485:../src/src/ocsp.c ****     if (request == NULL) {
+ 1574                             		.loc 2 485 8
+ 1575 0155 ED A5 04                		mov.L	16[r10], r5
+ 1576 0158 61 05                   		cmp	#0, r5
+ 1577 015a 21 39                   		bne	.L95
+ 486:../src/src/ocsp.c ****         WOLFSSL_LEAVE("CheckCertOCSP", MEMORY_ERROR);
+ 1578                             		.loc 2 486 9
+ 1579 015c FB 2A D1 FE             		mov.L	#-303, r2
+ 1580 0160 FB 12 38 00 00 00       		mov.L	#.LC4, r1
+ 1581 0166 05 00 00 00             		bsr	_WOLFSSL_LEAVE
+ 487:../src/src/ocsp.c ****         if (responseBuffer) {
+ 1582                             		.loc 2 487 12
+ 1583 016a ED A5 0F                		mov.L	60[r10], r5
+ 1584 016d 61 05                   		cmp	#0, r5
+ 1585 016f 20 1D                   		beq	.L96
+ 1586                             	.LBB14:
+ 488:../src/src/ocsp.c ****             XFREE(responseBuffer->buffer, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 1587                             		.loc 2 488 13
+ 1588 0171 ED A5 0F                		mov.L	60[r10], r5
+ 1589 0174 EC 55                   		mov.L	[r5], r5
+ 1590 0176 E7 A5 08                		mov.L	r5, 32[r10]
+ 1591 0179 ED A5 08                		mov.L	32[r10], r5
+ 1592 017c 61 05                   		cmp	#0, r5
+ 1593 017e 10                      		beq	.L97
+ 1594                             		.loc 2 488 13 is_stmt 0 discriminator 1
+ 1595 017f ED A1 08                		mov.L	32[r10], r1
+ 1596 0182 05 00 00 00             		bsr	_wolfSSL_Free
+ 1597                             	.L97:
+ 1598                             	.LBE14:
+ 489:../src/src/ocsp.c ****             responseBuffer->buffer = NULL;
+ 1599                             		.loc 2 489 36 is_stmt 1
+ 1600 0186 ED A5 0F                		mov.L	60[r10], r5
+ 1601 0189 F8 56 00                		mov.L	#0, [r5]
+ 1602                             	.L96:
+ 490:../src/src/ocsp.c ****         }
+ 491:../src/src/ocsp.c ****         return MEMORY_ERROR;
+ 1603                             		.loc 2 491 16
+ 1604 018c FB 5A D1 FE             		mov.L	#-303, r5
+ 1605 0190 38 C9 00                		bra	.L103
+ 1606                             	.L95:
+ 492:../src/src/ocsp.c ****     }
+ 493:../src/src/ocsp.c **** 
+ 494:../src/src/ocsp.c ****     requestSz = EncodeOcspRequest(ocspRequest, request, requestSz);
+ 1607                             		.loc 2 494 17
+ 1608 0193 ED A5 05                		mov.L	20[r10], r5
+ 1609 0196 EF 53                   		mov.L	r5, r3
+ 1610 0198 ED A2 04                		mov.L	16[r10], r2
+ 1611 019b ED A1 0E                		mov.L	56[r10], r1
+ 1612 019e 05 00 00 00             		bsr	_EncodeOcspRequest
+ 1613 01a2 E7 A1 05                		mov.L	r1, 20[r10]
+ 495:../src/src/ocsp.c ****     if (requestSz > 0 && ocsp->cm->ocspIOCb) {
+ 1614                             		.loc 2 495 8
+ 1615 01a5 ED A5 05                		mov.L	20[r10], r5
+ 1616 01a8 61 05                   		cmp	#0, r5
+ 1617 01aa 2B 2E                   		ble	.L98
+ 1618                             		.loc 2 495 30 discriminator 1
+ 1619 01ac ED A5 0D                		mov.L	52[r10], r5
+ 1620 01af EC 55                   		mov.L	[r5], r5
+ 1621                             		.loc 2 495 34 discriminator 1
+ 1622 01b1 AD 55                   		mov.L	80[r5], r5
+ 1623                             		.loc 2 495 23 discriminator 1
+ 1624 01b3 61 05                   		cmp	#0, r5
+ 1625 01b5 20 23                   		beq	.L98
+ 496:../src/src/ocsp.c ****         responseSz = ocsp->cm->ocspIOCb(ioCtx, url, urlSz,
+ 1626                             		.loc 2 496 26
+ 1627 01b7 ED A5 0D                		mov.L	52[r10], r5
+ 1628 01ba EC 55                   		mov.L	[r5], r5
+ 1629                             		.loc 2 496 30
+ 1630 01bc AD 55                   		mov.L	80[r5], r5
+ 1631                             		.loc 2 496 22
+ 1632 01be 71 A4 30                		add	#48, r10, r4
+ 1633 01c1 A0 0C                   		mov.L	r4, 4[r0]
+ 1634 01c3 ED A4 05                		mov.L	20[r10], r4
+ 1635 01c6 E3 04                   		mov.L	r4, [r0]
+ 1636 01c8 ED A4 04                		mov.L	16[r10], r4
+ 1637 01cb ED A3 02                		mov.L	8[r10], r3
+ 1638 01ce ED A2 01                		mov.L	4[r10], r2
+ 1639 01d1 ED A1 07                		mov.L	28[r10], r1
+ 1640 01d4 7F 15                   		jsr	r5
+ 1641                             	.LVL0:
+ 1642 01d6 E3 A1                   		mov.L	r1, [r10]
+ 1643                             	.L98:
+ 497:../src/src/ocsp.c ****                                         request, requestSz, &response);
+ 498:../src/src/ocsp.c ****     }
+ 499:../src/src/ocsp.c ****     if (responseSz == WOLFSSL_CBIO_ERR_WANT_READ) {
+ 1644                             		.loc 2 499 8
+ 1645 01d8 EC A5                   		mov.L	[r10], r5
+ 1646 01da 75 05 FE                		cmp	#-2, r5
+ 1647 01dd 1E                      		bne	.L99
+ 500:../src/src/ocsp.c ****         ret = OCSP_WANT_READ;
+ 1648                             		.loc 2 500 13
+ 1649 01de F9 AA 03 68 FE          		mov.L	#-408, 12[r10]
+ 1650                             	.L99:
+ 1651                             	.LBB15:
+ 501:../src/src/ocsp.c ****     }
+ 502:../src/src/ocsp.c **** 
+ 503:../src/src/ocsp.c ****     XFREE(request, ocsp->cm->heap, DYNAMIC_TYPE_OCSP);
+ 1652                             		.loc 2 503 5
+ 1653 01e3 ED A5 04                		mov.L	16[r10], r5
+ 1654 01e6 E7 A5 09                		mov.L	r5, 36[r10]
+ 1655 01e9 ED A5 09                		mov.L	36[r10], r5
+ 1656 01ec 61 05                   		cmp	#0, r5
+ 1657 01ee 10                      		beq	.L100
+ 1658                             		.loc 2 503 5 is_stmt 0 discriminator 1
+ 1659 01ef ED A1 09                		mov.L	36[r10], r1
+ 1660 01f2 05 00 00 00             		bsr	_wolfSSL_Free
+ 1661                             	.L100:
+ 1662                             	.LBE15:
+ 504:../src/src/ocsp.c **** 
+ 505:../src/src/ocsp.c ****     if (responseSz >= 0 && response) {
+ 1663                             		.loc 2 505 8 is_stmt 1
+ 1664 01f6 EC A5                   		mov.L	[r10], r5
+ 1665 01f8 61 05                   		cmp	#0, r5
+ 1666 01fa 29 2C                   		blt	.L101
+ 1667                             		.loc 2 505 25 discriminator 1
+ 1668 01fc ED A5 0C                		mov.L	48[r10], r5
+ 1669 01ff 61 05                   		cmp	#0, r5
+ 1670 0201 20 25                   		beq	.L101
+ 506:../src/src/ocsp.c ****         ret = CheckOcspResponse(ocsp, response, responseSz, responseBuffer, status,
+ 1671                             		.loc 2 506 15
+ 1672 0203 ED A5 0C                		mov.L	48[r10], r5
+ 1673 0206 ED A4 0B                		mov.L	44[r10], r4
+ 1674 0209 ED A3 0A                		mov.L	40[r10], r3
+ 1675 020c ED A2 0E                		mov.L	56[r10], r2
+ 1676 020f A0 82                   		mov.L	r2, 8[r0]
+ 1677 0211 A0 0B                   		mov.L	r3, 4[r0]
+ 1678 0213 E3 04                   		mov.L	r4, [r0]
+ 1679 0215 ED A4 0F                		mov.L	60[r10], r4
+ 1680 0218 EC A3                   		mov.L	[r10], r3
+ 1681 021a EF 52                   		mov.L	r5, r2
+ 1682 021c ED A1 0D                		mov.L	52[r10], r1
+ 1683 021f 05 00 00 00             		bsr	_CheckOcspResponse
+ 1684 0223 E7 A1 03                		mov.L	r1, 12[r10]
+ 1685                             	.L101:
+ 507:../src/src/ocsp.c ****                             entry, ocspRequest);
+ 508:../src/src/ocsp.c ****     }
+ 509:../src/src/ocsp.c **** 
+ 510:../src/src/ocsp.c ****     if (response != NULL && ocsp->cm->ocspRespFreeCb)
+ 1686                             		.loc 2 510 18
+ 1687 0226 ED A5 0C                		mov.L	48[r10], r5
+ 1688                             		.loc 2 510 8
+ 1689 0229 61 05                   		cmp	#0, r5
+ 1690 022b 20 1E                   		beq	.L102
+ 1691                             		.loc 2 510 33 discriminator 1
+ 1692 022d ED A5 0D                		mov.L	52[r10], r5
+ 1693 0230 EC 55                   		mov.L	[r5], r5
+ 1694                             		.loc 2 510 37 discriminator 1
+ 1695 0232 AD 5D                   		mov.L	84[r5], r5
+ 1696                             		.loc 2 510 26 discriminator 1
+ 1697 0234 61 05                   		cmp	#0, r5
+ 1698 0236 20 13                   		beq	.L102
+ 511:../src/src/ocsp.c ****         ocsp->cm->ocspRespFreeCb(ioCtx, response);
+ 1699                             		.loc 2 511 13
+ 1700 0238 ED A5 0D                		mov.L	52[r10], r5
+ 1701 023b EC 55                   		mov.L	[r5], r5
+ 1702                             		.loc 2 511 17
+ 1703 023d AD 5D                   		mov.L	84[r5], r5
+ 1704                             		.loc 2 511 9
+ 1705 023f ED A4 0C                		mov.L	48[r10], r4
+ 1706 0242 EF 42                   		mov.L	r4, r2
+ 1707 0244 ED A1 07                		mov.L	28[r10], r1
+ 1708 0247 7F 15                   		jsr	r5
+ 1709                             	.LVL1:
+ 1710                             	.L102:
+ 512:../src/src/ocsp.c **** 
+ 513:../src/src/ocsp.c ****     /* Keep responseBuffer in the case of getting to response check. Caller
+ 514:../src/src/ocsp.c ****      * should free responseBuffer after checking OCSP return value in "ret" */
+ 515:../src/src/ocsp.c ****     WOLFSSL_LEAVE("CheckOcspRequest", ret);
+ 1711                             		.loc 2 515 5
+ 1712 0249 ED A2 03                		mov.L	12[r10], r2
+ 1713 024c FB 12 B8 00 00 00       		mov.L	#.LC10, r1
+ 1714 0252 05 00 00 00             		bsr	_WOLFSSL_LEAVE
+ 516:../src/src/ocsp.c ****     return ret;
+ 1715                             		.loc 2 516 12
+ 1716 0256 ED A5 03                		mov.L	12[r10], r5
+ 1717                             		.balign 8,3,1
+ 1718                             	.L103:
+ 517:../src/src/ocsp.c **** }
+ 1719                             		.loc 2 517 1 discriminator 1
+ 1720 0259 EF 51                   		mov.L	r5, r1
+ 1721 025b 3F AA 14                		rtsd	#80, r10-r10
+ 1722                             	.LFE53:
+ 1992                             	.Letext0:
+ 1993                             		.file 3 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/wc_port.h"
+ 1994                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 1995                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1996                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1997                             		.file 7 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1998                             		.file 8 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1999                             		.file 9 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/types.h"
+ 2000                             		.file 10 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\incl
+ 2001                             		.file 11 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\incl
+ 2002                             		.file 12 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/error-crypt.h"
+ 2003                             		.file 13 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/error-ssl.h"
+ 2004                             		.file 14 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sp_int.h"
+ 2005                             		.file 15 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha256.h"
+ 2006                             		.file 16 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/random.h"
+ 2007                             		.file 17 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/wolfmath.h"
+ 2008                             		.file 18 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/dsa.h"
+ 2009                             		.file 19 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/asn_public.h"
+ 2010                             		.file 20 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/ecc.h"
+ 2011                             		.file 21 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/ed25519.h"
+ 2012                             		.file 22 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/curve25519.h"
+ 2013                             		.file 23 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/rsa.h"
+ 2014                             		.file 24 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/dh.h"
+ 2015                             		.file 25 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md5.h"
+ 2016                             		.file 26 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha.h"
+ 2017                             		.file 27 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha512.h"
+ 2018                             		.file 28 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md4.h"
+ 2019                             		.file 29 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/openssl/compat_types.h"
+ 2020                             		.file 30 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/ssl.h"
+ 2021                             		.file 31 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/callbacks.h"
+ 2022                             		.file 32 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/internal.h"
+ 2023                             		.file 33 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfio.h"
+ 2024                             		.file 34 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/asn.h"
+ 2025                             		.file 35 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/ocsp.h"
+ 2026                             		.file 36 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/des3.h"
+ 2027                             		.file 37 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/aes.h"
+ 2028                             		.file 38 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/fe_operations.h"

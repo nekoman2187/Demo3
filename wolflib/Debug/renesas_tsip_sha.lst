@@ -1,0 +1,83 @@
+   1                             		.file	"renesas_tsip_sha.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.rodata.c25519_base_x,"a"
+   7                             	_c25519_base_x:
+   8 0000 09                      		.byte	9
+   9 0001 00 00 00 00 00 00 00 00 		.zero	31
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 
+  10                             		.section	.rodata.f25519_zero,"a"
+  13                             	_f25519_zero:
+  14 0000 00 00 00 00 00 00 00 00 		.zero	32
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  15                             		.section	.rodata.f25519_one,"a"
+  18                             	_f25519_one:
+  19 0000 01                      		.byte	1
+  20 0001 00 00 00 00 00 00 00 00 		.zero	31
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 
+  21                             		.section	.rodata.fprime_zero,"a"
+  24                             	_fprime_zero:
+  25 0000 00 00 00 00 00 00 00 00 		.zero	32
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  26                             		.section	.rodata.fprime_one,"a"
+  29                             	_fprime_one:
+  30 0000 01                      		.byte	1
+  31 0001 00 00 00 00 00 00 00 00 		.zero	31
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 
+  32                             		.section	.rodata.client,"a"
+  35                             	_client:
+  36 0000 43                      		.byte	0x43
+  37 0001 4C                      		.byte	0x4c
+  38 0002 4E                      		.byte	0x4e
+  39 0003 54                      		.byte	0x54
+  40 0004 00                      		.byte	0
+  41                             		.section	.rodata.server,"a"
+  44                             	_server:
+  45 0000 53                      		.byte	0x53
+  46 0001 52                      		.byte	0x52
+  47 0002 56                      		.byte	0x56
+  48 0003 52                      		.byte	0x52
+  49 0004 00                      		.byte	0
+  50                             		.section	.rodata.tls_client,"a"
+  53                             	_tls_client:
+  54 0000 63 6C 69 65 6E 74 20 66 		.string	"client finished"
+  54      69 6E 69 73 68 65 64 00 
+  55                             		.section	.rodata.tls_server,"a"
+  58                             	_tls_server:
+  59 0000 73 65 72 76 65 72 20 66 		.string	"server finished"
+  59      69 6E 69 73 68 65 64 00 
+  60                             		.section P,"ax"
+  61                             	.Letext0:
+  62                             		.file 1 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+  63                             		.file 2 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+  64                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+  65                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+  66                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+  67                             		.file 6 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/types.h"
+  68                             		.file 7 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+  69                             		.file 8 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+  70                             		.file 9 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/wolfmath.h"
+  71                             		.file 10 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/asn_public.h"
+  72                             		.file 11 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha256.h"
+  73                             		.file 12 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md5.h"
+  74                             		.file 13 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha.h"
+  75                             		.file 14 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha512.h"
+  76                             		.file 15 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md4.h"
+  77                             		.file 16 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/callbacks.h"
+  78                             		.file 17 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/ssl.h"
+  79                             		.file 18 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/asn.h"
+  80                             		.file 19 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/des3.h"
+  81                             		.file 20 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/aes.h"
+  82                             		.file 21 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/ecc.h"
+  83                             		.file 22 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/fe_operations.h"
+  84                             		.file 23 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/internal.h"

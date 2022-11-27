@@ -1,0 +1,290 @@
+   1                             	# 1 "../src/wolfcrypt/src/port/arm/armv8-sha3-asm.S"
+   1                             	/* armv8-sha3-asm
+   0                             	
+   0                             	
+   0                             	
+   2                             	 *
+   3                             	 * Copyright (C) 2006-2021 wolfSSL Inc.
+   4                             	 *
+   5                             	 * This file is part of wolfSSL.
+   6                             	 *
+   7                             	 * wolfSSL is free software; you can redistribute it and/or modify
+   8                             	 * it under the terms of the GNU General Public License as published by
+   9                             	 * the Free Software Foundation; either version 2 of the License, or
+  10                             	 * (at your option) any later version.
+  11                             	 *
+  12                             	 * wolfSSL is distributed in the hope that it will be useful,
+  13                             	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14                             	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15                             	 * GNU General Public License for more details.
+  16                             	 *
+  17                             	 * You should have received a copy of the GNU General Public License
+  18                             	 * along with this program; if not, write to the Free Software
+  19                             	 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20                             	 */
+  21                             	
+  22                             	#ifdef HAVE_CONFIG_H
+  23                             	    #include <config.h>
+  24                             	#endif /* HAVE_CONFIG_H */
+  25                             	#include <wolfssl/wolfcrypt/settings.h>
+   1                             	/* settings.h
+   2                             	 *
+   3                             	 * Copyright (C) 2006-2021 wolfSSL Inc.
+   4                             	 *
+   5                             	 * This file is part of wolfSSL.
+   6                             	 *
+   7                             	 * wolfSSL is free software; you can redistribute it and/or modify
+   8                             	 * it under the terms of the GNU General Public License as published by
+   9                             	 * the Free Software Foundation; either version 2 of the License, or
+  10                             	 * (at your option) any later version.
+  11                             	 *
+  12                             	 * wolfSSL is distributed in the hope that it will be useful,
+  13                             	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14                             	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15                             	 * GNU General Public License for more details.
+  16                             	 *
+  17                             	 * You should have received a copy of the GNU General Public License
+  18                             	 * along with this program; if not, write to the Free Software
+  19                             	 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20                             	 */
+  21                             	
+  22                             	/*
+  23                             	 *   ************************************************************************
+  24                             	 *
+  25                             	 *   ******************************** NOTICE ********************************
+  26                             	 *
+  27                             	 *   ************************************************************************
+  28                             	 *
+  29                             	 *   This method of uncommenting a line in settings.h is outdated.
+  30                             	 *
+  31                             	 *   Please use user_settings.h / WOLFSSL_USER_SETTINGS
+  32                             	 *
+  33                             	 *         or
+  34                             	 *
+  35                             	 *   ./configure CFLAGS="-DFLAG"
+  36                             	 *
+  37                             	 *   For more information see:
+  38                             	 *
+  39                             	 *   https://www.wolfssl.com/how-do-i-manage-the-build-configuration-of-wolfssl/
+  40                             	 *
+  41                             	 */
+  42                             	
+  43                             	
+  44                             	/* Place OS specific preprocessor flags, defines, includes here, will be
+  45                             	   included into every file because types.h includes it */
+  46                             	
+  47                             	
+  48                             	#ifndef WOLF_CRYPT_SETTINGS_H
+  49                             	#define WOLF_CRYPT_SETTINGS_H
+  50                             	
+  51                             	#ifdef __cplusplus
+  52                             	    extern "C" {
+  53                             	#endif
+  54                             	
+  55                             	/* This flag allows wolfSSL to include options.h instead of having client
+  56                             	 * projects do it themselves. This should *NEVER* be defined when building
+  57                             	 * wolfSSL as it can cause hard to debug problems. */
+  58                             	#ifdef EXTERNAL_OPTS_OPENVPN
+  59                             	#include <wolfssl/options.h>
+  60                             	#endif
+  61                             	
+  62                             	/* Uncomment next line if using IPHONE */
+  63                             	/* #define IPHONE */
+  64                             	
+  65                             	/* Uncomment next line if using ThreadX */
+  66                             	/* #define THREADX */
+  67                             	
+  68                             	/* Uncomment next line if using Micrium uC/OS-III */
+  69                             	/* #define MICRIUM */
+  70                             	
+  71                             	/* Uncomment next line if using Deos RTOS*/
+  72                             	/* #define WOLFSSL_DEOS*/
+  73                             	
+  74                             	/* Uncomment next line if using Mbed */
+  75                             	/* #define MBED */
+  76                             	
+  77                             	/* Uncomment next line if using Microchip PIC32 ethernet starter kit */
+  78                             	/* #define MICROCHIP_PIC32 */
+  79                             	
+  80                             	/* Uncomment next line if using Microchip TCP/IP stack, version 5 */
+  81                             	/* #define MICROCHIP_TCPIP_V5 */
+  82                             	
+  83                             	/* Uncomment next line if using Microchip TCP/IP stack, version 6 or later */
+  84                             	/* #define MICROCHIP_TCPIP */
+  85                             	
+  86                             	/* Uncomment next line if using above Microchip TCP/IP defines with BSD API */
+  87                             	/* #define MICROCHIP_TCPIP_BSD_API */
+  88                             	
+  89                             	/* Uncomment next line if using PIC32MZ Crypto Engine */
+  90                             	/* #define WOLFSSL_MICROCHIP_PIC32MZ */
+  91                             	
+  92                             	/* Uncomment next line if using FreeRTOS */
+  93                             	/* #define FREERTOS */
+  94                             	
+  95                             	/* Uncomment next line if using FreeRTOS+ TCP */
+  96                             	/* #define FREERTOS_TCP */
+  97                             	
+  98                             	/* Uncomment next line if using FreeRTOS Windows Simulator */
+  99                             	/* #define FREERTOS_WINSIM */
+ 100                             	
+ 101                             	/* Uncomment next line if using RTIP */
+ 102                             	/* #define EBSNET */
+ 103                             	
+ 104                             	/* Uncomment next line if using lwip */
+ 105                             	/* #define WOLFSSL_LWIP */
+ 106                             	
+ 107                             	/* Uncomment next line if building wolfSSL for a game console */
+ 108                             	/* #define WOLFSSL_GAME_BUILD */
+ 109                             	
+ 110                             	/* Uncomment next line if building wolfSSL for LSR */
+ 111                             	/* #define WOLFSSL_LSR */
+ 112                             	
+ 113                             	/* Uncomment next line if building for Freescale Classic MQX version 5.0 */
+ 114                             	/* #define FREESCALE_MQX_5_0 */
+ 115                             	
+ 116                             	/* Uncomment next line if building for Freescale Classic MQX version 4.0 */
+ 117                             	/* #define FREESCALE_MQX_4_0 */
+ 118                             	
+ 119                             	/* Uncomment next line if building for Freescale Classic MQX/RTCS/MFS */
+ 120                             	/* #define FREESCALE_MQX */
+ 121                             	
+ 122                             	/* Uncomment next line if building for Freescale KSDK MQX/RTCS/MFS */
+ 123                             	/* #define FREESCALE_KSDK_MQX */
+ 124                             	
+ 125                             	/* Uncomment next line if building for Freescale KSDK Bare Metal */
+ 126                             	/* #define FREESCALE_KSDK_BM */
+ 127                             	
+ 128                             	/* Uncomment next line if building for Freescale KSDK FreeRTOS, */
+ 129                             	/* (old name FREESCALE_FREE_RTOS) */
+ 130                             	/* #define FREESCALE_KSDK_FREERTOS */
+ 131                             	
+ 132                             	/* Uncomment next line if using STM32F2 */
+ 133                             	/* #define WOLFSSL_STM32F2 */
+ 134                             	
+ 135                             	/* Uncomment next line if using STM32F4 */
+ 136                             	/* #define WOLFSSL_STM32F4 */
+ 137                             	
+ 138                             	/* Uncomment next line if using STM32FL */
+ 139                             	/* #define WOLFSSL_STM32FL */
+ 140                             	
+ 141                             	/* Uncomment next line if using STM32F7 */
+ 142                             	/* #define WOLFSSL_STM32F7 */
+ 143                             	
+ 144                             	/* Uncomment next line if using QL SEP settings */
+ 145                             	/* #define WOLFSSL_QL */
+ 146                             	
+ 147                             	/* Uncomment next line if building for EROAD */
+ 148                             	/* #define WOLFSSL_EROAD */
+ 149                             	
+ 150                             	/* Uncomment next line if building for IAR EWARM */
+ 151                             	/* #define WOLFSSL_IAR_ARM */
+ 152                             	
+ 153                             	/* Uncomment next line if building for Rowley CrossWorks ARM */
+ 154                             	/* #define WOLFSSL_ROWLEY_ARM */
+ 155                             	
+ 156                             	/* Uncomment next line if using TI-RTOS settings */
+ 157                             	/* #define WOLFSSL_TIRTOS */
+ 158                             	
+ 159                             	/* Uncomment next line if building with PicoTCP */
+ 160                             	/* #define WOLFSSL_PICOTCP */
+ 161                             	
+ 162                             	/* Uncomment next line if building for PicoTCP demo bundle */
+ 163                             	/* #define WOLFSSL_PICOTCP_DEMO */
+ 164                             	
+ 165                             	/* Uncomment next line if building for uITRON4  */
+ 166                             	/* #define WOLFSSL_uITRON4 */
+ 167                             	
+ 168                             	/* Uncomment next line if building for uT-Kernel */
+ 169                             	/* #define WOLFSSL_uTKERNEL2 */
+ 170                             	
+ 171                             	/* Uncomment next line if using Max Strength build */
+ 172                             	/* #define WOLFSSL_MAX_STRENGTH */
+ 173                             	
+ 174                             	/* Uncomment next line if building for VxWorks */
+ 175                             	/* #define WOLFSSL_VXWORKS */
+ 176                             	
+ 177                             	/* Uncomment next line if building for Nordic nRF5x platform */
+ 178                             	/* #define WOLFSSL_NRF5x */
+ 179                             	
+ 180                             	/* Uncomment next line to enable deprecated less secure static DH suites */
+ 181                             	/* #define WOLFSSL_STATIC_DH */
+ 182                             	
+ 183                             	/* Uncomment next line to enable deprecated less secure static RSA suites */
+ 184                             	/* #define WOLFSSL_STATIC_RSA */
+ 185                             	
+ 186                             	/* Uncomment next line if building for ARDUINO */
+ 187                             	/* Uncomment both lines if building for ARDUINO on INTEL_GALILEO */
+ 188                             	/* #define WOLFSSL_ARDUINO */
+ 189                             	/* #define INTEL_GALILEO */
+ 190                             	
+ 191                             	/* Uncomment next line to enable asynchronous crypto WC_PENDING_E */
+ 192                             	/* #define WOLFSSL_ASYNC_CRYPT */
+ 193                             	
+ 194                             	/* Uncomment next line if building for uTasker */
+ 195                             	/* #define WOLFSSL_UTASKER */
+ 196                             	
+ 197                             	/* Uncomment next line if building for embOS */
+ 198                             	/* #define WOLFSSL_EMBOS */
+ 199                             	
+ 200                             	/* Uncomment next line if building for RIOT-OS */
+ 201                             	/* #define WOLFSSL_RIOT_OS */
+ 202                             	
+ 203                             	/* Uncomment next line if building for using XILINX hardened crypto */
+ 204                             	/* #define WOLFSSL_XILINX_CRYPT */
+ 205                             	
+ 206                             	/* Uncomment next line if building for using XILINX */
+ 207                             	/* #define WOLFSSL_XILINX */
+ 208                             	
+ 209                             	/* Uncomment next line if building for WICED Studio. */
+ 210                             	/* #define WOLFSSL_WICED  */
+ 211                             	
+ 212                             	/* Uncomment next line if building for Nucleus 1.2 */
+ 213                             	/* #define WOLFSSL_NUCLEUS_1_2 */
+ 214                             	
+ 215                             	/* Uncomment next line if building for using Apache mynewt */
+ 216                             	/* #define WOLFSSL_APACHE_MYNEWT */
+ 217                             	
+ 218                             	/* For Espressif chips see example user_settings.h
+ 219                             	 *
+ 220                             	 * https://github.com/wolfSSL/wolfssl/blob/master/IDE/Espressif/ESP-IDF/user_settings.h
+ 221                             	 */
+ 222                             	
+ 223                             	/* Uncomment next line if building for using ESP-IDF */
+ 224                             	/* #define WOLFSSL_ESPIDF */
+ 225                             	
+ 226                             	/* Uncomment next line if using Espressif ESP32-WROOM-32 */
+ 227                             	/* #define WOLFSSL_ESPWROOM32 */
+ 228                             	
+ 229                             	/* Uncomment next line if using Espressif ESP32-WROOM-32SE */
+ 230                             	/* #define WOLFSSL_ESPWROOM32SE */
+ 231                             	
+ 232                             	/* Uncomment next line if using ARM CRYPTOCELL*/
+ 233                             	/* #define WOLFSSL_CRYPTOCELL */
+ 234                             	
+ 235                             	/* Uncomment next line if using RENESAS TSIP */
+ 236                             	/* #define WOLFSSL_RENESAS_TSIP */
+ 237                             	
+ 238                             	/* Uncomment next line if using RENESAS RX64N */
+ 239                             	/* #define WOLFSSL_RENESAS_RX65N */
+ 240                             	
+ 241                             	/* Uncomment next line if using RENESAS SCE Protected Mode */
+ 242                             	/* #define WOLFSSL_RENESAS_SCEPROTECT */
+ 243                             	
+ 244                             	/* Uncomment next line if using RENESAS RA6M4 */
+ 245                             	/* #define WOLFSSL_RENESAS_RA6M4 */
+ 246                             	
+ 247                             	/* Uncomment next line if using Solaris OS*/
+ 248                             	/* #define WOLFSSL_SOLARIS */
+ 249                             	
+ 250                             	/* Uncomment next line if building for Linux Kernel Module */
+ 251                             	/* #define WOLFSSL_LINUXKM */
+ 252                             	
+ 253                             	/* Uncomment next line if building for devkitPro */
+ 254                             	/* #define DEVKITPRO */
+ 255                             	
+ 256                             	/* Uncomment next line if building for Dolphin Emulator */
+ 257                             	/* #define DOLPHIN_EMULATOR */
+ 258                             	
+ 259                             	#include <wolfssl/wolfcrypt/visibility.h>
+   1                             	/* visibility.h
+ 260                             	

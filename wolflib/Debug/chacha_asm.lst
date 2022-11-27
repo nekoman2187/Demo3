@@ -1,0 +1,1436 @@
+   1                             	# 1 "../src/wolfcrypt/src/chacha_asm.S"
+   1                             	/* chacha_asm
+   0                             	
+   0                             	
+   0                             	
+   2                             	 *
+   3                             	 * Copyright (C) 2006-2021 wolfSSL Inc.
+   4                             	 *
+   5                             	 * This file is part of wolfSSL.
+   6                             	 *
+   7                             	 * wolfSSL is free software; you can redistribute it and/or modify
+   8                             	 * it under the terms of the GNU General Public License as published by
+   9                             	 * the Free Software Foundation; either version 2 of the License, or
+  10                             	 * (at your option) any later version.
+  11                             	 *
+  12                             	 * wolfSSL is distributed in the hope that it will be useful,
+  13                             	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14                             	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15                             	 * GNU General Public License for more details.
+  16                             	 *
+  17                             	 * You should have received a copy of the GNU General Public License
+  18                             	 * along with this program; if not, write to the Free Software
+  19                             	 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20                             	 */
+  21                             	
+  22                             	#ifndef HAVE_INTEL_AVX1
+  23                             	#define HAVE_INTEL_AVX1
+  24                             	#endif /* HAVE_INTEL_AVX1 */
+  25                             	#ifndef NO_AVX2_SUPPORT
+  26                             	#define HAVE_INTEL_AVX2
+  27                             	#endif /* NO_AVX2_SUPPORT */
+  28                             	
+  29                             	#ifndef __APPLE__
+  30                             	.text
+  31                             	.globl	chacha_encrypt_x64
+  33                             	.align	16
+  34                             	chacha_encrypt_x64:
+  35                             	#else
+  36                             	.section	__TEXT,__text
+  37                             	.globl	_chacha_encrypt_x64
+  38                             	.p2align	4
+  39                             	_chacha_encrypt_x64:
+  40                             	#endif /* __APPLE__ */
+  41                             	        pushq	%rbx
+  42                             	        pushq	%rbp
+  43                             	        pushq	%r12
+  44                             	        pushq	%r13
+  45                             	        pushq	%r14
+  46                             	        pushq	%r15
+  47                             	        subq	$0x40, %rsp
+  48                             	        cmpl	$0x40, %ecx
+  49                             	        jl	L_chacha_x64_small
+  50                             	L_chacha_x64_start:
+  51                             	        subq	$48, %rsp
+  52                             	        movq	%rdx, 24(%rsp)
+  53                             	        movq	%rsi, 32(%rsp)
+  54                             	        movq	%rcx, 40(%rsp)
+  55                             	        movq	32(%rdi), %rax
+  56                             	        movq	40(%rdi), %rbx
+  57                             	        movq	%rax, 8(%rsp)
+  58                             	        movq	%rbx, 16(%rsp)
+  59                             	        movl	(%rdi), %eax
+  60                             	        movl	4(%rdi), %ebx
+  61                             	        movl	8(%rdi), %ecx
+  62                             	        movl	12(%rdi), %edx
+  63                             	        movl	16(%rdi), %r8d
+  64                             	        movl	20(%rdi), %r9d
+  65                             	        movl	24(%rdi), %r10d
+  66                             	        movl	28(%rdi), %r11d
+  67                             	        movl	48(%rdi), %r12d
+  68                             	        movl	52(%rdi), %r13d
+  69                             	        movl	56(%rdi), %r14d
+  70                             	        movl	60(%rdi), %r15d
+  71                             	        movb	$10, (%rsp)
+  72                             	        movl	8(%rsp), %esi
+  73                             	        movl	12(%rsp), %ebp
+  74                             	L_chacha_x64_block_crypt_start:
+  75                             	        addl	%r8d, %eax
+  76                             	        addl	%r9d, %ebx
+  77                             	        xorl	%eax, %r12d
+  78                             	        xorl	%ebx, %r13d
+  79                             	        roll	$16, %r12d
+  80                             	        roll	$16, %r13d
+  81                             	        addl	%r12d, %esi
+  82                             	        addl	%r13d, %ebp
+  83                             	        xorl	%esi, %r8d
+  84                             	        xorl	%ebp, %r9d
+  85                             	        roll	$12, %r8d
+  86                             	        roll	$12, %r9d
+  87                             	        addl	%r8d, %eax
+  88                             	        addl	%r9d, %ebx
+  89                             	        xorl	%eax, %r12d
+  90                             	        xorl	%ebx, %r13d
+  91                             	        roll	$8, %r12d
+  92                             	        roll	$8, %r13d
+  93                             	        addl	%r12d, %esi
+  94                             	        addl	%r13d, %ebp
+  95                             	        xorl	%esi, %r8d
+  96                             	        xorl	%ebp, %r9d
+  97                             	        roll	$7, %r8d
+  98                             	        roll	$7, %r9d
+  99                             	        movl	%esi, 8(%rsp)
+ 100                             	        movl	%ebp, 12(%rsp)
+ 101                             	        movl	16(%rsp), %esi
+ 102                             	        movl	20(%rsp), %ebp
+ 103                             	        addl	%r10d, %ecx
+ 104                             	        addl	%r11d, %edx
+ 105                             	        xorl	%ecx, %r14d
+ 106                             	        xorl	%edx, %r15d
+ 107                             	        roll	$16, %r14d
+ 108                             	        roll	$16, %r15d
+ 109                             	        addl	%r14d, %esi
+ 110                             	        addl	%r15d, %ebp
+ 111                             	        xorl	%esi, %r10d
+ 112                             	        xorl	%ebp, %r11d
+ 113                             	        roll	$12, %r10d
+ 114                             	        roll	$12, %r11d
+ 115                             	        addl	%r10d, %ecx
+ 116                             	        addl	%r11d, %edx
+ 117                             	        xorl	%ecx, %r14d
+ 118                             	        xorl	%edx, %r15d
+ 119                             	        roll	$8, %r14d
+ 120                             	        roll	$8, %r15d
+ 121                             	        addl	%r14d, %esi
+ 122                             	        addl	%r15d, %ebp
+ 123                             	        xorl	%esi, %r10d
+ 124                             	        xorl	%ebp, %r11d
+ 125                             	        roll	$7, %r10d
+ 126                             	        roll	$7, %r11d
+ 127                             	        addl	%r9d, %eax
+ 128                             	        addl	%r10d, %ebx
+ 129                             	        xorl	%eax, %r15d
+ 130                             	        xorl	%ebx, %r12d
+ 131                             	        roll	$16, %r15d
+ 132                             	        roll	$16, %r12d
+ 133                             	        addl	%r15d, %esi
+ 134                             	        addl	%r12d, %ebp
+ 135                             	        xorl	%esi, %r9d
+ 136                             	        xorl	%ebp, %r10d
+ 137                             	        roll	$12, %r9d
+ 138                             	        roll	$12, %r10d
+ 139                             	        addl	%r9d, %eax
+ 140                             	        addl	%r10d, %ebx
+ 141                             	        xorl	%eax, %r15d
+ 142                             	        xorl	%ebx, %r12d
+ 143                             	        roll	$8, %r15d
+ 144                             	        roll	$8, %r12d
+ 145                             	        addl	%r15d, %esi
+ 146                             	        addl	%r12d, %ebp
+ 147                             	        xorl	%esi, %r9d
+ 148                             	        xorl	%ebp, %r10d
+ 149                             	        roll	$7, %r9d
+ 150                             	        roll	$7, %r10d
+ 151                             	        movl	%esi, 16(%rsp)
+ 152                             	        movl	%ebp, 20(%rsp)
+ 153                             	        movl	8(%rsp), %esi
+ 154                             	        movl	12(%rsp), %ebp
+ 155                             	        addl	%r11d, %ecx
+ 156                             	        addl	%r8d, %edx
+ 157                             	        xorl	%ecx, %r13d
+ 158                             	        xorl	%edx, %r14d
+ 159                             	        roll	$16, %r13d
+ 160                             	        roll	$16, %r14d
+ 161                             	        addl	%r13d, %esi
+ 162                             	        addl	%r14d, %ebp
+ 163                             	        xorl	%esi, %r11d
+ 164                             	        xorl	%ebp, %r8d
+ 165                             	        roll	$12, %r11d
+ 166                             	        roll	$12, %r8d
+ 167                             	        addl	%r11d, %ecx
+ 168                             	        addl	%r8d, %edx
+ 169                             	        xorl	%ecx, %r13d
+ 170                             	        xorl	%edx, %r14d
+ 171                             	        roll	$8, %r13d
+ 172                             	        roll	$8, %r14d
+ 173                             	        addl	%r13d, %esi
+ 174                             	        addl	%r14d, %ebp
+ 175                             	        xorl	%esi, %r11d
+ 176                             	        xorl	%ebp, %r8d
+ 177                             	        roll	$7, %r11d
+ 178                             	        roll	$7, %r8d
+ 179                             	        decb	(%rsp)
+ 180                             	        jnz	L_chacha_x64_block_crypt_start
+ 181                             	        movl	%esi, 8(%rsp)
+ 182                             	        movl	%ebp, 12(%rsp)
+ 183                             	        movq	32(%rsp), %rsi
+ 184                             	        movq	24(%rsp), %rbp
+ 185                             	        addl	(%rdi), %eax
+ 186                             	        addl	4(%rdi), %ebx
+ 187                             	        addl	8(%rdi), %ecx
+ 188                             	        addl	12(%rdi), %edx
+ 189                             	        addl	16(%rdi), %r8d
+ 190                             	        addl	20(%rdi), %r9d
+ 191                             	        addl	24(%rdi), %r10d
+ 192                             	        addl	28(%rdi), %r11d
+ 193                             	        addl	48(%rdi), %r12d
+ 194                             	        addl	52(%rdi), %r13d
+ 195                             	        addl	56(%rdi), %r14d
+ 196                             	        addl	60(%rdi), %r15d
+ 197                             	        xorl	(%rsi), %eax
+ 198                             	        xorl	4(%rsi), %ebx
+ 199                             	        xorl	8(%rsi), %ecx
+ 200                             	        xorl	12(%rsi), %edx
+ 201                             	        xorl	16(%rsi), %r8d
+ 202                             	        xorl	20(%rsi), %r9d
+ 203                             	        xorl	24(%rsi), %r10d
+ 204                             	        xorl	28(%rsi), %r11d
+ 205                             	        xorl	48(%rsi), %r12d
+ 206                             	        xorl	52(%rsi), %r13d
+ 207                             	        xorl	56(%rsi), %r14d
+ 208                             	        xorl	60(%rsi), %r15d
+ 209                             	        movl	%eax, (%rbp)
+ 210                             	        movl	%ebx, 4(%rbp)
+ 211                             	        movl	%ecx, 8(%rbp)
+ 212                             	        movl	%edx, 12(%rbp)
+ 213                             	        movl	%r8d, 16(%rbp)
+ 214                             	        movl	%r9d, 20(%rbp)
+ 215                             	        movl	%r10d, 24(%rbp)
+ 216                             	        movl	%r11d, 28(%rbp)
+ 217                             	        movl	%r12d, 48(%rbp)
+ 218                             	        movl	%r13d, 52(%rbp)
+ 219                             	        movl	%r14d, 56(%rbp)
+ 220                             	        movl	%r15d, 60(%rbp)
+ 221                             	        movl	8(%rsp), %eax
+ 222                             	        movl	12(%rsp), %ebx
+ 223                             	        movl	16(%rsp), %ecx
+ 224                             	        movl	20(%rsp), %edx
+ 225                             	        addl	32(%rdi), %eax
+ 226                             	        addl	36(%rdi), %ebx
+ 227                             	        addl	40(%rdi), %ecx
+ 228                             	        addl	44(%rdi), %edx
+ 229                             	        xorl	32(%rsi), %eax
+ 230                             	        xorl	36(%rsi), %ebx
+ 231                             	        xorl	40(%rsi), %ecx
+ 232                             	        xorl	44(%rsi), %edx
+ 233                             	        movl	%eax, 32(%rbp)
+ 234                             	        movl	%ebx, 36(%rbp)
+ 235                             	        movl	%ecx, 40(%rbp)
+ 236                             	        movl	%edx, 44(%rbp)
+ 237                             	        movq	24(%rsp), %rdx
+ 238                             	        movq	40(%rsp), %rcx
+ 239                             	        addl	$0x01, 48(%rdi)
+ 240                             	        addq	$48, %rsp
+ 241                             	        subl	$0x40, %ecx
+ 242                             	        addq	$0x40, %rsi
+ 243                             	        addq	$0x40, %rdx
+ 244                             	        cmpl	$0x40, %ecx
+ 245                             	        jge	L_chacha_x64_start
+ 246                             	L_chacha_x64_small:
+ 247                             	        cmpl	$0x00, %ecx
+ 248                             	        je	L_chacha_x64_done
+ 249                             	        subq	$48, %rsp
+ 250                             	        movq	%rdx, 24(%rsp)
+ 251                             	        movq	%rsi, 32(%rsp)
+ 252                             	        movq	%rcx, 40(%rsp)
+ 253                             	        movq	32(%rdi), %rax
+ 254                             	        movq	40(%rdi), %rbx
+ 255                             	        movq	%rax, 8(%rsp)
+ 256                             	        movq	%rbx, 16(%rsp)
+ 257                             	        movl	(%rdi), %eax
+ 258                             	        movl	4(%rdi), %ebx
+ 259                             	        movl	8(%rdi), %ecx
+ 260                             	        movl	12(%rdi), %edx
+ 261                             	        movl	16(%rdi), %r8d
+ 262                             	        movl	20(%rdi), %r9d
+ 263                             	        movl	24(%rdi), %r10d
+ 264                             	        movl	28(%rdi), %r11d
+ 265                             	        movl	48(%rdi), %r12d
+ 266                             	        movl	52(%rdi), %r13d
+ 267                             	        movl	56(%rdi), %r14d
+ 268                             	        movl	60(%rdi), %r15d
+ 269                             	        movb	$10, (%rsp)
+ 270                             	        movl	8(%rsp), %esi
+ 271                             	        movl	12(%rsp), %ebp
+ 272                             	L_chacha_x64_partial_crypt_start:
+ 273                             	        addl	%r8d, %eax
+ 274                             	        addl	%r9d, %ebx
+ 275                             	        xorl	%eax, %r12d
+ 276                             	        xorl	%ebx, %r13d
+ 277                             	        roll	$16, %r12d
+ 278                             	        roll	$16, %r13d
+ 279                             	        addl	%r12d, %esi
+ 280                             	        addl	%r13d, %ebp
+ 281                             	        xorl	%esi, %r8d
+ 282                             	        xorl	%ebp, %r9d
+ 283                             	        roll	$12, %r8d
+ 284                             	        roll	$12, %r9d
+ 285                             	        addl	%r8d, %eax
+ 286                             	        addl	%r9d, %ebx
+ 287                             	        xorl	%eax, %r12d
+ 288                             	        xorl	%ebx, %r13d
+ 289                             	        roll	$8, %r12d
+ 290                             	        roll	$8, %r13d
+ 291                             	        addl	%r12d, %esi
+ 292                             	        addl	%r13d, %ebp
+ 293                             	        xorl	%esi, %r8d
+ 294                             	        xorl	%ebp, %r9d
+ 295                             	        roll	$7, %r8d
+ 296                             	        roll	$7, %r9d
+ 297                             	        movl	%esi, 8(%rsp)
+ 298                             	        movl	%ebp, 12(%rsp)
+ 299                             	        movl	16(%rsp), %esi
+ 300                             	        movl	20(%rsp), %ebp
+ 301                             	        addl	%r10d, %ecx
+ 302                             	        addl	%r11d, %edx
+ 303                             	        xorl	%ecx, %r14d
+ 304                             	        xorl	%edx, %r15d
+ 305                             	        roll	$16, %r14d
+ 306                             	        roll	$16, %r15d
+ 307                             	        addl	%r14d, %esi
+ 308                             	        addl	%r15d, %ebp
+ 309                             	        xorl	%esi, %r10d
+ 310                             	        xorl	%ebp, %r11d
+ 311                             	        roll	$12, %r10d
+ 312                             	        roll	$12, %r11d
+ 313                             	        addl	%r10d, %ecx
+ 314                             	        addl	%r11d, %edx
+ 315                             	        xorl	%ecx, %r14d
+ 316                             	        xorl	%edx, %r15d
+ 317                             	        roll	$8, %r14d
+ 318                             	        roll	$8, %r15d
+ 319                             	        addl	%r14d, %esi
+ 320                             	        addl	%r15d, %ebp
+ 321                             	        xorl	%esi, %r10d
+ 322                             	        xorl	%ebp, %r11d
+ 323                             	        roll	$7, %r10d
+ 324                             	        roll	$7, %r11d
+ 325                             	        addl	%r9d, %eax
+ 326                             	        addl	%r10d, %ebx
+ 327                             	        xorl	%eax, %r15d
+ 328                             	        xorl	%ebx, %r12d
+ 329                             	        roll	$16, %r15d
+ 330                             	        roll	$16, %r12d
+ 331                             	        addl	%r15d, %esi
+ 332                             	        addl	%r12d, %ebp
+ 333                             	        xorl	%esi, %r9d
+ 334                             	        xorl	%ebp, %r10d
+ 335                             	        roll	$12, %r9d
+ 336                             	        roll	$12, %r10d
+ 337                             	        addl	%r9d, %eax
+ 338                             	        addl	%r10d, %ebx
+ 339                             	        xorl	%eax, %r15d
+ 340                             	        xorl	%ebx, %r12d
+ 341                             	        roll	$8, %r15d
+ 342                             	        roll	$8, %r12d
+ 343                             	        addl	%r15d, %esi
+ 344                             	        addl	%r12d, %ebp
+ 345                             	        xorl	%esi, %r9d
+ 346                             	        xorl	%ebp, %r10d
+ 347                             	        roll	$7, %r9d
+ 348                             	        roll	$7, %r10d
+ 349                             	        movl	%esi, 16(%rsp)
+ 350                             	        movl	%ebp, 20(%rsp)
+ 351                             	        movl	8(%rsp), %esi
+ 352                             	        movl	12(%rsp), %ebp
+ 353                             	        addl	%r11d, %ecx
+ 354                             	        addl	%r8d, %edx
+ 355                             	        xorl	%ecx, %r13d
+ 356                             	        xorl	%edx, %r14d
+ 357                             	        roll	$16, %r13d
+ 358                             	        roll	$16, %r14d
+ 359                             	        addl	%r13d, %esi
+ 360                             	        addl	%r14d, %ebp
+ 361                             	        xorl	%esi, %r11d
+ 362                             	        xorl	%ebp, %r8d
+ 363                             	        roll	$12, %r11d
+ 364                             	        roll	$12, %r8d
+ 365                             	        addl	%r11d, %ecx
+ 366                             	        addl	%r8d, %edx
+ 367                             	        xorl	%ecx, %r13d
+ 368                             	        xorl	%edx, %r14d
+ 369                             	        roll	$8, %r13d
+ 370                             	        roll	$8, %r14d
+ 371                             	        addl	%r13d, %esi
+ 372                             	        addl	%r14d, %ebp
+ 373                             	        xorl	%esi, %r11d
+ 374                             	        xorl	%ebp, %r8d
+ 375                             	        roll	$7, %r11d
+ 376                             	        roll	$7, %r8d
+ 377                             	        decb	(%rsp)
+ 378                             	        jnz	L_chacha_x64_partial_crypt_start
+ 379                             	        movl	%esi, 8(%rsp)
+ 380                             	        movl	%ebp, 12(%rsp)
+ 381                             	        movq	32(%rsp), %rsi
+ 382                             	        addl	(%rdi), %eax
+ 383                             	        addl	4(%rdi), %ebx
+ 384                             	        addl	8(%rdi), %ecx
+ 385                             	        addl	12(%rdi), %edx
+ 386                             	        addl	16(%rdi), %r8d
+ 387                             	        addl	20(%rdi), %r9d
+ 388                             	        addl	24(%rdi), %r10d
+ 389                             	        addl	28(%rdi), %r11d
+ 390                             	        addl	48(%rdi), %r12d
+ 391                             	        addl	52(%rdi), %r13d
+ 392                             	        addl	56(%rdi), %r14d
+ 393                             	        addl	60(%rdi), %r15d
+ 394                             	        leaq	80(%rdi), %rbp
+ 395                             	        movl	%eax, (%rbp)
+ 396                             	        movl	%ebx, 4(%rbp)
+ 397                             	        movl	%ecx, 8(%rbp)
+ 398                             	        movl	%edx, 12(%rbp)
+ 399                             	        movl	%r8d, 16(%rbp)
+ 400                             	        movl	%r9d, 20(%rbp)
+ 401                             	        movl	%r10d, 24(%rbp)
+ 402                             	        movl	%r11d, 28(%rbp)
+ 403                             	        movl	%r12d, 48(%rbp)
+ 404                             	        movl	%r13d, 52(%rbp)
+ 405                             	        movl	%r14d, 56(%rbp)
+ 406                             	        movl	%r15d, 60(%rbp)
+ 407                             	        movl	8(%rsp), %eax
+ 408                             	        movl	12(%rsp), %ebx
+ 409                             	        movl	16(%rsp), %ecx
+ 410                             	        movl	20(%rsp), %edx
+ 411                             	        addl	32(%rdi), %eax
+ 412                             	        addl	36(%rdi), %ebx
+ 413                             	        addl	40(%rdi), %ecx
+ 414                             	        addl	44(%rdi), %edx
+ 415                             	        movl	%eax, 32(%rbp)
+ 416                             	        movl	%ebx, 36(%rbp)
+ 417                             	        movl	%ecx, 40(%rbp)
+ 418                             	        movl	%edx, 44(%rbp)
+ 419                             	        movq	24(%rsp), %rdx
+ 420                             	        movq	40(%rsp), %rcx
+ 421                             	        addl	$0x01, 48(%rdi)
+ 422                             	        addq	$48, %rsp
+ 423                             	        movl	%ecx, %r8d
+ 424                             	        xorq	%rbx, %rbx
+ 425                             	        andl	$7, %r8d
+ 426                             	        jz	L_chacha_x64_partial_start64
+ 427                             	L_chacha_x64_partial_start8:
+ 428                             	        movzbl	(%rbp,%rbx,1), %eax
+ 429                             	        xorb	(%rsi,%rbx,1), %al
+ 430                             	        movb	%al, (%rdx,%rbx,1)
+ 431                             	        incl	%ebx
+ 432                             	        cmpl	%r8d, %ebx
+ 433                             	        jne	L_chacha_x64_partial_start8
+ 434                             	        je	L_chacha_x64_partial_end64
+ 435                             	L_chacha_x64_partial_start64:
+ 436                             	        movq	(%rbp,%rbx,1), %rax
+ 437                             	        xorq	(%rsi,%rbx,1), %rax
+ 438                             	        movq	%rax, (%rdx,%rbx,1)
+ 439                             	        addl	$8, %ebx
+ 440                             	L_chacha_x64_partial_end64:
+ 441                             	        cmpl	%ecx, %ebx
+ 442                             	        jne	L_chacha_x64_partial_start64
+ 443                             	        movl	$0x40, %ecx
+ 444                             	        subl	%ebx, %ecx
+ 445                             	        movl	%ecx, 76(%rdi)
+ 446                             	L_chacha_x64_done:
+ 447                             	        addq	$0x40, %rsp
+ 448                             	        popq	%r15
+ 449                             	        popq	%r14
+ 450                             	        popq	%r13
+ 451                             	        popq	%r12
+ 452                             	        popq	%rbp
+ 453                             	        popq	%rbx
+ 454                             	        repz retq
+ 455                             	#ifndef __APPLE__
+ 457                             	#endif /* __APPLE__ */
+ 458                             	#ifdef HAVE_INTEL_AVX1
+ 459                             	#ifndef __APPLE__
+ 460                             	.data
+ 461                             	#else
+ 462                             	.section	__DATA,__data
+ 463                             	#endif /* __APPLE__ */
+ 464                             	#ifndef __APPLE__
+ 465                             	.align	16
+ 466                             	#else
+ 467                             	.p2align	4
+ 468                             	#endif /* __APPLE__ */
+ 469                             	L_chacha20_avx1_rotl8:
+ 470 ???? 03 00 01 02 07 04 05 06 	.quad	0x605040702010003, 0xe0d0c0f0a09080b
+ 470      0B 08 09 0A 0F 0C 0D 0E 
+ 471                             	#ifndef __APPLE__
+ 472                             	.data
+ 473                             	#else
+ 474                             	.section	__DATA,__data
+ 475                             	#endif /* __APPLE__ */
+ 476                             	#ifndef __APPLE__
+ 477                             	.align	16
+ 478                             	#else
+ 479                             	.p2align	4
+ 480                             	#endif /* __APPLE__ */
+ 481                             	L_chacha20_avx1_rotl16:
+ 482 ???? 02 03 00 01 06 07 04 05 	.quad	0x504070601000302, 0xd0c0f0e09080b0a
+ 482      0A 0B 08 09 0E 0F 0C 0D 
+ 483                             	#ifndef __APPLE__
+ 484                             	.data
+ 485                             	#else
+ 486                             	.section	__DATA,__data
+ 487                             	#endif /* __APPLE__ */
+ 488                             	#ifndef __APPLE__
+ 489                             	.align	16
+ 490                             	#else
+ 491                             	.p2align	4
+ 492                             	#endif /* __APPLE__ */
+ 493                             	L_chacha20_avx1_add:
+ 494 ???? 00 00 00 00 01 00 00 00 	.quad	0x100000000, 0x300000002
+ 494      02 00 00 00 03 00 00 00 
+ 495                             	#ifndef __APPLE__
+ 496                             	.data
+ 497                             	#else
+ 498                             	.section	__DATA,__data
+ 499                             	#endif /* __APPLE__ */
+ 500                             	#ifndef __APPLE__
+ 501                             	.align	16
+ 502                             	#else
+ 503                             	.p2align	4
+ 504                             	#endif /* __APPLE__ */
+ 505                             	L_chacha20_avx1_four:
+ 506 ???? 04 00 00 00 04 00 00 00 	.quad	0x400000004, 0x400000004
+ 506      04 00 00 00 04 00 00 00 
+ 507                             	#ifndef __APPLE__
+ 508                             	.text
+ 509                             	.globl	chacha_encrypt_avx1
+ 511                             	.align	16
+ 512                             	chacha_encrypt_avx1:
+ 513                             	#else
+ 514                             	.section	__TEXT,__text
+ 515                             	.globl	_chacha_encrypt_avx1
+ 516                             	.p2align	4
+ 517                             	_chacha_encrypt_avx1:
+ 518                             	#endif /* __APPLE__ */
+ 519                             	        subq	$0x190, %rsp
+ 520                             	        movq	%rsp, %r9
+ 521                             	        leaq	256(%rsp), %r10
+ 522                             	        andq	$-16, %r9
+ 523                             	        andq	$-16, %r10
+ 524                             	        movl	%ecx, %eax
+ 525                             	        shrl	$8, %eax
+ 526                             	        jz	L_chacha20_avx1_end128
+ 527                             	        vpshufd	$0x00, (%rdi), %xmm0
+ 528                             	        vpshufd	$0x00, 4(%rdi), %xmm1
+ 529                             	        vpshufd	$0x00, 8(%rdi), %xmm2
+ 530                             	        vpshufd	$0x00, 12(%rdi), %xmm3
+ 531                             	        vpshufd	$0x00, 16(%rdi), %xmm4
+ 532                             	        vpshufd	$0x00, 20(%rdi), %xmm5
+ 533                             	        vpshufd	$0x00, 24(%rdi), %xmm6
+ 534                             	        vpshufd	$0x00, 28(%rdi), %xmm7
+ 535                             	        vpshufd	$0x00, 32(%rdi), %xmm8
+ 536                             	        vpshufd	$0x00, 36(%rdi), %xmm9
+ 537                             	        vpshufd	$0x00, 40(%rdi), %xmm10
+ 538                             	        vpshufd	$0x00, 44(%rdi), %xmm11
+ 539                             	        vpshufd	$0x00, 48(%rdi), %xmm12
+ 540                             	        vpshufd	$0x00, 52(%rdi), %xmm13
+ 541                             	        vpshufd	$0x00, 56(%rdi), %xmm14
+ 542                             	        vpshufd	$0x00, 60(%rdi), %xmm15
+ 543                             	        vpaddd	L_chacha20_avx1_add(%rip), %xmm12, %xmm12
+ 544                             	        vmovdqa	%xmm0, (%r9)
+ 545                             	        vmovdqa	%xmm1, 16(%r9)
+ 546                             	        vmovdqa	%xmm2, 32(%r9)
+ 547                             	        vmovdqa	%xmm3, 48(%r9)
+ 548                             	        vmovdqa	%xmm4, 64(%r9)
+ 549                             	        vmovdqa	%xmm5, 80(%r9)
+ 550                             	        vmovdqa	%xmm6, 96(%r9)
+ 551                             	        vmovdqa	%xmm7, 112(%r9)
+ 552                             	        vmovdqa	%xmm8, 128(%r9)
+ 553                             	        vmovdqa	%xmm9, 144(%r9)
+ 554                             	        vmovdqa	%xmm10, 160(%r9)
+ 555                             	        vmovdqa	%xmm11, 176(%r9)
+ 556                             	        vmovdqa	%xmm12, 192(%r9)
+ 557                             	        vmovdqa	%xmm13, 208(%r9)
+ 558                             	        vmovdqa	%xmm14, 224(%r9)
+ 559                             	        vmovdqa	%xmm15, 240(%r9)
+ 560                             	L_chacha20_avx1_start128:
+ 561                             	        vmovdqa	%xmm11, 48(%r10)
+ 562                             	        movb	$10, %r8b
+ 563                             	L_chacha20_avx1_loop128:
+ 564                             	        vpaddd	%xmm4, %xmm0, %xmm0
+ 565                             	        vpxor	%xmm0, %xmm12, %xmm12
+ 566                             	        vmovdqa	48(%r10), %xmm11
+ 567                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm12, %xmm12
+ 568                             	        vpaddd	%xmm12, %xmm8, %xmm8
+ 569                             	        vpxor	%xmm8, %xmm4, %xmm4
+ 570                             	        vpaddd	%xmm5, %xmm1, %xmm1
+ 571                             	        vpxor	%xmm1, %xmm13, %xmm13
+ 572                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm13, %xmm13
+ 573                             	        vpaddd	%xmm13, %xmm9, %xmm9
+ 574                             	        vpxor	%xmm9, %xmm5, %xmm5
+ 575                             	        vpaddd	%xmm6, %xmm2, %xmm2
+ 576                             	        vpxor	%xmm2, %xmm14, %xmm14
+ 577                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm14, %xmm14
+ 578                             	        vpaddd	%xmm14, %xmm10, %xmm10
+ 579                             	        vpxor	%xmm10, %xmm6, %xmm6
+ 580                             	        vpaddd	%xmm7, %xmm3, %xmm3
+ 581                             	        vpxor	%xmm3, %xmm15, %xmm15
+ 582                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm15, %xmm15
+ 583                             	        vpaddd	%xmm15, %xmm11, %xmm11
+ 584                             	        vpxor	%xmm11, %xmm7, %xmm7
+ 585                             	        vmovdqa	%xmm11, 48(%r10)
+ 586                             	        vpsrld	$20, %xmm4, %xmm11
+ 587                             	        vpslld	$12, %xmm4, %xmm4
+ 588                             	        vpxor	%xmm11, %xmm4, %xmm4
+ 589                             	        vpsrld	$20, %xmm5, %xmm11
+ 590                             	        vpslld	$12, %xmm5, %xmm5
+ 591                             	        vpxor	%xmm11, %xmm5, %xmm5
+ 592                             	        vpsrld	$20, %xmm6, %xmm11
+ 593                             	        vpslld	$12, %xmm6, %xmm6
+ 594                             	        vpxor	%xmm11, %xmm6, %xmm6
+ 595                             	        vpsrld	$20, %xmm7, %xmm11
+ 596                             	        vpslld	$12, %xmm7, %xmm7
+ 597                             	        vpxor	%xmm11, %xmm7, %xmm7
+ 598                             	        vpaddd	%xmm4, %xmm0, %xmm0
+ 599                             	        vpxor	%xmm0, %xmm12, %xmm12
+ 600                             	        vmovdqa	48(%r10), %xmm11
+ 601                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm12, %xmm12
+ 602                             	        vpaddd	%xmm12, %xmm8, %xmm8
+ 603                             	        vpxor	%xmm8, %xmm4, %xmm4
+ 604                             	        vpaddd	%xmm5, %xmm1, %xmm1
+ 605                             	        vpxor	%xmm1, %xmm13, %xmm13
+ 606                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm13, %xmm13
+ 607                             	        vpaddd	%xmm13, %xmm9, %xmm9
+ 608                             	        vpxor	%xmm9, %xmm5, %xmm5
+ 609                             	        vpaddd	%xmm6, %xmm2, %xmm2
+ 610                             	        vpxor	%xmm2, %xmm14, %xmm14
+ 611                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm14, %xmm14
+ 612                             	        vpaddd	%xmm14, %xmm10, %xmm10
+ 613                             	        vpxor	%xmm10, %xmm6, %xmm6
+ 614                             	        vpaddd	%xmm7, %xmm3, %xmm3
+ 615                             	        vpxor	%xmm3, %xmm15, %xmm15
+ 616                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm15, %xmm15
+ 617                             	        vpaddd	%xmm15, %xmm11, %xmm11
+ 618                             	        vpxor	%xmm11, %xmm7, %xmm7
+ 619                             	        vmovdqa	%xmm11, 48(%r10)
+ 620                             	        vpsrld	$25, %xmm4, %xmm11
+ 621                             	        vpslld	$7, %xmm4, %xmm4
+ 622                             	        vpxor	%xmm11, %xmm4, %xmm4
+ 623                             	        vpsrld	$25, %xmm5, %xmm11
+ 624                             	        vpslld	$7, %xmm5, %xmm5
+ 625                             	        vpxor	%xmm11, %xmm5, %xmm5
+ 626                             	        vpsrld	$25, %xmm6, %xmm11
+ 627                             	        vpslld	$7, %xmm6, %xmm6
+ 628                             	        vpxor	%xmm11, %xmm6, %xmm6
+ 629                             	        vpsrld	$25, %xmm7, %xmm11
+ 630                             	        vpslld	$7, %xmm7, %xmm7
+ 631                             	        vpxor	%xmm11, %xmm7, %xmm7
+ 632                             	        vpaddd	%xmm5, %xmm0, %xmm0
+ 633                             	        vpxor	%xmm0, %xmm15, %xmm15
+ 634                             	        vmovdqa	48(%r10), %xmm11
+ 635                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm15, %xmm15
+ 636                             	        vpaddd	%xmm15, %xmm10, %xmm10
+ 637                             	        vpxor	%xmm10, %xmm5, %xmm5
+ 638                             	        vpaddd	%xmm6, %xmm1, %xmm1
+ 639                             	        vpxor	%xmm1, %xmm12, %xmm12
+ 640                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm12, %xmm12
+ 641                             	        vpaddd	%xmm12, %xmm11, %xmm11
+ 642                             	        vpxor	%xmm11, %xmm6, %xmm6
+ 643                             	        vpaddd	%xmm7, %xmm2, %xmm2
+ 644                             	        vpxor	%xmm2, %xmm13, %xmm13
+ 645                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm13, %xmm13
+ 646                             	        vpaddd	%xmm13, %xmm8, %xmm8
+ 647                             	        vpxor	%xmm8, %xmm7, %xmm7
+ 648                             	        vpaddd	%xmm4, %xmm3, %xmm3
+ 649                             	        vpxor	%xmm3, %xmm14, %xmm14
+ 650                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm14, %xmm14
+ 651                             	        vpaddd	%xmm14, %xmm9, %xmm9
+ 652                             	        vpxor	%xmm9, %xmm4, %xmm4
+ 653                             	        vmovdqa	%xmm11, 48(%r10)
+ 654                             	        vpsrld	$20, %xmm5, %xmm11
+ 655                             	        vpslld	$12, %xmm5, %xmm5
+ 656                             	        vpxor	%xmm11, %xmm5, %xmm5
+ 657                             	        vpsrld	$20, %xmm6, %xmm11
+ 658                             	        vpslld	$12, %xmm6, %xmm6
+ 659                             	        vpxor	%xmm11, %xmm6, %xmm6
+ 660                             	        vpsrld	$20, %xmm7, %xmm11
+ 661                             	        vpslld	$12, %xmm7, %xmm7
+ 662                             	        vpxor	%xmm11, %xmm7, %xmm7
+ 663                             	        vpsrld	$20, %xmm4, %xmm11
+ 664                             	        vpslld	$12, %xmm4, %xmm4
+ 665                             	        vpxor	%xmm11, %xmm4, %xmm4
+ 666                             	        vpaddd	%xmm5, %xmm0, %xmm0
+ 667                             	        vpxor	%xmm0, %xmm15, %xmm15
+ 668                             	        vmovdqa	48(%r10), %xmm11
+ 669                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm15, %xmm15
+ 670                             	        vpaddd	%xmm15, %xmm10, %xmm10
+ 671                             	        vpxor	%xmm10, %xmm5, %xmm5
+ 672                             	        vpaddd	%xmm6, %xmm1, %xmm1
+ 673                             	        vpxor	%xmm1, %xmm12, %xmm12
+ 674                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm12, %xmm12
+ 675                             	        vpaddd	%xmm12, %xmm11, %xmm11
+ 676                             	        vpxor	%xmm11, %xmm6, %xmm6
+ 677                             	        vpaddd	%xmm7, %xmm2, %xmm2
+ 678                             	        vpxor	%xmm2, %xmm13, %xmm13
+ 679                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm13, %xmm13
+ 680                             	        vpaddd	%xmm13, %xmm8, %xmm8
+ 681                             	        vpxor	%xmm8, %xmm7, %xmm7
+ 682                             	        vpaddd	%xmm4, %xmm3, %xmm3
+ 683                             	        vpxor	%xmm3, %xmm14, %xmm14
+ 684                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm14, %xmm14
+ 685                             	        vpaddd	%xmm14, %xmm9, %xmm9
+ 686                             	        vpxor	%xmm9, %xmm4, %xmm4
+ 687                             	        vmovdqa	%xmm11, 48(%r10)
+ 688                             	        vpsrld	$25, %xmm5, %xmm11
+ 689                             	        vpslld	$7, %xmm5, %xmm5
+ 690                             	        vpxor	%xmm11, %xmm5, %xmm5
+ 691                             	        vpsrld	$25, %xmm6, %xmm11
+ 692                             	        vpslld	$7, %xmm6, %xmm6
+ 693                             	        vpxor	%xmm11, %xmm6, %xmm6
+ 694                             	        vpsrld	$25, %xmm7, %xmm11
+ 695                             	        vpslld	$7, %xmm7, %xmm7
+ 696                             	        vpxor	%xmm11, %xmm7, %xmm7
+ 697                             	        vpsrld	$25, %xmm4, %xmm11
+ 698                             	        vpslld	$7, %xmm4, %xmm4
+ 699                             	        vpxor	%xmm11, %xmm4, %xmm4
+ 700                             	        decb	%r8b
+ 701                             	        jnz	L_chacha20_avx1_loop128
+ 702                             	        vmovdqa	48(%r10), %xmm11
+ 703                             	        vpaddd	(%r9), %xmm0, %xmm0
+ 704                             	        vpaddd	16(%r9), %xmm1, %xmm1
+ 705                             	        vpaddd	32(%r9), %xmm2, %xmm2
+ 706                             	        vpaddd	48(%r9), %xmm3, %xmm3
+ 707                             	        vpaddd	64(%r9), %xmm4, %xmm4
+ 708                             	        vpaddd	80(%r9), %xmm5, %xmm5
+ 709                             	        vpaddd	96(%r9), %xmm6, %xmm6
+ 710                             	        vpaddd	112(%r9), %xmm7, %xmm7
+ 711                             	        vpaddd	128(%r9), %xmm8, %xmm8
+ 712                             	        vpaddd	144(%r9), %xmm9, %xmm9
+ 713                             	        vpaddd	160(%r9), %xmm10, %xmm10
+ 714                             	        vpaddd	176(%r9), %xmm11, %xmm11
+ 715                             	        vpaddd	192(%r9), %xmm12, %xmm12
+ 716                             	        vpaddd	208(%r9), %xmm13, %xmm13
+ 717                             	        vpaddd	224(%r9), %xmm14, %xmm14
+ 718                             	        vpaddd	240(%r9), %xmm15, %xmm15
+ 719                             	        vmovdqa	%xmm8, (%r10)
+ 720                             	        vmovdqa	%xmm9, 16(%r10)
+ 721                             	        vmovdqa	%xmm10, 32(%r10)
+ 722                             	        vmovdqa	%xmm11, 48(%r10)
+ 723                             	        vmovdqa	%xmm12, 64(%r10)
+ 724                             	        vmovdqa	%xmm13, 80(%r10)
+ 725                             	        vmovdqa	%xmm14, 96(%r10)
+ 726                             	        vmovdqa	%xmm15, 112(%r10)
+ 727                             	        vpunpckldq	%xmm1, %xmm0, %xmm8
+ 728                             	        vpunpckldq	%xmm3, %xmm2, %xmm9
+ 729                             	        vpunpckhdq	%xmm1, %xmm0, %xmm12
+ 730                             	        vpunpckhdq	%xmm3, %xmm2, %xmm13
+ 731                             	        vpunpckldq	%xmm5, %xmm4, %xmm10
+ 732                             	        vpunpckldq	%xmm7, %xmm6, %xmm11
+ 733                             	        vpunpckhdq	%xmm5, %xmm4, %xmm14
+ 734                             	        vpunpckhdq	%xmm7, %xmm6, %xmm15
+ 735                             	        vpunpcklqdq	%xmm9, %xmm8, %xmm0
+ 736                             	        vpunpcklqdq	%xmm11, %xmm10, %xmm1
+ 737                             	        vpunpckhqdq	%xmm9, %xmm8, %xmm2
+ 738                             	        vpunpckhqdq	%xmm11, %xmm10, %xmm3
+ 739                             	        vpunpcklqdq	%xmm13, %xmm12, %xmm4
+ 740                             	        vpunpcklqdq	%xmm15, %xmm14, %xmm5
+ 741                             	        vpunpckhqdq	%xmm13, %xmm12, %xmm6
+ 742                             	        vpunpckhqdq	%xmm15, %xmm14, %xmm7
+ 743                             	        vmovdqu	(%rsi), %xmm8
+ 744                             	        vmovdqu	16(%rsi), %xmm9
+ 745                             	        vmovdqu	64(%rsi), %xmm10
+ 746                             	        vmovdqu	80(%rsi), %xmm11
+ 747                             	        vmovdqu	128(%rsi), %xmm12
+ 748                             	        vmovdqu	144(%rsi), %xmm13
+ 749                             	        vmovdqu	192(%rsi), %xmm14
+ 750                             	        vmovdqu	208(%rsi), %xmm15
+ 751                             	        vpxor	%xmm8, %xmm0, %xmm0
+ 752                             	        vpxor	%xmm9, %xmm1, %xmm1
+ 753                             	        vpxor	%xmm10, %xmm2, %xmm2
+ 754                             	        vpxor	%xmm11, %xmm3, %xmm3
+ 755                             	        vpxor	%xmm12, %xmm4, %xmm4
+ 756                             	        vpxor	%xmm13, %xmm5, %xmm5
+ 757                             	        vpxor	%xmm14, %xmm6, %xmm6
+ 758                             	        vpxor	%xmm15, %xmm7, %xmm7
+ 759                             	        vmovdqu	%xmm0, (%rdx)
+ 760                             	        vmovdqu	%xmm1, 16(%rdx)
+ 761                             	        vmovdqu	%xmm2, 64(%rdx)
+ 762                             	        vmovdqu	%xmm3, 80(%rdx)
+ 763                             	        vmovdqu	%xmm4, 128(%rdx)
+ 764                             	        vmovdqu	%xmm5, 144(%rdx)
+ 765                             	        vmovdqu	%xmm6, 192(%rdx)
+ 766                             	        vmovdqu	%xmm7, 208(%rdx)
+ 767                             	        vmovdqa	(%r10), %xmm0
+ 768                             	        vmovdqa	16(%r10), %xmm1
+ 769                             	        vmovdqa	32(%r10), %xmm2
+ 770                             	        vmovdqa	48(%r10), %xmm3
+ 771                             	        vmovdqa	64(%r10), %xmm4
+ 772                             	        vmovdqa	80(%r10), %xmm5
+ 773                             	        vmovdqa	96(%r10), %xmm6
+ 774                             	        vmovdqa	112(%r10), %xmm7
+ 775                             	        vpunpckldq	%xmm1, %xmm0, %xmm8
+ 776                             	        vpunpckldq	%xmm3, %xmm2, %xmm9
+ 777                             	        vpunpckhdq	%xmm1, %xmm0, %xmm12
+ 778                             	        vpunpckhdq	%xmm3, %xmm2, %xmm13
+ 779                             	        vpunpckldq	%xmm5, %xmm4, %xmm10
+ 780                             	        vpunpckldq	%xmm7, %xmm6, %xmm11
+ 781                             	        vpunpckhdq	%xmm5, %xmm4, %xmm14
+ 782                             	        vpunpckhdq	%xmm7, %xmm6, %xmm15
+ 783                             	        vpunpcklqdq	%xmm9, %xmm8, %xmm0
+ 784                             	        vpunpcklqdq	%xmm11, %xmm10, %xmm1
+ 785                             	        vpunpckhqdq	%xmm9, %xmm8, %xmm2
+ 786                             	        vpunpckhqdq	%xmm11, %xmm10, %xmm3
+ 787                             	        vpunpcklqdq	%xmm13, %xmm12, %xmm4
+ 788                             	        vpunpcklqdq	%xmm15, %xmm14, %xmm5
+ 789                             	        vpunpckhqdq	%xmm13, %xmm12, %xmm6
+ 790                             	        vpunpckhqdq	%xmm15, %xmm14, %xmm7
+ 791                             	        vmovdqu	32(%rsi), %xmm8
+ 792                             	        vmovdqu	48(%rsi), %xmm9
+ 793                             	        vmovdqu	96(%rsi), %xmm10
+ 794                             	        vmovdqu	112(%rsi), %xmm11
+ 795                             	        vmovdqu	160(%rsi), %xmm12
+ 796                             	        vmovdqu	176(%rsi), %xmm13
+ 797                             	        vmovdqu	224(%rsi), %xmm14
+ 798                             	        vmovdqu	240(%rsi), %xmm15
+ 799                             	        vpxor	%xmm8, %xmm0, %xmm0
+ 800                             	        vpxor	%xmm9, %xmm1, %xmm1
+ 801                             	        vpxor	%xmm10, %xmm2, %xmm2
+ 802                             	        vpxor	%xmm11, %xmm3, %xmm3
+ 803                             	        vpxor	%xmm12, %xmm4, %xmm4
+ 804                             	        vpxor	%xmm13, %xmm5, %xmm5
+ 805                             	        vpxor	%xmm14, %xmm6, %xmm6
+ 806                             	        vpxor	%xmm15, %xmm7, %xmm7
+ 807                             	        vmovdqu	%xmm0, 32(%rdx)
+ 808                             	        vmovdqu	%xmm1, 48(%rdx)
+ 809                             	        vmovdqu	%xmm2, 96(%rdx)
+ 810                             	        vmovdqu	%xmm3, 112(%rdx)
+ 811                             	        vmovdqu	%xmm4, 160(%rdx)
+ 812                             	        vmovdqu	%xmm5, 176(%rdx)
+ 813                             	        vmovdqu	%xmm6, 224(%rdx)
+ 814                             	        vmovdqu	%xmm7, 240(%rdx)
+ 815                             	        vmovdqa	192(%r9), %xmm12
+ 816                             	        addq	$0x100, %rsi
+ 817                             	        addq	$0x100, %rdx
+ 818                             	        vpaddd	L_chacha20_avx1_four(%rip), %xmm12, %xmm12
+ 819                             	        subl	$0x100, %ecx
+ 820                             	        vmovdqa	%xmm12, 192(%r9)
+ 821                             	        cmpl	$0x100, %ecx
+ 822                             	        jl	L_chacha20_avx1_done128
+ 823                             	        vmovdqa	(%r9), %xmm0
+ 824                             	        vmovdqa	16(%r9), %xmm1
+ 825                             	        vmovdqa	32(%r9), %xmm2
+ 826                             	        vmovdqa	48(%r9), %xmm3
+ 827                             	        vmovdqa	64(%r9), %xmm4
+ 828                             	        vmovdqa	80(%r9), %xmm5
+ 829                             	        vmovdqa	96(%r9), %xmm6
+ 830                             	        vmovdqa	112(%r9), %xmm7
+ 831                             	        vmovdqa	128(%r9), %xmm8
+ 832                             	        vmovdqa	144(%r9), %xmm9
+ 833                             	        vmovdqa	160(%r9), %xmm10
+ 834                             	        vmovdqa	176(%r9), %xmm11
+ 835                             	        vmovdqa	192(%r9), %xmm12
+ 836                             	        vmovdqa	208(%r9), %xmm13
+ 837                             	        vmovdqa	224(%r9), %xmm14
+ 838                             	        vmovdqa	240(%r9), %xmm15
+ 839                             	        jmp	L_chacha20_avx1_start128
+ 840                             	L_chacha20_avx1_done128:
+ 841                             	        shl	$2, %eax
+ 842                             	        addl	%eax, 48(%rdi)
+ 843                             	L_chacha20_avx1_end128:
+ 844                             	        cmpl	$0x40, %ecx
+ 845                             	        jl	L_chacha20_avx1_block_done
+ 846                             	L_chacha20_avx1_block_start:
+ 847                             	        vmovdqu	(%rdi), %xmm0
+ 848                             	        vmovdqu	16(%rdi), %xmm1
+ 849                             	        vmovdqu	32(%rdi), %xmm2
+ 850                             	        vmovdqu	48(%rdi), %xmm3
+ 851                             	        vmovdqa	%xmm0, %xmm5
+ 852                             	        vmovdqa	%xmm1, %xmm6
+ 853                             	        vmovdqa	%xmm2, %xmm7
+ 854                             	        vmovdqa	%xmm3, %xmm8
+ 855                             	        movb	$10, %al
+ 856                             	L_chacha20_avx1_block_crypt_start:
+ 857                             	        vpaddd	%xmm1, %xmm0, %xmm0
+ 858                             	        vpxor	%xmm0, %xmm3, %xmm3
+ 859                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm3, %xmm3
+ 860                             	        vpaddd	%xmm3, %xmm2, %xmm2
+ 861                             	        vpxor	%xmm2, %xmm1, %xmm1
+ 862                             	        vpsrld	$20, %xmm1, %xmm4
+ 863                             	        vpslld	$12, %xmm1, %xmm1
+ 864                             	        vpxor	%xmm4, %xmm1, %xmm1
+ 865                             	        vpaddd	%xmm1, %xmm0, %xmm0
+ 866                             	        vpxor	%xmm0, %xmm3, %xmm3
+ 867                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm3, %xmm3
+ 868                             	        vpaddd	%xmm3, %xmm2, %xmm2
+ 869                             	        vpxor	%xmm2, %xmm1, %xmm1
+ 870                             	        vpsrld	$25, %xmm1, %xmm4
+ 871                             	        vpslld	$7, %xmm1, %xmm1
+ 872                             	        vpxor	%xmm4, %xmm1, %xmm1
+ 873                             	        vpshufd	$57, %xmm1, %xmm1
+ 874                             	        vpshufd	$0x4e, %xmm2, %xmm2
+ 875                             	        vpshufd	$0x93, %xmm3, %xmm3
+ 876                             	        vpaddd	%xmm1, %xmm0, %xmm0
+ 877                             	        vpxor	%xmm0, %xmm3, %xmm3
+ 878                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm3, %xmm3
+ 879                             	        vpaddd	%xmm3, %xmm2, %xmm2
+ 880                             	        vpxor	%xmm2, %xmm1, %xmm1
+ 881                             	        vpsrld	$20, %xmm1, %xmm4
+ 882                             	        vpslld	$12, %xmm1, %xmm1
+ 883                             	        vpxor	%xmm4, %xmm1, %xmm1
+ 884                             	        vpaddd	%xmm1, %xmm0, %xmm0
+ 885                             	        vpxor	%xmm0, %xmm3, %xmm3
+ 886                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm3, %xmm3
+ 887                             	        vpaddd	%xmm3, %xmm2, %xmm2
+ 888                             	        vpxor	%xmm2, %xmm1, %xmm1
+ 889                             	        vpsrld	$25, %xmm1, %xmm4
+ 890                             	        vpslld	$7, %xmm1, %xmm1
+ 891                             	        vpxor	%xmm4, %xmm1, %xmm1
+ 892                             	        vpshufd	$0x93, %xmm1, %xmm1
+ 893                             	        vpshufd	$0x4e, %xmm2, %xmm2
+ 894                             	        vpshufd	$57, %xmm3, %xmm3
+ 895                             	        decb	%al
+ 896                             	        jnz	L_chacha20_avx1_block_crypt_start
+ 897                             	        vpaddd	%xmm5, %xmm0, %xmm0
+ 898                             	        vpaddd	%xmm6, %xmm1, %xmm1
+ 899                             	        vpaddd	%xmm7, %xmm2, %xmm2
+ 900                             	        vpaddd	%xmm8, %xmm3, %xmm3
+ 901                             	        vmovdqu	(%rsi), %xmm5
+ 902                             	        vmovdqu	16(%rsi), %xmm6
+ 903                             	        vmovdqu	32(%rsi), %xmm7
+ 904                             	        vmovdqu	48(%rsi), %xmm8
+ 905                             	        vpxor	%xmm5, %xmm0, %xmm0
+ 906                             	        vpxor	%xmm6, %xmm1, %xmm1
+ 907                             	        vpxor	%xmm7, %xmm2, %xmm2
+ 908                             	        vpxor	%xmm8, %xmm3, %xmm3
+ 909                             	        vmovdqu	%xmm0, (%rdx)
+ 910                             	        vmovdqu	%xmm1, 16(%rdx)
+ 911                             	        vmovdqu	%xmm2, 32(%rdx)
+ 912                             	        vmovdqu	%xmm3, 48(%rdx)
+ 913                             	        addl	$0x01, 48(%rdi)
+ 914                             	        subl	$0x40, %ecx
+ 915                             	        addq	$0x40, %rsi
+ 916                             	        addq	$0x40, %rdx
+ 917                             	        cmpl	$0x40, %ecx
+ 918                             	        jge	L_chacha20_avx1_block_start
+ 919                             	L_chacha20_avx1_block_done:
+ 920                             	        cmpl	$0x00, %ecx
+ 921                             	        je	L_chacha20_avx1_partial_done
+ 922                             	        leaq	80(%rdi), %r10
+ 923                             	        vmovdqu	(%rdi), %xmm0
+ 924                             	        vmovdqu	16(%rdi), %xmm1
+ 925                             	        vmovdqu	32(%rdi), %xmm2
+ 926                             	        vmovdqu	48(%rdi), %xmm3
+ 927                             	        vmovdqa	%xmm0, %xmm5
+ 928                             	        vmovdqa	%xmm1, %xmm6
+ 929                             	        vmovdqa	%xmm2, %xmm7
+ 930                             	        vmovdqa	%xmm3, %xmm8
+ 931                             	        movb	$10, %al
+ 932                             	L_chacha20_avx1_partial_crypt_start:
+ 933                             	        vpaddd	%xmm1, %xmm0, %xmm0
+ 934                             	        vpxor	%xmm0, %xmm3, %xmm3
+ 935                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm3, %xmm3
+ 936                             	        vpaddd	%xmm3, %xmm2, %xmm2
+ 937                             	        vpxor	%xmm2, %xmm1, %xmm1
+ 938                             	        vpsrld	$20, %xmm1, %xmm4
+ 939                             	        vpslld	$12, %xmm1, %xmm1
+ 940                             	        vpxor	%xmm4, %xmm1, %xmm1
+ 941                             	        vpaddd	%xmm1, %xmm0, %xmm0
+ 942                             	        vpxor	%xmm0, %xmm3, %xmm3
+ 943                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm3, %xmm3
+ 944                             	        vpaddd	%xmm3, %xmm2, %xmm2
+ 945                             	        vpxor	%xmm2, %xmm1, %xmm1
+ 946                             	        vpsrld	$25, %xmm1, %xmm4
+ 947                             	        vpslld	$7, %xmm1, %xmm1
+ 948                             	        vpxor	%xmm4, %xmm1, %xmm1
+ 949                             	        vpshufd	$57, %xmm1, %xmm1
+ 950                             	        vpshufd	$0x4e, %xmm2, %xmm2
+ 951                             	        vpshufd	$0x93, %xmm3, %xmm3
+ 952                             	        vpaddd	%xmm1, %xmm0, %xmm0
+ 953                             	        vpxor	%xmm0, %xmm3, %xmm3
+ 954                             	        vpshufb	L_chacha20_avx1_rotl16(%rip), %xmm3, %xmm3
+ 955                             	        vpaddd	%xmm3, %xmm2, %xmm2
+ 956                             	        vpxor	%xmm2, %xmm1, %xmm1
+ 957                             	        vpsrld	$20, %xmm1, %xmm4
+ 958                             	        vpslld	$12, %xmm1, %xmm1
+ 959                             	        vpxor	%xmm4, %xmm1, %xmm1
+ 960                             	        vpaddd	%xmm1, %xmm0, %xmm0
+ 961                             	        vpxor	%xmm0, %xmm3, %xmm3
+ 962                             	        vpshufb	L_chacha20_avx1_rotl8(%rip), %xmm3, %xmm3
+ 963                             	        vpaddd	%xmm3, %xmm2, %xmm2
+ 964                             	        vpxor	%xmm2, %xmm1, %xmm1
+ 965                             	        vpsrld	$25, %xmm1, %xmm4
+ 966                             	        vpslld	$7, %xmm1, %xmm1
+ 967                             	        vpxor	%xmm4, %xmm1, %xmm1
+ 968                             	        vpshufd	$0x93, %xmm1, %xmm1
+ 969                             	        vpshufd	$0x4e, %xmm2, %xmm2
+ 970                             	        vpshufd	$57, %xmm3, %xmm3
+ 971                             	        decb	%al
+ 972                             	        jnz	L_chacha20_avx1_partial_crypt_start
+ 973                             	        vpaddd	%xmm5, %xmm0, %xmm0
+ 974                             	        vpaddd	%xmm6, %xmm1, %xmm1
+ 975                             	        vpaddd	%xmm7, %xmm2, %xmm2
+ 976                             	        vpaddd	%xmm8, %xmm3, %xmm3
+ 977                             	        vmovdqu	%xmm0, (%r10)
+ 978                             	        vmovdqu	%xmm1, 16(%r10)
+ 979                             	        vmovdqu	%xmm2, 32(%r10)
+ 980                             	        vmovdqu	%xmm3, 48(%r10)
+ 981                             	        addl	$0x01, 48(%rdi)
+ 982                             	        movl	%ecx, %r8d
+ 983                             	        xorq	%r11, %r11
+ 984                             	        andl	$7, %r8d
+ 985                             	        jz	L_chacha20_avx1_partial_start64
+ 986                             	L_chacha20_avx1_partial_start8:
+ 987                             	        movzbl	(%r10,%r11,1), %eax
+ 988                             	        xorb	(%rsi,%r11,1), %al
+ 989                             	        movb	%al, (%rdx,%r11,1)
+ 990                             	        incl	%r11d
+ 991                             	        cmpl	%r8d, %r11d
+ 992                             	        jne	L_chacha20_avx1_partial_start8
+ 993                             	        je	L_chacha20_avx1_partial_end64
+ 994                             	L_chacha20_avx1_partial_start64:
+ 995                             	        movq	(%r10,%r11,1), %rax
+ 996                             	        xorq	(%rsi,%r11,1), %rax
+ 997                             	        movq	%rax, (%rdx,%r11,1)
+ 998                             	        addl	$8, %r11d
+ 999                             	L_chacha20_avx1_partial_end64:
+ 1000                             	        cmpl	%ecx, %r11d
+ 1001                             	        jne	L_chacha20_avx1_partial_start64
+ 1002                             	        movl	$0x40, %r8d
+ 1003                             	        subl	%r11d, %r8d
+ 1004                             	        movl	%r8d, 76(%rdi)
+ 1005                             	L_chacha20_avx1_partial_done:
+ 1006                             	        addq	$0x190, %rsp
+ 1007                             	        repz retq
+ 1008                             	#ifndef __APPLE__
+ 1010                             	#endif /* __APPLE__ */
+ 1011                             	#endif /* HAVE_INTEL_AVX1 */
+ 1012                             	#ifdef HAVE_INTEL_AVX2
+ 1013                             	#ifndef __APPLE__
+ 1014                             	.data
+ 1015                             	#else
+ 1016                             	.section	__DATA,__data
+ 1017                             	#endif /* __APPLE__ */
+ 1018                             	#ifndef __APPLE__
+ 1019                             	.align	32
+ 1020                             	#else
+ 1021                             	.p2align	5
+ 1022                             	#endif /* __APPLE__ */
+ 1023                             	L_chacha20_avx2_rotl8:
+ 1024 ???? 03 00 01 02 07 04 05 06 	.quad	0x605040702010003, 0xe0d0c0f0a09080b
+ 1024      0B 08 09 0A 0F 0C 0D 0E 
+ 1025 ???? 03 00 01 02 07 04 05 06 	.quad	0x605040702010003, 0xe0d0c0f0a09080b
+ 1025      0B 08 09 0A 0F 0C 0D 0E 
+ 1026                             	#ifndef __APPLE__
+ 1027                             	.data
+ 1028                             	#else
+ 1029                             	.section	__DATA,__data
+ 1030                             	#endif /* __APPLE__ */
+ 1031                             	#ifndef __APPLE__
+ 1032                             	.align	32
+ 1033                             	#else
+ 1034                             	.p2align	5
+ 1035                             	#endif /* __APPLE__ */
+ 1036                             	L_chacha20_avx2_rotl16:
+ 1037 ???? 02 03 00 01 06 07 04 05 	.quad	0x504070601000302, 0xd0c0f0e09080b0a
+ 1037      0A 0B 08 09 0E 0F 0C 0D 
+ 1038 ???? 02 03 00 01 06 07 04 05 	.quad	0x504070601000302, 0xd0c0f0e09080b0a
+ 1038      0A 0B 08 09 0E 0F 0C 0D 
+ 1039                             	#ifndef __APPLE__
+ 1040                             	.data
+ 1041                             	#else
+ 1042                             	.section	__DATA,__data
+ 1043                             	#endif /* __APPLE__ */
+ 1044                             	#ifndef __APPLE__
+ 1045                             	.align	32
+ 1046                             	#else
+ 1047                             	.p2align	5
+ 1048                             	#endif /* __APPLE__ */
+ 1049                             	L_chacha20_avx2_add:
+ 1050 ???? 00 00 00 00 01 00 00 00 	.quad	0x100000000, 0x300000002
+ 1050      02 00 00 00 03 00 00 00 
+ 1051 ???? 04 00 00 00 05 00 00 00 	.quad	0x500000004, 0x700000006
+ 1051      06 00 00 00 07 00 00 00 
+ 1052                             	#ifndef __APPLE__
+ 1053                             	.data
+ 1054                             	#else
+ 1055                             	.section	__DATA,__data
+ 1056                             	#endif /* __APPLE__ */
+ 1057                             	#ifndef __APPLE__
+ 1058                             	.align	32
+ 1059                             	#else
+ 1060                             	.p2align	5
+ 1061                             	#endif /* __APPLE__ */
+ 1062                             	L_chacha20_avx2_eight:
+ 1063 ???? 08 00 00 00 08 00 00 00 	.quad	0x800000008, 0x800000008
+ 1063      08 00 00 00 08 00 00 00 
+ 1064 ???? 08 00 00 00 08 00 00 00 	.quad	0x800000008, 0x800000008
+ 1064      08 00 00 00 08 00 00 00 
+ 1065                             	#ifndef __APPLE__
+ 1066                             	.text
+ 1067                             	.globl	chacha_encrypt_avx2
+ 1069                             	.align	16
+ 1070                             	chacha_encrypt_avx2:
+ 1071                             	#else
+ 1072                             	.section	__TEXT,__text
+ 1073                             	.globl	_chacha_encrypt_avx2
+ 1074                             	.p2align	4
+ 1075                             	_chacha_encrypt_avx2:
+ 1076                             	#endif /* __APPLE__ */
+ 1077                             	        subq	$0x310, %rsp
+ 1078                             	        movq	%rsp, %r9
+ 1079                             	        leaq	512(%rsp), %r10
+ 1080                             	        andq	$-32, %r9
+ 1081                             	        andq	$-32, %r10
+ 1082                             	        movl	%ecx, %eax
+ 1083                             	        shrl	$9, %eax
+ 1084                             	        jz	L_chacha20_avx2_end256
+ 1085                             	        vpbroadcastd	(%rdi), %ymm0
+ 1086                             	        vpbroadcastd	4(%rdi), %ymm1
+ 1087                             	        vpbroadcastd	8(%rdi), %ymm2
+ 1088                             	        vpbroadcastd	12(%rdi), %ymm3
+ 1089                             	        vpbroadcastd	16(%rdi), %ymm4
+ 1090                             	        vpbroadcastd	20(%rdi), %ymm5
+ 1091                             	        vpbroadcastd	24(%rdi), %ymm6
+ 1092                             	        vpbroadcastd	28(%rdi), %ymm7
+ 1093                             	        vpbroadcastd	32(%rdi), %ymm8
+ 1094                             	        vpbroadcastd	36(%rdi), %ymm9
+ 1095                             	        vpbroadcastd	40(%rdi), %ymm10
+ 1096                             	        vpbroadcastd	44(%rdi), %ymm11
+ 1097                             	        vpbroadcastd	48(%rdi), %ymm12
+ 1098                             	        vpbroadcastd	52(%rdi), %ymm13
+ 1099                             	        vpbroadcastd	56(%rdi), %ymm14
+ 1100                             	        vpbroadcastd	60(%rdi), %ymm15
+ 1101                             	        vpaddd	L_chacha20_avx2_add(%rip), %ymm12, %ymm12
+ 1102                             	        vmovdqa	%ymm0, (%r9)
+ 1103                             	        vmovdqa	%ymm1, 32(%r9)
+ 1104                             	        vmovdqa	%ymm2, 64(%r9)
+ 1105                             	        vmovdqa	%ymm3, 96(%r9)
+ 1106                             	        vmovdqa	%ymm4, 128(%r9)
+ 1107                             	        vmovdqa	%ymm5, 160(%r9)
+ 1108                             	        vmovdqa	%ymm6, 192(%r9)
+ 1109                             	        vmovdqa	%ymm7, 224(%r9)
+ 1110                             	        vmovdqa	%ymm8, 256(%r9)
+ 1111                             	        vmovdqa	%ymm9, 288(%r9)
+ 1112                             	        vmovdqa	%ymm10, 320(%r9)
+ 1113                             	        vmovdqa	%ymm11, 352(%r9)
+ 1114                             	        vmovdqa	%ymm12, 384(%r9)
+ 1115                             	        vmovdqa	%ymm13, 416(%r9)
+ 1116                             	        vmovdqa	%ymm14, 448(%r9)
+ 1117                             	        vmovdqa	%ymm15, 480(%r9)
+ 1118                             	L_chacha20_avx2_start256:
+ 1119                             	        movb	$10, %r8b
+ 1120                             	        vmovdqa	%ymm11, 96(%r10)
+ 1121                             	L_chacha20_avx2_loop256:
+ 1122                             	        vpaddd	%ymm4, %ymm0, %ymm0
+ 1123                             	        vpxor	%ymm0, %ymm12, %ymm12
+ 1124                             	        vmovdqa	96(%r10), %ymm11
+ 1125                             	        vpshufb	L_chacha20_avx2_rotl16(%rip), %ymm12, %ymm12
+ 1126                             	        vpaddd	%ymm12, %ymm8, %ymm8
+ 1127                             	        vpxor	%ymm8, %ymm4, %ymm4
+ 1128                             	        vpaddd	%ymm5, %ymm1, %ymm1
+ 1129                             	        vpxor	%ymm1, %ymm13, %ymm13
+ 1130                             	        vpshufb	L_chacha20_avx2_rotl16(%rip), %ymm13, %ymm13
+ 1131                             	        vpaddd	%ymm13, %ymm9, %ymm9
+ 1132                             	        vpxor	%ymm9, %ymm5, %ymm5
+ 1133                             	        vpaddd	%ymm6, %ymm2, %ymm2
+ 1134                             	        vpxor	%ymm2, %ymm14, %ymm14
+ 1135                             	        vpshufb	L_chacha20_avx2_rotl16(%rip), %ymm14, %ymm14
+ 1136                             	        vpaddd	%ymm14, %ymm10, %ymm10
+ 1137                             	        vpxor	%ymm10, %ymm6, %ymm6
+ 1138                             	        vpaddd	%ymm7, %ymm3, %ymm3
+ 1139                             	        vpxor	%ymm3, %ymm15, %ymm15
+ 1140                             	        vpshufb	L_chacha20_avx2_rotl16(%rip), %ymm15, %ymm15
+ 1141                             	        vpaddd	%ymm15, %ymm11, %ymm11
+ 1142                             	        vpxor	%ymm11, %ymm7, %ymm7
+ 1143                             	        vmovdqa	%ymm11, 96(%r10)
+ 1144                             	        vpsrld	$20, %ymm4, %ymm11
+ 1145                             	        vpslld	$12, %ymm4, %ymm4
+ 1146                             	        vpxor	%ymm11, %ymm4, %ymm4
+ 1147                             	        vpsrld	$20, %ymm5, %ymm11
+ 1148                             	        vpslld	$12, %ymm5, %ymm5
+ 1149                             	        vpxor	%ymm11, %ymm5, %ymm5
+ 1150                             	        vpsrld	$20, %ymm6, %ymm11
+ 1151                             	        vpslld	$12, %ymm6, %ymm6
+ 1152                             	        vpxor	%ymm11, %ymm6, %ymm6
+ 1153                             	        vpsrld	$20, %ymm7, %ymm11
+ 1154                             	        vpslld	$12, %ymm7, %ymm7
+ 1155                             	        vpxor	%ymm11, %ymm7, %ymm7
+ 1156                             	        vpaddd	%ymm4, %ymm0, %ymm0
+ 1157                             	        vpxor	%ymm0, %ymm12, %ymm12
+ 1158                             	        vmovdqa	96(%r10), %ymm11
+ 1159                             	        vpshufb	L_chacha20_avx2_rotl8(%rip), %ymm12, %ymm12
+ 1160                             	        vpaddd	%ymm12, %ymm8, %ymm8
+ 1161                             	        vpxor	%ymm8, %ymm4, %ymm4
+ 1162                             	        vpaddd	%ymm5, %ymm1, %ymm1
+ 1163                             	        vpxor	%ymm1, %ymm13, %ymm13
+ 1164                             	        vpshufb	L_chacha20_avx2_rotl8(%rip), %ymm13, %ymm13
+ 1165                             	        vpaddd	%ymm13, %ymm9, %ymm9
+ 1166                             	        vpxor	%ymm9, %ymm5, %ymm5
+ 1167                             	        vpaddd	%ymm6, %ymm2, %ymm2
+ 1168                             	        vpxor	%ymm2, %ymm14, %ymm14
+ 1169                             	        vpshufb	L_chacha20_avx2_rotl8(%rip), %ymm14, %ymm14
+ 1170                             	        vpaddd	%ymm14, %ymm10, %ymm10
+ 1171                             	        vpxor	%ymm10, %ymm6, %ymm6
+ 1172                             	        vpaddd	%ymm7, %ymm3, %ymm3
+ 1173                             	        vpxor	%ymm3, %ymm15, %ymm15
+ 1174                             	        vpshufb	L_chacha20_avx2_rotl8(%rip), %ymm15, %ymm15
+ 1175                             	        vpaddd	%ymm15, %ymm11, %ymm11
+ 1176                             	        vpxor	%ymm11, %ymm7, %ymm7
+ 1177                             	        vmovdqa	%ymm11, 96(%r10)
+ 1178                             	        vpsrld	$25, %ymm4, %ymm11
+ 1179                             	        vpslld	$7, %ymm4, %ymm4
+ 1180                             	        vpxor	%ymm11, %ymm4, %ymm4
+ 1181                             	        vpsrld	$25, %ymm5, %ymm11
+ 1182                             	        vpslld	$7, %ymm5, %ymm5
+ 1183                             	        vpxor	%ymm11, %ymm5, %ymm5
+ 1184                             	        vpsrld	$25, %ymm6, %ymm11
+ 1185                             	        vpslld	$7, %ymm6, %ymm6
+ 1186                             	        vpxor	%ymm11, %ymm6, %ymm6
+ 1187                             	        vpsrld	$25, %ymm7, %ymm11
+ 1188                             	        vpslld	$7, %ymm7, %ymm7
+ 1189                             	        vpxor	%ymm11, %ymm7, %ymm7
+ 1190                             	        vpaddd	%ymm5, %ymm0, %ymm0
+ 1191                             	        vpxor	%ymm0, %ymm15, %ymm15
+ 1192                             	        vmovdqa	96(%r10), %ymm11
+ 1193                             	        vpshufb	L_chacha20_avx2_rotl16(%rip), %ymm15, %ymm15
+ 1194                             	        vpaddd	%ymm15, %ymm10, %ymm10
+ 1195                             	        vpxor	%ymm10, %ymm5, %ymm5
+ 1196                             	        vpaddd	%ymm6, %ymm1, %ymm1
+ 1197                             	        vpxor	%ymm1, %ymm12, %ymm12
+ 1198                             	        vpshufb	L_chacha20_avx2_rotl16(%rip), %ymm12, %ymm12
+ 1199                             	        vpaddd	%ymm12, %ymm11, %ymm11
+ 1200                             	        vpxor	%ymm11, %ymm6, %ymm6
+ 1201                             	        vpaddd	%ymm7, %ymm2, %ymm2
+ 1202                             	        vpxor	%ymm2, %ymm13, %ymm13
+ 1203                             	        vpshufb	L_chacha20_avx2_rotl16(%rip), %ymm13, %ymm13
+ 1204                             	        vpaddd	%ymm13, %ymm8, %ymm8
+ 1205                             	        vpxor	%ymm8, %ymm7, %ymm7
+ 1206                             	        vpaddd	%ymm4, %ymm3, %ymm3
+ 1207                             	        vpxor	%ymm3, %ymm14, %ymm14
+ 1208                             	        vpshufb	L_chacha20_avx2_rotl16(%rip), %ymm14, %ymm14
+ 1209                             	        vpaddd	%ymm14, %ymm9, %ymm9
+ 1210                             	        vpxor	%ymm9, %ymm4, %ymm4
+ 1211                             	        vmovdqa	%ymm11, 96(%r10)
+ 1212                             	        vpsrld	$20, %ymm5, %ymm11
+ 1213                             	        vpslld	$12, %ymm5, %ymm5
+ 1214                             	        vpxor	%ymm11, %ymm5, %ymm5
+ 1215                             	        vpsrld	$20, %ymm6, %ymm11
+ 1216                             	        vpslld	$12, %ymm6, %ymm6
+ 1217                             	        vpxor	%ymm11, %ymm6, %ymm6
+ 1218                             	        vpsrld	$20, %ymm7, %ymm11
+ 1219                             	        vpslld	$12, %ymm7, %ymm7
+ 1220                             	        vpxor	%ymm11, %ymm7, %ymm7
+ 1221                             	        vpsrld	$20, %ymm4, %ymm11
+ 1222                             	        vpslld	$12, %ymm4, %ymm4
+ 1223                             	        vpxor	%ymm11, %ymm4, %ymm4
+ 1224                             	        vpaddd	%ymm5, %ymm0, %ymm0
+ 1225                             	        vpxor	%ymm0, %ymm15, %ymm15
+ 1226                             	        vmovdqa	96(%r10), %ymm11
+ 1227                             	        vpshufb	L_chacha20_avx2_rotl8(%rip), %ymm15, %ymm15
+ 1228                             	        vpaddd	%ymm15, %ymm10, %ymm10
+ 1229                             	        vpxor	%ymm10, %ymm5, %ymm5
+ 1230                             	        vpaddd	%ymm6, %ymm1, %ymm1
+ 1231                             	        vpxor	%ymm1, %ymm12, %ymm12
+ 1232                             	        vpshufb	L_chacha20_avx2_rotl8(%rip), %ymm12, %ymm12
+ 1233                             	        vpaddd	%ymm12, %ymm11, %ymm11
+ 1234                             	        vpxor	%ymm11, %ymm6, %ymm6
+ 1235                             	        vpaddd	%ymm7, %ymm2, %ymm2
+ 1236                             	        vpxor	%ymm2, %ymm13, %ymm13
+ 1237                             	        vpshufb	L_chacha20_avx2_rotl8(%rip), %ymm13, %ymm13
+ 1238                             	        vpaddd	%ymm13, %ymm8, %ymm8
+ 1239                             	        vpxor	%ymm8, %ymm7, %ymm7
+ 1240                             	        vpaddd	%ymm4, %ymm3, %ymm3
+ 1241                             	        vpxor	%ymm3, %ymm14, %ymm14
+ 1242                             	        vpshufb	L_chacha20_avx2_rotl8(%rip), %ymm14, %ymm14
+ 1243                             	        vpaddd	%ymm14, %ymm9, %ymm9
+ 1244                             	        vpxor	%ymm9, %ymm4, %ymm4
+ 1245                             	        vmovdqa	%ymm11, 96(%r10)
+ 1246                             	        vpsrld	$25, %ymm5, %ymm11
+ 1247                             	        vpslld	$7, %ymm5, %ymm5
+ 1248                             	        vpxor	%ymm11, %ymm5, %ymm5
+ 1249                             	        vpsrld	$25, %ymm6, %ymm11
+ 1250                             	        vpslld	$7, %ymm6, %ymm6
+ 1251                             	        vpxor	%ymm11, %ymm6, %ymm6
+ 1252                             	        vpsrld	$25, %ymm7, %ymm11
+ 1253                             	        vpslld	$7, %ymm7, %ymm7
+ 1254                             	        vpxor	%ymm11, %ymm7, %ymm7
+ 1255                             	        vpsrld	$25, %ymm4, %ymm11
+ 1256                             	        vpslld	$7, %ymm4, %ymm4
+ 1257                             	        vpxor	%ymm11, %ymm4, %ymm4
+ 1258                             	        decb	%r8b
+ 1259                             	        jnz	L_chacha20_avx2_loop256
+ 1260                             	        vmovdqa	96(%r10), %ymm11
+ 1261                             	        vpaddd	(%r9), %ymm0, %ymm0
+ 1262                             	        vpaddd	32(%r9), %ymm1, %ymm1
+ 1263                             	        vpaddd	64(%r9), %ymm2, %ymm2
+ 1264                             	        vpaddd	96(%r9), %ymm3, %ymm3
+ 1265                             	        vpaddd	128(%r9), %ymm4, %ymm4
+ 1266                             	        vpaddd	160(%r9), %ymm5, %ymm5
+ 1267                             	        vpaddd	192(%r9), %ymm6, %ymm6
+ 1268                             	        vpaddd	224(%r9), %ymm7, %ymm7
+ 1269                             	        vpaddd	256(%r9), %ymm8, %ymm8
+ 1270                             	        vpaddd	288(%r9), %ymm9, %ymm9
+ 1271                             	        vpaddd	320(%r9), %ymm10, %ymm10
+ 1272                             	        vpaddd	352(%r9), %ymm11, %ymm11
+ 1273                             	        vpaddd	384(%r9), %ymm12, %ymm12
+ 1274                             	        vpaddd	416(%r9), %ymm13, %ymm13
+ 1275                             	        vpaddd	448(%r9), %ymm14, %ymm14
+ 1276                             	        vpaddd	480(%r9), %ymm15, %ymm15
+ 1277                             	        vmovdqa	%ymm8, (%r10)
+ 1278                             	        vmovdqa	%ymm9, 32(%r10)
+ 1279                             	        vmovdqa	%ymm10, 64(%r10)
+ 1280                             	        vmovdqa	%ymm11, 96(%r10)
+ 1281                             	        vmovdqa	%ymm12, 128(%r10)
+ 1282                             	        vmovdqa	%ymm13, 160(%r10)
+ 1283                             	        vmovdqa	%ymm14, 192(%r10)
+ 1284                             	        vmovdqa	%ymm15, 224(%r10)
+ 1285                             	        vpunpckldq	%ymm1, %ymm0, %ymm8
+ 1286                             	        vpunpckldq	%ymm3, %ymm2, %ymm9
+ 1287                             	        vpunpckhdq	%ymm1, %ymm0, %ymm12
+ 1288                             	        vpunpckhdq	%ymm3, %ymm2, %ymm13
+ 1289                             	        vpunpckldq	%ymm5, %ymm4, %ymm10
+ 1290                             	        vpunpckldq	%ymm7, %ymm6, %ymm11
+ 1291                             	        vpunpckhdq	%ymm5, %ymm4, %ymm14
+ 1292                             	        vpunpckhdq	%ymm7, %ymm6, %ymm15
+ 1293                             	        vpunpcklqdq	%ymm9, %ymm8, %ymm0
+ 1294                             	        vpunpcklqdq	%ymm11, %ymm10, %ymm1
+ 1295                             	        vpunpckhqdq	%ymm9, %ymm8, %ymm2
+ 1296                             	        vpunpckhqdq	%ymm11, %ymm10, %ymm3
+ 1297                             	        vpunpcklqdq	%ymm13, %ymm12, %ymm4
+ 1298                             	        vpunpcklqdq	%ymm15, %ymm14, %ymm5
+ 1299                             	        vpunpckhqdq	%ymm13, %ymm12, %ymm6
+ 1300                             	        vpunpckhqdq	%ymm15, %ymm14, %ymm7
+ 1301                             	        vperm2i128	$32, %ymm1, %ymm0, %ymm8
+ 1302                             	        vperm2i128	$32, %ymm3, %ymm2, %ymm9
+ 1303                             	        vperm2i128	$49, %ymm1, %ymm0, %ymm12
+ 1304                             	        vperm2i128	$49, %ymm3, %ymm2, %ymm13
+ 1305                             	        vperm2i128	$32, %ymm5, %ymm4, %ymm10
+ 1306                             	        vperm2i128	$32, %ymm7, %ymm6, %ymm11
+ 1307                             	        vperm2i128	$49, %ymm5, %ymm4, %ymm14
+ 1308                             	        vperm2i128	$49, %ymm7, %ymm6, %ymm15
+ 1309                             	        vmovdqu	(%rsi), %ymm0
+ 1310                             	        vmovdqu	64(%rsi), %ymm1
+ 1311                             	        vmovdqu	128(%rsi), %ymm2
+ 1312                             	        vmovdqu	192(%rsi), %ymm3
+ 1313                             	        vmovdqu	256(%rsi), %ymm4
+ 1314                             	        vmovdqu	320(%rsi), %ymm5
+ 1315                             	        vmovdqu	384(%rsi), %ymm6
+ 1316                             	        vmovdqu	448(%rsi), %ymm7
+ 1317                             	        vpxor	%ymm0, %ymm8, %ymm8
+ 1318                             	        vpxor	%ymm1, %ymm9, %ymm9
+ 1319                             	        vpxor	%ymm2, %ymm10, %ymm10
+ 1320                             	        vpxor	%ymm3, %ymm11, %ymm11
+ 1321                             	        vpxor	%ymm4, %ymm12, %ymm12
+ 1322                             	        vpxor	%ymm5, %ymm13, %ymm13
+ 1323                             	        vpxor	%ymm6, %ymm14, %ymm14
+ 1324                             	        vpxor	%ymm7, %ymm15, %ymm15
+ 1325                             	        vmovdqu	%ymm8, (%rdx)
+ 1326                             	        vmovdqu	%ymm9, 64(%rdx)
+ 1327                             	        vmovdqu	%ymm10, 128(%rdx)
+ 1328                             	        vmovdqu	%ymm11, 192(%rdx)
+ 1329                             	        vmovdqu	%ymm12, 256(%rdx)
+ 1330                             	        vmovdqu	%ymm13, 320(%rdx)
+ 1331                             	        vmovdqu	%ymm14, 384(%rdx)
+ 1332                             	        vmovdqu	%ymm15, 448(%rdx)
+ 1333                             	        vmovdqa	(%r10), %ymm0
+ 1334                             	        vmovdqa	32(%r10), %ymm1
+ 1335                             	        vmovdqa	64(%r10), %ymm2
+ 1336                             	        vmovdqa	96(%r10), %ymm3
+ 1337                             	        vmovdqa	128(%r10), %ymm4
+ 1338                             	        vmovdqa	160(%r10), %ymm5
+ 1339                             	        vmovdqa	192(%r10), %ymm6
+ 1340                             	        vmovdqa	224(%r10), %ymm7
+ 1341                             	        vpunpckldq	%ymm1, %ymm0, %ymm8
+ 1342                             	        vpunpckldq	%ymm3, %ymm2, %ymm9
+ 1343                             	        vpunpckhdq	%ymm1, %ymm0, %ymm12
+ 1344                             	        vpunpckhdq	%ymm3, %ymm2, %ymm13
+ 1345                             	        vpunpckldq	%ymm5, %ymm4, %ymm10
+ 1346                             	        vpunpckldq	%ymm7, %ymm6, %ymm11
+ 1347                             	        vpunpckhdq	%ymm5, %ymm4, %ymm14
+ 1348                             	        vpunpckhdq	%ymm7, %ymm6, %ymm15
+ 1349                             	        vpunpcklqdq	%ymm9, %ymm8, %ymm0
+ 1350                             	        vpunpcklqdq	%ymm11, %ymm10, %ymm1
+ 1351                             	        vpunpckhqdq	%ymm9, %ymm8, %ymm2
+ 1352                             	        vpunpckhqdq	%ymm11, %ymm10, %ymm3
+ 1353                             	        vpunpcklqdq	%ymm13, %ymm12, %ymm4
+ 1354                             	        vpunpcklqdq	%ymm15, %ymm14, %ymm5
+ 1355                             	        vpunpckhqdq	%ymm13, %ymm12, %ymm6
+ 1356                             	        vpunpckhqdq	%ymm15, %ymm14, %ymm7
+ 1357                             	        vperm2i128	$32, %ymm1, %ymm0, %ymm8
+ 1358                             	        vperm2i128	$32, %ymm3, %ymm2, %ymm9
+ 1359                             	        vperm2i128	$49, %ymm1, %ymm0, %ymm12
+ 1360                             	        vperm2i128	$49, %ymm3, %ymm2, %ymm13
+ 1361                             	        vperm2i128	$32, %ymm5, %ymm4, %ymm10
+ 1362                             	        vperm2i128	$32, %ymm7, %ymm6, %ymm11
+ 1363                             	        vperm2i128	$49, %ymm5, %ymm4, %ymm14
+ 1364                             	        vperm2i128	$49, %ymm7, %ymm6, %ymm15
+ 1365                             	        vmovdqu	32(%rsi), %ymm0
+ 1366                             	        vmovdqu	96(%rsi), %ymm1
+ 1367                             	        vmovdqu	160(%rsi), %ymm2
+ 1368                             	        vmovdqu	224(%rsi), %ymm3
+ 1369                             	        vmovdqu	288(%rsi), %ymm4
+ 1370                             	        vmovdqu	352(%rsi), %ymm5
+ 1371                             	        vmovdqu	416(%rsi), %ymm6
+ 1372                             	        vmovdqu	480(%rsi), %ymm7
+ 1373                             	        vpxor	%ymm0, %ymm8, %ymm8
+ 1374                             	        vpxor	%ymm1, %ymm9, %ymm9
+ 1375                             	        vpxor	%ymm2, %ymm10, %ymm10
+ 1376                             	        vpxor	%ymm3, %ymm11, %ymm11
+ 1377                             	        vpxor	%ymm4, %ymm12, %ymm12
+ 1378                             	        vpxor	%ymm5, %ymm13, %ymm13
+ 1379                             	        vpxor	%ymm6, %ymm14, %ymm14
+ 1380                             	        vpxor	%ymm7, %ymm15, %ymm15
+ 1381                             	        vmovdqu	%ymm8, 32(%rdx)
+ 1382                             	        vmovdqu	%ymm9, 96(%rdx)
+ 1383                             	        vmovdqu	%ymm10, 160(%rdx)
+ 1384                             	        vmovdqu	%ymm11, 224(%rdx)
+ 1385                             	        vmovdqu	%ymm12, 288(%rdx)
+ 1386                             	        vmovdqu	%ymm13, 352(%rdx)
+ 1387                             	        vmovdqu	%ymm14, 416(%rdx)
+ 1388                             	        vmovdqu	%ymm15, 480(%rdx)
+ 1389                             	        vmovdqa	384(%r9), %ymm12
+ 1390                             	        addq	$0x200, %rsi
+ 1391                             	        addq	$0x200, %rdx
+ 1392                             	        vpaddd	L_chacha20_avx2_eight(%rip), %ymm12, %ymm12
+ 1393                             	        subl	$0x200, %ecx
+ 1394                             	        vmovdqa	%ymm12, 384(%r9)
+ 1395                             	        cmpl	$0x200, %ecx
+ 1396                             	        jl	L_chacha20_avx2_done256
+ 1397                             	        vmovdqa	(%r9), %ymm0
+ 1398                             	        vmovdqa	32(%r9), %ymm1
+ 1399                             	        vmovdqa	64(%r9), %ymm2
+ 1400                             	        vmovdqa	96(%r9), %ymm3
+ 1401                             	        vmovdqa	128(%r9), %ymm4
+ 1402                             	        vmovdqa	160(%r9), %ymm5
+ 1403                             	        vmovdqa	192(%r9), %ymm6
+ 1404                             	        vmovdqa	224(%r9), %ymm7
+ 1405                             	        vmovdqa	256(%r9), %ymm8
+ 1406                             	        vmovdqa	288(%r9), %ymm9
+ 1407                             	        vmovdqa	320(%r9), %ymm10
+ 1408                             	        vmovdqa	352(%r9), %ymm11
+ 1409                             	        vmovdqa	384(%r9), %ymm12
+ 1410                             	        vmovdqa	416(%r9), %ymm13
+ 1411                             	        vmovdqa	448(%r9), %ymm14
+ 1412                             	        vmovdqa	480(%r9), %ymm15
+ 1413                             	        jmp	L_chacha20_avx2_start256
+ 1414                             	L_chacha20_avx2_done256:
+ 1415                             	        shl	$3, %eax
+ 1416                             	        addl	%eax, 48(%rdi)
+ 1417                             	L_chacha20_avx2_end256:
+ 1418                             	#ifndef __APPLE__
+ 1419                             	        callq	chacha_encrypt_avx1@plt
+ 1420                             	#else
+ 1421                             	        callq	_chacha_encrypt_avx1
+ 1422                             	#endif /* __APPLE__ */
+ 1423                             	        addq	$0x310, %rsp
+ 1424                             	        repz retq
+ 1425                             	#ifndef __APPLE__

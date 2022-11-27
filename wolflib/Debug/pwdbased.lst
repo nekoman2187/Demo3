@@ -1,0 +1,2917 @@
+   1                             		.file	"pwdbased.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.text.XorWords,"ax",@progbits
+   6                             	_XorWords:
+   7                             	.LFB11:
+   8                             		.file 1 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfcrypt/src/misc.c"
+   1:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* misc.c
+   2:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   3:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   5:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * This file is part of wolfSSL.
+   6:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   7:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * it under the terms of the GNU General Public License as published by
+   9:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * (at your option) any later version.
+  11:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+  12:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * GNU General Public License for more details.
+  16:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+  17:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * You should have received a copy of the GNU General Public License
+  18:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * along with this program; if not, write to the Free Software
+  19:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  */
+  21:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /*
+  22:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  23:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** DESCRIPTION
+  24:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** This module implements the arithmetic-shift right, left, byte swapping, XOR,
+  25:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** masking and clearing memory logic.
+  26:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  27:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** */
+  28:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef HAVE_CONFIG_H
+  29:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <config.h>
+  30:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  31:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  32:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #include <wolfssl/wolfcrypt/settings.h>
+  33:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  34:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLF_CRYPT_MISC_C
+  35:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #define WOLF_CRYPT_MISC_C
+  36:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  37:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #include <wolfssl/wolfcrypt/misc.h>
+  38:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  39:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* inlining these functions is a huge speed increase and a small size decrease,
+  40:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    because the functions are smaller than function call setup/cleanup, e.g.,
+  41:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    md5 benchmark is twice as fast with inline.  If you don't want it, then
+  42:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    define NO_INLINE and compile this file into wolfssl, otherwise it's used as
+  43:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    a source header
+  44:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  */
+  45:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  46:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef NO_INLINE
+  47:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WC_STATIC
+  48:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+  49:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WC_STATIC static
+  50:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  51:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  52:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* Check for if compiling misc.c when not needed. */
+  53:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if !defined(WOLFSSL_MISC_INCLUDED) && !defined(NO_INLINE)
+  54:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #ifndef WOLFSSL_IGNORE_FILE_WARN
+  55:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         #warning misc.c does not need to be compiled when using inline (NO_INLINE not defined)
+  56:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+  57:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  58:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+  59:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  60:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  61:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(__ICCARM__)
+  62:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <intrinsics.h>
+  63:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  64:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  65:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  66:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef INTEL_INTRINSICS
+  67:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  68:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <stdlib.h>      /* get intrinsic definitions */
+  69:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  70:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* for non visual studio probably need no long version, 32 bit only
+  71:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****      * i.e., _rotl and _rotr */
+  72:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #pragma intrinsic(_lrotl, _lrotr)
+  73:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  74:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+  75:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  76:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return y ? _lrotl(x, y) : x;
+  77:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  78:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  79:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+  80:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  81:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return y ? _lrotr(x, y) : x;
+  82:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  83:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  84:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__CCRX__)
+  85:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  86:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <builtin.h>      /* get intrinsic definitions */
+  87:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  88:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #if !defined(NO_INLINE)
+  89:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  90:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define rotlFixed(x, y) _builtin_rotl(x, y)
+  91:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  92:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define rotrFixed(x, y) _builtin_rotr(x, y)
+  93:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  94:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #else /* create real function */
+  95:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  96:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+  97:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  98:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return _builtin_rotl(x, y);
+  99:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 100:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 101:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+ 102:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 103:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return _builtin_rotr(x, y);
+ 104:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 105:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 106:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 107:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 108:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else /* generic */
+ 109:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a left circular arithmetic shift of <x> by <y> value. */
+ 110:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 111:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+ 112:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 113:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 114:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 115:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 116:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a right circular arithmetic shift of <x> by <y> value. */
+ 117:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+ 118:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 119:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 120:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 121:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 122:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 123:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 124:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef WC_RC2
+ 125:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 126:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a left circular arithmetic shift of <x> by <y> value */
+ 127:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word16 rotlFixed16(word16 x, word16 y)
+ 128:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 129:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 130:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 131:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 132:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 133:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a right circular arithmetic shift of <x> by <y> value */
+ 134:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word16 rotrFixed16(word16 x, word16 y)
+ 135:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 136:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 137:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 138:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 139:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* WC_RC2 */
+ 140:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 141:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a byte swap of 32-bit word value. */
+ 142:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(__CCRX__) && !defined(NO_INLINE) /* shortest version for CC-RX */
+ 143:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define ByteReverseWord32(value) _builtin_revl(value)
+ 144:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 145:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word32 ByteReverseWord32(word32 value)
+ 146:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 147:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef PPC_INTRINSICS
+ 148:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* PPC: load reverse indexed instruction */
+ 149:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__lwbrx(&value,0);
+ 150:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__ICCARM__)
+ 151:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__REV(value);
+ 152:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(KEIL_INTRINSICS)
+ 153:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__rev(value);
+ 154:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__CCRX__)
+ 155:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)_builtin_revl(value);
+ 156:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLF_ALLOW_BUILTIN) && \
+ 157:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         defined(__GNUC_PREREQ) && __GNUC_PREREQ(4, 3)
+ 158:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__builtin_bswap32(value);
+ 159:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFSSL_BYTESWAP32_ASM) && defined(__GNUC__) && \
+ 160:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****       defined(__aarch64__)
+ 161:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     __asm__ volatile (
+ 162:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         "REV32 %0, %0  \n"
+ 163:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         : "+r" (value)
+ 164:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         :
+ 165:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     );
+ 166:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return value;
+ 167:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFSSL_BYTESWAP32_ASM) && defined(__GNUC__) && \
+ 168:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****       (defined(__thumb__) || defined(__arm__))
+ 169:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     __asm__ volatile (
+ 170:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         "REV %0, %0  \n"
+ 171:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         : "+r" (value)
+ 172:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         :
+ 173:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     );
+ 174:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return value;
+ 175:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(FAST_ROTATE)
+ 176:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* 5 instructions with rotate instruction, 9 without */
+ 177:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (rotrFixed(value, 8U) & 0xff00ff00) |
+ 178:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****            (rotlFixed(value, 8U) & 0x00ff00ff);
+ 179:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 180:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* 6 instructions with rotate instruction, 8 without */
+ 181:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & 0xFF00FF00) >> 8) | ((value & 0x00FF00FF) << 8);
+ 182:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return rotlFixed(value, 16U);
+ 183:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 184:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 185:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* __CCRX__ */
+ 186:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a byte swap of words array of a given count. */
+ 187:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ByteReverseWords(word32* out, const word32* in,
+ 188:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                     word32 byteCount)
+ 189:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 190:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 count = byteCount/(word32)sizeof(word32), i;
+ 191:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 192:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < count; i++)
+ 193:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         out[i] = ByteReverseWord32(in[i]);
+ 194:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 195:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 196:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 197:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(WORD64_AVAILABLE) && !defined(WOLFSSL_NO_WORD64_OPS)
+ 198:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 199:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 200:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 rotlFixed64(word64 x, word64 y)
+ 201:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 202:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 203:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 204:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 205:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 206:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 rotrFixed64(word64 x, word64 y)
+ 207:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 208:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 209:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 210:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 211:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 212:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 ByteReverseWord64(word64 value)
+ 213:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 214:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(WOLF_ALLOW_BUILTIN) && defined(__GNUC_PREREQ) && __GNUC_PREREQ(4, 3)
+ 215:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word64)__builtin_bswap64(value);
+ 216:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFCRYPT_SLOW_WORD64)
+ 217:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word64)((word64)ByteReverseWord32((word32) value)) << 32 |
+ 218:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         (word64)ByteReverseWord32((word32)(value   >> 32));
+ 219:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 220:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & W64LIT(0xFF00FF00FF00FF00)) >> 8) |
+ 221:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         ((value & W64LIT(0x00FF00FF00FF00FF)) << 8);
+ 222:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & W64LIT(0xFFFF0000FFFF0000)) >> 16) |
+ 223:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         ((value & W64LIT(0x0000FFFF0000FFFF)) << 16);
+ 224:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return rotlFixed64(value, 32U);
+ 225:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 226:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 227:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 228:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 229:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ByteReverseWords64(word64* out, const word64* in,
+ 230:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                       word32 byteCount)
+ 231:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 232:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 count = byteCount/(word32)sizeof(word64), i;
+ 233:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 234:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < count; i++)
+ 235:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         out[i] = ByteReverseWord64(in[i]);
+ 236:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 237:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 238:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 239:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* WORD64_AVAILABLE && !WOLFSSL_NO_WORD64_OPS */
+ 240:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 241:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_XOR_OPS
+ 242:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*r> and <*a> for <n> number
+ 243:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** of wolfssl_words, placing the result in <*r>. */
+ 244:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void XorWordsOut(wolfssl_word* r, const wolfssl_word* a,
+ 245:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                      const wolfssl_word* b, word32 n)
+ 246:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 247:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 i;
+ 248:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 249:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < n; i++) r[i] = a[i] ^ b[i];
+ 250:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 251:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 252:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*buf> and <*mask> of n
+ 253:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** counts, placing the result in <*buf>. */
+ 254:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 255:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void xorbufout(void*out, const void* buf, const void* mask,
+ 256:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                    word32 count)
+ 257:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 258:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     if (((wc_ptr_t)out | (wc_ptr_t)buf | (wc_ptr_t)mask | count) %
+ 259:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                                          WOLFSSL_WORD_SIZE == 0)
+ 260:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         XorWordsOut( (wolfssl_word*)out, (wolfssl_word*)buf,
+ 261:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                      (const wolfssl_word*)mask, count / WOLFSSL_WORD_SIZE);
+ 262:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     else {
+ 263:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 i;
+ 264:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       o = (byte*)out;
+ 265:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       b = (byte*)buf;
+ 266:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+ 267:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 268:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         for (i = 0; i < count; i++) o[i] = b[i] ^ m[i];
+ 269:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 270:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 271:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 272:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*r> and <*a> for <n> number
+ 273:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** of wolfssl_words, placing the result in <*r>. */
+ 274:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void XorWords(wolfssl_word* r, const wolfssl_word* a, word32 n)
+ 275:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+   9                             		.loc 1 275 1
+  10 0000 7E AA                   		push.l	r10
+  11                             	.LCFI0:
+  12 0002 71 0A F0                		add	#-16, r0, r10
+  13                             	.LCFI1:
+  14 0005 EF A0                   		mov.L	r10, r0
+  15 0007 E7 A1 01                		mov.L	r1, 4[r10]
+  16 000a E7 A2 02                		mov.L	r2, 8[r10]
+  17 000d E7 A3 03                		mov.L	r3, 12[r10]
+ 276:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 i;
+ 277:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 278:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < n; i++) r[i] ^= a[i];
+  18                             		.loc 1 278 12
+  19 0010 F8 A6 00                		mov.L	#0, [r10]
+  20                             		.loc 1 278 5
+  21 0013 2E 2E                   		bra	.L2
+  22                             	.L3:
+  23                             		.loc 1 278 34 discriminator 3
+  24 0015 EC A5                   		mov.L	[r10], r5
+  25 0017 6C 25                   		shll	#2, r5
+  26 0019 ED A4 01                		mov.L	4[r10], r4
+  27 001c 4B 45                   		add	r4, r5
+  28 001e EC 52                   		mov.L	[r5], r2
+  29                             		.loc 1 278 38 discriminator 3
+  30 0020 EC A5                   		mov.L	[r10], r5
+  31 0022 6C 25                   		shll	#2, r5
+  32 0024 ED A4 02                		mov.L	8[r10], r4
+  33 0027 4B 45                   		add	r4, r5
+  34 0029 EC 53                   		mov.L	[r5], r3
+  35                             		.loc 1 278 34 discriminator 3
+  36 002b EC A5                   		mov.L	[r10], r5
+  37 002d 6C 25                   		shll	#2, r5
+  38 002f ED A4 01                		mov.L	4[r10], r4
+  39 0032 4B 45                   		add	r4, r5
+  40 0034 EF 24                   		mov.L	r2, r4
+  41 0036 FC 37 34                		xor	r3, r4
+  42 0039 E3 54                   		mov.L	r4, [r5]
+  43                             		.loc 1 278 25 discriminator 3
+  44 003b EC A5                   		mov.L	[r10], r5
+  45 003d 62 15                   		add	#1, r5
+  46 003f E3 A5                   		mov.L	r5, [r10]
+  47                             	.L2:
+  48                             		.loc 1 278 5 discriminator 1
+  49 0041 EC A4                   		mov.L	[r10], r4
+  50 0043 ED A5 03                		mov.L	12[r10], r5
+  51 0046 47 54                   		cmp	r5, r4
+  52 0048 23 CD                   		bltu	.L3
+ 279:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+  53                             		.loc 1 279 1
+  54 004a 03                      		nop
+  55 004b 3F AA 05                		rtsd	#20, r10-r10
+  56                             	.LFE11:
+  58                             		.section	.text.xorbuf,"ax",@progbits
+  60                             	_xorbuf:
+  61                             	.LFB12:
+ 280:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 281:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*buf> and <*mask> of n
+ 282:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** counts, placing the result in <*buf>. */
+ 283:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 284:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void xorbuf(void* buf, const void* mask, word32 count)
+ 285:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+  62                             		.loc 1 285 1
+  63 0000 7E AA                   		push.l	r10
+  64                             	.LCFI2:
+  65 0002 71 0A E8                		add	#-24, r0, r10
+  66                             	.LCFI3:
+  67 0005 EF A0                   		mov.L	r10, r0
+  68 0007 E7 A1 03                		mov.L	r1, 12[r10]
+  69 000a E7 A2 04                		mov.L	r2, 16[r10]
+  70 000d E7 A3 05                		mov.L	r3, 20[r10]
+ 286:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     if (((wc_ptr_t)buf | (wc_ptr_t)mask | count) % WOLFSSL_WORD_SIZE == 0)
+  71                             		.loc 1 286 10
+  72 0010 ED A4 03                		mov.L	12[r10], r4
+  73                             		.loc 1 286 26
+  74 0013 ED A5 04                		mov.L	16[r10], r5
+  75                             		.loc 1 286 24
+  76 0016 57 45                   		or	r4, r5
+  77                             		.loc 1 286 41
+  78 0018 ED A4 05                		mov.L	20[r10], r4
+  79 001b 57 45                   		or	r4, r5
+  80                             		.loc 1 286 50
+  81 001d 64 35                   		and	#3, r5
+  82                             		.loc 1 286 8
+  83 001f 61 05                   		cmp	#0, r5
+  84 0021 21 15                   		bne	.L5
+ 287:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         XorWords( (wolfssl_word*)buf,
+  85                             		.loc 1 287 9
+  86 0023 ED A5 05                		mov.L	20[r10], r5
+  87 0026 68 25                   		shlr	#2, r5
+  88 0028 EF 53                   		mov.L	r5, r3
+  89 002a ED A2 04                		mov.L	16[r10], r2
+  90 002d ED A1 03                		mov.L	12[r10], r1
+  91 0030 05 00 00 00             		bsr	_XorWords
+ 288:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                   (const wolfssl_word*)mask, count / WOLFSSL_WORD_SIZE);
+ 289:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     else {
+ 290:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 i;
+ 291:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       b = (byte*)buf;
+ 292:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+ 293:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         for (i = 0; i < count; i++) b[i] ^= m[i];
+ 295:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 296:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+  92                             		.loc 1 296 1
+  93 0034 2E 3D                   		bra	.L9
+  94                             	.L5:
+  95                             	.LBB2:
+ 291:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+  96                             		.loc 1 291 21
+  97 0036 ED A5 03                		mov.L	12[r10], r5
+  98 0039 E7 A5 01                		mov.L	r5, 4[r10]
+ 292:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  99                             		.loc 1 292 21
+ 100 003c ED A5 04                		mov.L	16[r10], r5
+ 101 003f E7 A5 02                		mov.L	r5, 8[r10]
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 102                             		.loc 1 294 16
+ 103 0042 F8 A6 00                		mov.L	#0, [r10]
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 104                             		.loc 1 294 9
+ 105 0045 2E 23                   		bra	.L7
+ 106                             	.L8:
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 107                             		.loc 1 294 42 discriminator 3
+ 108 0047 ED A5 01                		mov.L	4[r10], r5
+ 109 004a 06 88 A5                		add	[r10].L, r5
+ 110 004d CC 53                   		mov.B	[r5], r3
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 111                             		.loc 1 294 46 discriminator 3
+ 112 004f ED A5 02                		mov.L	8[r10], r5
+ 113 0052 06 88 A5                		add	[r10].L, r5
+ 114 0055 CC 54                   		mov.B	[r5], r4
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 115                             		.loc 1 294 42 discriminator 3
+ 116 0057 ED A5 01                		mov.L	4[r10], r5
+ 117 005a 06 88 A5                		add	[r10].L, r5
+ 118 005d FC 37 34                		xor	r3, r4
+ 119 0060 C3 54                   		mov.B	r4, [r5]
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 120                             		.loc 1 294 33 discriminator 3
+ 121 0062 EC A5                   		mov.L	[r10], r5
+ 122 0064 62 15                   		add	#1, r5
+ 123 0066 E3 A5                   		mov.L	r5, [r10]
+ 124                             	.L7:
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 125                             		.loc 1 294 9 discriminator 1
+ 126 0068 EC A4                   		mov.L	[r10], r4
+ 127 006a ED A5 05                		mov.L	20[r10], r5
+ 128 006d 47 54                   		cmp	r5, r4
+ 129 006f 23 D8                   		bltu	.L8
+ 130                             	.L9:
+ 131                             	.LBE2:
+ 132                             		.loc 1 296 1
+ 133 0071 03                      		nop
+ 134 0072 3F AA 07                		rtsd	#28, r10-r10
+ 135                             	.LFE12:
+ 137                             		.section	.text.min,"ax",@progbits
+ 139                             	_min:
+ 140                             	.LFB15:
+ 297:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 298:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 299:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_FORCE_ZERO
+ 300:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine fills the first len bytes of the memory area pointed by mem
+ 301:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    with zeros. It ensures compiler optimizations doesn't skip it  */
+ 302:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ForceZero(void* mem, word32 len)
+ 303:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 304:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     volatile byte* z = (volatile byte*)mem;
+ 305:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 306:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if (defined(WOLFSSL_X86_64_BUILD) || defined(WOLFSSL_AARCH64_BUILD)) \
+ 307:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****             && defined(WORD64_AVAILABLE)
+ 308:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     volatile word64* w;
+ 309:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #ifndef WOLFSSL_UNALIGNED_64BIT_ACCESS
+ 310:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 l = (sizeof(word64) - ((size_t)z & (sizeof(word64)-1))) &
+ 311:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                                              (sizeof(word64)-1);
+ 312:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 313:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         if (len < l) l = len;
+ 314:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         len -= l;
+ 315:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         while (l--) *z++ = 0;
+ 316:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 317:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (w = (volatile word64*)z; len >= sizeof(*w); len -= sizeof(*w))
+ 318:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         *w++ = 0;
+ 319:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     z = (volatile byte*)w;
+ 320:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 321:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 322:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     while (len--) *z++ = 0;
+ 323:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 324:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 325:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 326:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 327:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_CONST_CMP
+ 328:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* check all length bytes for equality, return 0 on success */
+ 329:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE int ConstantCompare(const byte* a, const byte* b, int length)
+ 330:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 331:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     int i;
+ 332:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     int compareSum = 0;
+ 333:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 334:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < length; i++) {
+ 335:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         compareSum |= a[i] ^ b[i];
+ 336:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 337:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 338:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return compareSum;
+ 339:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 340:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 341:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 342:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 343:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_HAVE_MIN
+ 344:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WOLFSSL_HAVE_MIN
+ 345:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #if defined(HAVE_FIPS) && !defined(min) /* so ifdef check passes */
+ 346:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         #define min min
+ 347:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 348:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* returns the smaller of a and b */
+ 349:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 min(word32 a, word32 b)
+ 350:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 141                             		.loc 1 350 5
+ 142 0000 7E AA                   		push.l	r10
+ 143                             	.LCFI4:
+ 144 0002 71 0A F8                		add	#-8, r0, r10
+ 145                             	.LCFI5:
+ 146 0005 EF A0                   		mov.L	r10, r0
+ 147 0007 E3 A1                   		mov.L	r1, [r10]
+ 148 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 351:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return a > b ? b : a;
+ 149                             		.loc 1 351 26
+ 150 000c ED A5 01                		mov.L	4[r10], r5
+ 151 000f EC A3                   		mov.L	[r10], r3
+ 152 0011 EC A4                   		mov.L	[r10], r4
+ 153 0013 47 53                   		cmp	r5, r3
+ 154 0015 24 04                   		bgtu 1f
+ 155 0017 EF 45                   		mov r4, r5
+ 156                             	1:
+ 352:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 157                             		.loc 1 352 5
+ 158 0019 EF 51                   		mov.L	r5, r1
+ 159 001b 3F AA 03                		rtsd	#12, r10-r10
+ 160                             	.LFE15:
+ 162                             		.section	.text.wc_PBKDF1_ex,"ax",@progbits
+ 163                             		.global	_wc_PBKDF1_ex
+ 165                             	_wc_PBKDF1_ex:
+ 166                             	.LFB43:
+ 167                             		.file 2 "../src/wolfcrypt/src/pwdbased.c"
+   1:../src/wolfcrypt/src/pwdbased.c **** /* pwdbased.c
+   2:../src/wolfcrypt/src/pwdbased.c ****  *
+   3:../src/wolfcrypt/src/pwdbased.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/wolfcrypt/src/pwdbased.c ****  *
+   5:../src/wolfcrypt/src/pwdbased.c ****  * This file is part of wolfSSL.
+   6:../src/wolfcrypt/src/pwdbased.c ****  *
+   7:../src/wolfcrypt/src/pwdbased.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/wolfcrypt/src/pwdbased.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/wolfcrypt/src/pwdbased.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/wolfcrypt/src/pwdbased.c ****  * (at your option) any later version.
+  11:../src/wolfcrypt/src/pwdbased.c ****  *
+  12:../src/wolfcrypt/src/pwdbased.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/wolfcrypt/src/pwdbased.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/wolfcrypt/src/pwdbased.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/wolfcrypt/src/pwdbased.c ****  * GNU General Public License for more details.
+  16:../src/wolfcrypt/src/pwdbased.c ****  *
+  17:../src/wolfcrypt/src/pwdbased.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/wolfcrypt/src/pwdbased.c ****  * along with this program; if not, write to the Free Software
+  19:../src/wolfcrypt/src/pwdbased.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/wolfcrypt/src/pwdbased.c ****  */
+  21:../src/wolfcrypt/src/pwdbased.c **** 
+  22:../src/wolfcrypt/src/pwdbased.c **** 
+  23:../src/wolfcrypt/src/pwdbased.c **** #ifdef HAVE_CONFIG_H
+  24:../src/wolfcrypt/src/pwdbased.c ****     #include <config.h>
+  25:../src/wolfcrypt/src/pwdbased.c **** #endif
+  26:../src/wolfcrypt/src/pwdbased.c **** 
+  27:../src/wolfcrypt/src/pwdbased.c **** #include <wolfssl/wolfcrypt/settings.h>
+  28:../src/wolfcrypt/src/pwdbased.c **** 
+  29:../src/wolfcrypt/src/pwdbased.c **** #ifndef NO_PWDBASED
+  30:../src/wolfcrypt/src/pwdbased.c **** 
+  31:../src/wolfcrypt/src/pwdbased.c **** #include <wolfssl/wolfcrypt/pwdbased.h>
+  32:../src/wolfcrypt/src/pwdbased.c **** #include <wolfssl/wolfcrypt/hmac.h>
+  33:../src/wolfcrypt/src/pwdbased.c **** #include <wolfssl/wolfcrypt/hash.h>
+  34:../src/wolfcrypt/src/pwdbased.c **** #include <wolfssl/wolfcrypt/integer.h>
+  35:../src/wolfcrypt/src/pwdbased.c **** #include <wolfssl/wolfcrypt/error-crypt.h>
+  36:../src/wolfcrypt/src/pwdbased.c **** 
+  37:../src/wolfcrypt/src/pwdbased.c **** #ifdef NO_INLINE
+  38:../src/wolfcrypt/src/pwdbased.c ****     #include <wolfssl/wolfcrypt/misc.h>
+  39:../src/wolfcrypt/src/pwdbased.c **** #else
+  40:../src/wolfcrypt/src/pwdbased.c ****     #define WOLFSSL_MISC_INCLUDED
+  41:../src/wolfcrypt/src/pwdbased.c ****     #include <wolfcrypt/src/misc.c>
+  42:../src/wolfcrypt/src/pwdbased.c **** #endif
+  43:../src/wolfcrypt/src/pwdbased.c **** 
+  44:../src/wolfcrypt/src/pwdbased.c **** 
+  45:../src/wolfcrypt/src/pwdbased.c **** #ifdef HAVE_PBKDF1
+  46:../src/wolfcrypt/src/pwdbased.c **** 
+  47:../src/wolfcrypt/src/pwdbased.c **** /* PKCS#5 v1.5 with non standard extension to optionally derive the extra data (IV) */
+  48:../src/wolfcrypt/src/pwdbased.c **** int wc_PBKDF1_ex(byte* key, int keyLen, byte* iv, int ivLen,
+  49:../src/wolfcrypt/src/pwdbased.c ****     const byte* passwd, int passwdLen, const byte* salt, int saltLen,
+  50:../src/wolfcrypt/src/pwdbased.c ****     int iterations, int hashType, void* heap)
+  51:../src/wolfcrypt/src/pwdbased.c **** {
+ 168                             		.loc 2 51 1
+ 169 0000 7E AA                   		push.l	r10
+ 170                             	.LCFI6:
+ 171 0002 7E A6                   		push.l	r6
+ 172                             	.LCFI7:
+ 173 0004 72 0A 64 FF             		add	#-156, r0, r10
+ 174                             	.LCFI8:
+ 175 0008 EF A0                   		mov.L	r10, r0
+ 176 000a 75 46 A8                		mov.L	#0xa8, r6
+ 177 000d 4B A6                   		add	r10, r6
+ 178 000f E7 A1 1C                		mov.L	r1, 112[r10]
+ 179 0012 E7 A2 1D                		mov.L	r2, 116[r10]
+ 180 0015 E7 A3 1E                		mov.L	r3, 120[r10]
+ 181 0018 E7 A4 1F                		mov.L	r4, 124[r10]
+  52:../src/wolfcrypt/src/pwdbased.c ****     int  err;
+  53:../src/wolfcrypt/src/pwdbased.c ****     int  keyLeft, ivLeft, i;
+  54:../src/wolfcrypt/src/pwdbased.c ****     int  digestLeft, store;
+  55:../src/wolfcrypt/src/pwdbased.c ****     int  keyOutput = 0;
+ 182                             		.loc 2 55 10
+ 183 001b F9 A6 05 00             		mov.L	#0, 20[r10]
+  56:../src/wolfcrypt/src/pwdbased.c ****     int  diestLen;
+  57:../src/wolfcrypt/src/pwdbased.c ****     byte digest[WC_MAX_DIGEST_SIZE];
+  58:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+  59:../src/wolfcrypt/src/pwdbased.c ****     wc_HashAlg* hash = NULL;
+ 184                             		.loc 2 59 17
+ 185 001f F9 A6 06 00             		mov.L	#0, 24[r10]
+  60:../src/wolfcrypt/src/pwdbased.c **** #else
+  61:../src/wolfcrypt/src/pwdbased.c ****     wc_HashAlg  hash[1];
+  62:../src/wolfcrypt/src/pwdbased.c **** #endif
+  63:../src/wolfcrypt/src/pwdbased.c ****     enum wc_HashType hashT;
+  64:../src/wolfcrypt/src/pwdbased.c **** 
+  65:../src/wolfcrypt/src/pwdbased.c ****     (void)heap;
+  66:../src/wolfcrypt/src/pwdbased.c **** 
+  67:../src/wolfcrypt/src/pwdbased.c ****     if (key == NULL || keyLen < 0 || passwdLen < 0 || saltLen < 0 || ivLen < 0){
+ 186                             		.loc 2 67 8
+ 187 0023 ED A5 1C                		mov.L	112[r10], r5
+ 188 0026 61 05                   		cmp	#0, r5
+ 189 0028 20 1C                   		beq	.L13
+ 190                             		.loc 2 67 21 discriminator 1
+ 191 002a ED A5 1D                		mov.L	116[r10], r5
+ 192 002d 61 05                   		cmp	#0, r5
+ 193 002f 29 15                   		blt	.L13
+ 194                             		.loc 2 67 35 discriminator 2
+ 195 0031 A8 6D                   		mov.L	4[r6], r5
+ 196 0033 61 05                   		cmp	#0, r5
+ 197 0035 29 0F                   		blt	.L13
+ 198                             		.loc 2 67 52 discriminator 3
+ 199 0037 A8 ED                   		mov.L	12[r6], r5
+ 200 0039 61 05                   		cmp	#0, r5
+ 201 003b 29 09                   		blt	.L13
+ 202                             		.loc 2 67 67 discriminator 4
+ 203 003d ED A5 1F                		mov.L	124[r10], r5
+ 204 0040 61 05                   		cmp	#0, r5
+ 205 0042 28 09                   		bge	.L14
+ 206                             		.balign 8,3,2
+ 207                             	.L13:
+  68:../src/wolfcrypt/src/pwdbased.c ****         return BAD_FUNC_ARG;
+ 208                             		.loc 2 68 16
+ 209 0044 FB 5A 53 FF             		mov.L	#-173, r5
+ 210 0048 38 63 02                		bra	.L39
+ 211                             	.L14:
+  69:../src/wolfcrypt/src/pwdbased.c ****     }
+  70:../src/wolfcrypt/src/pwdbased.c **** 
+  71:../src/wolfcrypt/src/pwdbased.c ****     if (iterations <= 0)
+ 212                             		.loc 2 71 8
+ 213 004b A9 65                   		mov.L	16[r6], r5
+ 214 004d 61 05                   		cmp	#0, r5
+ 215 004f 2A 05                   		bgt	.L16
+  72:../src/wolfcrypt/src/pwdbased.c ****         iterations = 1;
+ 216                             		.loc 2 72 20
+ 217 0051 3E 64 01                		mov.L	#1, 16[r6]
+ 218                             	.L16:
+  73:../src/wolfcrypt/src/pwdbased.c **** 
+  74:../src/wolfcrypt/src/pwdbased.c ****     hashT = wc_HashTypeConvert(hashType);
+ 219                             		.loc 2 74 13
+ 220 0054 A9 69                   		mov.L	20[r6], r1
+ 221 0056 05 00 00 00             		bsr	_wc_HashTypeConvert
+ 222 005a E7 A1 07                		mov.L	r1, 28[r10]
+  75:../src/wolfcrypt/src/pwdbased.c ****     err = wc_HashGetDigestSize(hashT);
+ 223                             		.loc 2 75 11
+ 224 005d ED A1 07                		mov.L	28[r10], r1
+ 225 0060 05 00 00 00             		bsr	_wc_HashGetDigestSize
+ 226 0064 E3 A1                   		mov.L	r1, [r10]
+  76:../src/wolfcrypt/src/pwdbased.c ****     if (err < 0)
+ 227                             		.loc 2 76 8
+ 228 0066 EC A5                   		mov.L	[r10], r5
+ 229 0068 61 05                   		cmp	#0, r5
+ 230 006a 28 07                   		bge	.L17
+  77:../src/wolfcrypt/src/pwdbased.c ****         return err;
+ 231                             		.loc 2 77 16
+ 232 006c EC A5                   		mov.L	[r10], r5
+ 233 006e 38 3D 02                		bra	.L39
+ 234                             	.L17:
+  78:../src/wolfcrypt/src/pwdbased.c ****     diestLen = err;
+ 235                             		.loc 2 78 14
+ 236 0071 EC A5                   		mov.L	[r10], r5
+ 237 0073 E7 A5 08                		mov.L	r5, 32[r10]
+  79:../src/wolfcrypt/src/pwdbased.c **** 
+  80:../src/wolfcrypt/src/pwdbased.c ****     /* initialize hash */
+  81:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+  82:../src/wolfcrypt/src/pwdbased.c ****     hash = (wc_HashAlg*)XMALLOC(sizeof(wc_HashAlg), heap,
+ 238                             		.loc 2 82 25
+ 239 0076 75 41 D8                		mov.L	#0xd8, r1
+ 240 0079 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 241 007d E7 A1 06                		mov.L	r1, 24[r10]
+  83:../src/wolfcrypt/src/pwdbased.c ****                                 DYNAMIC_TYPE_HASHCTX);
+  84:../src/wolfcrypt/src/pwdbased.c ****     if (hash == NULL)
+ 242                             		.loc 2 84 8
+ 243 0080 ED A5 06                		mov.L	24[r10], r5
+ 244 0083 61 05                   		cmp	#0, r5
+ 245 0085 1F                      		bne	.L18
+  85:../src/wolfcrypt/src/pwdbased.c ****         return MEMORY_E;
+ 246                             		.loc 2 85 16
+ 247 0086 FB 56 83                		mov.L	#-125, r5
+ 248 0089 38 22 02                		bra	.L39
+ 249                             	.L18:
+  86:../src/wolfcrypt/src/pwdbased.c **** #endif
+  87:../src/wolfcrypt/src/pwdbased.c **** 
+  88:../src/wolfcrypt/src/pwdbased.c ****     err = wc_HashInit_ex(hash, hashT, heap, INVALID_DEVID);
+ 250                             		.loc 2 88 11
+ 251 008c FB 46 FE                		mov.L	#-2, r4
+ 252 008f A9 E3                   		mov.L	24[r6], r3
+ 253 0091 ED A2 07                		mov.L	28[r10], r2
+ 254 0094 ED A1 06                		mov.L	24[r10], r1
+ 255 0097 05 00 00 00             		bsr	_wc_HashInit_ex
+ 256 009b E3 A1                   		mov.L	r1, [r10]
+  89:../src/wolfcrypt/src/pwdbased.c ****     if (err != 0) {
+ 257                             		.loc 2 89 8
+ 258 009d EC A5                   		mov.L	[r10], r5
+ 259 009f 61 05                   		cmp	#0, r5
+ 260 00a1 20 1A                   		beq	.L19
+ 261                             	.LBB3:
+  90:../src/wolfcrypt/src/pwdbased.c ****     #ifdef WOLFSSL_SMALL_STACK
+  91:../src/wolfcrypt/src/pwdbased.c ****         XFREE(hash, heap, DYNAMIC_TYPE_HASHCTX);
+ 262                             		.loc 2 91 9
+ 263 00a3 ED A5 06                		mov.L	24[r10], r5
+ 264 00a6 E7 A5 09                		mov.L	r5, 36[r10]
+ 265 00a9 ED A5 09                		mov.L	36[r10], r5
+ 266 00ac 61 05                   		cmp	#0, r5
+ 267 00ae 10                      		beq	.L20
+ 268                             		.loc 2 91 9 is_stmt 0 discriminator 1
+ 269 00af ED A1 09                		mov.L	36[r10], r1
+ 270 00b2 05 00 00 00             		bsr	_wolfSSL_Free
+ 271                             	.L20:
+ 272                             	.LBE3:
+  92:../src/wolfcrypt/src/pwdbased.c ****     #endif
+  93:../src/wolfcrypt/src/pwdbased.c ****         return err;
+ 273                             		.loc 2 93 16 is_stmt 1
+ 274 00b6 EC A5                   		mov.L	[r10], r5
+ 275 00b8 38 F3 01                		bra	.L39
+ 276                             	.L19:
+  94:../src/wolfcrypt/src/pwdbased.c ****     }
+  95:../src/wolfcrypt/src/pwdbased.c **** 
+  96:../src/wolfcrypt/src/pwdbased.c ****     keyLeft = keyLen;
+ 277                             		.loc 2 96 13
+ 278 00bb ED A5 1D                		mov.L	116[r10], r5
+ 279 00be E7 A5 01                		mov.L	r5, 4[r10]
+  97:../src/wolfcrypt/src/pwdbased.c ****     ivLeft  = ivLen;
+ 280                             		.loc 2 97 13
+ 281 00c1 ED A5 1F                		mov.L	124[r10], r5
+ 282 00c4 E7 A5 02                		mov.L	r5, 8[r10]
+  98:../src/wolfcrypt/src/pwdbased.c ****     while (keyOutput < (keyLen + ivLen)) {
+ 283                             		.loc 2 98 11
+ 284 00c7 38 8D 01                		bra	.L21
+ 285                             	.L35:
+  99:../src/wolfcrypt/src/pwdbased.c ****         digestLeft = diestLen;
+ 286                             		.loc 2 99 20
+ 287 00ca ED A5 08                		mov.L	32[r10], r5
+ 288 00cd E7 A5 04                		mov.L	r5, 16[r10]
+ 100:../src/wolfcrypt/src/pwdbased.c ****         /* D_(i - 1) */
+ 101:../src/wolfcrypt/src/pwdbased.c ****         if (keyOutput) { /* first time D_0 is empty */
+ 289                             		.loc 2 101 12
+ 290 00d0 ED A5 05                		mov.L	20[r10], r5
+ 291 00d3 61 05                   		cmp	#0, r5
+ 292 00d5 20 1D                   		beq	.L22
+ 102:../src/wolfcrypt/src/pwdbased.c ****             err = wc_HashUpdate(hash, hashT, digest, diestLen);
+ 293                             		.loc 2 102 19
+ 294 00d7 ED A4 08                		mov.L	32[r10], r4
+ 295 00da 71 A5 30                		add	#48, r10, r5
+ 296 00dd EF 53                   		mov.L	r5, r3
+ 297 00df ED A2 07                		mov.L	28[r10], r2
+ 298 00e2 ED A1 06                		mov.L	24[r10], r1
+ 299 00e5 05 00 00 00             		bsr	_wc_HashUpdate
+ 300 00e9 E3 A1                   		mov.L	r1, [r10]
+ 103:../src/wolfcrypt/src/pwdbased.c ****             if (err != 0) break;
+ 301                             		.loc 2 103 16
+ 302 00eb EC A5                   		mov.L	[r10], r5
+ 303 00ed 61 05                   		cmp	#0, r5
+ 304 00ef 3B 78 01                		bne	.L40
+ 305                             	.L22:
+ 104:../src/wolfcrypt/src/pwdbased.c ****         }
+ 105:../src/wolfcrypt/src/pwdbased.c **** 
+ 106:../src/wolfcrypt/src/pwdbased.c ****         /* data */
+ 107:../src/wolfcrypt/src/pwdbased.c ****         err = wc_HashUpdate(hash, hashT, passwd, passwdLen);
+ 306                             		.loc 2 107 15
+ 307 00f2 A8 6D                   		mov.L	4[r6], r5
+ 308 00f4 EF 54                   		mov.L	r5, r4
+ 309 00f6 EC 63                   		mov.L	[r6], r3
+ 310 00f8 ED A2 07                		mov.L	28[r10], r2
+ 311 00fb ED A1 06                		mov.L	24[r10], r1
+ 312 00fe 05 00 00 00             		bsr	_wc_HashUpdate
+ 313 0102 E3 A1                   		mov.L	r1, [r10]
+ 108:../src/wolfcrypt/src/pwdbased.c ****         if (err != 0) break;
+ 314                             		.loc 2 108 12
+ 315 0104 EC A5                   		mov.L	[r10], r5
+ 316 0106 61 05                   		cmp	#0, r5
+ 317 0108 3B 61 01                		bne	.L41
+ 109:../src/wolfcrypt/src/pwdbased.c **** 
+ 110:../src/wolfcrypt/src/pwdbased.c ****         /* salt */
+ 111:../src/wolfcrypt/src/pwdbased.c ****         if (salt) {
+ 318                             		.loc 2 111 12
+ 319 010b A8 E5                   		mov.L	8[r6], r5
+ 320 010d 61 05                   		cmp	#0, r5
+ 321 010f 20 1B                   		beq	.L25
+ 112:../src/wolfcrypt/src/pwdbased.c ****             err = wc_HashUpdate(hash, hashT, salt, saltLen);
+ 322                             		.loc 2 112 19
+ 323 0111 A8 ED                   		mov.L	12[r6], r5
+ 324 0113 EF 54                   		mov.L	r5, r4
+ 325 0115 A8 E3                   		mov.L	8[r6], r3
+ 326 0117 ED A2 07                		mov.L	28[r10], r2
+ 327 011a ED A1 06                		mov.L	24[r10], r1
+ 328 011d 05 00 00 00             		bsr	_wc_HashUpdate
+ 329 0121 E3 A1                   		mov.L	r1, [r10]
+ 113:../src/wolfcrypt/src/pwdbased.c ****             if (err != 0) break;
+ 330                             		.loc 2 113 16
+ 331 0123 EC A5                   		mov.L	[r10], r5
+ 332 0125 61 05                   		cmp	#0, r5
+ 333 0127 3B 44 01                		bne	.L42
+ 334                             	.L25:
+ 114:../src/wolfcrypt/src/pwdbased.c ****         }
+ 115:../src/wolfcrypt/src/pwdbased.c **** 
+ 116:../src/wolfcrypt/src/pwdbased.c ****         err = wc_HashFinal(hash, hashT, digest);
+ 335                             		.loc 2 116 15
+ 336 012a 71 A5 30                		add	#48, r10, r5
+ 337 012d EF 53                   		mov.L	r5, r3
+ 338 012f ED A2 07                		mov.L	28[r10], r2
+ 339 0132 ED A1 06                		mov.L	24[r10], r1
+ 340 0135 05 00 00 00             		bsr	_wc_HashFinal
+ 341 0139 E3 A1                   		mov.L	r1, [r10]
+ 117:../src/wolfcrypt/src/pwdbased.c ****         if (err != 0) break;
+ 342                             		.loc 2 117 12
+ 343 013b EC A5                   		mov.L	[r10], r5
+ 344 013d 61 05                   		cmp	#0, r5
+ 345 013f 3B 2E 01                		bne	.L43
+ 118:../src/wolfcrypt/src/pwdbased.c **** 
+ 119:../src/wolfcrypt/src/pwdbased.c ****         /* count */
+ 120:../src/wolfcrypt/src/pwdbased.c ****         for (i = 1; i < iterations; i++) {
+ 346                             		.loc 2 120 16
+ 347 0142 F9 A6 03 01             		mov.L	#1, 12[r10]
+ 348                             		.loc 2 120 9
+ 349 0146 2E 3B                   		bra	.L27
+ 350                             	.L31:
+ 121:../src/wolfcrypt/src/pwdbased.c ****             err = wc_HashUpdate(hash, hashT, digest, diestLen);
+ 351                             		.loc 2 121 19
+ 352 0148 ED A4 08                		mov.L	32[r10], r4
+ 353 014b 71 A5 30                		add	#48, r10, r5
+ 354 014e EF 53                   		mov.L	r5, r3
+ 355 0150 ED A2 07                		mov.L	28[r10], r2
+ 356 0153 ED A1 06                		mov.L	24[r10], r1
+ 357 0156 05 00 00 00             		bsr	_wc_HashUpdate
+ 358 015a E3 A1                   		mov.L	r1, [r10]
+ 122:../src/wolfcrypt/src/pwdbased.c ****             if (err != 0) break;
+ 359                             		.loc 2 122 16
+ 360 015c EC A5                   		mov.L	[r10], r5
+ 361 015e 61 05                   		cmp	#0, r5
+ 362 0160 21 2B                   		bne	.L44
+ 123:../src/wolfcrypt/src/pwdbased.c **** 
+ 124:../src/wolfcrypt/src/pwdbased.c ****             err = wc_HashFinal(hash, hashT, digest);
+ 363                             		.loc 2 124 19
+ 364 0162 71 A5 30                		add	#48, r10, r5
+ 365 0165 EF 53                   		mov.L	r5, r3
+ 366 0167 ED A2 07                		mov.L	28[r10], r2
+ 367 016a ED A1 06                		mov.L	24[r10], r1
+ 368 016d 05 00 00 00             		bsr	_wc_HashFinal
+ 369 0171 E3 A1                   		mov.L	r1, [r10]
+ 125:../src/wolfcrypt/src/pwdbased.c ****             if (err != 0) break;
+ 370                             		.loc 2 125 16
+ 371 0173 EC A5                   		mov.L	[r10], r5
+ 372 0175 61 05                   		cmp	#0, r5
+ 373 0177 21 17                   		bne	.L45
+ 120:../src/wolfcrypt/src/pwdbased.c ****             err = wc_HashUpdate(hash, hashT, digest, diestLen);
+ 374                             		.loc 2 120 38 discriminator 2
+ 375 0179 ED A5 03                		mov.L	12[r10], r5
+ 376 017c 62 15                   		add	#1, r5
+ 377 017e E7 A5 03                		mov.L	r5, 12[r10]
+ 378                             	.L27:
+ 120:../src/wolfcrypt/src/pwdbased.c ****             err = wc_HashUpdate(hash, hashT, digest, diestLen);
+ 379                             		.loc 2 120 9 discriminator 1
+ 380 0181 ED A4 03                		mov.L	12[r10], r4
+ 381 0184 A9 65                   		mov.L	16[r6], r5
+ 382 0186 47 54                   		cmp	r5, r4
+ 383 0188 29 C0                   		blt	.L31
+ 384 018a 0D                      		bra	.L29
+ 385                             	.L44:
+ 122:../src/wolfcrypt/src/pwdbased.c **** 
+ 386                             		.loc 2 122 13
+ 387 018b 03                      		nop
+ 388 018c 2E 03                   		bra	.L29
+ 389                             	.L45:
+ 390                             		.loc 2 125 13
+ 391 018e 03                      		nop
+ 392                             	.L29:
+ 126:../src/wolfcrypt/src/pwdbased.c ****         }
+ 127:../src/wolfcrypt/src/pwdbased.c **** 
+ 128:../src/wolfcrypt/src/pwdbased.c ****         if (err != 0) break;
+ 393                             		.loc 2 128 12
+ 394 018f EC A5                   		mov.L	[r10], r5
+ 395 0191 61 05                   		cmp	#0, r5
+ 396 0193 3B DD 00                		bne	.L46
+ 129:../src/wolfcrypt/src/pwdbased.c **** 
+ 130:../src/wolfcrypt/src/pwdbased.c ****         if (keyLeft) {
+ 397                             		.loc 2 130 12
+ 398 0196 ED A5 01                		mov.L	4[r10], r5
+ 399 0199 61 05                   		cmp	#0, r5
+ 400 019b 20 53                   		beq	.L33
+ 131:../src/wolfcrypt/src/pwdbased.c ****             store = min(keyLeft, diestLen);
+ 401                             		.loc 2 131 21
+ 402 019d ED A5 01                		mov.L	4[r10], r5
+ 403 01a0 ED A4 08                		mov.L	32[r10], r4
+ 404 01a3 EF 42                   		mov.L	r4, r2
+ 405 01a5 EF 51                   		mov.L	r5, r1
+ 406 01a7 05 00 00 00             		bsr	_min
+ 407 01ab EF 15                   		mov.L	r1, r5
+ 408                             		.loc 2 131 19
+ 409 01ad E7 A5 0A                		mov.L	r5, 40[r10]
+ 132:../src/wolfcrypt/src/pwdbased.c ****             XMEMCPY(&key[keyLen - keyLeft], digest, store);
+ 410                             		.loc 2 132 13
+ 411 01b0 ED A4 1D                		mov.L	116[r10], r4
+ 412 01b3 ED A5 01                		mov.L	4[r10], r5
+ 413 01b6 FF 05 54                		sub	r5, r4, r5
+ 414 01b9 ED A4 1C                		mov.L	112[r10], r4
+ 415 01bc 4B 45                   		add	r4, r5
+ 416 01be ED A3 0A                		mov.L	40[r10], r3
+ 417 01c1 71 A4 30                		add	#48, r10, r4
+ 418 01c4 EF 42                   		mov.L	r4, r2
+ 419 01c6 EF 51                   		mov.L	r5, r1
+ 420 01c8 05 00 00 00             		bsr	_memcpy
+ 133:../src/wolfcrypt/src/pwdbased.c **** 
+ 134:../src/wolfcrypt/src/pwdbased.c ****             keyOutput  += store;
+ 421                             		.loc 2 134 24
+ 422 01cc ED A5 05                		mov.L	20[r10], r5
+ 423 01cf 06 89 A5 0A             		add	40[r10].L, r5
+ 424 01d3 E7 A5 05                		mov.L	r5, 20[r10]
+ 135:../src/wolfcrypt/src/pwdbased.c ****             keyLeft    -= store;
+ 425                             		.loc 2 135 24
+ 426 01d6 ED A4 01                		mov.L	4[r10], r4
+ 427 01d9 ED A5 0A                		mov.L	40[r10], r5
+ 428 01dc FF 05 54                		sub	r5, r4, r5
+ 429 01df E7 A5 01                		mov.L	r5, 4[r10]
+ 136:../src/wolfcrypt/src/pwdbased.c ****             digestLeft -= store;
+ 430                             		.loc 2 136 24
+ 431 01e2 ED A4 04                		mov.L	16[r10], r4
+ 432 01e5 ED A5 0A                		mov.L	40[r10], r5
+ 433 01e8 FF 05 54                		sub	r5, r4, r5
+ 434 01eb E7 A5 04                		mov.L	r5, 16[r10]
+ 435                             	.L33:
+ 137:../src/wolfcrypt/src/pwdbased.c ****         }
+ 138:../src/wolfcrypt/src/pwdbased.c **** 
+ 139:../src/wolfcrypt/src/pwdbased.c ****         if (ivLeft && digestLeft) {
+ 436                             		.loc 2 139 12
+ 437 01ee ED A5 02                		mov.L	8[r10], r5
+ 438 01f1 61 05                   		cmp	#0, r5
+ 439 01f3 20 61                   		beq	.L21
+ 440                             		.loc 2 139 20 discriminator 1
+ 441 01f5 ED A5 04                		mov.L	16[r10], r5
+ 442 01f8 61 05                   		cmp	#0, r5
+ 443 01fa 20 5A                   		beq	.L21
+ 140:../src/wolfcrypt/src/pwdbased.c ****             store = min(ivLeft, digestLeft);
+ 444                             		.loc 2 140 21
+ 445 01fc ED A5 02                		mov.L	8[r10], r5
+ 446 01ff ED A4 04                		mov.L	16[r10], r4
+ 447 0202 EF 42                   		mov.L	r4, r2
+ 448 0204 EF 51                   		mov.L	r5, r1
+ 449 0206 05 00 00 00             		bsr	_min
+ 450 020a EF 15                   		mov.L	r1, r5
+ 451                             		.loc 2 140 19
+ 452 020c E7 A5 0A                		mov.L	r5, 40[r10]
+ 141:../src/wolfcrypt/src/pwdbased.c ****             if (iv != NULL)
+ 453                             		.loc 2 141 16
+ 454 020f ED A5 1E                		mov.L	120[r10], r5
+ 455 0212 61 05                   		cmp	#0, r5
+ 456 0214 20 2A                   		beq	.L34
+ 142:../src/wolfcrypt/src/pwdbased.c ****                 XMEMCPY(&iv[ivLen - ivLeft],
+ 457                             		.loc 2 142 17
+ 458 0216 ED A4 1F                		mov.L	124[r10], r4
+ 459 0219 ED A5 02                		mov.L	8[r10], r5
+ 460 021c FF 05 54                		sub	r5, r4, r5
+ 461 021f ED A4 1E                		mov.L	120[r10], r4
+ 462 0222 FF 21 54                		add	r5, r4, r1
+ 463 0225 ED A4 08                		mov.L	32[r10], r4
+ 464 0228 ED A5 04                		mov.L	16[r10], r5
+ 465 022b FF 05 54                		sub	r5, r4, r5
+ 466 022e 71 A4 30                		add	#48, r10, r4
+ 467 0231 4B 45                   		add	r4, r5
+ 468 0233 ED A4 0A                		mov.L	40[r10], r4
+ 469 0236 EF 43                   		mov.L	r4, r3
+ 470 0238 EF 52                   		mov.L	r5, r2
+ 471 023a 05 00 00 00             		bsr	_memcpy
+ 472                             	.L34:
+ 143:../src/wolfcrypt/src/pwdbased.c ****                         &digest[diestLen - digestLeft], store);
+ 144:../src/wolfcrypt/src/pwdbased.c ****             keyOutput += store;
+ 473                             		.loc 2 144 23
+ 474 023e ED A5 05                		mov.L	20[r10], r5
+ 475 0241 06 89 A5 0A             		add	40[r10].L, r5
+ 476 0245 E7 A5 05                		mov.L	r5, 20[r10]
+ 145:../src/wolfcrypt/src/pwdbased.c ****             ivLeft    -= store;
+ 477                             		.loc 2 145 23
+ 478 0248 ED A4 02                		mov.L	8[r10], r4
+ 479 024b ED A5 0A                		mov.L	40[r10], r5
+ 480 024e FF 05 54                		sub	r5, r4, r5
+ 481 0251 E7 A5 02                		mov.L	r5, 8[r10]
+ 482                             		.balign 8,3,1
+ 483                             	.L21:
+  98:../src/wolfcrypt/src/pwdbased.c ****         digestLeft = diestLen;
+ 484                             		.loc 2 98 32
+ 485 0254 ED A5 1D                		mov.L	116[r10], r5
+ 486 0257 06 89 A5 1F             		add	124[r10].L, r5
+  98:../src/wolfcrypt/src/pwdbased.c ****         digestLeft = diestLen;
+ 487                             		.loc 2 98 11
+ 488 025b ED A4 05                		mov.L	20[r10], r4
+ 489 025e 47 54                   		cmp	r5, r4
+ 490 0260 28 05 38 68 FE          		blt	.L35
+ 491 0265 2E 0C                   		bra	.L23
+ 492                             	.L40:
+ 103:../src/wolfcrypt/src/pwdbased.c ****         }
+ 493                             		.loc 2 103 13
+ 494 0267 03                      		nop
+ 495 0268 09                      		bra	.L23
+ 496                             	.L41:
+ 108:../src/wolfcrypt/src/pwdbased.c **** 
+ 497                             		.loc 2 108 9
+ 498 0269 03                      		nop
+ 499 026a 0F                      		bra	.L23
+ 500                             	.L42:
+ 113:../src/wolfcrypt/src/pwdbased.c ****         }
+ 501                             		.loc 2 113 13
+ 502 026b 03                      		nop
+ 503 026c 0D                      		bra	.L23
+ 504                             	.L43:
+ 117:../src/wolfcrypt/src/pwdbased.c **** 
+ 505                             		.loc 2 117 9
+ 506 026d 03                      		nop
+ 507 026e 2E 03                   		bra	.L23
+ 508                             	.L46:
+ 128:../src/wolfcrypt/src/pwdbased.c **** 
+ 509                             		.loc 2 128 9
+ 510 0270 03                      		nop
+ 511                             		.balign 8,3,1
+ 512                             	.L23:
+ 146:../src/wolfcrypt/src/pwdbased.c ****         }
+ 147:../src/wolfcrypt/src/pwdbased.c ****     }
+ 148:../src/wolfcrypt/src/pwdbased.c **** 
+ 149:../src/wolfcrypt/src/pwdbased.c ****     wc_HashFree(hash, hashT);
+ 513                             		.loc 2 149 5
+ 514 0271 ED A2 07                		mov.L	28[r10], r2
+ 515 0274 ED A1 06                		mov.L	24[r10], r1
+ 516 0277 05 00 00 00             		bsr	_wc_HashFree
+ 517                             	.LBB4:
+ 150:../src/wolfcrypt/src/pwdbased.c **** 
+ 151:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 152:../src/wolfcrypt/src/pwdbased.c ****     XFREE(hash, heap, DYNAMIC_TYPE_HASHCTX);
+ 518                             		.loc 2 152 5
+ 519 027b ED A5 06                		mov.L	24[r10], r5
+ 520 027e E7 A5 0B                		mov.L	r5, 44[r10]
+ 521 0281 ED A5 0B                		mov.L	44[r10], r5
+ 522 0284 61 05                   		cmp	#0, r5
+ 523 0286 10                      		beq	.L36
+ 524                             		.loc 2 152 5 is_stmt 0 discriminator 1
+ 525 0287 ED A1 0B                		mov.L	44[r10], r1
+ 526 028a 05 00 00 00             		bsr	_wolfSSL_Free
+ 527                             	.L36:
+ 528                             	.LBE4:
+ 153:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 154:../src/wolfcrypt/src/pwdbased.c **** 
+ 155:../src/wolfcrypt/src/pwdbased.c ****     if (err != 0)
+ 529                             		.loc 2 155 8 is_stmt 1
+ 530 028e EC A5                   		mov.L	[r10], r5
+ 531 0290 61 05                   		cmp	#0, r5
+ 532 0292 15                      		beq	.L37
+ 156:../src/wolfcrypt/src/pwdbased.c ****         return err;
+ 533                             		.loc 2 156 16
+ 534 0293 EC A5                   		mov.L	[r10], r5
+ 535 0295 2E 16                   		bra	.L39
+ 536                             	.L37:
+ 157:../src/wolfcrypt/src/pwdbased.c **** 
+ 158:../src/wolfcrypt/src/pwdbased.c ****     if (keyOutput != (keyLen + ivLen))
+ 537                             		.loc 2 158 30
+ 538 0297 ED A5 1D                		mov.L	116[r10], r5
+ 539 029a 06 89 A5 1F             		add	124[r10].L, r5
+ 540                             		.loc 2 158 8
+ 541 029e ED A4 05                		mov.L	20[r10], r4
+ 542 02a1 47 54                   		cmp	r5, r4
+ 543 02a3 16                      		beq	.L38
+ 159:../src/wolfcrypt/src/pwdbased.c ****         return BUFFER_E;
+ 544                             		.loc 2 159 16
+ 545 02a4 FB 5A 7C FF             		mov.L	#-132, r5
+ 546 02a8 0B                      		bra	.L39
+ 547                             	.L38:
+ 160:../src/wolfcrypt/src/pwdbased.c **** 
+ 161:../src/wolfcrypt/src/pwdbased.c ****     return err;
+ 548                             		.loc 2 161 12
+ 549 02a9 EC A5                   		mov.L	[r10], r5
+ 550                             		.balign 8,3,1
+ 551                             	.L39:
+ 162:../src/wolfcrypt/src/pwdbased.c **** }
+ 552                             		.loc 2 162 1 discriminator 1
+ 553 02ab EF 51                   		mov.L	r5, r1
+ 554 02ad 72 00 9C 00             		add	#0x9c, r0
+ 555 02b1 7E B6                   		pop	r6
+ 556 02b3 7E BA                   		pop	r10
+ 557 02b5 02                      		rts
+ 558                             	.LFE43:
+ 560 02b6 EF 00                   		.section	.text.wc_PBKDF1,"ax",@progbits
+ 561                             		.global	_wc_PBKDF1
+ 563                             	_wc_PBKDF1:
+ 564                             	.LFB44:
+ 163:../src/wolfcrypt/src/pwdbased.c **** 
+ 164:../src/wolfcrypt/src/pwdbased.c **** /* PKCS#5 v1.5 */
+ 165:../src/wolfcrypt/src/pwdbased.c **** int wc_PBKDF1(byte* output, const byte* passwd, int pLen, const byte* salt,
+ 166:../src/wolfcrypt/src/pwdbased.c ****            int sLen, int iterations, int kLen, int hashType)
+ 167:../src/wolfcrypt/src/pwdbased.c **** {
+ 565                             		.loc 2 167 1
+ 566 0000 7E AA                   		push.l	r10
+ 567                             	.LCFI9:
+ 568 0002 71 0A E0                		add	#-32, r0, r10
+ 569                             	.LCFI10:
+ 570 0005 71 A0 E4                		add	#-28, r10, r0
+ 571                             	.LCFI11:
+ 572 0008 75 45 28                		mov.L	#40, r5
+ 573 000b 4B A5                   		add	r10, r5
+ 574 000d E3 A1                   		mov.L	r1, [r10]
+ 575 000f E7 A2 01                		mov.L	r2, 4[r10]
+ 576 0012 E7 A3 02                		mov.L	r3, 8[r10]
+ 577 0015 E7 A4 03                		mov.L	r4, 12[r10]
+ 168:../src/wolfcrypt/src/pwdbased.c ****     return wc_PBKDF1_ex(output, kLen, NULL, 0,
+ 578                             		.loc 2 168 12
+ 579 0018 3E 06 00                		mov.L	#0, 24[r0]
+ 580 001b A8 DC                   		mov.L	12[r5], r4
+ 581 001d A1 0C                   		mov.L	r4, 20[r0]
+ 582 001f A8 5C                   		mov.L	4[r5], r4
+ 583 0021 A1 04                   		mov.L	r4, 16[r0]
+ 584 0023 EC 54                   		mov.L	[r5], r4
+ 585 0025 A0 8C                   		mov.L	r4, 12[r0]
+ 586 0027 ED A4 03                		mov.L	12[r10], r4
+ 587 002a A0 84                   		mov.L	r4, 8[r0]
+ 588 002c ED A4 02                		mov.L	8[r10], r4
+ 589 002f A0 0C                   		mov.L	r4, 4[r0]
+ 590 0031 ED A4 01                		mov.L	4[r10], r4
+ 591 0034 E3 04                   		mov.L	r4, [r0]
+ 592 0036 66 04                   		mov.L	#0, r4
+ 593 0038 66 03                   		mov.L	#0, r3
+ 594 003a A8 D2                   		mov.L	8[r5], r2
+ 595 003c EC A1                   		mov.L	[r10], r1
+ 596 003e 05 00 00 00             		bsr	_wc_PBKDF1_ex
+ 597 0042 EF 15                   		mov.L	r1, r5
+ 169:../src/wolfcrypt/src/pwdbased.c ****         passwd, pLen, salt, sLen, iterations, hashType, NULL);
+ 170:../src/wolfcrypt/src/pwdbased.c **** }
+ 598                             		.loc 2 170 1
+ 599 0044 EF 51                   		mov.L	r5, r1
+ 600 0046 3F AA 10                		rtsd	#64, r10-r10
+ 601                             	.LFE44:
+ 603                             		.section	.text.wc_PBKDF2_ex,"ax",@progbits
+ 604                             		.global	_wc_PBKDF2_ex
+ 606                             	_wc_PBKDF2_ex:
+ 607                             	.LFB45:
+ 171:../src/wolfcrypt/src/pwdbased.c **** 
+ 172:../src/wolfcrypt/src/pwdbased.c **** #endif /* HAVE_PKCS5 */
+ 173:../src/wolfcrypt/src/pwdbased.c **** 
+ 174:../src/wolfcrypt/src/pwdbased.c **** #if defined(HAVE_PBKDF2) && !defined(NO_HMAC)
+ 175:../src/wolfcrypt/src/pwdbased.c **** 
+ 176:../src/wolfcrypt/src/pwdbased.c **** int wc_PBKDF2_ex(byte* output, const byte* passwd, int pLen, const byte* salt,
+ 177:../src/wolfcrypt/src/pwdbased.c ****            int sLen, int iterations, int kLen, int hashType, void* heap, int devId)
+ 178:../src/wolfcrypt/src/pwdbased.c **** {
+ 608                             		.loc 2 178 1
+ 609 0000 6E 6A                   		pushm	r6-r10
+ 610                             	.LCFI12:
+ 611 0002 71 0A A8                		add	#-88, r0, r10
+ 612                             	.LCFI13:
+ 613 0005 EF A0                   		mov.L	r10, r0
+ 614 0007 75 46 70                		mov.L	#0x70, r6
+ 615 000a 4B A6                   		add	r10, r6
+ 616 000c E7 A1 0C                		mov.L	r1, 48[r10]
+ 617 000f E7 A2 0D                		mov.L	r2, 52[r10]
+ 618 0012 E7 A3 0E                		mov.L	r3, 56[r10]
+ 619 0015 E7 A4 0F                		mov.L	r4, 60[r10]
+ 179:../src/wolfcrypt/src/pwdbased.c ****     word32 i = 1;
+ 620                             		.loc 2 179 12
+ 621 0018 F8 A6 01                		mov.L	#1, [r10]
+ 180:../src/wolfcrypt/src/pwdbased.c ****     int    hLen;
+ 181:../src/wolfcrypt/src/pwdbased.c ****     int    j, ret;
+ 182:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 183:../src/wolfcrypt/src/pwdbased.c ****     byte*  buffer;
+ 184:../src/wolfcrypt/src/pwdbased.c ****     Hmac*  hmac;
+ 185:../src/wolfcrypt/src/pwdbased.c **** #else
+ 186:../src/wolfcrypt/src/pwdbased.c ****     byte   buffer[WC_MAX_DIGEST_SIZE];
+ 187:../src/wolfcrypt/src/pwdbased.c ****     Hmac   hmac[1];
+ 188:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 189:../src/wolfcrypt/src/pwdbased.c ****     enum wc_HashType hashT;
+ 190:../src/wolfcrypt/src/pwdbased.c **** 
+ 191:../src/wolfcrypt/src/pwdbased.c ****     if (output == NULL || pLen < 0 || sLen < 0 || kLen < 0) {
+ 622                             		.loc 2 191 8
+ 623 001b ED A5 0C                		mov.L	48[r10], r5
+ 624 001e 61 05                   		cmp	#0, r5
+ 625 0020 20 15                   		beq	.L50
+ 626                             		.loc 2 191 24 discriminator 1
+ 627 0022 ED A5 0E                		mov.L	56[r10], r5
+ 628 0025 61 05                   		cmp	#0, r5
+ 629 0027 29 0E                   		blt	.L50
+ 630                             		.loc 2 191 36 discriminator 2
+ 631 0029 EC 65                   		mov.L	[r6], r5
+ 632 002b 61 05                   		cmp	#0, r5
+ 633 002d 29 08                   		blt	.L50
+ 634                             		.loc 2 191 48 discriminator 3
+ 635 002f A8 E5                   		mov.L	8[r6], r5
+ 636 0031 61 05                   		cmp	#0, r5
+ 637 0033 28 09                   		bge	.L51
+ 638                             		.balign 8,3,2
+ 639                             	.L50:
+ 192:../src/wolfcrypt/src/pwdbased.c ****         return BAD_FUNC_ARG;
+ 640                             		.loc 2 192 16
+ 641 0035 FB 5A 53 FF             		mov.L	#-173, r5
+ 642 0039 38 F9 01                		bra	.L52
+ 643                             	.L51:
+ 193:../src/wolfcrypt/src/pwdbased.c ****     }
+ 194:../src/wolfcrypt/src/pwdbased.c **** 
+ 195:../src/wolfcrypt/src/pwdbased.c ****     if (iterations <= 0)
+ 644                             		.loc 2 195 8
+ 645 003c A8 6D                   		mov.L	4[r6], r5
+ 646 003e 61 05                   		cmp	#0, r5
+ 647 0040 2A 05                   		bgt	.L53
+ 196:../src/wolfcrypt/src/pwdbased.c ****         iterations = 1;
+ 648                             		.loc 2 196 20
+ 649 0042 3E 61 01                		mov.L	#1, 4[r6]
+ 650                             	.L53:
+ 197:../src/wolfcrypt/src/pwdbased.c **** 
+ 198:../src/wolfcrypt/src/pwdbased.c ****     hashT = wc_HashTypeConvert(hashType);
+ 651                             		.loc 2 198 13
+ 652 0045 A8 E9                   		mov.L	12[r6], r1
+ 653 0047 05 00 00 00             		bsr	_wc_HashTypeConvert
+ 654 004b E7 A1 03                		mov.L	r1, 12[r10]
+ 199:../src/wolfcrypt/src/pwdbased.c ****     hLen = wc_HashGetDigestSize(hashT);
+ 655                             		.loc 2 199 12
+ 656 004e ED A1 03                		mov.L	12[r10], r1
+ 657 0051 05 00 00 00             		bsr	_wc_HashGetDigestSize
+ 658 0055 E7 A1 04                		mov.L	r1, 16[r10]
+ 200:../src/wolfcrypt/src/pwdbased.c ****     if (hLen < 0)
+ 659                             		.loc 2 200 8
+ 660 0058 ED A5 04                		mov.L	16[r10], r5
+ 661 005b 61 05                   		cmp	#0, r5
+ 662 005d 28 09                   		bge	.L54
+ 201:../src/wolfcrypt/src/pwdbased.c ****         return BAD_FUNC_ARG;
+ 663                             		.loc 2 201 16
+ 664 005f FB 5A 53 FF             		mov.L	#-173, r5
+ 665 0063 38 CF 01                		bra	.L52
+ 666                             	.L54:
+ 202:../src/wolfcrypt/src/pwdbased.c **** 
+ 203:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 204:../src/wolfcrypt/src/pwdbased.c ****     buffer = (byte*)XMALLOC(WC_MAX_DIGEST_SIZE, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 667                             		.loc 2 204 21
+ 668 0066 75 41 40                		mov.L	#0x40, r1
+ 669 0069 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 670 006d E7 A1 05                		mov.L	r1, 20[r10]
+ 205:../src/wolfcrypt/src/pwdbased.c ****     if (buffer == NULL)
+ 671                             		.loc 2 205 8
+ 672 0070 ED A5 05                		mov.L	20[r10], r5
+ 673 0073 61 05                   		cmp	#0, r5
+ 674 0075 1F                      		bne	.L55
+ 206:../src/wolfcrypt/src/pwdbased.c ****         return MEMORY_E;
+ 675                             		.loc 2 206 16
+ 676 0076 FB 56 83                		mov.L	#-125, r5
+ 677 0079 38 B9 01                		bra	.L52
+ 678                             	.L55:
+ 207:../src/wolfcrypt/src/pwdbased.c ****     hmac = (Hmac*)XMALLOC(sizeof(Hmac), heap, DYNAMIC_TYPE_HMAC);
+ 679                             		.loc 2 207 19
+ 680 007c FB 1A 20 02             		mov.L	#0x220, r1
+ 681 0080 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 682 0084 E7 A1 06                		mov.L	r1, 24[r10]
+ 208:../src/wolfcrypt/src/pwdbased.c ****     if (hmac == NULL) {
+ 683                             		.loc 2 208 8
+ 684 0087 ED A5 06                		mov.L	24[r10], r5
+ 685 008a 61 05                   		cmp	#0, r5
+ 686 008c 21 1B                   		bne	.L56
+ 687                             	.LBB5:
+ 209:../src/wolfcrypt/src/pwdbased.c ****         XFREE(buffer, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 688                             		.loc 2 209 9
+ 689 008e ED A5 05                		mov.L	20[r10], r5
+ 690 0091 E7 A5 07                		mov.L	r5, 28[r10]
+ 691 0094 ED A5 07                		mov.L	28[r10], r5
+ 692 0097 61 05                   		cmp	#0, r5
+ 693 0099 10                      		beq	.L57
+ 694                             		.loc 2 209 9 is_stmt 0 discriminator 1
+ 695 009a ED A1 07                		mov.L	28[r10], r1
+ 696 009d 05 00 00 00             		bsr	_wolfSSL_Free
+ 697                             	.L57:
+ 698                             	.LBE5:
+ 210:../src/wolfcrypt/src/pwdbased.c ****         return MEMORY_E;
+ 699                             		.loc 2 210 16 is_stmt 1
+ 700 00a1 FB 56 83                		mov.L	#-125, r5
+ 701 00a4 38 8E 01                		bra	.L52
+ 702                             	.L56:
+ 211:../src/wolfcrypt/src/pwdbased.c ****     }
+ 212:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 213:../src/wolfcrypt/src/pwdbased.c **** 
+ 214:../src/wolfcrypt/src/pwdbased.c ****     ret = wc_HmacInit(hmac, heap, devId);
+ 703                             		.loc 2 214 11
+ 704 00a7 A9 6B                   		mov.L	20[r6], r3
+ 705 00a9 A9 62                   		mov.L	16[r6], r2
+ 706 00ab ED A1 06                		mov.L	24[r10], r1
+ 707 00ae 05 00 00 00             		bsr	_wc_HmacInit
+ 708 00b2 E7 A1 02                		mov.L	r1, 8[r10]
+ 215:../src/wolfcrypt/src/pwdbased.c ****     if (ret == 0) {
+ 709                             		.loc 2 215 8
+ 710 00b5 ED A5 02                		mov.L	8[r10], r5
+ 711 00b8 61 05                   		cmp	#0, r5
+ 712 00ba 3B 4F 01                		bne	.L58
+ 216:../src/wolfcrypt/src/pwdbased.c ****         /* use int hashType here, since HMAC FIPS uses the old unique value */
+ 217:../src/wolfcrypt/src/pwdbased.c ****         ret = wc_HmacSetKey(hmac, hashType, passwd, pLen);
+ 713                             		.loc 2 217 15
+ 714 00bd ED A5 0E                		mov.L	56[r10], r5
+ 715 00c0 EF 54                   		mov.L	r5, r4
+ 716 00c2 ED A3 0D                		mov.L	52[r10], r3
+ 717 00c5 A8 EA                   		mov.L	12[r6], r2
+ 718 00c7 ED A1 06                		mov.L	24[r10], r1
+ 719 00ca 05 00 00 00             		bsr	_wc_HmacSetKey
+ 720 00ce E7 A1 02                		mov.L	r1, 8[r10]
+ 218:../src/wolfcrypt/src/pwdbased.c **** 
+ 219:../src/wolfcrypt/src/pwdbased.c ****         while (ret == 0 && kLen) {
+ 721                             		.loc 2 219 15
+ 722 00d1 38 1A 01                		bra	.L59
+ 723                             	.L74:
+ 724                             	.LBB6:
+ 220:../src/wolfcrypt/src/pwdbased.c ****             int currentLen;
+ 221:../src/wolfcrypt/src/pwdbased.c **** 
+ 222:../src/wolfcrypt/src/pwdbased.c ****             ret = wc_HmacUpdate(hmac, salt, sLen);
+ 725                             		.loc 2 222 19
+ 726 00d4 EC 65                   		mov.L	[r6], r5
+ 727 00d6 EF 53                   		mov.L	r5, r3
+ 728 00d8 ED A2 0F                		mov.L	60[r10], r2
+ 729 00db ED A1 06                		mov.L	24[r10], r1
+ 730 00de 05 00 00 00             		bsr	_wc_HmacUpdate
+ 731 00e2 E7 A1 02                		mov.L	r1, 8[r10]
+ 223:../src/wolfcrypt/src/pwdbased.c ****             if (ret != 0)
+ 732                             		.loc 2 223 16
+ 733 00e5 ED A5 02                		mov.L	8[r10], r5
+ 734 00e8 61 05                   		cmp	#0, r5
+ 735 00ea 3B 10 01                		bne	.L77
+ 224:../src/wolfcrypt/src/pwdbased.c ****                 break;
+ 225:../src/wolfcrypt/src/pwdbased.c **** 
+ 226:../src/wolfcrypt/src/pwdbased.c ****             /* encode i */
+ 227:../src/wolfcrypt/src/pwdbased.c ****             for (j = 0; j < 4; j++) {
+ 736                             		.loc 2 227 20
+ 737 00ed F9 A6 01 00             		mov.L	#0, 4[r10]
+ 738                             		.loc 2 227 13
+ 739 00f1 2E 38                   		bra	.L62
+ 740                             	.L65:
+ 741                             	.LBB7:
+ 228:../src/wolfcrypt/src/pwdbased.c ****                 byte b = (byte)(i >> ((3-j) * 8));
+ 742                             		.loc 2 228 41
+ 743 00f3 66 34                   		mov.L	#3, r4
+ 744 00f5 ED A5 01                		mov.L	4[r10], r5
+ 745 00f8 FF 05 54                		sub	r5, r4, r5
+ 746                             		.loc 2 228 45
+ 747 00fb 6C 35                   		shll	#3, r5
+ 748                             		.loc 2 228 35
+ 749 00fd EC A4                   		mov.L	[r10], r4
+ 750 00ff EF 47                   		mov.L	r4, r7
+ 751 0101 FD 60 57                		shlr	r5, r7
+ 752 0104 EF 75                   		mov.L	r7, r5
+ 753                             		.loc 2 228 22
+ 754 0106 C7 A5 2C                		mov.B	r5, 44[r10]
+ 229:../src/wolfcrypt/src/pwdbased.c **** 
+ 230:../src/wolfcrypt/src/pwdbased.c ****                 ret = wc_HmacUpdate(hmac, &b, 1);
+ 755                             		.loc 2 230 23
+ 756 0109 71 A5 2C                		add	#44, r10, r5
+ 757 010c 66 13                   		mov.L	#1, r3
+ 758 010e EF 52                   		mov.L	r5, r2
+ 759 0110 ED A1 06                		mov.L	24[r10], r1
+ 760 0113 05 00 00 00             		bsr	_wc_HmacUpdate
+ 761 0117 E7 A1 02                		mov.L	r1, 8[r10]
+ 231:../src/wolfcrypt/src/pwdbased.c ****                 if (ret != 0)
+ 762                             		.loc 2 231 20
+ 763 011a ED A5 02                		mov.L	8[r10], r5
+ 764 011d 61 05                   		cmp	#0, r5
+ 765 011f 21 13                   		bne	.L78
+ 766                             	.LBE7:
+ 227:../src/wolfcrypt/src/pwdbased.c ****                 byte b = (byte)(i >> ((3-j) * 8));
+ 767                             		.loc 2 227 33
+ 768 0121 ED A5 01                		mov.L	4[r10], r5
+ 769 0124 62 15                   		add	#1, r5
+ 770 0126 E7 A5 01                		mov.L	r5, 4[r10]
+ 771                             	.L62:
+ 227:../src/wolfcrypt/src/pwdbased.c ****                 byte b = (byte)(i >> ((3-j) * 8));
+ 772                             		.loc 2 227 13 discriminator 1
+ 773 0129 ED A5 01                		mov.L	4[r10], r5
+ 774 012c 61 35                   		cmp	#3, r5
+ 775 012e 2B C5                   		ble	.L65
+ 776 0130 2E 03                   		bra	.L64
+ 777                             	.L78:
+ 778                             	.LBB8:
+ 232:../src/wolfcrypt/src/pwdbased.c ****                     break;
+ 779                             		.loc 2 232 21
+ 780 0132 03                      		nop
+ 781                             	.L64:
+ 782                             	.LBE8:
+ 233:../src/wolfcrypt/src/pwdbased.c ****             }
+ 234:../src/wolfcrypt/src/pwdbased.c **** 
+ 235:../src/wolfcrypt/src/pwdbased.c ****             /* check ret from inside for loop */
+ 236:../src/wolfcrypt/src/pwdbased.c ****             if (ret != 0)
+ 783                             		.loc 2 236 16
+ 784 0133 ED A5 02                		mov.L	8[r10], r5
+ 785 0136 61 05                   		cmp	#0, r5
+ 786 0138 3B C4 00                		bne	.L79
+ 237:../src/wolfcrypt/src/pwdbased.c ****                 break;
+ 238:../src/wolfcrypt/src/pwdbased.c **** 
+ 239:../src/wolfcrypt/src/pwdbased.c ****             ret = wc_HmacFinal(hmac, buffer);
+ 787                             		.loc 2 239 19
+ 788 013b ED A2 05                		mov.L	20[r10], r2
+ 789 013e ED A1 06                		mov.L	24[r10], r1
+ 790 0141 05 00 00 00             		bsr	_wc_HmacFinal
+ 791 0145 E7 A1 02                		mov.L	r1, 8[r10]
+ 240:../src/wolfcrypt/src/pwdbased.c ****             if (ret != 0)
+ 792                             		.loc 2 240 16
+ 793 0148 ED A5 02                		mov.L	8[r10], r5
+ 794 014b 61 05                   		cmp	#0, r5
+ 795 014d 3B B1 00                		bne	.L80
+ 241:../src/wolfcrypt/src/pwdbased.c ****                 break;
+ 242:../src/wolfcrypt/src/pwdbased.c **** 
+ 243:../src/wolfcrypt/src/pwdbased.c ****             currentLen = min(kLen, hLen);
+ 796                             		.loc 2 243 26
+ 797 0150 A8 E5                   		mov.L	8[r6], r5
+ 798 0152 ED A4 04                		mov.L	16[r10], r4
+ 799 0155 EF 42                   		mov.L	r4, r2
+ 800 0157 EF 51                   		mov.L	r5, r1
+ 801 0159 05 00 00 00             		bsr	_min
+ 802 015d EF 15                   		mov.L	r1, r5
+ 803                             		.loc 2 243 24
+ 804 015f E7 A5 08                		mov.L	r5, 32[r10]
+ 244:../src/wolfcrypt/src/pwdbased.c ****             XMEMCPY(output, buffer, currentLen);
+ 805                             		.loc 2 244 13
+ 806 0162 ED A5 08                		mov.L	32[r10], r5
+ 807 0165 EF 53                   		mov.L	r5, r3
+ 808 0167 ED A2 05                		mov.L	20[r10], r2
+ 809 016a ED A1 0C                		mov.L	48[r10], r1
+ 810 016d 05 00 00 00             		bsr	_memcpy
+ 245:../src/wolfcrypt/src/pwdbased.c **** 
+ 246:../src/wolfcrypt/src/pwdbased.c ****             for (j = 1; j < iterations; j++) {
+ 811                             		.loc 2 246 20
+ 812 0171 F9 A6 01 01             		mov.L	#1, 4[r10]
+ 813                             		.loc 2 246 13
+ 814 0175 2E 46                   		bra	.L68
+ 815                             	.L72:
+ 247:../src/wolfcrypt/src/pwdbased.c ****                 ret = wc_HmacUpdate(hmac, buffer, hLen);
+ 816                             		.loc 2 247 23
+ 817 0177 ED A5 04                		mov.L	16[r10], r5
+ 818 017a EF 53                   		mov.L	r5, r3
+ 819 017c ED A2 05                		mov.L	20[r10], r2
+ 820 017f ED A1 06                		mov.L	24[r10], r1
+ 821 0182 05 00 00 00             		bsr	_wc_HmacUpdate
+ 822 0186 E7 A1 02                		mov.L	r1, 8[r10]
+ 248:../src/wolfcrypt/src/pwdbased.c ****                 if (ret != 0)
+ 823                             		.loc 2 248 20
+ 824 0189 ED A5 02                		mov.L	8[r10], r5
+ 825 018c 61 05                   		cmp	#0, r5
+ 826 018e 21 37                   		bne	.L81
+ 249:../src/wolfcrypt/src/pwdbased.c ****                     break;
+ 250:../src/wolfcrypt/src/pwdbased.c ****                 ret = wc_HmacFinal(hmac, buffer);
+ 827                             		.loc 2 250 23
+ 828 0190 ED A2 05                		mov.L	20[r10], r2
+ 829 0193 ED A1 06                		mov.L	24[r10], r1
+ 830 0196 05 00 00 00             		bsr	_wc_HmacFinal
+ 831 019a E7 A1 02                		mov.L	r1, 8[r10]
+ 251:../src/wolfcrypt/src/pwdbased.c ****                 if (ret != 0)
+ 832                             		.loc 2 251 20
+ 833 019d ED A5 02                		mov.L	8[r10], r5
+ 834 01a0 61 05                   		cmp	#0, r5
+ 835 01a2 21 26                   		bne	.L82
+ 252:../src/wolfcrypt/src/pwdbased.c ****                     break;
+ 253:../src/wolfcrypt/src/pwdbased.c ****                 xorbuf(output, buffer, currentLen);
+ 836                             		.loc 2 253 17 discriminator 2
+ 837 01a4 ED A5 08                		mov.L	32[r10], r5
+ 838 01a7 EF 53                   		mov.L	r5, r3
+ 839 01a9 ED A2 05                		mov.L	20[r10], r2
+ 840 01ac ED A1 0C                		mov.L	48[r10], r1
+ 841 01af 05 00 00 00             		bsr	_xorbuf
+ 246:../src/wolfcrypt/src/pwdbased.c ****                 ret = wc_HmacUpdate(hmac, buffer, hLen);
+ 842                             		.loc 2 246 42 discriminator 2
+ 843 01b3 ED A5 01                		mov.L	4[r10], r5
+ 844 01b6 62 15                   		add	#1, r5
+ 845 01b8 E7 A5 01                		mov.L	r5, 4[r10]
+ 846                             	.L68:
+ 246:../src/wolfcrypt/src/pwdbased.c ****                 ret = wc_HmacUpdate(hmac, buffer, hLen);
+ 847                             		.loc 2 246 13 discriminator 1
+ 848 01bb ED A4 01                		mov.L	4[r10], r4
+ 849 01be A8 6D                   		mov.L	4[r6], r5
+ 850 01c0 47 54                   		cmp	r5, r4
+ 851 01c2 29 B5                   		blt	.L72
+ 852 01c4 0D                      		bra	.L70
+ 853                             	.L81:
+ 249:../src/wolfcrypt/src/pwdbased.c ****                 ret = wc_HmacFinal(hmac, buffer);
+ 854                             		.loc 2 249 21
+ 855 01c5 03                      		nop
+ 856 01c6 2E 03                   		bra	.L70
+ 857                             	.L82:
+ 252:../src/wolfcrypt/src/pwdbased.c ****                     break;
+ 858                             		.loc 2 252 21
+ 859 01c8 03                      		nop
+ 860                             	.L70:
+ 254:../src/wolfcrypt/src/pwdbased.c ****             }
+ 255:../src/wolfcrypt/src/pwdbased.c **** 
+ 256:../src/wolfcrypt/src/pwdbased.c ****             /* check ret from inside for loop */
+ 257:../src/wolfcrypt/src/pwdbased.c ****             if (ret != 0)
+ 861                             		.loc 2 257 16
+ 862 01c9 ED A5 02                		mov.L	8[r10], r5
+ 863 01cc 61 05                   		cmp	#0, r5
+ 864 01ce 21 33                   		bne	.L83
+ 258:../src/wolfcrypt/src/pwdbased.c ****                 break;
+ 259:../src/wolfcrypt/src/pwdbased.c **** 
+ 260:../src/wolfcrypt/src/pwdbased.c ****             output += currentLen;
+ 865                             		.loc 2 260 20
+ 866 01d0 ED A5 08                		mov.L	32[r10], r5
+ 867 01d3 ED A4 0C                		mov.L	48[r10], r4
+ 868 01d6 4B 45                   		add	r4, r5
+ 869 01d8 E7 A5 0C                		mov.L	r5, 48[r10]
+ 261:../src/wolfcrypt/src/pwdbased.c ****             kLen   -= currentLen;
+ 870                             		.loc 2 261 20
+ 871 01db A8 E4                   		mov.L	8[r6], r4
+ 872 01dd ED A5 08                		mov.L	32[r10], r5
+ 873 01e0 FF 05 54                		sub	r5, r4, r5
+ 874 01e3 A0 E5                   		mov.L	r5, 8[r6]
+ 262:../src/wolfcrypt/src/pwdbased.c ****             i++;
+ 875                             		.loc 2 262 14
+ 876 01e5 EC A5                   		mov.L	[r10], r5
+ 877 01e7 62 15                   		add	#1, r5
+ 878 01e9 E3 A5                   		mov.L	r5, [r10]
+ 879                             	.L59:
+ 880                             	.LBE6:
+ 219:../src/wolfcrypt/src/pwdbased.c ****             int currentLen;
+ 881                             		.loc 2 219 15
+ 882 01eb ED A5 02                		mov.L	8[r10], r5
+ 883 01ee 61 05                   		cmp	#0, r5
+ 884 01f0 21 12                   		bne	.L61
+ 219:../src/wolfcrypt/src/pwdbased.c ****             int currentLen;
+ 885                             		.loc 2 219 25 discriminator 1
+ 886 01f2 A8 E5                   		mov.L	8[r6], r5
+ 887 01f4 61 05                   		cmp	#0, r5
+ 888 01f6 3B DE FE                		bne	.L74
+ 889 01f9 09                      		bra	.L61
+ 890                             	.L77:
+ 891                             	.LBB9:
+ 224:../src/wolfcrypt/src/pwdbased.c **** 
+ 892                             		.loc 2 224 17
+ 893 01fa 03                      		nop
+ 894 01fb 0F                      		bra	.L61
+ 895                             	.L79:
+ 237:../src/wolfcrypt/src/pwdbased.c **** 
+ 896                             		.loc 2 237 17
+ 897 01fc 03                      		nop
+ 898 01fd 0D                      		bra	.L61
+ 899                             	.L80:
+ 241:../src/wolfcrypt/src/pwdbased.c **** 
+ 900                             		.loc 2 241 17
+ 901 01fe 03                      		nop
+ 902 01ff 2E 03                   		bra	.L61
+ 903                             	.L83:
+ 258:../src/wolfcrypt/src/pwdbased.c **** 
+ 904                             		.loc 2 258 17
+ 905 0201 03                      		nop
+ 906                             		.balign 8,3,1
+ 907                             	.L61:
+ 908                             	.LBE9:
+ 263:../src/wolfcrypt/src/pwdbased.c ****         }
+ 264:../src/wolfcrypt/src/pwdbased.c ****         wc_HmacFree(hmac);
+ 909                             		.loc 2 264 9
+ 910 0202 ED A1 06                		mov.L	24[r10], r1
+ 911 0205 05 00 00 00             		bsr	_wc_HmacFree
+ 912                             	.L58:
+ 913                             	.LBB10:
+ 265:../src/wolfcrypt/src/pwdbased.c ****     }
+ 266:../src/wolfcrypt/src/pwdbased.c **** 
+ 267:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 268:../src/wolfcrypt/src/pwdbased.c ****     XFREE(buffer, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 914                             		.loc 2 268 5
+ 915 0209 ED A5 05                		mov.L	20[r10], r5
+ 916 020c E7 A5 09                		mov.L	r5, 36[r10]
+ 917 020f ED A5 09                		mov.L	36[r10], r5
+ 918 0212 61 05                   		cmp	#0, r5
+ 919 0214 10                      		beq	.L75
+ 920                             		.loc 2 268 5 is_stmt 0 discriminator 1
+ 921 0215 ED A1 09                		mov.L	36[r10], r1
+ 922 0218 05 00 00 00             		bsr	_wolfSSL_Free
+ 923                             	.L75:
+ 924                             	.LBE10:
+ 925                             	.LBB11:
+ 269:../src/wolfcrypt/src/pwdbased.c ****     XFREE(hmac, heap, DYNAMIC_TYPE_HMAC);
+ 926                             		.loc 2 269 5 is_stmt 1
+ 927 021c ED A5 06                		mov.L	24[r10], r5
+ 928 021f E7 A5 0A                		mov.L	r5, 40[r10]
+ 929 0222 ED A5 0A                		mov.L	40[r10], r5
+ 930 0225 61 05                   		cmp	#0, r5
+ 931 0227 10                      		beq	.L76
+ 932                             		.loc 2 269 5 is_stmt 0 discriminator 1
+ 933 0228 ED A1 0A                		mov.L	40[r10], r1
+ 934 022b 05 00 00 00             		bsr	_wolfSSL_Free
+ 935                             	.L76:
+ 936                             	.LBE11:
+ 270:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 271:../src/wolfcrypt/src/pwdbased.c **** 
+ 272:../src/wolfcrypt/src/pwdbased.c ****     return ret;
+ 937                             		.loc 2 272 12 is_stmt 1
+ 938 022f ED A5 02                		mov.L	8[r10], r5
+ 939                             		.balign 8,3,1
+ 940                             	.L52:
+ 273:../src/wolfcrypt/src/pwdbased.c **** }
+ 941                             		.loc 2 273 1
+ 942 0232 EF 51                   		mov.L	r5, r1
+ 943 0234 3F 6A 1B                		rtsd	#108, r6-r10
+ 944                             	.LFE45:
+ 946 0237 03                      		.section	.text.wc_PBKDF2,"ax",@progbits
+ 947                             		.global	_wc_PBKDF2
+ 949                             	_wc_PBKDF2:
+ 950                             	.LFB46:
+ 274:../src/wolfcrypt/src/pwdbased.c **** 
+ 275:../src/wolfcrypt/src/pwdbased.c **** int wc_PBKDF2(byte* output, const byte* passwd, int pLen, const byte* salt,
+ 276:../src/wolfcrypt/src/pwdbased.c ****            int sLen, int iterations, int kLen, int hashType)
+ 277:../src/wolfcrypt/src/pwdbased.c **** {
+ 951                             		.loc 2 277 1
+ 952 0000 7E AA                   		push.l	r10
+ 953                             	.LCFI14:
+ 954 0002 71 0A E0                		add	#-32, r0, r10
+ 955                             	.LCFI15:
+ 956 0005 71 A0 E8                		add	#-24, r10, r0
+ 957                             	.LCFI16:
+ 958 0008 75 45 28                		mov.L	#40, r5
+ 959 000b 4B A5                   		add	r10, r5
+ 960 000d E3 A1                   		mov.L	r1, [r10]
+ 961 000f E7 A2 01                		mov.L	r2, 4[r10]
+ 962 0012 E7 A3 02                		mov.L	r3, 8[r10]
+ 963 0015 E7 A4 03                		mov.L	r4, 12[r10]
+ 278:../src/wolfcrypt/src/pwdbased.c ****     return wc_PBKDF2_ex(output, passwd, pLen, salt, sLen, iterations, kLen,
+ 964                             		.loc 2 278 12
+ 965 0018 F9 06 05 FE             		mov.L	#-2, 20[r0]
+ 966 001c 3E 04 00                		mov.L	#0, 16[r0]
+ 967 001f A8 DC                   		mov.L	12[r5], r4
+ 968 0021 A0 8C                   		mov.L	r4, 12[r0]
+ 969 0023 A8 D4                   		mov.L	8[r5], r4
+ 970 0025 A0 84                   		mov.L	r4, 8[r0]
+ 971 0027 A8 5C                   		mov.L	4[r5], r4
+ 972 0029 A0 0C                   		mov.L	r4, 4[r0]
+ 973 002b EC 55                   		mov.L	[r5], r5
+ 974 002d E3 05                   		mov.L	r5, [r0]
+ 975 002f ED A4 03                		mov.L	12[r10], r4
+ 976 0032 ED A3 02                		mov.L	8[r10], r3
+ 977 0035 ED A2 01                		mov.L	4[r10], r2
+ 978 0038 EC A1                   		mov.L	[r10], r1
+ 979 003a 05 00 00 00             		bsr	_wc_PBKDF2_ex
+ 980 003e EF 15                   		mov.L	r1, r5
+ 279:../src/wolfcrypt/src/pwdbased.c ****         hashType, NULL, INVALID_DEVID);
+ 280:../src/wolfcrypt/src/pwdbased.c **** }
+ 981                             		.loc 2 280 1
+ 982 0040 EF 51                   		mov.L	r5, r1
+ 983 0042 3F AA 0F                		rtsd	#60, r10-r10
+ 984                             	.LFE46:
+ 986                             		.section	.text.DoPKCS12Hash,"ax",@progbits
+ 988                             	_DoPKCS12Hash:
+ 989                             	.LFB47:
+ 281:../src/wolfcrypt/src/pwdbased.c **** 
+ 282:../src/wolfcrypt/src/pwdbased.c **** #endif /* HAVE_PBKDF2 && !NO_HMAC */
+ 283:../src/wolfcrypt/src/pwdbased.c **** 
+ 284:../src/wolfcrypt/src/pwdbased.c **** #ifdef HAVE_PKCS12
+ 285:../src/wolfcrypt/src/pwdbased.c **** 
+ 286:../src/wolfcrypt/src/pwdbased.c **** /* helper for PKCS12_PBKDF(), does hash operation */
+ 287:../src/wolfcrypt/src/pwdbased.c **** static int DoPKCS12Hash(int hashType, byte* buffer, word32 totalLen,
+ 288:../src/wolfcrypt/src/pwdbased.c ****                  byte* Ai, word32 u, int iterations)
+ 289:../src/wolfcrypt/src/pwdbased.c **** {
+ 990                             		.loc 2 289 1
+ 991 0000 7E AA                   		push.l	r10
+ 992                             	.LCFI17:
+ 993 0002 7E A6                   		push.l	r6
+ 994                             	.LCFI18:
+ 995 0004 71 0A D0                		add	#-48, r0, r10
+ 996                             	.LCFI19:
+ 997 0007 EF A0                   		mov.L	r10, r0
+ 998 0009 75 46 3C                		mov.L	#60, r6
+ 999 000c 4B A6                   		add	r10, r6
+ 1000 000e E7 A1 06                		mov.L	r1, 24[r10]
+ 1001 0011 E7 A2 07                		mov.L	r2, 28[r10]
+ 1002 0014 E7 A3 08                		mov.L	r3, 32[r10]
+ 1003 0017 E7 A4 09                		mov.L	r4, 36[r10]
+ 290:../src/wolfcrypt/src/pwdbased.c ****     int i;
+ 291:../src/wolfcrypt/src/pwdbased.c ****     int ret = 0;
+ 1004                             		.loc 2 291 9
+ 1005 001a F9 A6 01 00             		mov.L	#0, 4[r10]
+ 292:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 293:../src/wolfcrypt/src/pwdbased.c ****     wc_HashAlg* hash = NULL;
+ 1006                             		.loc 2 293 17
+ 1007 001e F9 A6 02 00             		mov.L	#0, 8[r10]
+ 294:../src/wolfcrypt/src/pwdbased.c **** #else
+ 295:../src/wolfcrypt/src/pwdbased.c ****     wc_HashAlg  hash[1];
+ 296:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 297:../src/wolfcrypt/src/pwdbased.c ****     enum wc_HashType hashT;
+ 298:../src/wolfcrypt/src/pwdbased.c **** 
+ 299:../src/wolfcrypt/src/pwdbased.c ****     if (buffer == NULL || Ai == NULL) {
+ 1008                             		.loc 2 299 8
+ 1009 0022 ED A5 07                		mov.L	28[r10], r5
+ 1010 0025 61 05                   		cmp	#0, r5
+ 1011 0027 17                      		beq	.L87
+ 1012                             		.loc 2 299 24 discriminator 1
+ 1013 0028 ED A5 09                		mov.L	36[r10], r5
+ 1014 002b 61 05                   		cmp	#0, r5
+ 1015 002d 18                      		bne	.L88
+ 1016                             	.L87:
+ 300:../src/wolfcrypt/src/pwdbased.c ****         return BAD_FUNC_ARG;
+ 1017                             		.loc 2 300 16
+ 1018 002e FB 5A 53 FF             		mov.L	#-173, r5
+ 1019 0032 38 DE 00                		bra	.L89
+ 1020                             	.L88:
+ 301:../src/wolfcrypt/src/pwdbased.c ****     }
+ 302:../src/wolfcrypt/src/pwdbased.c **** 
+ 303:../src/wolfcrypt/src/pwdbased.c ****     hashT = wc_HashTypeConvert(hashType);
+ 1021                             		.loc 2 303 13
+ 1022 0035 ED A1 06                		mov.L	24[r10], r1
+ 1023 0038 05 00 00 00             		bsr	_wc_HashTypeConvert
+ 1024 003c E7 A1 03                		mov.L	r1, 12[r10]
+ 304:../src/wolfcrypt/src/pwdbased.c **** 
+ 305:../src/wolfcrypt/src/pwdbased.c ****     /* initialize hash */
+ 306:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 307:../src/wolfcrypt/src/pwdbased.c ****     hash = (wc_HashAlg*)XMALLOC(sizeof(wc_HashAlg), NULL,
+ 1025                             		.loc 2 307 25
+ 1026 003f 75 41 D8                		mov.L	#0xd8, r1
+ 1027 0042 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1028 0046 E7 A1 02                		mov.L	r1, 8[r10]
+ 308:../src/wolfcrypt/src/pwdbased.c ****                                 DYNAMIC_TYPE_HASHCTX);
+ 309:../src/wolfcrypt/src/pwdbased.c ****     if (hash == NULL)
+ 1029                             		.loc 2 309 8
+ 1030 0049 ED A5 02                		mov.L	8[r10], r5
+ 1031 004c 61 05                   		cmp	#0, r5
+ 1032 004e 1F                      		bne	.L90
+ 310:../src/wolfcrypt/src/pwdbased.c ****         return MEMORY_E;
+ 1033                             		.loc 2 310 16
+ 1034 004f FB 56 83                		mov.L	#-125, r5
+ 1035 0052 38 BE 00                		bra	.L89
+ 1036                             	.L90:
+ 311:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 312:../src/wolfcrypt/src/pwdbased.c **** 
+ 313:../src/wolfcrypt/src/pwdbased.c ****     ret = wc_HashInit(hash, hashT);
+ 1037                             		.loc 2 313 11
+ 1038 0055 ED A2 03                		mov.L	12[r10], r2
+ 1039 0058 ED A1 02                		mov.L	8[r10], r1
+ 1040 005b 05 00 00 00             		bsr	_wc_HashInit
+ 1041 005f E7 A1 01                		mov.L	r1, 4[r10]
+ 314:../src/wolfcrypt/src/pwdbased.c ****     if (ret != 0) {
+ 1042                             		.loc 2 314 8
+ 1043 0062 ED A5 01                		mov.L	4[r10], r5
+ 1044 0065 61 05                   		cmp	#0, r5
+ 1045 0067 20 1B                   		beq	.L91
+ 1046                             	.LBB12:
+ 315:../src/wolfcrypt/src/pwdbased.c ****     #ifdef WOLFSSL_SMALL_STACK
+ 316:../src/wolfcrypt/src/pwdbased.c ****         XFREE(hash, NULL, DYNAMIC_TYPE_HASHCTX);
+ 1047                             		.loc 2 316 9
+ 1048 0069 ED A5 02                		mov.L	8[r10], r5
+ 1049 006c E7 A5 04                		mov.L	r5, 16[r10]
+ 1050 006f ED A5 04                		mov.L	16[r10], r5
+ 1051 0072 61 05                   		cmp	#0, r5
+ 1052 0074 10                      		beq	.L92
+ 1053                             		.loc 2 316 9 is_stmt 0 discriminator 1
+ 1054 0075 ED A1 04                		mov.L	16[r10], r1
+ 1055 0078 05 00 00 00             		bsr	_wolfSSL_Free
+ 1056                             	.L92:
+ 1057                             	.LBE12:
+ 317:../src/wolfcrypt/src/pwdbased.c ****     #endif
+ 318:../src/wolfcrypt/src/pwdbased.c ****         return ret;
+ 1058                             		.loc 2 318 16 is_stmt 1
+ 1059 007c ED A5 01                		mov.L	4[r10], r5
+ 1060 007f 38 91 00                		bra	.L89
+ 1061                             	.L91:
+ 319:../src/wolfcrypt/src/pwdbased.c ****     }
+ 320:../src/wolfcrypt/src/pwdbased.c **** 
+ 321:../src/wolfcrypt/src/pwdbased.c ****     ret = wc_HashUpdate(hash, hashT, buffer, totalLen);
+ 1062                             		.loc 2 321 11
+ 1063 0082 ED A4 08                		mov.L	32[r10], r4
+ 1064 0085 ED A3 07                		mov.L	28[r10], r3
+ 1065 0088 ED A2 03                		mov.L	12[r10], r2
+ 1066 008b ED A1 02                		mov.L	8[r10], r1
+ 1067 008e 05 00 00 00             		bsr	_wc_HashUpdate
+ 1068 0092 E7 A1 01                		mov.L	r1, 4[r10]
+ 322:../src/wolfcrypt/src/pwdbased.c **** 
+ 323:../src/wolfcrypt/src/pwdbased.c ****     if (ret == 0)
+ 1069                             		.loc 2 323 8
+ 1070 0095 ED A5 01                		mov.L	4[r10], r5
+ 1071 0098 61 05                   		cmp	#0, r5
+ 1072 009a 21 12                   		bne	.L93
+ 324:../src/wolfcrypt/src/pwdbased.c ****         ret = wc_HashFinal(hash, hashT, Ai);
+ 1073                             		.loc 2 324 15
+ 1074 009c ED A3 09                		mov.L	36[r10], r3
+ 1075 009f ED A2 03                		mov.L	12[r10], r2
+ 1076 00a2 ED A1 02                		mov.L	8[r10], r1
+ 1077 00a5 05 00 00 00             		bsr	_wc_HashFinal
+ 1078 00a9 E7 A1 01                		mov.L	r1, 4[r10]
+ 1079                             	.L93:
+ 325:../src/wolfcrypt/src/pwdbased.c **** 
+ 326:../src/wolfcrypt/src/pwdbased.c ****     for (i = 1; i < iterations; i++) {
+ 1080                             		.loc 2 326 12
+ 1081 00ac F8 A6 01                		mov.L	#1, [r10]
+ 1082                             		.loc 2 326 5
+ 1083 00af 2E 38                   		bra	.L94
+ 1084                             	.L97:
+ 327:../src/wolfcrypt/src/pwdbased.c ****         if (ret == 0)
+ 1085                             		.loc 2 327 12
+ 1086 00b1 ED A5 01                		mov.L	4[r10], r5
+ 1087 00b4 61 05                   		cmp	#0, r5
+ 1088 00b6 21 14                   		bne	.L95
+ 328:../src/wolfcrypt/src/pwdbased.c ****             ret = wc_HashUpdate(hash, hashT, Ai, u);
+ 1089                             		.loc 2 328 19
+ 1090 00b8 EC 64                   		mov.L	[r6], r4
+ 1091 00ba ED A3 09                		mov.L	36[r10], r3
+ 1092 00bd ED A2 03                		mov.L	12[r10], r2
+ 1093 00c0 ED A1 02                		mov.L	8[r10], r1
+ 1094 00c3 05 00 00 00             		bsr	_wc_HashUpdate
+ 1095 00c7 E7 A1 01                		mov.L	r1, 4[r10]
+ 1096                             	.L95:
+ 329:../src/wolfcrypt/src/pwdbased.c ****         if (ret == 0)
+ 1097                             		.loc 2 329 12
+ 1098 00ca ED A5 01                		mov.L	4[r10], r5
+ 1099 00cd 61 05                   		cmp	#0, r5
+ 1100 00cf 21 12                   		bne	.L96
+ 330:../src/wolfcrypt/src/pwdbased.c ****             ret = wc_HashFinal(hash, hashT, Ai);
+ 1101                             		.loc 2 330 19
+ 1102 00d1 ED A3 09                		mov.L	36[r10], r3
+ 1103 00d4 ED A2 03                		mov.L	12[r10], r2
+ 1104 00d7 ED A1 02                		mov.L	8[r10], r1
+ 1105 00da 05 00 00 00             		bsr	_wc_HashFinal
+ 1106 00de E7 A1 01                		mov.L	r1, 4[r10]
+ 1107                             	.L96:
+ 326:../src/wolfcrypt/src/pwdbased.c ****         if (ret == 0)
+ 1108                             		.loc 2 326 34 discriminator 2
+ 1109 00e1 EC A5                   		mov.L	[r10], r5
+ 1110 00e3 62 15                   		add	#1, r5
+ 1111 00e5 E3 A5                   		mov.L	r5, [r10]
+ 1112                             	.L94:
+ 326:../src/wolfcrypt/src/pwdbased.c ****         if (ret == 0)
+ 1113                             		.loc 2 326 5 discriminator 1
+ 1114 00e7 EC A4                   		mov.L	[r10], r4
+ 1115 00e9 A8 6D                   		mov.L	4[r6], r5
+ 1116 00eb 47 54                   		cmp	r5, r4
+ 1117 00ed 29 C4                   		blt	.L97
+ 331:../src/wolfcrypt/src/pwdbased.c ****     }
+ 332:../src/wolfcrypt/src/pwdbased.c **** 
+ 333:../src/wolfcrypt/src/pwdbased.c ****     wc_HashFree(hash, hashT);
+ 1118                             		.loc 2 333 5
+ 1119 00ef ED A2 03                		mov.L	12[r10], r2
+ 1120 00f2 ED A1 02                		mov.L	8[r10], r1
+ 1121 00f5 05 00 00 00             		bsr	_wc_HashFree
+ 1122                             	.LBB13:
+ 334:../src/wolfcrypt/src/pwdbased.c **** 
+ 335:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 336:../src/wolfcrypt/src/pwdbased.c ****     XFREE(hash, NULL, DYNAMIC_TYPE_HASHCTX);
+ 1123                             		.loc 2 336 5
+ 1124 00f9 ED A5 02                		mov.L	8[r10], r5
+ 1125 00fc E7 A5 05                		mov.L	r5, 20[r10]
+ 1126 00ff ED A5 05                		mov.L	20[r10], r5
+ 1127 0102 61 05                   		cmp	#0, r5
+ 1128 0104 10                      		beq	.L98
+ 1129                             		.loc 2 336 5 is_stmt 0 discriminator 1
+ 1130 0105 ED A1 05                		mov.L	20[r10], r1
+ 1131 0108 05 00 00 00             		bsr	_wolfSSL_Free
+ 1132                             	.L98:
+ 1133                             	.LBE13:
+ 337:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 338:../src/wolfcrypt/src/pwdbased.c **** 
+ 339:../src/wolfcrypt/src/pwdbased.c ****     return ret;
+ 1134                             		.loc 2 339 12 is_stmt 1
+ 1135 010c ED A5 01                		mov.L	4[r10], r5
+ 1136 010f 03                      		.balign 8,3,1
+ 1137                             	.L89:
+ 340:../src/wolfcrypt/src/pwdbased.c **** }
+ 1138                             		.loc 2 340 1
+ 1139 0110 EF 51                   		mov.L	r5, r1
+ 1140 0112 71 00 30                		add	#48, r0
+ 1141 0115 7E B6                   		pop	r6
+ 1142 0117 7E BA                   		pop	r10
+ 1143 0119 02                      		rts
+ 1144                             	.LFE47:
+ 1146 011a 74 10 01 00 00 00       		.section	.text.wc_PKCS12_PBKDF,"ax",@progbits
+ 1147                             		.global	_wc_PKCS12_PBKDF
+ 1149                             	_wc_PKCS12_PBKDF:
+ 1150                             	.LFB48:
+ 341:../src/wolfcrypt/src/pwdbased.c **** 
+ 342:../src/wolfcrypt/src/pwdbased.c **** 
+ 343:../src/wolfcrypt/src/pwdbased.c **** int wc_PKCS12_PBKDF(byte* output, const byte* passwd, int passLen,
+ 344:../src/wolfcrypt/src/pwdbased.c ****     const byte* salt, int saltLen, int iterations, int kLen, int hashType,
+ 345:../src/wolfcrypt/src/pwdbased.c ****     int id)
+ 346:../src/wolfcrypt/src/pwdbased.c **** {
+ 1151                             		.loc 2 346 1
+ 1152 0000 7E AA                   		push.l	r10
+ 1153                             	.LCFI20:
+ 1154 0002 71 0A DC                		add	#-36, r0, r10
+ 1155                             	.LCFI21:
+ 1156 0005 71 A0 E8                		add	#-24, r10, r0
+ 1157                             	.LCFI22:
+ 1158 0008 75 45 2C                		mov.L	#44, r5
+ 1159 000b 4B A5                   		add	r10, r5
+ 1160 000d E3 A1                   		mov.L	r1, [r10]
+ 1161 000f E7 A2 01                		mov.L	r2, 4[r10]
+ 1162 0012 E7 A3 02                		mov.L	r3, 8[r10]
+ 1163 0015 E7 A4 03                		mov.L	r4, 12[r10]
+ 347:../src/wolfcrypt/src/pwdbased.c ****     return wc_PKCS12_PBKDF_ex(output, passwd, passLen, salt, saltLen,
+ 1164                             		.loc 2 347 12
+ 1165 0018 3E 05 00                		mov.L	#0, 20[r0]
+ 1166 001b A9 54                   		mov.L	16[r5], r4
+ 1167 001d A1 04                   		mov.L	r4, 16[r0]
+ 1168 001f A8 DC                   		mov.L	12[r5], r4
+ 1169 0021 A0 8C                   		mov.L	r4, 12[r0]
+ 1170 0023 A8 D4                   		mov.L	8[r5], r4
+ 1171 0025 A0 84                   		mov.L	r4, 8[r0]
+ 1172 0027 A8 5C                   		mov.L	4[r5], r4
+ 1173 0029 A0 0C                   		mov.L	r4, 4[r0]
+ 1174 002b EC 55                   		mov.L	[r5], r5
+ 1175 002d E3 05                   		mov.L	r5, [r0]
+ 1176 002f ED A4 03                		mov.L	12[r10], r4
+ 1177 0032 ED A3 02                		mov.L	8[r10], r3
+ 1178 0035 ED A2 01                		mov.L	4[r10], r2
+ 1179 0038 EC A1                   		mov.L	[r10], r1
+ 1180 003a 05 00 00 00             		bsr	_wc_PKCS12_PBKDF_ex
+ 1181 003e EF 15                   		mov.L	r1, r5
+ 348:../src/wolfcrypt/src/pwdbased.c ****                               iterations, kLen, hashType, id, NULL);
+ 349:../src/wolfcrypt/src/pwdbased.c **** }
+ 1182                             		.loc 2 349 1
+ 1183 0040 EF 51                   		mov.L	r5, r1
+ 1184 0042 3F AA 10                		rtsd	#64, r10-r10
+ 1185                             	.LFE48:
+ 1187                             		.section	.text.wc_PKCS12_PBKDF_ex,"ax",@progbits
+ 1188                             		.global	_wc_PKCS12_PBKDF_ex
+ 1190                             	_wc_PKCS12_PBKDF_ex:
+ 1191                             	.LFB49:
+ 350:../src/wolfcrypt/src/pwdbased.c **** 
+ 351:../src/wolfcrypt/src/pwdbased.c **** 
+ 352:../src/wolfcrypt/src/pwdbased.c **** /* extended API that allows a heap hint to be used */
+ 353:../src/wolfcrypt/src/pwdbased.c **** int wc_PKCS12_PBKDF_ex(byte* output, const byte* passwd, int passLen,
+ 354:../src/wolfcrypt/src/pwdbased.c ****                        const byte* salt, int saltLen, int iterations, int kLen,
+ 355:../src/wolfcrypt/src/pwdbased.c ****                        int hashType, int id, void* heap)
+ 356:../src/wolfcrypt/src/pwdbased.c **** {
+ 1192                             		.loc 2 356 1
+ 1193 0000 6E 6A                   		pushm	r6-r10
+ 1194                             	.LCFI23:
+ 1195 0002 72 0A D4 FE             		add	#-300, r0, r10
+ 1196                             	.LCFI24:
+ 1197 0006 71 A0 F8                		add	#-8, r10, r0
+ 1198                             	.LCFI25:
+ 1199 0009 FB 6A 44 01             		mov.L	#0x144, r6
+ 1200 000d 4B A6                   		add	r10, r6
+ 1201 000f E7 A1 41                		mov.L	r1, 260[r10]
+ 1202 0012 E7 A2 42                		mov.L	r2, 264[r10]
+ 1203 0015 E7 A3 43                		mov.L	r3, 268[r10]
+ 1204 0018 E7 A4 44                		mov.L	r4, 272[r10]
+ 357:../src/wolfcrypt/src/pwdbased.c ****     /* all in bytes instead of bits */
+ 358:../src/wolfcrypt/src/pwdbased.c ****     word32 u, v, dLen, pLen, iLen, sLen, totalLen;
+ 359:../src/wolfcrypt/src/pwdbased.c ****     int    dynamic = 0;
+ 1205                             		.loc 2 359 12
+ 1206 001b F8 A6 00                		mov.L	#0, [r10]
+ 360:../src/wolfcrypt/src/pwdbased.c ****     int    ret = 0;
+ 1207                             		.loc 2 360 12
+ 1208 001e F9 A6 01 00             		mov.L	#0, 4[r10]
+ 361:../src/wolfcrypt/src/pwdbased.c ****     int    i;
+ 362:../src/wolfcrypt/src/pwdbased.c ****     byte   *D, *S, *P, *I;
+ 363:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 364:../src/wolfcrypt/src/pwdbased.c ****     byte   staticBuffer[1]; /* force dynamic usage */
+ 365:../src/wolfcrypt/src/pwdbased.c **** #else
+ 366:../src/wolfcrypt/src/pwdbased.c ****     byte   staticBuffer[1024];
+ 367:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 368:../src/wolfcrypt/src/pwdbased.c ****     byte*  buffer = staticBuffer;
+ 1209                             		.loc 2 368 12
+ 1210 0022 72 A5 80 00             		add	#0x80, r10, r5
+ 1211 0026 E7 A5 03                		mov.L	r5, 12[r10]
+ 369:../src/wolfcrypt/src/pwdbased.c **** 
+ 370:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 371:../src/wolfcrypt/src/pwdbased.c ****     byte*  Ai = NULL;
+ 1212                             		.loc 2 371 12
+ 1213 0029 F9 A6 06 00             		mov.L	#0, 24[r10]
+ 372:../src/wolfcrypt/src/pwdbased.c ****     byte*  B = NULL;
+ 1214                             		.loc 2 372 12
+ 1215 002d F9 A6 07 00             		mov.L	#0, 28[r10]
+ 373:../src/wolfcrypt/src/pwdbased.c ****     mp_int *B1 = NULL;
+ 1216                             		.loc 2 373 13
+ 1217 0031 F9 A6 08 00             		mov.L	#0, 32[r10]
+ 374:../src/wolfcrypt/src/pwdbased.c ****     mp_int *i1 = NULL;
+ 1218                             		.loc 2 374 13
+ 1219 0035 F9 A6 04 00             		mov.L	#0, 16[r10]
+ 375:../src/wolfcrypt/src/pwdbased.c ****     mp_int *res = NULL;
+ 1220                             		.loc 2 375 13
+ 1221 0039 F9 A6 05 00             		mov.L	#0, 20[r10]
+ 376:../src/wolfcrypt/src/pwdbased.c **** #else
+ 377:../src/wolfcrypt/src/pwdbased.c ****     byte   Ai[WC_MAX_DIGEST_SIZE];
+ 378:../src/wolfcrypt/src/pwdbased.c ****     byte   B[WC_MAX_BLOCK_SIZE];
+ 379:../src/wolfcrypt/src/pwdbased.c ****     mp_int B1[1];
+ 380:../src/wolfcrypt/src/pwdbased.c ****     mp_int i1[1];
+ 381:../src/wolfcrypt/src/pwdbased.c ****     mp_int res[1];
+ 382:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 383:../src/wolfcrypt/src/pwdbased.c ****     enum wc_HashType hashT;
+ 384:../src/wolfcrypt/src/pwdbased.c **** 
+ 385:../src/wolfcrypt/src/pwdbased.c ****     (void)heap;
+ 386:../src/wolfcrypt/src/pwdbased.c **** 
+ 387:../src/wolfcrypt/src/pwdbased.c ****     if (output == NULL || passLen <= 0 || saltLen <= 0 || kLen < 0) {
+ 1222                             		.loc 2 387 8
+ 1223 003d ED A5 41                		mov.L	260[r10], r5
+ 1224 0040 61 05                   		cmp	#0, r5
+ 1225 0042 20 16                   		beq	.L102
+ 1226                             		.loc 2 387 24 discriminator 1
+ 1227 0044 ED A5 43                		mov.L	268[r10], r5
+ 1228 0047 61 05                   		cmp	#0, r5
+ 1229 0049 2B 0F                   		ble	.L102
+ 1230                             		.loc 2 387 40 discriminator 2
+ 1231 004b EC 65                   		mov.L	[r6], r5
+ 1232 004d 61 05                   		cmp	#0, r5
+ 1233 004f 2B 09                   		ble	.L102
+ 1234                             		.loc 2 387 56 discriminator 3
+ 1235 0051 A8 E5                   		mov.L	8[r6], r5
+ 1236 0053 61 05                   		cmp	#0, r5
+ 1237 0055 28 0A                   		bge	.L103
+ 1238 0057 03                      		.balign 8,3,2
+ 1239                             	.L102:
+ 388:../src/wolfcrypt/src/pwdbased.c ****         return BAD_FUNC_ARG;
+ 1240                             		.loc 2 388 16
+ 1241 0058 FB 5A 53 FF             		mov.L	#-173, r5
+ 1242 005c 38 0C 05                		bra	.L151
+ 1243                             	.L103:
+ 389:../src/wolfcrypt/src/pwdbased.c ****     }
+ 390:../src/wolfcrypt/src/pwdbased.c **** 
+ 391:../src/wolfcrypt/src/pwdbased.c ****     if (iterations <= 0)
+ 1244                             		.loc 2 391 8
+ 1245 005f A8 6D                   		mov.L	4[r6], r5
+ 1246 0061 61 05                   		cmp	#0, r5
+ 1247 0063 2A 05                   		bgt	.L105
+ 392:../src/wolfcrypt/src/pwdbased.c ****         iterations = 1;
+ 1248                             		.loc 2 392 20
+ 1249 0065 3E 61 01                		mov.L	#1, 4[r6]
+ 1250                             	.L105:
+ 393:../src/wolfcrypt/src/pwdbased.c **** 
+ 394:../src/wolfcrypt/src/pwdbased.c ****     hashT = wc_HashTypeConvert(hashType);
+ 1251                             		.loc 2 394 13
+ 1252 0068 A8 E9                   		mov.L	12[r6], r1
+ 1253 006a 05 00 00 00             		bsr	_wc_HashTypeConvert
+ 1254 006e E7 A1 09                		mov.L	r1, 36[r10]
+ 395:../src/wolfcrypt/src/pwdbased.c ****     ret = wc_HashGetDigestSize(hashT);
+ 1255                             		.loc 2 395 11
+ 1256 0071 ED A1 09                		mov.L	36[r10], r1
+ 1257 0074 05 00 00 00             		bsr	_wc_HashGetDigestSize
+ 1258 0078 E7 A1 01                		mov.L	r1, 4[r10]
+ 396:../src/wolfcrypt/src/pwdbased.c ****     if (ret < 0)
+ 1259                             		.loc 2 396 8
+ 1260 007b ED A5 01                		mov.L	4[r10], r5
+ 1261 007e 61 05                   		cmp	#0, r5
+ 1262 0080 28 08                   		bge	.L106
+ 397:../src/wolfcrypt/src/pwdbased.c ****         return ret;
+ 1263                             		.loc 2 397 16
+ 1264 0082 ED A5 01                		mov.L	4[r10], r5
+ 1265 0085 38 E3 04                		bra	.L151
+ 1266                             	.L106:
+ 398:../src/wolfcrypt/src/pwdbased.c ****     if (ret == 0)
+ 1267                             		.loc 2 398 8
+ 1268 0088 ED A5 01                		mov.L	4[r10], r5
+ 1269 008b 61 05                   		cmp	#0, r5
+ 1270 008d 18                      		bne	.L107
+ 399:../src/wolfcrypt/src/pwdbased.c ****         return BAD_STATE_E;
+ 1271                             		.loc 2 399 16
+ 1272 008e FB 5A 40 FF             		mov.L	#-192, r5
+ 1273 0092 38 D6 04                		bra	.L151
+ 1274                             	.L107:
+ 400:../src/wolfcrypt/src/pwdbased.c ****     u = ret;
+ 1275                             		.loc 2 400 7
+ 1276 0095 ED A5 01                		mov.L	4[r10], r5
+ 1277 0098 E7 A5 0A                		mov.L	r5, 40[r10]
+ 401:../src/wolfcrypt/src/pwdbased.c **** 
+ 402:../src/wolfcrypt/src/pwdbased.c ****     ret = wc_HashGetBlockSize(hashT);
+ 1278                             		.loc 2 402 11
+ 1279 009b ED A1 09                		mov.L	36[r10], r1
+ 1280 009e 05 00 00 00             		bsr	_wc_HashGetBlockSize
+ 1281 00a2 E7 A1 01                		mov.L	r1, 4[r10]
+ 403:../src/wolfcrypt/src/pwdbased.c ****     if (ret < 0)
+ 1282                             		.loc 2 403 8
+ 1283 00a5 ED A5 01                		mov.L	4[r10], r5
+ 1284 00a8 61 05                   		cmp	#0, r5
+ 1285 00aa 28 08                   		bge	.L108
+ 404:../src/wolfcrypt/src/pwdbased.c ****         return ret;
+ 1286                             		.loc 2 404 16
+ 1287 00ac ED A5 01                		mov.L	4[r10], r5
+ 1288 00af 38 B9 04                		bra	.L151
+ 1289                             	.L108:
+ 405:../src/wolfcrypt/src/pwdbased.c ****     if (ret == 0)
+ 1290                             		.loc 2 405 8
+ 1291 00b2 ED A5 01                		mov.L	4[r10], r5
+ 1292 00b5 61 05                   		cmp	#0, r5
+ 1293 00b7 18                      		bne	.L109
+ 406:../src/wolfcrypt/src/pwdbased.c ****         return BAD_STATE_E;
+ 1294                             		.loc 2 406 16
+ 1295 00b8 FB 5A 40 FF             		mov.L	#-192, r5
+ 1296 00bc 38 AC 04                		bra	.L151
+ 1297                             	.L109:
+ 407:../src/wolfcrypt/src/pwdbased.c ****     v = ret;
+ 1298                             		.loc 2 407 7
+ 1299 00bf ED A5 01                		mov.L	4[r10], r5
+ 1300 00c2 E7 A5 0B                		mov.L	r5, 44[r10]
+ 408:../src/wolfcrypt/src/pwdbased.c **** 
+ 409:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 410:../src/wolfcrypt/src/pwdbased.c ****     Ai = (byte*)XMALLOC(WC_MAX_DIGEST_SIZE, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 1301                             		.loc 2 410 17
+ 1302 00c5 75 41 40                		mov.L	#0x40, r1
+ 1303 00c8 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1304 00cc E7 A1 06                		mov.L	r1, 24[r10]
+ 411:../src/wolfcrypt/src/pwdbased.c ****     if (Ai == NULL)
+ 1305                             		.loc 2 411 8
+ 1306 00cf ED A5 06                		mov.L	24[r10], r5
+ 1307 00d2 61 05                   		cmp	#0, r5
+ 1308 00d4 1F                      		bne	.L110
+ 412:../src/wolfcrypt/src/pwdbased.c ****         return MEMORY_E;
+ 1309                             		.loc 2 412 16
+ 1310 00d5 FB 56 83                		mov.L	#-125, r5
+ 1311 00d8 38 90 04                		bra	.L151
+ 1312                             	.L110:
+ 413:../src/wolfcrypt/src/pwdbased.c **** 
+ 414:../src/wolfcrypt/src/pwdbased.c ****     B = (byte*)XMALLOC(WC_MAX_BLOCK_SIZE, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 1313                             		.loc 2 414 16
+ 1314 00db 75 41 80                		mov.L	#0x80, r1
+ 1315 00de 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1316 00e2 E7 A1 07                		mov.L	r1, 28[r10]
+ 415:../src/wolfcrypt/src/pwdbased.c ****     if (B == NULL) {
+ 1317                             		.loc 2 415 8
+ 1318 00e5 ED A5 07                		mov.L	28[r10], r5
+ 1319 00e8 61 05                   		cmp	#0, r5
+ 1320 00ea 21 1B                   		bne	.L111
+ 1321                             	.LBB14:
+ 416:../src/wolfcrypt/src/pwdbased.c ****         XFREE(Ai, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 1322                             		.loc 2 416 9
+ 1323 00ec ED A5 06                		mov.L	24[r10], r5
+ 1324 00ef E7 A5 0C                		mov.L	r5, 48[r10]
+ 1325 00f2 ED A5 0C                		mov.L	48[r10], r5
+ 1326 00f5 61 05                   		cmp	#0, r5
+ 1327 00f7 10                      		beq	.L112
+ 1328                             		.loc 2 416 9 is_stmt 0 discriminator 1
+ 1329 00f8 ED A1 0C                		mov.L	48[r10], r1
+ 1330 00fb 05 00 00 00             		bsr	_wolfSSL_Free
+ 1331                             	.L112:
+ 1332                             	.LBE14:
+ 417:../src/wolfcrypt/src/pwdbased.c ****         return MEMORY_E;
+ 1333                             		.loc 2 417 16 is_stmt 1
+ 1334 00ff FB 56 83                		mov.L	#-125, r5
+ 1335 0102 38 66 04                		bra	.L151
+ 1336                             	.L111:
+ 418:../src/wolfcrypt/src/pwdbased.c ****     }
+ 419:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 420:../src/wolfcrypt/src/pwdbased.c **** 
+ 421:../src/wolfcrypt/src/pwdbased.c ****     XMEMSET(Ai, 0, WC_MAX_DIGEST_SIZE);
+ 1337                             		.loc 2 421 5
+ 1338 0105 75 43 40                		mov.L	#0x40, r3
+ 1339 0108 66 02                   		mov.L	#0, r2
+ 1340 010a ED A1 06                		mov.L	24[r10], r1
+ 1341 010d 05 00 00 00             		bsr	_memset
+ 422:../src/wolfcrypt/src/pwdbased.c ****     XMEMSET(B,  0, WC_MAX_BLOCK_SIZE);
+ 1342                             		.loc 2 422 5
+ 1343 0111 75 43 80                		mov.L	#0x80, r3
+ 1344 0114 66 02                   		mov.L	#0, r2
+ 1345 0116 ED A1 07                		mov.L	28[r10], r1
+ 1346 0119 05 00 00 00             		bsr	_memset
+ 423:../src/wolfcrypt/src/pwdbased.c **** 
+ 424:../src/wolfcrypt/src/pwdbased.c ****     dLen = v;
+ 1347                             		.loc 2 424 10
+ 1348 011d ED A5 0B                		mov.L	44[r10], r5
+ 1349 0120 E7 A5 0D                		mov.L	r5, 52[r10]
+ 425:../src/wolfcrypt/src/pwdbased.c ****     sLen = v * ((saltLen + v - 1) / v);
+ 1350                             		.loc 2 425 26
+ 1351 0123 EC 65                   		mov.L	[r6], r5
+ 1352 0125 06 89 A5 0B             		add	44[r10].L, r5
+ 1353                             		.loc 2 425 30
+ 1354 0129 60 15                   		sub	#1, r5
+ 1355                             		.loc 2 425 35
+ 1356 012b ED A4 0B                		mov.L	44[r10], r4
+ 1357 012e FC 27 45                		divu	r4, r5
+ 1358                             		.loc 2 425 10
+ 1359 0131 ED A4 0B                		mov.L	44[r10], r4
+ 1360 0134 4F 45                   		mul	r4, r5
+ 1361 0136 E7 A5 0E                		mov.L	r5, 56[r10]
+ 426:../src/wolfcrypt/src/pwdbased.c **** 
+ 427:../src/wolfcrypt/src/pwdbased.c ****     /* with passLen checked at the top of the function for >= 0 then passLen
+ 428:../src/wolfcrypt/src/pwdbased.c ****      * must be 1 or greater here and is always 'true' */
+ 429:../src/wolfcrypt/src/pwdbased.c ****     pLen = v * ((passLen + v - 1) / v);
+ 1362                             		.loc 2 429 26
+ 1363 0139 ED A5 43                		mov.L	268[r10], r5
+ 1364 013c 06 89 A5 0B             		add	44[r10].L, r5
+ 1365                             		.loc 2 429 30
+ 1366 0140 60 15                   		sub	#1, r5
+ 1367                             		.loc 2 429 35
+ 1368 0142 ED A4 0B                		mov.L	44[r10], r4
+ 1369 0145 FC 27 45                		divu	r4, r5
+ 1370                             		.loc 2 429 10
+ 1371 0148 ED A4 0B                		mov.L	44[r10], r4
+ 1372 014b 4F 45                   		mul	r4, r5
+ 1373 014d E7 A5 0F                		mov.L	r5, 60[r10]
+ 430:../src/wolfcrypt/src/pwdbased.c ****     iLen = sLen + pLen;
+ 1374                             		.loc 2 430 10
+ 1375 0150 ED A5 0E                		mov.L	56[r10], r5
+ 1376 0153 06 89 A5 0F             		add	60[r10].L, r5
+ 1377 0157 E7 A5 10                		mov.L	r5, 64[r10]
+ 431:../src/wolfcrypt/src/pwdbased.c **** 
+ 432:../src/wolfcrypt/src/pwdbased.c ****     totalLen = dLen + sLen + pLen;
+ 1378                             		.loc 2 432 21
+ 1379 015a ED A5 0D                		mov.L	52[r10], r5
+ 1380 015d 06 89 A5 0E             		add	56[r10].L, r5
+ 1381                             		.loc 2 432 14
+ 1382 0161 ED A4 0F                		mov.L	60[r10], r4
+ 1383 0164 4B 45                   		add	r4, r5
+ 1384 0166 E7 A5 11                		mov.L	r5, 68[r10]
+ 433:../src/wolfcrypt/src/pwdbased.c **** 
+ 434:../src/wolfcrypt/src/pwdbased.c ****     if (totalLen > sizeof(staticBuffer)) {
+ 1385                             		.loc 2 434 8
+ 1386 0169 ED A5 11                		mov.L	68[r10], r5
+ 1387 016c 61 15                   		cmp	#1, r5
+ 1388 016e 25 42                   		bleu	.L113
+ 435:../src/wolfcrypt/src/pwdbased.c ****         buffer = (byte*)XMALLOC(totalLen, heap, DYNAMIC_TYPE_KEY);
+ 1389                             		.loc 2 435 25
+ 1390 0170 ED A1 11                		mov.L	68[r10], r1
+ 1391 0173 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1392 0177 E7 A1 03                		mov.L	r1, 12[r10]
+ 436:../src/wolfcrypt/src/pwdbased.c ****         if (buffer == NULL) {
+ 1393                             		.loc 2 436 12
+ 1394 017a ED A5 03                		mov.L	12[r10], r5
+ 1395 017d 61 05                   		cmp	#0, r5
+ 1396 017f 21 2E                   		bne	.L114
+ 1397                             	.LBB15:
+ 437:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 438:../src/wolfcrypt/src/pwdbased.c ****             XFREE(Ai, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 1398                             		.loc 2 438 13
+ 1399 0181 ED A5 06                		mov.L	24[r10], r5
+ 1400 0184 E7 A5 12                		mov.L	r5, 72[r10]
+ 1401 0187 ED A5 12                		mov.L	72[r10], r5
+ 1402 018a 61 05                   		cmp	#0, r5
+ 1403 018c 10                      		beq	.L115
+ 1404                             		.loc 2 438 13 is_stmt 0 discriminator 1
+ 1405 018d ED A1 12                		mov.L	72[r10], r1
+ 1406 0190 05 00 00 00             		bsr	_wolfSSL_Free
+ 1407                             	.L115:
+ 1408                             	.LBE15:
+ 1409                             	.LBB16:
+ 439:../src/wolfcrypt/src/pwdbased.c ****             XFREE(B,  heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 1410                             		.loc 2 439 13 is_stmt 1
+ 1411 0194 ED A5 07                		mov.L	28[r10], r5
+ 1412 0197 E7 A5 13                		mov.L	r5, 76[r10]
+ 1413 019a ED A5 13                		mov.L	76[r10], r5
+ 1414 019d 61 05                   		cmp	#0, r5
+ 1415 019f 10                      		beq	.L116
+ 1416                             		.loc 2 439 13 is_stmt 0 discriminator 1
+ 1417 01a0 ED A1 13                		mov.L	76[r10], r1
+ 1418 01a3 05 00 00 00             		bsr	_wolfSSL_Free
+ 1419                             	.L116:
+ 1420                             	.LBE16:
+ 440:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 441:../src/wolfcrypt/src/pwdbased.c ****             return MEMORY_E;
+ 1421                             		.loc 2 441 20 is_stmt 1
+ 1422 01a7 FB 56 83                		mov.L	#-125, r5
+ 1423 01aa 38 BE 03                		bra	.L151
+ 1424                             	.L114:
+ 442:../src/wolfcrypt/src/pwdbased.c ****         }
+ 443:../src/wolfcrypt/src/pwdbased.c ****         dynamic = 1;
+ 1425                             		.loc 2 443 17
+ 1426 01ad F8 A6 01                		mov.L	#1, [r10]
+ 1427                             	.L113:
+ 444:../src/wolfcrypt/src/pwdbased.c ****     }
+ 445:../src/wolfcrypt/src/pwdbased.c **** 
+ 446:../src/wolfcrypt/src/pwdbased.c ****     D = buffer;
+ 1428                             		.loc 2 446 7
+ 1429 01b0 ED A5 03                		mov.L	12[r10], r5
+ 1430 01b3 E7 A5 14                		mov.L	r5, 80[r10]
+ 447:../src/wolfcrypt/src/pwdbased.c ****     S = D + dLen;
+ 1431                             		.loc 2 447 7
+ 1432 01b6 ED A5 14                		mov.L	80[r10], r5
+ 1433 01b9 06 89 A5 0D             		add	52[r10].L, r5
+ 1434 01bd E7 A5 15                		mov.L	r5, 84[r10]
+ 448:../src/wolfcrypt/src/pwdbased.c ****     P = S + sLen;
+ 1435                             		.loc 2 448 7
+ 1436 01c0 ED A5 15                		mov.L	84[r10], r5
+ 1437 01c3 06 89 A5 0E             		add	56[r10].L, r5
+ 1438 01c7 E7 A5 16                		mov.L	r5, 88[r10]
+ 449:../src/wolfcrypt/src/pwdbased.c ****     I = S;
+ 1439                             		.loc 2 449 7
+ 1440 01ca ED A5 15                		mov.L	84[r10], r5
+ 1441 01cd E7 A5 17                		mov.L	r5, 92[r10]
+ 450:../src/wolfcrypt/src/pwdbased.c **** 
+ 451:../src/wolfcrypt/src/pwdbased.c ****     XMEMSET(D, id, dLen);
+ 1442                             		.loc 2 451 5
+ 1443 01d0 ED A3 0D                		mov.L	52[r10], r3
+ 1444 01d3 A9 62                   		mov.L	16[r6], r2
+ 1445 01d5 ED A1 14                		mov.L	80[r10], r1
+ 1446 01d8 05 00 00 00             		bsr	_memset
+ 452:../src/wolfcrypt/src/pwdbased.c **** 
+ 453:../src/wolfcrypt/src/pwdbased.c ****     for (i = 0; i < (int)sLen; i++)
+ 1447                             		.loc 2 453 12
+ 1448 01dc F9 A6 02 00             		mov.L	#0, 8[r10]
+ 1449                             		.loc 2 453 5
+ 1450 01e0 2E 2D                   		bra	.L117
+ 1451                             	.L118:
+ 454:../src/wolfcrypt/src/pwdbased.c ****         S[i] = salt[i % saltLen];
+ 1452                             		.loc 2 454 23 discriminator 3
+ 1453 01e2 ED A5 02                		mov.L	8[r10], r5
+ 1454 01e5 EC 64                   		mov.L	[r6], r4
+ 1455 01e7 EF 57                   		mov.L	r5, r7
+ 1456 01e9 FC 23 47                		div	r4, r7
+ 1457 01ec EF 74                   		mov.L	r7, r4
+ 1458 01ee EC 63                   		mov.L	[r6], r3
+ 1459 01f0 4F 34                   		mul	r3, r4
+ 1460 01f2 43 45                   		sub	r4, r5
+ 1461                             		.loc 2 454 20 discriminator 3
+ 1462 01f4 ED A4 44                		mov.L	272[r10], r4
+ 1463 01f7 4B 54                   		add	r5, r4
+ 1464                             		.loc 2 454 10 discriminator 3
+ 1465 01f9 ED A5 02                		mov.L	8[r10], r5
+ 1466 01fc ED A3 15                		mov.L	84[r10], r3
+ 1467 01ff 4B 35                   		add	r3, r5
+ 1468                             		.loc 2 454 20 discriminator 3
+ 1469 0201 CC 44                   		mov.B	[r4], r4
+ 1470                             		.loc 2 454 14 discriminator 3
+ 1471 0203 C3 54                   		mov.B	r4, [r5]
+ 453:../src/wolfcrypt/src/pwdbased.c ****         S[i] = salt[i % saltLen];
+ 1472                             		.loc 2 453 33 discriminator 3
+ 1473 0205 ED A5 02                		mov.L	8[r10], r5
+ 1474 0208 62 15                   		add	#1, r5
+ 1475 020a E7 A5 02                		mov.L	r5, 8[r10]
+ 1476                             	.L117:
+ 453:../src/wolfcrypt/src/pwdbased.c ****         S[i] = salt[i % saltLen];
+ 1477                             		.loc 2 453 21 discriminator 1
+ 1478 020d ED A5 0E                		mov.L	56[r10], r5
+ 453:../src/wolfcrypt/src/pwdbased.c ****         S[i] = salt[i % saltLen];
+ 1479                             		.loc 2 453 5 discriminator 1
+ 1480 0210 ED A4 02                		mov.L	8[r10], r4
+ 1481 0213 47 54                   		cmp	r5, r4
+ 1482 0215 29 CD                   		blt	.L118
+ 455:../src/wolfcrypt/src/pwdbased.c ****     for (i = 0; i < (int)pLen; i++)
+ 1483                             		.loc 2 455 12
+ 1484 0217 F9 A6 02 00             		mov.L	#0, 8[r10]
+ 1485                             		.loc 2 455 5
+ 1486 021b 2E 2F                   		bra	.L119
+ 1487                             	.L120:
+ 456:../src/wolfcrypt/src/pwdbased.c ****         P[i] = passwd[i % passLen];
+ 1488                             		.loc 2 456 25 discriminator 3
+ 1489 021d ED A5 02                		mov.L	8[r10], r5
+ 1490 0220 ED A4 43                		mov.L	268[r10], r4
+ 1491 0223 EF 57                   		mov.L	r5, r7
+ 1492 0225 FC 23 47                		div	r4, r7
+ 1493 0228 EF 74                   		mov.L	r7, r4
+ 1494 022a ED A3 43                		mov.L	268[r10], r3
+ 1495 022d 4F 34                   		mul	r3, r4
+ 1496 022f 43 45                   		sub	r4, r5
+ 1497                             		.loc 2 456 22 discriminator 3
+ 1498 0231 ED A4 42                		mov.L	264[r10], r4
+ 1499 0234 4B 54                   		add	r5, r4
+ 1500                             		.loc 2 456 10 discriminator 3
+ 1501 0236 ED A5 02                		mov.L	8[r10], r5
+ 1502 0239 ED A3 16                		mov.L	88[r10], r3
+ 1503 023c 4B 35                   		add	r3, r5
+ 1504                             		.loc 2 456 22 discriminator 3
+ 1505 023e CC 44                   		mov.B	[r4], r4
+ 1506                             		.loc 2 456 14 discriminator 3
+ 1507 0240 C3 54                   		mov.B	r4, [r5]
+ 455:../src/wolfcrypt/src/pwdbased.c ****     for (i = 0; i < (int)pLen; i++)
+ 1508                             		.loc 2 455 33 discriminator 3
+ 1509 0242 ED A5 02                		mov.L	8[r10], r5
+ 1510 0245 62 15                   		add	#1, r5
+ 1511 0247 E7 A5 02                		mov.L	r5, 8[r10]
+ 1512                             	.L119:
+ 455:../src/wolfcrypt/src/pwdbased.c ****     for (i = 0; i < (int)pLen; i++)
+ 1513                             		.loc 2 455 21 discriminator 1
+ 1514 024a ED A5 0F                		mov.L	60[r10], r5
+ 455:../src/wolfcrypt/src/pwdbased.c ****     for (i = 0; i < (int)pLen; i++)
+ 1515                             		.loc 2 455 5 discriminator 1
+ 1516 024d ED A4 02                		mov.L	8[r10], r4
+ 1517 0250 47 54                   		cmp	r5, r4
+ 1518 0252 29 CB                   		blt	.L120
+ 457:../src/wolfcrypt/src/pwdbased.c **** 
+ 458:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 459:../src/wolfcrypt/src/pwdbased.c ****     if (((B1 = (mp_int *)XMALLOC(sizeof(*B1), heap, DYNAMIC_TYPE_TMP_BUFFER))
+ 1519                             		.loc 2 459 26
+ 1520 0254 FB 1A 10 03             		mov.L	#0x310, r1
+ 1521 0258 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1522 025c E7 A1 08                		mov.L	r1, 32[r10]
+ 1523                             		.loc 2 459 8
+ 1524 025f ED A5 08                		mov.L	32[r10], r5
+ 1525 0262 61 05                   		cmp	#0, r5
+ 1526 0264 20 27                   		beq	.L121
+ 460:../src/wolfcrypt/src/pwdbased.c ****          == NULL) ||
+ 461:../src/wolfcrypt/src/pwdbased.c ****         ((i1 = (mp_int *)XMALLOC(sizeof(*i1), heap, DYNAMIC_TYPE_TMP_BUFFER))
+ 1527                             		.loc 2 461 26
+ 1528 0266 FB 1A 10 03             		mov.L	#0x310, r1
+ 1529 026a 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1530 026e E7 A1 04                		mov.L	r1, 16[r10]
+ 460:../src/wolfcrypt/src/pwdbased.c ****          == NULL) ||
+ 1531                             		.loc 2 460 19
+ 1532 0271 ED A5 04                		mov.L	16[r10], r5
+ 1533 0274 61 05                   		cmp	#0, r5
+ 1534 0276 20 15                   		beq	.L121
+ 462:../src/wolfcrypt/src/pwdbased.c ****          == NULL) ||
+ 463:../src/wolfcrypt/src/pwdbased.c ****         ((res = (mp_int *)XMALLOC(sizeof(*res), heap, DYNAMIC_TYPE_TMP_BUFFER))
+ 1535                             		.loc 2 463 27
+ 1536 0278 FB 1A 10 03             		mov.L	#0x310, r1
+ 1537 027c 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1538 0280 E7 A1 05                		mov.L	r1, 20[r10]
+ 462:../src/wolfcrypt/src/pwdbased.c ****          == NULL) ||
+ 1539                             		.loc 2 462 19
+ 1540 0283 ED A5 05                		mov.L	20[r10], r5
+ 1541 0286 61 05                   		cmp	#0, r5
+ 1542 0288 3B 35 02                		bne	.L124
+ 1543                             	.L121:
+ 464:../src/wolfcrypt/src/pwdbased.c ****          == NULL)) {
+ 465:../src/wolfcrypt/src/pwdbased.c ****         ret = MEMORY_E;
+ 1544                             		.loc 2 465 13
+ 1545 028b F9 A6 01 83             		mov.L	#-125, 4[r10]
+ 466:../src/wolfcrypt/src/pwdbased.c ****         goto out;
+ 1546                             		.loc 2 466 9
+ 1547 028f 38 3A 02                		bra	.L123
+ 1548                             	.L144:
+ 1549                             	.LBB17:
+ 467:../src/wolfcrypt/src/pwdbased.c ****     }
+ 468:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 469:../src/wolfcrypt/src/pwdbased.c **** 
+ 470:../src/wolfcrypt/src/pwdbased.c ****     while (kLen > 0) {
+ 471:../src/wolfcrypt/src/pwdbased.c ****         word32 currentLen;
+ 472:../src/wolfcrypt/src/pwdbased.c **** 
+ 473:../src/wolfcrypt/src/pwdbased.c ****         ret = DoPKCS12Hash(hashType, buffer, totalLen, Ai, u, iterations);
+ 1550                             		.loc 2 473 15
+ 1551 0292 A8 6D                   		mov.L	4[r6], r5
+ 1552 0294 A0 0D                   		mov.L	r5, 4[r0]
+ 1553 0296 ED A5 0A                		mov.L	40[r10], r5
+ 1554 0299 E3 05                   		mov.L	r5, [r0]
+ 1555 029b ED A4 06                		mov.L	24[r10], r4
+ 1556 029e ED A3 11                		mov.L	68[r10], r3
+ 1557 02a1 ED A2 03                		mov.L	12[r10], r2
+ 1558 02a4 A8 E9                   		mov.L	12[r6], r1
+ 1559 02a6 05 00 00 00             		bsr	_DoPKCS12Hash
+ 1560 02aa E7 A1 01                		mov.L	r1, 4[r10]
+ 474:../src/wolfcrypt/src/pwdbased.c ****         if (ret < 0)
+ 1561                             		.loc 2 474 12
+ 1562 02ad ED A5 01                		mov.L	4[r10], r5
+ 1563 02b0 61 05                   		cmp	#0, r5
+ 1564 02b2 28 05 38 14 02          		blt	.L152
+ 475:../src/wolfcrypt/src/pwdbased.c ****             break;
+ 476:../src/wolfcrypt/src/pwdbased.c **** 
+ 477:../src/wolfcrypt/src/pwdbased.c ****         for (i = 0; i < (int)v; i++)
+ 1565                             		.loc 2 477 16
+ 1566 02b7 F9 A6 02 00             		mov.L	#0, 8[r10]
+ 1567                             		.loc 2 477 9
+ 1568 02bb 2E 2F                   		bra	.L126
+ 1569                             	.L127:
+ 478:../src/wolfcrypt/src/pwdbased.c ****             B[i] = Ai[i % u];
+ 1570                             		.loc 2 478 25 discriminator 3
+ 1571 02bd ED A5 02                		mov.L	8[r10], r5
+ 1572 02c0 ED A4 0A                		mov.L	40[r10], r4
+ 1573 02c3 EF 57                   		mov.L	r5, r7
+ 1574 02c5 FC 27 47                		divu	r4, r7
+ 1575 02c8 EF 74                   		mov.L	r7, r4
+ 1576 02ca ED A3 0A                		mov.L	40[r10], r3
+ 1577 02cd 4F 34                   		mul	r3, r4
+ 1578 02cf 43 45                   		sub	r4, r5
+ 1579                             		.loc 2 478 22 discriminator 3
+ 1580 02d1 ED A4 06                		mov.L	24[r10], r4
+ 1581 02d4 4B 54                   		add	r5, r4
+ 1582                             		.loc 2 478 14 discriminator 3
+ 1583 02d6 ED A5 02                		mov.L	8[r10], r5
+ 1584 02d9 ED A3 07                		mov.L	28[r10], r3
+ 1585 02dc 4B 35                   		add	r3, r5
+ 1586                             		.loc 2 478 22 discriminator 3
+ 1587 02de CC 44                   		mov.B	[r4], r4
+ 1588                             		.loc 2 478 18 discriminator 3
+ 1589 02e0 C3 54                   		mov.B	r4, [r5]
+ 477:../src/wolfcrypt/src/pwdbased.c ****             B[i] = Ai[i % u];
+ 1590                             		.loc 2 477 34 discriminator 3
+ 1591 02e2 ED A5 02                		mov.L	8[r10], r5
+ 1592 02e5 62 15                   		add	#1, r5
+ 1593 02e7 E7 A5 02                		mov.L	r5, 8[r10]
+ 1594                             	.L126:
+ 477:../src/wolfcrypt/src/pwdbased.c ****             B[i] = Ai[i % u];
+ 1595                             		.loc 2 477 25 discriminator 1
+ 1596 02ea ED A5 0B                		mov.L	44[r10], r5
+ 477:../src/wolfcrypt/src/pwdbased.c ****             B[i] = Ai[i % u];
+ 1597                             		.loc 2 477 9 discriminator 1
+ 1598 02ed ED A4 02                		mov.L	8[r10], r4
+ 1599 02f0 47 54                   		cmp	r5, r4
+ 1600 02f2 29 CB                   		blt	.L127
+ 479:../src/wolfcrypt/src/pwdbased.c **** 
+ 480:../src/wolfcrypt/src/pwdbased.c ****         if (mp_init(B1) != MP_OKAY)
+ 1601                             		.loc 2 480 13
+ 1602 02f4 ED A1 08                		mov.L	32[r10], r1
+ 1603 02f7 05 00 00 00             		bsr	_sp_init
+ 1604 02fb EF 15                   		mov.L	r1, r5
+ 1605                             		.loc 2 480 12
+ 1606 02fd 61 05                   		cmp	#0, r5
+ 1607 02ff 17                      		beq	.L128
+ 481:../src/wolfcrypt/src/pwdbased.c ****             ret = MP_INIT_E;
+ 1608                             		.loc 2 481 17
+ 1609 0300 F9 A6 01 92             		mov.L	#-110, 4[r10]
+ 1610 0304 2E 2F                   		bra	.L129
+ 1611                             	.L128:
+ 482:../src/wolfcrypt/src/pwdbased.c ****         else if (mp_read_unsigned_bin(B1, B, v) != MP_OKAY)
+ 1612                             		.loc 2 482 18
+ 1613 0306 ED A3 0B                		mov.L	44[r10], r3
+ 1614 0309 ED A2 07                		mov.L	28[r10], r2
+ 1615 030c ED A1 08                		mov.L	32[r10], r1
+ 1616 030f 05 00 00 00             		bsr	_sp_read_unsigned_bin
+ 1617 0313 EF 15                   		mov.L	r1, r5
+ 1618                             		.loc 2 482 17
+ 1619 0315 61 05                   		cmp	#0, r5
+ 1620 0317 17                      		beq	.L130
+ 483:../src/wolfcrypt/src/pwdbased.c ****             ret = MP_READ_E;
+ 1621                             		.loc 2 483 17
+ 1622 0318 F9 A6 01 91             		mov.L	#-111, 4[r10]
+ 1623 031c 2E 17                   		bra	.L129
+ 1624                             	.L130:
+ 484:../src/wolfcrypt/src/pwdbased.c ****         else if (mp_add_d(B1, (mp_digit)1, B1) != MP_OKAY)
+ 1625                             		.loc 2 484 18
+ 1626 031e ED A3 08                		mov.L	32[r10], r3
+ 1627 0321 66 12                   		mov.L	#1, r2
+ 1628 0323 ED A1 08                		mov.L	32[r10], r1
+ 1629 0326 05 00 00 00             		bsr	_sp_add_d
+ 1630 032a EF 15                   		mov.L	r1, r5
+ 1631                             		.loc 2 484 17
+ 1632 032c 61 05                   		cmp	#0, r5
+ 1633 032e 15                      		beq	.L129
+ 485:../src/wolfcrypt/src/pwdbased.c ****             ret = MP_ADD_E;
+ 1634                             		.loc 2 485 17
+ 1635 032f F9 A6 01 8D             		mov.L	#-115, 4[r10]
+ 1636                             		.balign 8,3,1
+ 1637                             	.L129:
+ 486:../src/wolfcrypt/src/pwdbased.c **** 
+ 487:../src/wolfcrypt/src/pwdbased.c ****         if (ret != 0) {
+ 1638                             		.loc 2 487 12
+ 1639 0333 ED A5 01                		mov.L	4[r10], r5
+ 1640 0336 61 05                   		cmp	#0, r5
+ 1641 0338 20 0C                   		beq	.L131
+ 488:../src/wolfcrypt/src/pwdbased.c ****             mp_clear(B1);
+ 1642                             		.loc 2 488 13
+ 1643 033a ED A1 08                		mov.L	32[r10], r1
+ 1644 033d 05 00 00 00             		bsr	_sp_clear
+ 489:../src/wolfcrypt/src/pwdbased.c ****             break;
+ 1645                             		.loc 2 489 13
+ 1646 0341 38 88 01                		bra	.L123
+ 1647                             	.L131:
+ 490:../src/wolfcrypt/src/pwdbased.c ****         }
+ 491:../src/wolfcrypt/src/pwdbased.c **** 
+ 492:../src/wolfcrypt/src/pwdbased.c ****         for (i = 0; i < (int)iLen; i += v) {
+ 1648                             		.loc 2 492 16
+ 1649 0344 F9 A6 02 00             		mov.L	#0, 8[r10]
+ 1650                             		.loc 2 492 9
+ 1651 0348 38 1F 01                		bra	.L132
+ 1652                             	.L142:
+ 1653                             	.LBB18:
+ 493:../src/wolfcrypt/src/pwdbased.c ****             int    outSz;
+ 494:../src/wolfcrypt/src/pwdbased.c **** 
+ 495:../src/wolfcrypt/src/pwdbased.c ****             if (mp_init_multi(i1, res, NULL, NULL, NULL, NULL) != MP_OKAY) {
+ 1654                             		.loc 2 495 17
+ 1655 034b 3E 01 00                		mov.L	#0, 4[r0]
+ 1656 034e F8 06 00                		mov.L	#0, [r0]
+ 1657 0351 66 04                   		mov.L	#0, r4
+ 1658 0353 66 03                   		mov.L	#0, r3
+ 1659 0355 ED A2 05                		mov.L	20[r10], r2
+ 1660 0358 ED A1 04                		mov.L	16[r10], r1
+ 1661 035b 05 00 00 00             		bsr	_sp_init_multi
+ 1662 035f EF 15                   		mov.L	r1, r5
+ 1663                             		.loc 2 495 16
+ 1664 0361 61 05                   		cmp	#0, r5
+ 1665 0363 10                      		beq	.L133
+ 496:../src/wolfcrypt/src/pwdbased.c ****                 ret = MP_INIT_E;
+ 1666                             		.loc 2 496 21
+ 1667 0364 F9 A6 01 92             		mov.L	#-110, 4[r10]
+ 497:../src/wolfcrypt/src/pwdbased.c ****                 break;
+ 1668                             		.loc 2 497 17
+ 1669 0368 38 0F 01                		bra	.L134
+ 1670                             	.L133:
+ 498:../src/wolfcrypt/src/pwdbased.c ****             }
+ 499:../src/wolfcrypt/src/pwdbased.c ****             if (mp_read_unsigned_bin(i1, I + i, v) != MP_OKAY)
+ 1671                             		.loc 2 499 17
+ 1672 036b ED A5 02                		mov.L	8[r10], r5
+ 1673                             		.loc 2 499 44
+ 1674 036e ED A4 17                		mov.L	92[r10], r4
+ 1675 0371 4B 45                   		add	r4, r5
+ 1676                             		.loc 2 499 17
+ 1677 0373 ED A3 0B                		mov.L	44[r10], r3
+ 1678 0376 EF 52                   		mov.L	r5, r2
+ 1679 0378 ED A1 04                		mov.L	16[r10], r1
+ 1680 037b 05 00 00 00             		bsr	_sp_read_unsigned_bin
+ 1681 037f EF 15                   		mov.L	r1, r5
+ 1682                             		.loc 2 499 16
+ 1683 0381 61 05                   		cmp	#0, r5
+ 1684 0383 10                      		beq	.L135
+ 500:../src/wolfcrypt/src/pwdbased.c ****                 ret = MP_READ_E;
+ 1685                             		.loc 2 500 21
+ 1686 0384 F9 A6 01 91             		mov.L	#-111, 4[r10]
+ 1687 0388 38 C0 00                		bra	.L136
+ 1688                             	.L135:
+ 501:../src/wolfcrypt/src/pwdbased.c ****             else if (mp_add(i1, B1, res) != MP_OKAY)
+ 1689                             		.loc 2 501 22
+ 1690 038b ED A3 05                		mov.L	20[r10], r3
+ 1691 038e ED A2 08                		mov.L	32[r10], r2
+ 1692 0391 ED A1 04                		mov.L	16[r10], r1
+ 1693 0394 05 00 00 00             		bsr	_sp_add
+ 1694 0398 EF 15                   		mov.L	r1, r5
+ 1695                             		.loc 2 501 21
+ 1696 039a 61 05                   		cmp	#0, r5
+ 1697 039c 10                      		beq	.L137
+ 502:../src/wolfcrypt/src/pwdbased.c ****                 ret = MP_ADD_E;
+ 1698                             		.loc 2 502 21
+ 1699 039d F9 A6 01 8D             		mov.L	#-115, 4[r10]
+ 1700 03a1 38 A7 00                		bra	.L136
+ 1701                             	.L137:
+ 503:../src/wolfcrypt/src/pwdbased.c ****             else if ( (outSz = mp_unsigned_bin_size(res)) < 0)
+ 1702                             		.loc 2 503 32
+ 1703 03a4 ED A1 05                		mov.L	20[r10], r1
+ 1704 03a7 05 00 00 00             		bsr	_sp_unsigned_bin_size
+ 1705 03ab E7 A1 18                		mov.L	r1, 96[r10]
+ 1706                             		.loc 2 503 21
+ 1707 03ae ED A5 18                		mov.L	96[r10], r5
+ 1708 03b1 61 05                   		cmp	#0, r5
+ 1709 03b3 28 09                   		bge	.L138
+ 504:../src/wolfcrypt/src/pwdbased.c ****                 ret = MP_TO_E;
+ 1710                             		.loc 2 504 21
+ 1711 03b5 F9 A6 01 8F             		mov.L	#-113, 4[r10]
+ 1712 03b9 38 8F 00                		bra	.L136
+ 1713                             	.L138:
+ 505:../src/wolfcrypt/src/pwdbased.c ****             else {
+ 506:../src/wolfcrypt/src/pwdbased.c ****                 if (outSz > (int)v) {
+ 1714                             		.loc 2 506 29
+ 1715 03bc ED A5 0B                		mov.L	44[r10], r5
+ 1716                             		.loc 2 506 20
+ 1717 03bf ED A4 18                		mov.L	96[r10], r4
+ 1718 03c2 47 54                   		cmp	r5, r4
+ 1719 03c4 2B 2D                   		ble	.L139
+ 1720                             	.LBB19:
+ 507:../src/wolfcrypt/src/pwdbased.c ****                     /* take off MSB */
+ 508:../src/wolfcrypt/src/pwdbased.c ****                     byte  tmp[WC_MAX_BLOCK_SIZE + 1];
+ 509:../src/wolfcrypt/src/pwdbased.c ****                     ret = mp_to_unsigned_bin(res, tmp);
+ 1721                             		.loc 2 509 27
+ 1722 03c6 72 A5 81 00             		add	#0x81, r10, r5
+ 1723 03ca EF 52                   		mov.L	r5, r2
+ 1724 03cc ED A1 05                		mov.L	20[r10], r1
+ 1725 03cf 05 00 00 00             		bsr	_sp_to_unsigned_bin
+ 1726 03d3 E7 A1 01                		mov.L	r1, 4[r10]
+ 510:../src/wolfcrypt/src/pwdbased.c ****                     XMEMCPY(I + i, tmp + 1, v);
+ 1727                             		.loc 2 510 21
+ 1728 03d6 ED A5 02                		mov.L	8[r10], r5
+ 1729 03d9 ED A4 17                		mov.L	92[r10], r4
+ 1730 03dc 4B 54                   		add	r5, r4
+ 1731 03de 72 A5 81 00             		add	#0x81, r10, r5
+ 1732 03e2 62 15                   		add	#1, r5
+ 1733 03e4 ED A3 0B                		mov.L	44[r10], r3
+ 1734 03e7 EF 52                   		mov.L	r5, r2
+ 1735 03e9 EF 41                   		mov.L	r4, r1
+ 1736 03eb 05 00 00 00             		bsr	_memcpy
+ 1737                             	.LBE19:
+ 1738 03ef 2E 59                   		bra	.L136
+ 1739                             	.L139:
+ 511:../src/wolfcrypt/src/pwdbased.c ****                 }
+ 512:../src/wolfcrypt/src/pwdbased.c ****                 else if (outSz < (int)v) {
+ 1740                             		.loc 2 512 34
+ 1741 03f1 ED A5 0B                		mov.L	44[r10], r5
+ 1742                             		.loc 2 512 25
+ 1743 03f4 ED A4 18                		mov.L	96[r10], r4
+ 1744 03f7 47 54                   		cmp	r5, r4
+ 1745 03f9 28 3B                   		bge	.L140
+ 513:../src/wolfcrypt/src/pwdbased.c ****                     XMEMSET(I + i, 0, v - outSz);
+ 1746                             		.loc 2 513 21
+ 1747 03fb ED A5 02                		mov.L	8[r10], r5
+ 1748 03fe ED A4 17                		mov.L	92[r10], r4
+ 1749 0401 FF 21 54                		add	r5, r4, r1
+ 1750 0404 ED A5 18                		mov.L	96[r10], r5
+ 1751 0407 ED A4 0B                		mov.L	44[r10], r4
+ 1752 040a FF 05 54                		sub	r5, r4, r5
+ 1753 040d EF 53                   		mov.L	r5, r3
+ 1754 040f 66 02                   		mov.L	#0, r2
+ 1755 0411 05 00 00 00             		bsr	_memset
+ 514:../src/wolfcrypt/src/pwdbased.c ****                     ret = mp_to_unsigned_bin(res, I + i + v - outSz);
+ 1756                             		.loc 2 514 57
+ 1757 0415 ED A5 02                		mov.L	8[r10], r5
+ 1758 0418 06 89 A5 0B             		add	44[r10].L, r5
+ 1759                             		.loc 2 514 61
+ 1760 041c ED A4 18                		mov.L	96[r10], r4
+ 1761 041f 43 45                   		sub	r4, r5
+ 1762                             		.loc 2 514 27
+ 1763 0421 ED A4 17                		mov.L	92[r10], r4
+ 1764 0424 4B 45                   		add	r4, r5
+ 1765 0426 EF 52                   		mov.L	r5, r2
+ 1766 0428 ED A1 05                		mov.L	20[r10], r1
+ 1767 042b 05 00 00 00             		bsr	_sp_to_unsigned_bin
+ 1768 042f E7 A1 01                		mov.L	r1, 4[r10]
+ 1769 0432 2E 16                   		bra	.L136
+ 1770                             	.L140:
+ 515:../src/wolfcrypt/src/pwdbased.c ****                 }
+ 516:../src/wolfcrypt/src/pwdbased.c ****                 else
+ 517:../src/wolfcrypt/src/pwdbased.c ****                     ret = mp_to_unsigned_bin(res, I + i);
+ 1771                             		.loc 2 517 27
+ 1772 0434 ED A5 02                		mov.L	8[r10], r5
+ 1773 0437 ED A4 17                		mov.L	92[r10], r4
+ 1774 043a 4B 45                   		add	r4, r5
+ 1775 043c EF 52                   		mov.L	r5, r2
+ 1776 043e ED A1 05                		mov.L	20[r10], r1
+ 1777 0441 05 00 00 00             		bsr	_sp_to_unsigned_bin
+ 1778 0445 E7 A1 01                		mov.L	r1, 4[r10]
+ 1779                             		.balign 8,3,1
+ 1780                             	.L136:
+ 518:../src/wolfcrypt/src/pwdbased.c ****             }
+ 519:../src/wolfcrypt/src/pwdbased.c **** 
+ 520:../src/wolfcrypt/src/pwdbased.c ****             mp_clear(i1);
+ 1781                             		.loc 2 520 13
+ 1782 0448 ED A1 04                		mov.L	16[r10], r1
+ 1783 044b 05 00 00 00             		bsr	_sp_clear
+ 521:../src/wolfcrypt/src/pwdbased.c ****             mp_clear(res);
+ 1784                             		.loc 2 521 13
+ 1785 044f ED A1 05                		mov.L	20[r10], r1
+ 1786 0452 05 00 00 00             		bsr	_sp_clear
+ 522:../src/wolfcrypt/src/pwdbased.c ****             if (ret < 0) break;
+ 1787                             		.loc 2 522 16
+ 1788 0456 ED A5 01                		mov.L	4[r10], r5
+ 1789 0459 61 05                   		cmp	#0, r5
+ 1790 045b 29 1B                   		blt	.L153
+ 1791                             	.LBE18:
+ 492:../src/wolfcrypt/src/pwdbased.c ****             int    outSz;
+ 1792                             		.loc 2 492 38 discriminator 2
+ 1793 045d ED A5 02                		mov.L	8[r10], r5
+ 1794 0460 06 89 A5 0B             		add	44[r10].L, r5
+ 1795 0464 E7 A5 02                		mov.L	r5, 8[r10]
+ 1796                             	.L132:
+ 492:../src/wolfcrypt/src/pwdbased.c ****             int    outSz;
+ 1797                             		.loc 2 492 25 discriminator 1
+ 1798 0467 ED A5 10                		mov.L	64[r10], r5
+ 492:../src/wolfcrypt/src/pwdbased.c ****             int    outSz;
+ 1799                             		.loc 2 492 9 discriminator 1
+ 1800 046a ED A4 02                		mov.L	8[r10], r4
+ 1801 046d 47 54                   		cmp	r5, r4
+ 1802 046f 28 05 38 DA FE          		blt	.L142
+ 1803 0474 2E 03                   		bra	.L134
+ 1804                             	.L153:
+ 1805                             	.LBB20:
+ 1806                             		.loc 2 522 13
+ 1807 0476 03                      		nop
+ 1808                             	.L134:
+ 1809                             	.LBE20:
+ 523:../src/wolfcrypt/src/pwdbased.c ****         }
+ 524:../src/wolfcrypt/src/pwdbased.c **** 
+ 525:../src/wolfcrypt/src/pwdbased.c ****         if (ret < 0) {
+ 1810                             		.loc 2 525 12
+ 1811 0477 ED A5 01                		mov.L	4[r10], r5
+ 1812 047a 61 05                   		cmp	#0, r5
+ 1813 047c 28 0B                   		bge	.L143
+ 526:../src/wolfcrypt/src/pwdbased.c ****             mp_clear(B1);
+ 1814                             		.loc 2 526 13
+ 1815 047e ED A1 08                		mov.L	32[r10], r1
+ 1816 0481 05 00 00 00             		bsr	_sp_clear
+ 527:../src/wolfcrypt/src/pwdbased.c ****             break;
+ 1817                             		.loc 2 527 13
+ 1818 0485 2E 44                   		bra	.L123
+ 1819                             	.L143:
+ 528:../src/wolfcrypt/src/pwdbased.c ****         }
+ 529:../src/wolfcrypt/src/pwdbased.c **** 
+ 530:../src/wolfcrypt/src/pwdbased.c ****         currentLen = min(kLen, (int)u);
+ 1820                             		.loc 2 530 22
+ 1821 0487 A8 E5                   		mov.L	8[r6], r5
+ 1822 0489 ED A2 0A                		mov.L	40[r10], r2
+ 1823 048c EF 51                   		mov.L	r5, r1
+ 1824 048e 05 00 00 00             		bsr	_min
+ 1825 0492 E7 A1 19                		mov.L	r1, 100[r10]
+ 531:../src/wolfcrypt/src/pwdbased.c ****         XMEMCPY(output, Ai, currentLen);
+ 1826                             		.loc 2 531 9
+ 1827 0495 ED A3 19                		mov.L	100[r10], r3
+ 1828 0498 ED A2 06                		mov.L	24[r10], r2
+ 1829 049b ED A1 41                		mov.L	260[r10], r1
+ 1830 049e 05 00 00 00             		bsr	_memcpy
+ 532:../src/wolfcrypt/src/pwdbased.c ****         output += currentLen;
+ 1831                             		.loc 2 532 16
+ 1832 04a2 ED A5 41                		mov.L	260[r10], r5
+ 1833 04a5 06 89 A5 19             		add	100[r10].L, r5
+ 1834 04a9 E7 A5 41                		mov.L	r5, 260[r10]
+ 533:../src/wolfcrypt/src/pwdbased.c ****         kLen   -= currentLen;
+ 1835                             		.loc 2 533 16
+ 1836 04ac A8 E4                   		mov.L	8[r6], r4
+ 1837 04ae ED A5 19                		mov.L	100[r10], r5
+ 1838 04b1 FF 05 54                		sub	r5, r4, r5
+ 1839 04b4 A0 E5                   		mov.L	r5, 8[r6]
+ 534:../src/wolfcrypt/src/pwdbased.c ****         mp_clear(B1);
+ 1840                             		.loc 2 534 9
+ 1841 04b6 ED A1 08                		mov.L	32[r10], r1
+ 1842 04b9 05 00 00 00             		bsr	_sp_clear
+ 1843                             	.L124:
+ 1844                             	.LBE17:
+ 470:../src/wolfcrypt/src/pwdbased.c ****         word32 currentLen;
+ 1845                             		.loc 2 470 11
+ 1846 04bd A8 E5                   		mov.L	8[r6], r5
+ 1847 04bf 61 05                   		cmp	#0, r5
+ 1848 04c1 2B 05 38 CF FD          		bgt	.L144
+ 535:../src/wolfcrypt/src/pwdbased.c ****     }
+ 536:../src/wolfcrypt/src/pwdbased.c **** 
+ 537:../src/wolfcrypt/src/pwdbased.c **** #ifdef WOLFSSL_SMALL_STACK
+ 538:../src/wolfcrypt/src/pwdbased.c ****   out:
+ 1849                             		.loc 2 538 3
+ 1850 04c6 2E 03                   		bra	.L123
+ 1851                             	.L152:
+ 1852                             	.LBB21:
+ 475:../src/wolfcrypt/src/pwdbased.c **** 
+ 1853                             		.loc 2 475 13
+ 1854 04c8 03                      		nop
+ 1855                             		.balign 8,3,1
+ 1856                             	.L123:
+ 1857                             	.LBE21:
+ 539:../src/wolfcrypt/src/pwdbased.c **** 
+ 540:../src/wolfcrypt/src/pwdbased.c ****     if (Ai != NULL)
+ 1858                             		.loc 2 540 8
+ 1859 04c9 ED A5 06                		mov.L	24[r10], r5
+ 1860 04cc 61 05                   		cmp	#0, r5
+ 1861 04ce 20 15                   		beq	.L145
+ 1862                             	.LBB22:
+ 541:../src/wolfcrypt/src/pwdbased.c ****         XFREE(Ai, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 1863                             		.loc 2 541 9
+ 1864 04d0 ED A5 06                		mov.L	24[r10], r5
+ 1865 04d3 E7 A5 1A                		mov.L	r5, 104[r10]
+ 1866 04d6 ED A5 1A                		mov.L	104[r10], r5
+ 1867 04d9 61 05                   		cmp	#0, r5
+ 1868 04db 10                      		beq	.L145
+ 1869                             		.loc 2 541 9 is_stmt 0 discriminator 1
+ 1870 04dc ED A1 1A                		mov.L	104[r10], r1
+ 1871 04df 05 00 00 00             		bsr	_wolfSSL_Free
+ 1872                             	.L145:
+ 1873                             	.LBE22:
+ 542:../src/wolfcrypt/src/pwdbased.c ****     if (B != NULL)
+ 1874                             		.loc 2 542 8 is_stmt 1
+ 1875 04e3 ED A5 07                		mov.L	28[r10], r5
+ 1876 04e6 61 05                   		cmp	#0, r5
+ 1877 04e8 20 15                   		beq	.L146
+ 1878                             	.LBB23:
+ 543:../src/wolfcrypt/src/pwdbased.c ****         XFREE(B,  heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 1879                             		.loc 2 543 9
+ 1880 04ea ED A5 07                		mov.L	28[r10], r5
+ 1881 04ed E7 A5 1B                		mov.L	r5, 108[r10]
+ 1882 04f0 ED A5 1B                		mov.L	108[r10], r5
+ 1883 04f3 61 05                   		cmp	#0, r5
+ 1884 04f5 10                      		beq	.L146
+ 1885                             		.loc 2 543 9 is_stmt 0 discriminator 1
+ 1886 04f6 ED A1 1B                		mov.L	108[r10], r1
+ 1887 04f9 05 00 00 00             		bsr	_wolfSSL_Free
+ 1888                             	.L146:
+ 1889                             	.LBE23:
+ 544:../src/wolfcrypt/src/pwdbased.c ****     if (B1 != NULL)
+ 1890                             		.loc 2 544 8 is_stmt 1
+ 1891 04fd ED A5 08                		mov.L	32[r10], r5
+ 1892 0500 61 05                   		cmp	#0, r5
+ 1893 0502 20 15                   		beq	.L147
+ 1894                             	.LBB24:
+ 545:../src/wolfcrypt/src/pwdbased.c ****         XFREE(B1, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 1895                             		.loc 2 545 9
+ 1896 0504 ED A5 08                		mov.L	32[r10], r5
+ 1897 0507 E7 A5 1C                		mov.L	r5, 112[r10]
+ 1898 050a ED A5 1C                		mov.L	112[r10], r5
+ 1899 050d 61 05                   		cmp	#0, r5
+ 1900 050f 10                      		beq	.L147
+ 1901                             		.loc 2 545 9 is_stmt 0 discriminator 1
+ 1902 0510 ED A1 1C                		mov.L	112[r10], r1
+ 1903 0513 05 00 00 00             		bsr	_wolfSSL_Free
+ 1904                             	.L147:
+ 1905                             	.LBE24:
+ 546:../src/wolfcrypt/src/pwdbased.c ****     if (i1 != NULL)
+ 1906                             		.loc 2 546 8 is_stmt 1
+ 1907 0517 ED A5 04                		mov.L	16[r10], r5
+ 1908 051a 61 05                   		cmp	#0, r5
+ 1909 051c 20 15                   		beq	.L148
+ 1910                             	.LBB25:
+ 547:../src/wolfcrypt/src/pwdbased.c ****         XFREE(i1, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 1911                             		.loc 2 547 9
+ 1912 051e ED A5 04                		mov.L	16[r10], r5
+ 1913 0521 E7 A5 1D                		mov.L	r5, 116[r10]
+ 1914 0524 ED A5 1D                		mov.L	116[r10], r5
+ 1915 0527 61 05                   		cmp	#0, r5
+ 1916 0529 10                      		beq	.L148
+ 1917                             		.loc 2 547 9 is_stmt 0 discriminator 1
+ 1918 052a ED A1 1D                		mov.L	116[r10], r1
+ 1919 052d 05 00 00 00             		bsr	_wolfSSL_Free
+ 1920                             	.L148:
+ 1921                             	.LBE25:
+ 548:../src/wolfcrypt/src/pwdbased.c ****     if (res != NULL)
+ 1922                             		.loc 2 548 8 is_stmt 1
+ 1923 0531 ED A5 05                		mov.L	20[r10], r5
+ 1924 0534 61 05                   		cmp	#0, r5
+ 1925 0536 20 15                   		beq	.L149
+ 1926                             	.LBB26:
+ 549:../src/wolfcrypt/src/pwdbased.c ****         XFREE(res, heap, DYNAMIC_TYPE_TMP_BUFFER);
+ 1927                             		.loc 2 549 9
+ 1928 0538 ED A5 05                		mov.L	20[r10], r5
+ 1929 053b E7 A5 1E                		mov.L	r5, 120[r10]
+ 1930 053e ED A5 1E                		mov.L	120[r10], r5
+ 1931 0541 61 05                   		cmp	#0, r5
+ 1932 0543 10                      		beq	.L149
+ 1933                             		.loc 2 549 9 is_stmt 0 discriminator 1
+ 1934 0544 ED A1 1E                		mov.L	120[r10], r1
+ 1935 0547 05 00 00 00             		bsr	_wolfSSL_Free
+ 1936                             	.L149:
+ 1937                             	.LBE26:
+ 550:../src/wolfcrypt/src/pwdbased.c **** #endif
+ 551:../src/wolfcrypt/src/pwdbased.c **** 
+ 552:../src/wolfcrypt/src/pwdbased.c ****     if (dynamic)
+ 1938                             		.loc 2 552 8 is_stmt 1
+ 1939 054b EC A5                   		mov.L	[r10], r5
+ 1940 054d 61 05                   		cmp	#0, r5
+ 1941 054f 20 15                   		beq	.L150
+ 1942                             	.LBB27:
+ 553:../src/wolfcrypt/src/pwdbased.c ****         XFREE(buffer, heap, DYNAMIC_TYPE_KEY);
+ 1943                             		.loc 2 553 9
+ 1944 0551 ED A5 03                		mov.L	12[r10], r5
+ 1945 0554 E7 A5 1F                		mov.L	r5, 124[r10]
+ 1946 0557 ED A5 1F                		mov.L	124[r10], r5
+ 1947 055a 61 05                   		cmp	#0, r5
+ 1948 055c 10                      		beq	.L150
+ 1949                             		.loc 2 553 9 is_stmt 0 discriminator 1
+ 1950 055d ED A1 1F                		mov.L	124[r10], r1
+ 1951 0560 05 00 00 00             		bsr	_wolfSSL_Free
+ 1952                             	.L150:
+ 1953                             	.LBE27:
+ 554:../src/wolfcrypt/src/pwdbased.c **** 
+ 555:../src/wolfcrypt/src/pwdbased.c ****     return ret;
+ 1954                             		.loc 2 555 12 is_stmt 1
+ 1955 0564 ED A5 01                		mov.L	4[r10], r5
+ 1956 0567 03                      		.balign 8,3,1
+ 1957                             	.L151:
+ 556:../src/wolfcrypt/src/pwdbased.c **** }
+ 1958                             		.loc 2 556 1 discriminator 1
+ 1959 0568 EF 51                   		mov.L	r5, r1
+ 1960 056a 3F 6A 52                		rtsd	#328, r6-r10
+ 1961                             	.LFE49:
+ 2219                             	.Letext0:
+ 2220                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 2221                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2222                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2223                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2224                             		.file 7 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2225                             		.file 8 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/types.h"
+ 2226                             		.file 9 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2227                             		.file 10 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\incl
+ 2228                             		.file 11 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md5.h"
+ 2229                             		.file 12 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha.h"
+ 2230                             		.file 13 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha256.h"
+ 2231                             		.file 14 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha512.h"
+ 2232                             		.file 15 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/hash.h"
+ 2233                             		.file 16 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/hmac.h"
+ 2234                             		.file 17 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sp_int.h"
+ 2235                             		.file 18 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/wolfmath.h"
+ 2236                             		.file 19 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/error-crypt.h"

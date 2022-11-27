@@ -1,0 +1,2848 @@
+   1                             		.file	"md5.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.text.rotlFixed,"ax",@progbits
+   6                             	_rotlFixed:
+   7                             	.LFB1:
+   8                             		.file 1 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfcrypt/src/misc.c"
+   1:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* misc.c
+   2:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   3:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   5:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * This file is part of wolfSSL.
+   6:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   7:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * it under the terms of the GNU General Public License as published by
+   9:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * (at your option) any later version.
+  11:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+  12:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * GNU General Public License for more details.
+  16:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+  17:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * You should have received a copy of the GNU General Public License
+  18:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * along with this program; if not, write to the Free Software
+  19:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  */
+  21:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /*
+  22:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  23:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** DESCRIPTION
+  24:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** This module implements the arithmetic-shift right, left, byte swapping, XOR,
+  25:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** masking and clearing memory logic.
+  26:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  27:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** */
+  28:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef HAVE_CONFIG_H
+  29:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <config.h>
+  30:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  31:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  32:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #include <wolfssl/wolfcrypt/settings.h>
+  33:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  34:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLF_CRYPT_MISC_C
+  35:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #define WOLF_CRYPT_MISC_C
+  36:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  37:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #include <wolfssl/wolfcrypt/misc.h>
+  38:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  39:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* inlining these functions is a huge speed increase and a small size decrease,
+  40:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    because the functions are smaller than function call setup/cleanup, e.g.,
+  41:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    md5 benchmark is twice as fast with inline.  If you don't want it, then
+  42:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    define NO_INLINE and compile this file into wolfssl, otherwise it's used as
+  43:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    a source header
+  44:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  */
+  45:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  46:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef NO_INLINE
+  47:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WC_STATIC
+  48:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+  49:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WC_STATIC static
+  50:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  51:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  52:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* Check for if compiling misc.c when not needed. */
+  53:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if !defined(WOLFSSL_MISC_INCLUDED) && !defined(NO_INLINE)
+  54:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #ifndef WOLFSSL_IGNORE_FILE_WARN
+  55:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         #warning misc.c does not need to be compiled when using inline (NO_INLINE not defined)
+  56:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+  57:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  58:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+  59:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  60:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  61:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(__ICCARM__)
+  62:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <intrinsics.h>
+  63:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  64:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  65:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  66:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef INTEL_INTRINSICS
+  67:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  68:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <stdlib.h>      /* get intrinsic definitions */
+  69:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  70:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* for non visual studio probably need no long version, 32 bit only
+  71:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****      * i.e., _rotl and _rotr */
+  72:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #pragma intrinsic(_lrotl, _lrotr)
+  73:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  74:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+  75:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  76:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return y ? _lrotl(x, y) : x;
+  77:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  78:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  79:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+  80:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  81:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return y ? _lrotr(x, y) : x;
+  82:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  83:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  84:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__CCRX__)
+  85:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  86:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <builtin.h>      /* get intrinsic definitions */
+  87:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  88:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #if !defined(NO_INLINE)
+  89:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  90:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define rotlFixed(x, y) _builtin_rotl(x, y)
+  91:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  92:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define rotrFixed(x, y) _builtin_rotr(x, y)
+  93:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  94:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #else /* create real function */
+  95:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  96:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+  97:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  98:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return _builtin_rotl(x, y);
+  99:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 100:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 101:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+ 102:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 103:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return _builtin_rotr(x, y);
+ 104:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 105:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 106:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 107:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 108:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else /* generic */
+ 109:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a left circular arithmetic shift of <x> by <y> value. */
+ 110:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 111:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+ 112:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+   9                             		.loc 1 112 5
+  10 0000 6E 7A                   		pushm	r7-r10
+  11                             	.LCFI0:
+  12 0002 71 0A F8                		add	#-8, r0, r10
+  13                             	.LCFI1:
+  14 0005 EF A0                   		mov.L	r10, r0
+  15 0007 E3 A1                   		mov.L	r1, [r10]
+  16 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 113:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return (x << y) | (x >> (sizeof(y) * 8 - y));
+  17                             		.loc 1 113 25
+  18 000c EC A4                   		mov.L	[r10], r4
+  19 000e ED A5 01                		mov.L	4[r10], r5
+  20 0011 EF 47                   		mov.L	r4, r7
+  21 0013 FD 66 57                		rotl	r5, r7
+  22 0016 EF 75                   		mov.L	r7, r5
+ 114:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  23                             		.loc 1 114 5
+  24 0018 EF 51                   		mov.L	r5, r1
+  25 001a 3F 7A 06                		rtsd	#24, r7-r10
+  26                             	.LFE1:
+  28                             		.section	.text.min,"ax",@progbits
+  30                             	_min:
+  31                             	.LFB15:
+ 115:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 116:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a right circular arithmetic shift of <x> by <y> value. */
+ 117:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+ 118:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 119:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 120:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 121:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 122:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 123:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 124:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef WC_RC2
+ 125:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 126:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a left circular arithmetic shift of <x> by <y> value */
+ 127:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word16 rotlFixed16(word16 x, word16 y)
+ 128:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 129:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 130:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 131:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 132:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 133:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a right circular arithmetic shift of <x> by <y> value */
+ 134:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word16 rotrFixed16(word16 x, word16 y)
+ 135:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 136:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 137:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 138:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 139:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* WC_RC2 */
+ 140:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 141:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a byte swap of 32-bit word value. */
+ 142:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(__CCRX__) && !defined(NO_INLINE) /* shortest version for CC-RX */
+ 143:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define ByteReverseWord32(value) _builtin_revl(value)
+ 144:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 145:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word32 ByteReverseWord32(word32 value)
+ 146:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 147:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef PPC_INTRINSICS
+ 148:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* PPC: load reverse indexed instruction */
+ 149:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__lwbrx(&value,0);
+ 150:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__ICCARM__)
+ 151:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__REV(value);
+ 152:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(KEIL_INTRINSICS)
+ 153:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__rev(value);
+ 154:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__CCRX__)
+ 155:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)_builtin_revl(value);
+ 156:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLF_ALLOW_BUILTIN) && \
+ 157:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         defined(__GNUC_PREREQ) && __GNUC_PREREQ(4, 3)
+ 158:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__builtin_bswap32(value);
+ 159:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFSSL_BYTESWAP32_ASM) && defined(__GNUC__) && \
+ 160:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****       defined(__aarch64__)
+ 161:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     __asm__ volatile (
+ 162:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         "REV32 %0, %0  \n"
+ 163:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         : "+r" (value)
+ 164:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         :
+ 165:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     );
+ 166:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return value;
+ 167:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFSSL_BYTESWAP32_ASM) && defined(__GNUC__) && \
+ 168:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****       (defined(__thumb__) || defined(__arm__))
+ 169:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     __asm__ volatile (
+ 170:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         "REV %0, %0  \n"
+ 171:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         : "+r" (value)
+ 172:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         :
+ 173:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     );
+ 174:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return value;
+ 175:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(FAST_ROTATE)
+ 176:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* 5 instructions with rotate instruction, 9 without */
+ 177:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (rotrFixed(value, 8U) & 0xff00ff00) |
+ 178:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****            (rotlFixed(value, 8U) & 0x00ff00ff);
+ 179:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 180:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* 6 instructions with rotate instruction, 8 without */
+ 181:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & 0xFF00FF00) >> 8) | ((value & 0x00FF00FF) << 8);
+ 182:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return rotlFixed(value, 16U);
+ 183:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 184:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 185:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* __CCRX__ */
+ 186:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a byte swap of words array of a given count. */
+ 187:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ByteReverseWords(word32* out, const word32* in,
+ 188:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                     word32 byteCount)
+ 189:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 190:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 count = byteCount/(word32)sizeof(word32), i;
+ 191:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 192:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < count; i++)
+ 193:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         out[i] = ByteReverseWord32(in[i]);
+ 194:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 195:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 196:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 197:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(WORD64_AVAILABLE) && !defined(WOLFSSL_NO_WORD64_OPS)
+ 198:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 199:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 200:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 rotlFixed64(word64 x, word64 y)
+ 201:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 202:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 203:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 204:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 205:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 206:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 rotrFixed64(word64 x, word64 y)
+ 207:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 208:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 209:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 210:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 211:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 212:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 ByteReverseWord64(word64 value)
+ 213:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 214:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(WOLF_ALLOW_BUILTIN) && defined(__GNUC_PREREQ) && __GNUC_PREREQ(4, 3)
+ 215:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word64)__builtin_bswap64(value);
+ 216:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFCRYPT_SLOW_WORD64)
+ 217:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word64)((word64)ByteReverseWord32((word32) value)) << 32 |
+ 218:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         (word64)ByteReverseWord32((word32)(value   >> 32));
+ 219:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 220:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & W64LIT(0xFF00FF00FF00FF00)) >> 8) |
+ 221:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         ((value & W64LIT(0x00FF00FF00FF00FF)) << 8);
+ 222:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & W64LIT(0xFFFF0000FFFF0000)) >> 16) |
+ 223:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         ((value & W64LIT(0x0000FFFF0000FFFF)) << 16);
+ 224:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return rotlFixed64(value, 32U);
+ 225:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 226:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 227:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 228:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 229:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ByteReverseWords64(word64* out, const word64* in,
+ 230:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                       word32 byteCount)
+ 231:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 232:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 count = byteCount/(word32)sizeof(word64), i;
+ 233:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 234:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < count; i++)
+ 235:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         out[i] = ByteReverseWord64(in[i]);
+ 236:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 237:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 238:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 239:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* WORD64_AVAILABLE && !WOLFSSL_NO_WORD64_OPS */
+ 240:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 241:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_XOR_OPS
+ 242:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*r> and <*a> for <n> number
+ 243:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** of wolfssl_words, placing the result in <*r>. */
+ 244:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void XorWordsOut(wolfssl_word* r, const wolfssl_word* a,
+ 245:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                      const wolfssl_word* b, word32 n)
+ 246:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 247:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 i;
+ 248:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 249:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < n; i++) r[i] = a[i] ^ b[i];
+ 250:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 251:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 252:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*buf> and <*mask> of n
+ 253:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** counts, placing the result in <*buf>. */
+ 254:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 255:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void xorbufout(void*out, const void* buf, const void* mask,
+ 256:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                    word32 count)
+ 257:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 258:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     if (((wc_ptr_t)out | (wc_ptr_t)buf | (wc_ptr_t)mask | count) %
+ 259:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                                          WOLFSSL_WORD_SIZE == 0)
+ 260:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         XorWordsOut( (wolfssl_word*)out, (wolfssl_word*)buf,
+ 261:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                      (const wolfssl_word*)mask, count / WOLFSSL_WORD_SIZE);
+ 262:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     else {
+ 263:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 i;
+ 264:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       o = (byte*)out;
+ 265:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       b = (byte*)buf;
+ 266:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+ 267:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 268:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         for (i = 0; i < count; i++) o[i] = b[i] ^ m[i];
+ 269:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 270:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 271:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 272:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*r> and <*a> for <n> number
+ 273:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** of wolfssl_words, placing the result in <*r>. */
+ 274:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void XorWords(wolfssl_word* r, const wolfssl_word* a, word32 n)
+ 275:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 276:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 i;
+ 277:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 278:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < n; i++) r[i] ^= a[i];
+ 279:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 280:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 281:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*buf> and <*mask> of n
+ 282:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** counts, placing the result in <*buf>. */
+ 283:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 284:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void xorbuf(void* buf, const void* mask, word32 count)
+ 285:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 286:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     if (((wc_ptr_t)buf | (wc_ptr_t)mask | count) % WOLFSSL_WORD_SIZE == 0)
+ 287:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         XorWords( (wolfssl_word*)buf,
+ 288:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                   (const wolfssl_word*)mask, count / WOLFSSL_WORD_SIZE);
+ 289:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     else {
+ 290:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 i;
+ 291:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       b = (byte*)buf;
+ 292:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+ 293:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         for (i = 0; i < count; i++) b[i] ^= m[i];
+ 295:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 296:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 297:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 298:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 299:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_FORCE_ZERO
+ 300:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine fills the first len bytes of the memory area pointed by mem
+ 301:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    with zeros. It ensures compiler optimizations doesn't skip it  */
+ 302:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ForceZero(void* mem, word32 len)
+ 303:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 304:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     volatile byte* z = (volatile byte*)mem;
+ 305:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 306:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if (defined(WOLFSSL_X86_64_BUILD) || defined(WOLFSSL_AARCH64_BUILD)) \
+ 307:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****             && defined(WORD64_AVAILABLE)
+ 308:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     volatile word64* w;
+ 309:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #ifndef WOLFSSL_UNALIGNED_64BIT_ACCESS
+ 310:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 l = (sizeof(word64) - ((size_t)z & (sizeof(word64)-1))) &
+ 311:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                                              (sizeof(word64)-1);
+ 312:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 313:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         if (len < l) l = len;
+ 314:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         len -= l;
+ 315:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         while (l--) *z++ = 0;
+ 316:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 317:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (w = (volatile word64*)z; len >= sizeof(*w); len -= sizeof(*w))
+ 318:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         *w++ = 0;
+ 319:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     z = (volatile byte*)w;
+ 320:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 321:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 322:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     while (len--) *z++ = 0;
+ 323:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 324:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 325:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 326:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 327:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_CONST_CMP
+ 328:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* check all length bytes for equality, return 0 on success */
+ 329:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE int ConstantCompare(const byte* a, const byte* b, int length)
+ 330:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 331:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     int i;
+ 332:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     int compareSum = 0;
+ 333:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 334:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < length; i++) {
+ 335:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         compareSum |= a[i] ^ b[i];
+ 336:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 337:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 338:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return compareSum;
+ 339:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 340:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 341:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 342:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 343:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_HAVE_MIN
+ 344:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WOLFSSL_HAVE_MIN
+ 345:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #if defined(HAVE_FIPS) && !defined(min) /* so ifdef check passes */
+ 346:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         #define min min
+ 347:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 348:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* returns the smaller of a and b */
+ 349:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 min(word32 a, word32 b)
+ 350:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  32                             		.loc 1 350 5
+  33 0000 7E AA                   		push.l	r10
+  34                             	.LCFI2:
+  35 0002 71 0A F8                		add	#-8, r0, r10
+  36                             	.LCFI3:
+  37 0005 EF A0                   		mov.L	r10, r0
+  38 0007 E3 A1                   		mov.L	r1, [r10]
+  39 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 351:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return a > b ? b : a;
+  40                             		.loc 1 351 26
+  41 000c ED A5 01                		mov.L	4[r10], r5
+  42 000f EC A3                   		mov.L	[r10], r3
+  43 0011 EC A4                   		mov.L	[r10], r4
+  44 0013 47 53                   		cmp	r5, r3
+  45 0015 24 04                   		bgtu 1f
+  46 0017 EF 45                   		mov r4, r5
+  47                             	1:
+ 352:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  48                             		.loc 1 352 5
+  49 0019 EF 51                   		mov.L	r5, r1
+  50 001b 3F AA 03                		rtsd	#12, r10-r10
+  51                             	.LFE15:
+  53                             		.section	.text.Transform,"ax",@progbits
+  55                             	_Transform:
+  56                             	.LFB43:
+  57                             		.file 2 "../src/wolfcrypt/src/md5.c"
+   1:../src/wolfcrypt/src/md5.c **** /* md5.c
+   2:../src/wolfcrypt/src/md5.c ****  *
+   3:../src/wolfcrypt/src/md5.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/wolfcrypt/src/md5.c ****  *
+   5:../src/wolfcrypt/src/md5.c ****  * This file is part of wolfSSL.
+   6:../src/wolfcrypt/src/md5.c ****  *
+   7:../src/wolfcrypt/src/md5.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/wolfcrypt/src/md5.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/wolfcrypt/src/md5.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/wolfcrypt/src/md5.c ****  * (at your option) any later version.
+  11:../src/wolfcrypt/src/md5.c ****  *
+  12:../src/wolfcrypt/src/md5.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/wolfcrypt/src/md5.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/wolfcrypt/src/md5.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/wolfcrypt/src/md5.c ****  * GNU General Public License for more details.
+  16:../src/wolfcrypt/src/md5.c ****  *
+  17:../src/wolfcrypt/src/md5.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/wolfcrypt/src/md5.c ****  * along with this program; if not, write to the Free Software
+  19:../src/wolfcrypt/src/md5.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/wolfcrypt/src/md5.c ****  */
+  21:../src/wolfcrypt/src/md5.c **** 
+  22:../src/wolfcrypt/src/md5.c **** 
+  23:../src/wolfcrypt/src/md5.c **** 
+  24:../src/wolfcrypt/src/md5.c **** #ifdef HAVE_CONFIG_H
+  25:../src/wolfcrypt/src/md5.c **** #include <config.h>
+  26:../src/wolfcrypt/src/md5.c **** #endif
+  27:../src/wolfcrypt/src/md5.c **** 
+  28:../src/wolfcrypt/src/md5.c **** #include <wolfssl/wolfcrypt/settings.h>
+  29:../src/wolfcrypt/src/md5.c **** 
+  30:../src/wolfcrypt/src/md5.c **** #if !defined(NO_MD5)
+  31:../src/wolfcrypt/src/md5.c **** 
+  32:../src/wolfcrypt/src/md5.c **** #if defined(WOLFSSL_TI_HASH)
+  33:../src/wolfcrypt/src/md5.c **** /* #include <wolfcrypt/src/port/ti/ti-hash.c> included by wc_port.c */
+  34:../src/wolfcrypt/src/md5.c **** 
+  35:../src/wolfcrypt/src/md5.c **** #else
+  36:../src/wolfcrypt/src/md5.c **** 
+  37:../src/wolfcrypt/src/md5.c **** #include <wolfssl/wolfcrypt/md5.h>
+  38:../src/wolfcrypt/src/md5.c **** #include <wolfssl/wolfcrypt/error-crypt.h>
+  39:../src/wolfcrypt/src/md5.c **** #include <wolfssl/wolfcrypt/logging.h>
+  40:../src/wolfcrypt/src/md5.c **** #include <wolfssl/wolfcrypt/hash.h>
+  41:../src/wolfcrypt/src/md5.c **** 
+  42:../src/wolfcrypt/src/md5.c **** #ifdef NO_INLINE
+  43:../src/wolfcrypt/src/md5.c **** #include <wolfssl/wolfcrypt/misc.h>
+  44:../src/wolfcrypt/src/md5.c **** #else
+  45:../src/wolfcrypt/src/md5.c **** #define WOLFSSL_MISC_INCLUDED
+  46:../src/wolfcrypt/src/md5.c **** #include <wolfcrypt/src/misc.c>
+  47:../src/wolfcrypt/src/md5.c **** #endif
+  48:../src/wolfcrypt/src/md5.c **** 
+  49:../src/wolfcrypt/src/md5.c **** 
+  50:../src/wolfcrypt/src/md5.c **** /* Hardware Acceleration */
+  51:../src/wolfcrypt/src/md5.c **** #if defined(STM32_HASH)
+  52:../src/wolfcrypt/src/md5.c **** 
+  53:../src/wolfcrypt/src/md5.c **** /* Supports CubeMX HAL or Standard Peripheral Library */
+  54:../src/wolfcrypt/src/md5.c **** #define HAVE_MD5_CUST_API
+  55:../src/wolfcrypt/src/md5.c **** 
+  56:../src/wolfcrypt/src/md5.c **** int wc_InitMd5_ex(wc_Md5* md5, void* heap, int devId)
+  57:../src/wolfcrypt/src/md5.c **** {
+  58:../src/wolfcrypt/src/md5.c ****     if (md5 == NULL) {
+  59:../src/wolfcrypt/src/md5.c ****         return BAD_FUNC_ARG;
+  60:../src/wolfcrypt/src/md5.c ****     }
+  61:../src/wolfcrypt/src/md5.c **** 
+  62:../src/wolfcrypt/src/md5.c ****     (void)devId;
+  63:../src/wolfcrypt/src/md5.c ****     (void)heap;
+  64:../src/wolfcrypt/src/md5.c **** 
+  65:../src/wolfcrypt/src/md5.c ****     wc_Stm32_Hash_Init(&md5->stmCtx);
+  66:../src/wolfcrypt/src/md5.c **** 
+  67:../src/wolfcrypt/src/md5.c ****     return 0;
+  68:../src/wolfcrypt/src/md5.c **** }
+  69:../src/wolfcrypt/src/md5.c **** 
+  70:../src/wolfcrypt/src/md5.c **** int wc_Md5Update(wc_Md5* md5, const byte* data, word32 len)
+  71:../src/wolfcrypt/src/md5.c **** {
+  72:../src/wolfcrypt/src/md5.c ****     int ret;
+  73:../src/wolfcrypt/src/md5.c **** 
+  74:../src/wolfcrypt/src/md5.c ****     if (md5 == NULL || (data == NULL && len > 0)) {
+  75:../src/wolfcrypt/src/md5.c ****         return BAD_FUNC_ARG;
+  76:../src/wolfcrypt/src/md5.c ****     }
+  77:../src/wolfcrypt/src/md5.c **** 
+  78:../src/wolfcrypt/src/md5.c ****     ret = wolfSSL_CryptHwMutexLock();
+  79:../src/wolfcrypt/src/md5.c ****     if (ret == 0) {
+  80:../src/wolfcrypt/src/md5.c ****         ret = wc_Stm32_Hash_Update(&md5->stmCtx, HASH_AlgoSelection_MD5,
+  81:../src/wolfcrypt/src/md5.c ****                                    data, len, WC_MD5_BLOCK_SIZE);
+  82:../src/wolfcrypt/src/md5.c ****         wolfSSL_CryptHwMutexUnLock();
+  83:../src/wolfcrypt/src/md5.c ****     }
+  84:../src/wolfcrypt/src/md5.c ****     return ret;
+  85:../src/wolfcrypt/src/md5.c **** }
+  86:../src/wolfcrypt/src/md5.c **** 
+  87:../src/wolfcrypt/src/md5.c **** int wc_Md5Final(wc_Md5* md5, byte* hash)
+  88:../src/wolfcrypt/src/md5.c **** {
+  89:../src/wolfcrypt/src/md5.c ****     int ret;
+  90:../src/wolfcrypt/src/md5.c **** 
+  91:../src/wolfcrypt/src/md5.c ****     if (md5 == NULL || hash == NULL) {
+  92:../src/wolfcrypt/src/md5.c ****         return BAD_FUNC_ARG;
+  93:../src/wolfcrypt/src/md5.c ****     }
+  94:../src/wolfcrypt/src/md5.c **** 
+  95:../src/wolfcrypt/src/md5.c ****     ret = wolfSSL_CryptHwMutexLock();
+  96:../src/wolfcrypt/src/md5.c ****     if (ret == 0) {
+  97:../src/wolfcrypt/src/md5.c ****         ret = wc_Stm32_Hash_Final(&md5->stmCtx, HASH_AlgoSelection_MD5,
+  98:../src/wolfcrypt/src/md5.c ****                                   hash, WC_MD5_DIGEST_SIZE);
+  99:../src/wolfcrypt/src/md5.c ****         wolfSSL_CryptHwMutexUnLock();
+ 100:../src/wolfcrypt/src/md5.c ****     }
+ 101:../src/wolfcrypt/src/md5.c **** 
+ 102:../src/wolfcrypt/src/md5.c ****     (void)wc_InitMd5(md5);  /* reset state */
+ 103:../src/wolfcrypt/src/md5.c **** 
+ 104:../src/wolfcrypt/src/md5.c ****     return ret;
+ 105:../src/wolfcrypt/src/md5.c **** }
+ 106:../src/wolfcrypt/src/md5.c **** 
+ 107:../src/wolfcrypt/src/md5.c **** #elif defined(FREESCALE_MMCAU_SHA)
+ 108:../src/wolfcrypt/src/md5.c **** 
+ 109:../src/wolfcrypt/src/md5.c **** #ifdef FREESCALE_MMCAU_CLASSIC_SHA
+ 110:../src/wolfcrypt/src/md5.c ****     #include "cau_api.h"
+ 111:../src/wolfcrypt/src/md5.c **** #else
+ 112:../src/wolfcrypt/src/md5.c ****     #include "fsl_mmcau.h"
+ 113:../src/wolfcrypt/src/md5.c **** #endif
+ 114:../src/wolfcrypt/src/md5.c **** 
+ 115:../src/wolfcrypt/src/md5.c **** #define XTRANSFORM(S,B)       Transform((S), (B))
+ 116:../src/wolfcrypt/src/md5.c **** #define XTRANSFORM_LEN(S,B,L) Transform_Len((S), (B), (L))
+ 117:../src/wolfcrypt/src/md5.c **** 
+ 118:../src/wolfcrypt/src/md5.c **** #ifndef WC_HASH_DATA_ALIGNMENT
+ 119:../src/wolfcrypt/src/md5.c ****     /* these hardware API's require 4 byte (word32) alignment */
+ 120:../src/wolfcrypt/src/md5.c ****     #define WC_HASH_DATA_ALIGNMENT 4
+ 121:../src/wolfcrypt/src/md5.c **** #endif
+ 122:../src/wolfcrypt/src/md5.c **** 
+ 123:../src/wolfcrypt/src/md5.c **** static int Transform(wc_Md5* md5, const byte* data)
+ 124:../src/wolfcrypt/src/md5.c **** {
+ 125:../src/wolfcrypt/src/md5.c ****     int ret = wolfSSL_CryptHwMutexLock();
+ 126:../src/wolfcrypt/src/md5.c ****     if (ret == 0) {
+ 127:../src/wolfcrypt/src/md5.c **** #ifdef FREESCALE_MMCAU_CLASSIC_SHA
+ 128:../src/wolfcrypt/src/md5.c ****         cau_md5_hash_n((byte*)data, 1, (unsigned char*)md5->digest);
+ 129:../src/wolfcrypt/src/md5.c **** #else
+ 130:../src/wolfcrypt/src/md5.c ****         MMCAU_MD5_HashN((byte*)data, 1, (uint32_t*)md5->digest);
+ 131:../src/wolfcrypt/src/md5.c **** #endif
+ 132:../src/wolfcrypt/src/md5.c ****         wolfSSL_CryptHwMutexUnLock();
+ 133:../src/wolfcrypt/src/md5.c ****     }
+ 134:../src/wolfcrypt/src/md5.c ****     return ret;
+ 135:../src/wolfcrypt/src/md5.c **** }
+ 136:../src/wolfcrypt/src/md5.c **** 
+ 137:../src/wolfcrypt/src/md5.c **** static int Transform_Len(wc_Md5* md5, const byte* data, word32 len)
+ 138:../src/wolfcrypt/src/md5.c **** {
+ 139:../src/wolfcrypt/src/md5.c ****     int ret = wolfSSL_CryptHwMutexLock();
+ 140:../src/wolfcrypt/src/md5.c ****     if (ret == 0) {
+ 141:../src/wolfcrypt/src/md5.c ****     #if defined(WC_HASH_DATA_ALIGNMENT) && WC_HASH_DATA_ALIGNMENT > 0
+ 142:../src/wolfcrypt/src/md5.c ****         if ((wc_ptr_t)data % WC_HASH_DATA_ALIGNMENT) {
+ 143:../src/wolfcrypt/src/md5.c ****             /* data pointer is NOT aligned,
+ 144:../src/wolfcrypt/src/md5.c ****              * so copy and perform one block at a time */
+ 145:../src/wolfcrypt/src/md5.c ****             byte* local = (byte*)md5->buffer;
+ 146:../src/wolfcrypt/src/md5.c ****             while (len >= WC_MD5_BLOCK_SIZE) {
+ 147:../src/wolfcrypt/src/md5.c ****                 XMEMCPY(local, data, WC_MD5_BLOCK_SIZE);
+ 148:../src/wolfcrypt/src/md5.c ****             #ifdef FREESCALE_MMCAU_CLASSIC_SHA
+ 149:../src/wolfcrypt/src/md5.c ****                 cau_md5_hash_n(local, 1, (unsigned char*)md5->digest);
+ 150:../src/wolfcrypt/src/md5.c ****             #else
+ 151:../src/wolfcrypt/src/md5.c ****                 MMCAU_MD5_HashN(local, 1, (uint32_t*)md5->digest);
+ 152:../src/wolfcrypt/src/md5.c ****             #endif
+ 153:../src/wolfcrypt/src/md5.c ****                 data += WC_MD5_BLOCK_SIZE;
+ 154:../src/wolfcrypt/src/md5.c ****                 len  -= WC_MD5_BLOCK_SIZE;
+ 155:../src/wolfcrypt/src/md5.c ****             }
+ 156:../src/wolfcrypt/src/md5.c ****         }
+ 157:../src/wolfcrypt/src/md5.c ****         else
+ 158:../src/wolfcrypt/src/md5.c ****     #endif
+ 159:../src/wolfcrypt/src/md5.c ****         {
+ 160:../src/wolfcrypt/src/md5.c **** #ifdef FREESCALE_MMCAU_CLASSIC_SHA
+ 161:../src/wolfcrypt/src/md5.c ****         cau_md5_hash_n((byte*)data, len / WC_MD5_BLOCK_SIZE,
+ 162:../src/wolfcrypt/src/md5.c ****             (unsigned char*)md5->digest);
+ 163:../src/wolfcrypt/src/md5.c **** #else
+ 164:../src/wolfcrypt/src/md5.c ****         MMCAU_MD5_HashN((byte*)data, len / WC_MD5_BLOCK_SIZE,
+ 165:../src/wolfcrypt/src/md5.c ****             (uint32_t*)md5->digest);
+ 166:../src/wolfcrypt/src/md5.c **** #endif
+ 167:../src/wolfcrypt/src/md5.c ****         }
+ 168:../src/wolfcrypt/src/md5.c ****         wolfSSL_CryptHwMutexUnLock();
+ 169:../src/wolfcrypt/src/md5.c ****     }
+ 170:../src/wolfcrypt/src/md5.c ****     return ret;
+ 171:../src/wolfcrypt/src/md5.c **** }
+ 172:../src/wolfcrypt/src/md5.c **** 
+ 173:../src/wolfcrypt/src/md5.c **** #elif defined(WOLFSSL_PIC32MZ_HASH)
+ 174:../src/wolfcrypt/src/md5.c **** #include <wolfssl/wolfcrypt/port/pic32/pic32mz-crypt.h>
+ 175:../src/wolfcrypt/src/md5.c **** #define HAVE_MD5_CUST_API
+ 176:../src/wolfcrypt/src/md5.c **** 
+ 177:../src/wolfcrypt/src/md5.c **** #elif defined(WOLFSSL_IMX6_CAAM) && !defined(NO_IMX6_CAAM_HASH) && \
+ 178:../src/wolfcrypt/src/md5.c ****     !defined(WOLFSSL_QNX_CAAM)
+ 179:../src/wolfcrypt/src/md5.c **** /* functions implemented in wolfcrypt/src/port/caam/caam_sha.c */
+ 180:../src/wolfcrypt/src/md5.c **** #define HAVE_MD5_CUST_API
+ 181:../src/wolfcrypt/src/md5.c **** #else
+ 182:../src/wolfcrypt/src/md5.c **** #define NEED_SOFT_MD5
+ 183:../src/wolfcrypt/src/md5.c **** #endif /* End Hardware Acceleration */
+ 184:../src/wolfcrypt/src/md5.c **** 
+ 185:../src/wolfcrypt/src/md5.c **** #ifdef NEED_SOFT_MD5
+ 186:../src/wolfcrypt/src/md5.c **** 
+ 187:../src/wolfcrypt/src/md5.c **** #define XTRANSFORM(S,B)  Transform((S),(B))
+ 188:../src/wolfcrypt/src/md5.c **** 
+ 189:../src/wolfcrypt/src/md5.c **** #define F1(x, y, z) ((z) ^ ((x) & ((y) ^ (z))))
+ 190:../src/wolfcrypt/src/md5.c **** #define F2(x, y, z) F1(z, x, y)
+ 191:../src/wolfcrypt/src/md5.c **** #define F3(x, y, z) ((x) ^ (y) ^ (z))
+ 192:../src/wolfcrypt/src/md5.c **** #define F4(x, y, z) ((y) ^ ((x) | ~(z)))
+ 193:../src/wolfcrypt/src/md5.c **** 
+ 194:../src/wolfcrypt/src/md5.c **** #define MD5STEP(f, w, x, y, z, data, s) \
+ 195:../src/wolfcrypt/src/md5.c ****     (w) = (rotlFixed((w) + f(x, y, z) + (data), s) + (x))
+ 196:../src/wolfcrypt/src/md5.c **** 
+ 197:../src/wolfcrypt/src/md5.c **** static int Transform(wc_Md5* md5, const byte* data)
+ 198:../src/wolfcrypt/src/md5.c **** {
+  58                             		.loc 2 198 1
+  59 0000 7E AA                   		push.l	r10
+  60                             	.LCFI4:
+  61 0002 71 0A E4                		add	#-28, r0, r10
+  62                             	.LCFI5:
+  63 0005 EF A0                   		mov.L	r10, r0
+  64 0007 E7 A1 05                		mov.L	r1, 20[r10]
+  65 000a E7 A2 06                		mov.L	r2, 24[r10]
+ 199:../src/wolfcrypt/src/md5.c ****     const word32* buffer = (const word32*)data;
+  66                             		.loc 2 199 19
+  67 000d ED A5 06                		mov.L	24[r10], r5
+  68 0010 E3 A5                   		mov.L	r5, [r10]
+ 200:../src/wolfcrypt/src/md5.c ****     /* Copy context->state[] to working vars  */
+ 201:../src/wolfcrypt/src/md5.c ****     word32 a = md5->digest[0];
+  69                             		.loc 2 201 12
+  70 0012 ED A5 05                		mov.L	20[r10], r5
+  71 0015 AC DD                   		mov.L	76[r5], r5
+  72 0017 E7 A5 01                		mov.L	r5, 4[r10]
+ 202:../src/wolfcrypt/src/md5.c ****     word32 b = md5->digest[1];
+  73                             		.loc 2 202 12
+  74 001a ED A5 05                		mov.L	20[r10], r5
+  75 001d AD 55                   		mov.L	80[r5], r5
+  76 001f E7 A5 02                		mov.L	r5, 8[r10]
+ 203:../src/wolfcrypt/src/md5.c ****     word32 c = md5->digest[2];
+  77                             		.loc 2 203 12
+  78 0022 ED A5 05                		mov.L	20[r10], r5
+  79 0025 AD 5D                   		mov.L	84[r5], r5
+  80 0027 E7 A5 03                		mov.L	r5, 12[r10]
+ 204:../src/wolfcrypt/src/md5.c ****     word32 d = md5->digest[3];
+  81                             		.loc 2 204 12
+  82 002a ED A5 05                		mov.L	20[r10], r5
+  83 002d AD D5                   		mov.L	88[r5], r5
+  84 002f E7 A5 04                		mov.L	r5, 16[r10]
+ 205:../src/wolfcrypt/src/md5.c **** 
+ 206:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, a, b, c, d, buffer[0]  + 0xd76aa478,  7);
+  85                             		.loc 2 206 5
+  86 0032 ED A5 03                		mov.L	12[r10], r5
+  87 0035 06 A1 0D A5 04          		xor	16[r10].L, r5
+  88 003a ED A4 02                		mov.L	8[r10], r4
+  89 003d 53 45                   		and	r4, r5
+  90 003f 06 A1 0D A5 04          		xor	16[r10].L, r5
+  91 0044 06 89 A5 01             		add	4[r10].L, r5
+  92 0048 EC A4                   		mov.L	[r10], r4
+  93 004a EC 44                   		mov.L	[r4], r4
+  94 004c 4B 45                   		add	r4, r5
+  95 004e 70 55 78 A4 6A D7       		add	#-680876936, r5
+  96 0054 66 72                   		mov.L	#7, r2
+  97 0056 EF 51                   		mov.L	r5, r1
+  98 0058 05 00 00 00             		bsr	_rotlFixed
+  99 005c EF 15                   		mov.L	r1, r5
+ 100 005e ED A4 02                		mov.L	8[r10], r4
+ 101 0061 4B 45                   		add	r4, r5
+ 102 0063 E7 A5 01                		mov.L	r5, 4[r10]
+ 207:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, d, a, b, c, buffer[1]  + 0xe8c7b756, 12);
+ 103                             		.loc 2 207 5
+ 104 0066 ED A5 02                		mov.L	8[r10], r5
+ 105 0069 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 106 006e ED A4 01                		mov.L	4[r10], r4
+ 107 0071 53 45                   		and	r4, r5
+ 108 0073 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 109 0078 EF 54                   		mov.L	r5, r4
+ 110 007a 06 89 A4 04             		add	16[r10].L, r4
+ 111 007e EC A5                   		mov.L	[r10], r5
+ 112 0080 62 45                   		add	#4, r5
+ 113 0082 EC 55                   		mov.L	[r5], r5
+ 114 0084 4B 45                   		add	r4, r5
+ 115 0086 70 55 56 B7 C7 E8       		add	#-389564586, r5
+ 116 008c 66 C2                   		mov.L	#12, r2
+ 117 008e EF 51                   		mov.L	r5, r1
+ 118 0090 05 00 00 00             		bsr	_rotlFixed
+ 119 0094 EF 15                   		mov.L	r1, r5
+ 120 0096 ED A4 01                		mov.L	4[r10], r4
+ 121 0099 4B 45                   		add	r4, r5
+ 122 009b E7 A5 04                		mov.L	r5, 16[r10]
+ 208:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, c, d, a, b, buffer[2]  + 0x242070db, 17);
+ 123                             		.loc 2 208 5
+ 124 009e ED A5 01                		mov.L	4[r10], r5
+ 125 00a1 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 126 00a6 ED A4 04                		mov.L	16[r10], r4
+ 127 00a9 53 45                   		and	r4, r5
+ 128 00ab 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 129 00b0 EF 54                   		mov.L	r5, r4
+ 130 00b2 06 89 A4 03             		add	12[r10].L, r4
+ 131 00b6 EC A5                   		mov.L	[r10], r5
+ 132 00b8 62 85                   		add	#8, r5
+ 133 00ba EC 55                   		mov.L	[r5], r5
+ 134 00bc 4B 45                   		add	r4, r5
+ 135 00be 70 55 DB 70 20 24       		add	#0x242070db, r5
+ 136 00c4 75 42 11                		mov.L	#17, r2
+ 137 00c7 EF 51                   		mov.L	r5, r1
+ 138 00c9 05 00 00 00             		bsr	_rotlFixed
+ 139 00cd EF 15                   		mov.L	r1, r5
+ 140 00cf ED A4 04                		mov.L	16[r10], r4
+ 141 00d2 4B 45                   		add	r4, r5
+ 142 00d4 E7 A5 03                		mov.L	r5, 12[r10]
+ 209:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, b, c, d, a, buffer[3]  + 0xc1bdceee, 22);
+ 143                             		.loc 2 209 5
+ 144 00d7 ED A5 04                		mov.L	16[r10], r5
+ 145 00da 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 146 00df ED A4 03                		mov.L	12[r10], r4
+ 147 00e2 53 45                   		and	r4, r5
+ 148 00e4 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 149 00e9 EF 54                   		mov.L	r5, r4
+ 150 00eb 06 89 A4 02             		add	8[r10].L, r4
+ 151 00ef EC A5                   		mov.L	[r10], r5
+ 152 00f1 62 C5                   		add	#12, r5
+ 153 00f3 EC 55                   		mov.L	[r5], r5
+ 154 00f5 4B 45                   		add	r4, r5
+ 155 00f7 70 55 EE CE BD C1       		add	#-1044525330, r5
+ 156 00fd 75 42 16                		mov.L	#22, r2
+ 157 0100 EF 51                   		mov.L	r5, r1
+ 158 0102 05 00 00 00             		bsr	_rotlFixed
+ 159 0106 EF 15                   		mov.L	r1, r5
+ 160 0108 ED A4 03                		mov.L	12[r10], r4
+ 161 010b 4B 45                   		add	r4, r5
+ 162 010d E7 A5 02                		mov.L	r5, 8[r10]
+ 210:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, a, b, c, d, buffer[4]  + 0xf57c0faf,  7);
+ 163                             		.loc 2 210 5
+ 164 0110 ED A5 03                		mov.L	12[r10], r5
+ 165 0113 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 166 0118 ED A4 02                		mov.L	8[r10], r4
+ 167 011b 53 45                   		and	r4, r5
+ 168 011d 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 169 0122 EF 54                   		mov.L	r5, r4
+ 170 0124 06 89 A4 01             		add	4[r10].L, r4
+ 171 0128 EC A5                   		mov.L	[r10], r5
+ 172 012a 71 55 10                		add	#16, r5
+ 173 012d EC 55                   		mov.L	[r5], r5
+ 174 012f 4B 45                   		add	r4, r5
+ 175 0131 70 55 AF 0F 7C F5       		add	#-176418897, r5
+ 176 0137 66 72                   		mov.L	#7, r2
+ 177 0139 EF 51                   		mov.L	r5, r1
+ 178 013b 05 00 00 00             		bsr	_rotlFixed
+ 179 013f EF 15                   		mov.L	r1, r5
+ 180 0141 ED A4 02                		mov.L	8[r10], r4
+ 181 0144 4B 45                   		add	r4, r5
+ 182 0146 E7 A5 01                		mov.L	r5, 4[r10]
+ 211:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, d, a, b, c, buffer[5]  + 0x4787c62a, 12);
+ 183                             		.loc 2 211 5
+ 184 0149 ED A5 02                		mov.L	8[r10], r5
+ 185 014c 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 186 0151 ED A4 01                		mov.L	4[r10], r4
+ 187 0154 53 45                   		and	r4, r5
+ 188 0156 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 189 015b EF 54                   		mov.L	r5, r4
+ 190 015d 06 89 A4 04             		add	16[r10].L, r4
+ 191 0161 EC A5                   		mov.L	[r10], r5
+ 192 0163 71 55 14                		add	#20, r5
+ 193 0166 EC 55                   		mov.L	[r5], r5
+ 194 0168 4B 45                   		add	r4, r5
+ 195 016a 70 55 2A C6 87 47       		add	#0x4787c62a, r5
+ 196 0170 66 C2                   		mov.L	#12, r2
+ 197 0172 EF 51                   		mov.L	r5, r1
+ 198 0174 05 00 00 00             		bsr	_rotlFixed
+ 199 0178 EF 15                   		mov.L	r1, r5
+ 200 017a ED A4 01                		mov.L	4[r10], r4
+ 201 017d 4B 45                   		add	r4, r5
+ 202 017f E7 A5 04                		mov.L	r5, 16[r10]
+ 212:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, c, d, a, b, buffer[6]  + 0xa8304613, 17);
+ 203                             		.loc 2 212 5
+ 204 0182 ED A5 01                		mov.L	4[r10], r5
+ 205 0185 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 206 018a ED A4 04                		mov.L	16[r10], r4
+ 207 018d 53 45                   		and	r4, r5
+ 208 018f 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 209 0194 EF 54                   		mov.L	r5, r4
+ 210 0196 06 89 A4 03             		add	12[r10].L, r4
+ 211 019a EC A5                   		mov.L	[r10], r5
+ 212 019c 71 55 18                		add	#24, r5
+ 213 019f EC 55                   		mov.L	[r5], r5
+ 214 01a1 4B 45                   		add	r4, r5
+ 215 01a3 70 55 13 46 30 A8       		add	#-1473231341, r5
+ 216 01a9 75 42 11                		mov.L	#17, r2
+ 217 01ac EF 51                   		mov.L	r5, r1
+ 218 01ae 05 00 00 00             		bsr	_rotlFixed
+ 219 01b2 EF 15                   		mov.L	r1, r5
+ 220 01b4 ED A4 04                		mov.L	16[r10], r4
+ 221 01b7 4B 45                   		add	r4, r5
+ 222 01b9 E7 A5 03                		mov.L	r5, 12[r10]
+ 213:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, b, c, d, a, buffer[7]  + 0xfd469501, 22);
+ 223                             		.loc 2 213 5
+ 224 01bc ED A5 04                		mov.L	16[r10], r5
+ 225 01bf 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 226 01c4 ED A4 03                		mov.L	12[r10], r4
+ 227 01c7 53 45                   		and	r4, r5
+ 228 01c9 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 229 01ce EF 54                   		mov.L	r5, r4
+ 230 01d0 06 89 A4 02             		add	8[r10].L, r4
+ 231 01d4 EC A5                   		mov.L	[r10], r5
+ 232 01d6 71 55 1C                		add	#28, r5
+ 233 01d9 EC 55                   		mov.L	[r5], r5
+ 234 01db 4B 45                   		add	r4, r5
+ 235 01dd 70 55 01 95 46 FD       		add	#-45705983, r5
+ 236 01e3 75 42 16                		mov.L	#22, r2
+ 237 01e6 EF 51                   		mov.L	r5, r1
+ 238 01e8 05 00 00 00             		bsr	_rotlFixed
+ 239 01ec EF 15                   		mov.L	r1, r5
+ 240 01ee ED A4 03                		mov.L	12[r10], r4
+ 241 01f1 4B 45                   		add	r4, r5
+ 242 01f3 E7 A5 02                		mov.L	r5, 8[r10]
+ 214:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, a, b, c, d, buffer[8]  + 0x698098d8,  7);
+ 243                             		.loc 2 214 5
+ 244 01f6 ED A5 03                		mov.L	12[r10], r5
+ 245 01f9 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 246 01fe ED A4 02                		mov.L	8[r10], r4
+ 247 0201 53 45                   		and	r4, r5
+ 248 0203 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 249 0208 EF 54                   		mov.L	r5, r4
+ 250 020a 06 89 A4 01             		add	4[r10].L, r4
+ 251 020e EC A5                   		mov.L	[r10], r5
+ 252 0210 71 55 20                		add	#32, r5
+ 253 0213 EC 55                   		mov.L	[r5], r5
+ 254 0215 4B 45                   		add	r4, r5
+ 255 0217 70 55 D8 98 80 69       		add	#0x698098d8, r5
+ 256 021d 66 72                   		mov.L	#7, r2
+ 257 021f EF 51                   		mov.L	r5, r1
+ 258 0221 05 00 00 00             		bsr	_rotlFixed
+ 259 0225 EF 15                   		mov.L	r1, r5
+ 260 0227 ED A4 02                		mov.L	8[r10], r4
+ 261 022a 4B 45                   		add	r4, r5
+ 262 022c E7 A5 01                		mov.L	r5, 4[r10]
+ 215:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, d, a, b, c, buffer[9]  + 0x8b44f7af, 12);
+ 263                             		.loc 2 215 5
+ 264 022f ED A5 02                		mov.L	8[r10], r5
+ 265 0232 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 266 0237 ED A4 01                		mov.L	4[r10], r4
+ 267 023a 53 45                   		and	r4, r5
+ 268 023c 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 269 0241 EF 54                   		mov.L	r5, r4
+ 270 0243 06 89 A4 04             		add	16[r10].L, r4
+ 271 0247 EC A5                   		mov.L	[r10], r5
+ 272 0249 71 55 24                		add	#36, r5
+ 273 024c EC 55                   		mov.L	[r5], r5
+ 274 024e 4B 45                   		add	r4, r5
+ 275 0250 70 55 AF F7 44 8B       		add	#-1958414417, r5
+ 276 0256 66 C2                   		mov.L	#12, r2
+ 277 0258 EF 51                   		mov.L	r5, r1
+ 278 025a 05 00 00 00             		bsr	_rotlFixed
+ 279 025e EF 15                   		mov.L	r1, r5
+ 280 0260 ED A4 01                		mov.L	4[r10], r4
+ 281 0263 4B 45                   		add	r4, r5
+ 282 0265 E7 A5 04                		mov.L	r5, 16[r10]
+ 216:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, c, d, a, b, buffer[10] + 0xffff5bb1, 17);
+ 283                             		.loc 2 216 5
+ 284 0268 ED A5 01                		mov.L	4[r10], r5
+ 285 026b 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 286 0270 ED A4 04                		mov.L	16[r10], r4
+ 287 0273 53 45                   		and	r4, r5
+ 288 0275 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 289 027a EF 54                   		mov.L	r5, r4
+ 290 027c 06 89 A4 03             		add	12[r10].L, r4
+ 291 0280 EC A5                   		mov.L	[r10], r5
+ 292 0282 71 55 28                		add	#40, r5
+ 293 0285 EC 55                   		mov.L	[r5], r5
+ 294 0287 4B 45                   		add	r4, r5
+ 295 0289 73 55 B1 5B FF          		add	#-42063, r5
+ 296 028e 75 42 11                		mov.L	#17, r2
+ 297 0291 EF 51                   		mov.L	r5, r1
+ 298 0293 05 00 00 00             		bsr	_rotlFixed
+ 299 0297 EF 15                   		mov.L	r1, r5
+ 300 0299 ED A4 04                		mov.L	16[r10], r4
+ 301 029c 4B 45                   		add	r4, r5
+ 302 029e E7 A5 03                		mov.L	r5, 12[r10]
+ 217:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, b, c, d, a, buffer[11] + 0x895cd7be, 22);
+ 303                             		.loc 2 217 5
+ 304 02a1 ED A5 04                		mov.L	16[r10], r5
+ 305 02a4 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 306 02a9 ED A4 03                		mov.L	12[r10], r4
+ 307 02ac 53 45                   		and	r4, r5
+ 308 02ae 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 309 02b3 EF 54                   		mov.L	r5, r4
+ 310 02b5 06 89 A4 02             		add	8[r10].L, r4
+ 311 02b9 EC A5                   		mov.L	[r10], r5
+ 312 02bb 71 55 2C                		add	#44, r5
+ 313 02be EC 55                   		mov.L	[r5], r5
+ 314 02c0 4B 45                   		add	r4, r5
+ 315 02c2 70 55 BE D7 5C 89       		add	#-1990404162, r5
+ 316 02c8 75 42 16                		mov.L	#22, r2
+ 317 02cb EF 51                   		mov.L	r5, r1
+ 318 02cd 05 00 00 00             		bsr	_rotlFixed
+ 319 02d1 EF 15                   		mov.L	r1, r5
+ 320 02d3 ED A4 03                		mov.L	12[r10], r4
+ 321 02d6 4B 45                   		add	r4, r5
+ 322 02d8 E7 A5 02                		mov.L	r5, 8[r10]
+ 218:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, a, b, c, d, buffer[12] + 0x6b901122,  7);
+ 323                             		.loc 2 218 5
+ 324 02db ED A5 03                		mov.L	12[r10], r5
+ 325 02de 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 326 02e3 ED A4 02                		mov.L	8[r10], r4
+ 327 02e6 53 45                   		and	r4, r5
+ 328 02e8 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 329 02ed EF 54                   		mov.L	r5, r4
+ 330 02ef 06 89 A4 01             		add	4[r10].L, r4
+ 331 02f3 EC A5                   		mov.L	[r10], r5
+ 332 02f5 71 55 30                		add	#48, r5
+ 333 02f8 EC 55                   		mov.L	[r5], r5
+ 334 02fa 4B 45                   		add	r4, r5
+ 335 02fc 70 55 22 11 90 6B       		add	#0x6b901122, r5
+ 336 0302 66 72                   		mov.L	#7, r2
+ 337 0304 EF 51                   		mov.L	r5, r1
+ 338 0306 05 00 00 00             		bsr	_rotlFixed
+ 339 030a EF 15                   		mov.L	r1, r5
+ 340 030c ED A4 02                		mov.L	8[r10], r4
+ 341 030f 4B 45                   		add	r4, r5
+ 342 0311 E7 A5 01                		mov.L	r5, 4[r10]
+ 219:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, d, a, b, c, buffer[13] + 0xfd987193, 12);
+ 343                             		.loc 2 219 5
+ 344 0314 ED A5 02                		mov.L	8[r10], r5
+ 345 0317 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 346 031c ED A4 01                		mov.L	4[r10], r4
+ 347 031f 53 45                   		and	r4, r5
+ 348 0321 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 349 0326 EF 54                   		mov.L	r5, r4
+ 350 0328 06 89 A4 04             		add	16[r10].L, r4
+ 351 032c EC A5                   		mov.L	[r10], r5
+ 352 032e 71 55 34                		add	#52, r5
+ 353 0331 EC 55                   		mov.L	[r5], r5
+ 354 0333 4B 45                   		add	r4, r5
+ 355 0335 70 55 93 71 98 FD       		add	#-40341101, r5
+ 356 033b 66 C2                   		mov.L	#12, r2
+ 357 033d EF 51                   		mov.L	r5, r1
+ 358 033f 05 00 00 00             		bsr	_rotlFixed
+ 359 0343 EF 15                   		mov.L	r1, r5
+ 360 0345 ED A4 01                		mov.L	4[r10], r4
+ 361 0348 4B 45                   		add	r4, r5
+ 362 034a E7 A5 04                		mov.L	r5, 16[r10]
+ 220:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, c, d, a, b, buffer[14] + 0xa679438e, 17);
+ 363                             		.loc 2 220 5
+ 364 034d ED A5 01                		mov.L	4[r10], r5
+ 365 0350 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 366 0355 ED A4 04                		mov.L	16[r10], r4
+ 367 0358 53 45                   		and	r4, r5
+ 368 035a 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 369 035f EF 54                   		mov.L	r5, r4
+ 370 0361 06 89 A4 03             		add	12[r10].L, r4
+ 371 0365 EC A5                   		mov.L	[r10], r5
+ 372 0367 71 55 38                		add	#56, r5
+ 373 036a EC 55                   		mov.L	[r5], r5
+ 374 036c 4B 45                   		add	r4, r5
+ 375 036e 70 55 8E 43 79 A6       		add	#-1502002290, r5
+ 376 0374 75 42 11                		mov.L	#17, r2
+ 377 0377 EF 51                   		mov.L	r5, r1
+ 378 0379 05 00 00 00             		bsr	_rotlFixed
+ 379 037d EF 15                   		mov.L	r1, r5
+ 380 037f ED A4 04                		mov.L	16[r10], r4
+ 381 0382 4B 45                   		add	r4, r5
+ 382 0384 E7 A5 03                		mov.L	r5, 12[r10]
+ 221:../src/wolfcrypt/src/md5.c ****     MD5STEP(F1, b, c, d, a, buffer[15] + 0x49b40821, 22);
+ 383                             		.loc 2 221 5
+ 384 0387 ED A5 04                		mov.L	16[r10], r5
+ 385 038a 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 386 038f ED A4 03                		mov.L	12[r10], r4
+ 387 0392 53 45                   		and	r4, r5
+ 388 0394 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 389 0399 EF 54                   		mov.L	r5, r4
+ 390 039b 06 89 A4 02             		add	8[r10].L, r4
+ 391 039f EC A5                   		mov.L	[r10], r5
+ 392 03a1 71 55 3C                		add	#60, r5
+ 393 03a4 EC 55                   		mov.L	[r5], r5
+ 394 03a6 4B 45                   		add	r4, r5
+ 395 03a8 70 55 21 08 B4 49       		add	#0x49b40821, r5
+ 396 03ae 75 42 16                		mov.L	#22, r2
+ 397 03b1 EF 51                   		mov.L	r5, r1
+ 398 03b3 05 00 00 00             		bsr	_rotlFixed
+ 399 03b7 EF 15                   		mov.L	r1, r5
+ 400 03b9 ED A4 03                		mov.L	12[r10], r4
+ 401 03bc 4B 45                   		add	r4, r5
+ 402 03be E7 A5 02                		mov.L	r5, 8[r10]
+ 222:../src/wolfcrypt/src/md5.c **** 
+ 223:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, a, b, c, d, buffer[1]  + 0xf61e2562,  5);
+ 403                             		.loc 2 223 5
+ 404 03c1 ED A5 02                		mov.L	8[r10], r5
+ 405 03c4 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 406 03c9 ED A4 04                		mov.L	16[r10], r4
+ 407 03cc 53 45                   		and	r4, r5
+ 408 03ce 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 409 03d3 EF 54                   		mov.L	r5, r4
+ 410 03d5 06 89 A4 01             		add	4[r10].L, r4
+ 411 03d9 EC A5                   		mov.L	[r10], r5
+ 412 03db 62 45                   		add	#4, r5
+ 413 03dd EC 55                   		mov.L	[r5], r5
+ 414 03df 4B 45                   		add	r4, r5
+ 415 03e1 70 55 62 25 1E F6       		add	#-165796510, r5
+ 416 03e7 66 52                   		mov.L	#5, r2
+ 417 03e9 EF 51                   		mov.L	r5, r1
+ 418 03eb 05 00 00 00             		bsr	_rotlFixed
+ 419 03ef EF 15                   		mov.L	r1, r5
+ 420 03f1 ED A4 02                		mov.L	8[r10], r4
+ 421 03f4 4B 45                   		add	r4, r5
+ 422 03f6 E7 A5 01                		mov.L	r5, 4[r10]
+ 224:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, d, a, b, c, buffer[6]  + 0xc040b340,  9);
+ 423                             		.loc 2 224 5
+ 424 03f9 ED A5 01                		mov.L	4[r10], r5
+ 425 03fc 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 426 0401 ED A4 03                		mov.L	12[r10], r4
+ 427 0404 53 45                   		and	r4, r5
+ 428 0406 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 429 040b EF 54                   		mov.L	r5, r4
+ 430 040d 06 89 A4 04             		add	16[r10].L, r4
+ 431 0411 EC A5                   		mov.L	[r10], r5
+ 432 0413 71 55 18                		add	#24, r5
+ 433 0416 EC 55                   		mov.L	[r5], r5
+ 434 0418 4B 45                   		add	r4, r5
+ 435 041a 70 55 40 B3 40 C0       		add	#-1069501632, r5
+ 436 0420 66 92                   		mov.L	#9, r2
+ 437 0422 EF 51                   		mov.L	r5, r1
+ 438 0424 05 00 00 00             		bsr	_rotlFixed
+ 439 0428 EF 15                   		mov.L	r1, r5
+ 440 042a ED A4 01                		mov.L	4[r10], r4
+ 441 042d 4B 45                   		add	r4, r5
+ 442 042f E7 A5 04                		mov.L	r5, 16[r10]
+ 225:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, c, d, a, b, buffer[11] + 0x265e5a51, 14);
+ 443                             		.loc 2 225 5
+ 444 0432 ED A5 04                		mov.L	16[r10], r5
+ 445 0435 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 446 043a ED A4 02                		mov.L	8[r10], r4
+ 447 043d 53 45                   		and	r4, r5
+ 448 043f 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 449 0444 EF 54                   		mov.L	r5, r4
+ 450 0446 06 89 A4 03             		add	12[r10].L, r4
+ 451 044a EC A5                   		mov.L	[r10], r5
+ 452 044c 71 55 2C                		add	#44, r5
+ 453 044f EC 55                   		mov.L	[r5], r5
+ 454 0451 4B 45                   		add	r4, r5
+ 455 0453 70 55 51 5A 5E 26       		add	#0x265e5a51, r5
+ 456 0459 66 E2                   		mov.L	#14, r2
+ 457 045b EF 51                   		mov.L	r5, r1
+ 458 045d 05 00 00 00             		bsr	_rotlFixed
+ 459 0461 EF 15                   		mov.L	r1, r5
+ 460 0463 ED A4 04                		mov.L	16[r10], r4
+ 461 0466 4B 45                   		add	r4, r5
+ 462 0468 E7 A5 03                		mov.L	r5, 12[r10]
+ 226:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, b, c, d, a, buffer[0]  + 0xe9b6c7aa, 20);
+ 463                             		.loc 2 226 5
+ 464 046b ED A5 03                		mov.L	12[r10], r5
+ 465 046e 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 466 0473 ED A4 01                		mov.L	4[r10], r4
+ 467 0476 53 45                   		and	r4, r5
+ 468 0478 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 469 047d 06 89 A5 02             		add	8[r10].L, r5
+ 470 0481 EC A4                   		mov.L	[r10], r4
+ 471 0483 EC 44                   		mov.L	[r4], r4
+ 472 0485 4B 45                   		add	r4, r5
+ 473 0487 70 55 AA C7 B6 E9       		add	#-373897302, r5
+ 474 048d 75 42 14                		mov.L	#20, r2
+ 475 0490 EF 51                   		mov.L	r5, r1
+ 476 0492 05 00 00 00             		bsr	_rotlFixed
+ 477 0496 EF 15                   		mov.L	r1, r5
+ 478 0498 ED A4 03                		mov.L	12[r10], r4
+ 479 049b 4B 45                   		add	r4, r5
+ 480 049d E7 A5 02                		mov.L	r5, 8[r10]
+ 227:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, a, b, c, d, buffer[5]  + 0xd62f105d,  5);
+ 481                             		.loc 2 227 5
+ 482 04a0 ED A5 02                		mov.L	8[r10], r5
+ 483 04a3 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 484 04a8 ED A4 04                		mov.L	16[r10], r4
+ 485 04ab 53 45                   		and	r4, r5
+ 486 04ad 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 487 04b2 EF 54                   		mov.L	r5, r4
+ 488 04b4 06 89 A4 01             		add	4[r10].L, r4
+ 489 04b8 EC A5                   		mov.L	[r10], r5
+ 490 04ba 71 55 14                		add	#20, r5
+ 491 04bd EC 55                   		mov.L	[r5], r5
+ 492 04bf 4B 45                   		add	r4, r5
+ 493 04c1 70 55 5D 10 2F D6       		add	#-701558691, r5
+ 494 04c7 66 52                   		mov.L	#5, r2
+ 495 04c9 EF 51                   		mov.L	r5, r1
+ 496 04cb 05 00 00 00             		bsr	_rotlFixed
+ 497 04cf EF 15                   		mov.L	r1, r5
+ 498 04d1 ED A4 02                		mov.L	8[r10], r4
+ 499 04d4 4B 45                   		add	r4, r5
+ 500 04d6 E7 A5 01                		mov.L	r5, 4[r10]
+ 228:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, d, a, b, c, buffer[10] + 0x02441453,  9);
+ 501                             		.loc 2 228 5
+ 502 04d9 ED A5 01                		mov.L	4[r10], r5
+ 503 04dc 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 504 04e1 ED A4 03                		mov.L	12[r10], r4
+ 505 04e4 53 45                   		and	r4, r5
+ 506 04e6 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 507 04eb EF 54                   		mov.L	r5, r4
+ 508 04ed 06 89 A4 04             		add	16[r10].L, r4
+ 509 04f1 EC A5                   		mov.L	[r10], r5
+ 510 04f3 71 55 28                		add	#40, r5
+ 511 04f6 EC 55                   		mov.L	[r5], r5
+ 512 04f8 4B 45                   		add	r4, r5
+ 513 04fa 70 55 53 14 44 02       		add	#0x2441453, r5
+ 514 0500 66 92                   		mov.L	#9, r2
+ 515 0502 EF 51                   		mov.L	r5, r1
+ 516 0504 05 00 00 00             		bsr	_rotlFixed
+ 517 0508 EF 15                   		mov.L	r1, r5
+ 518 050a ED A4 01                		mov.L	4[r10], r4
+ 519 050d 4B 45                   		add	r4, r5
+ 520 050f E7 A5 04                		mov.L	r5, 16[r10]
+ 229:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, c, d, a, b, buffer[15] + 0xd8a1e681, 14);
+ 521                             		.loc 2 229 5
+ 522 0512 ED A5 04                		mov.L	16[r10], r5
+ 523 0515 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 524 051a ED A4 02                		mov.L	8[r10], r4
+ 525 051d 53 45                   		and	r4, r5
+ 526 051f 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 527 0524 EF 54                   		mov.L	r5, r4
+ 528 0526 06 89 A4 03             		add	12[r10].L, r4
+ 529 052a EC A5                   		mov.L	[r10], r5
+ 530 052c 71 55 3C                		add	#60, r5
+ 531 052f EC 55                   		mov.L	[r5], r5
+ 532 0531 4B 45                   		add	r4, r5
+ 533 0533 70 55 81 E6 A1 D8       		add	#-660478335, r5
+ 534 0539 66 E2                   		mov.L	#14, r2
+ 535 053b EF 51                   		mov.L	r5, r1
+ 536 053d 05 00 00 00             		bsr	_rotlFixed
+ 537 0541 EF 15                   		mov.L	r1, r5
+ 538 0543 ED A4 04                		mov.L	16[r10], r4
+ 539 0546 4B 45                   		add	r4, r5
+ 540 0548 E7 A5 03                		mov.L	r5, 12[r10]
+ 230:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, b, c, d, a, buffer[4]  + 0xe7d3fbc8, 20);
+ 541                             		.loc 2 230 5
+ 542 054b ED A5 03                		mov.L	12[r10], r5
+ 543 054e 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 544 0553 ED A4 01                		mov.L	4[r10], r4
+ 545 0556 53 45                   		and	r4, r5
+ 546 0558 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 547 055d EF 54                   		mov.L	r5, r4
+ 548 055f 06 89 A4 02             		add	8[r10].L, r4
+ 549 0563 EC A5                   		mov.L	[r10], r5
+ 550 0565 71 55 10                		add	#16, r5
+ 551 0568 EC 55                   		mov.L	[r5], r5
+ 552 056a 4B 45                   		add	r4, r5
+ 553 056c 70 55 C8 FB D3 E7       		add	#-405537848, r5
+ 554 0572 75 42 14                		mov.L	#20, r2
+ 555 0575 EF 51                   		mov.L	r5, r1
+ 556 0577 05 00 00 00             		bsr	_rotlFixed
+ 557 057b EF 15                   		mov.L	r1, r5
+ 558 057d ED A4 03                		mov.L	12[r10], r4
+ 559 0580 4B 45                   		add	r4, r5
+ 560 0582 E7 A5 02                		mov.L	r5, 8[r10]
+ 231:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, a, b, c, d, buffer[9]  + 0x21e1cde6,  5);
+ 561                             		.loc 2 231 5
+ 562 0585 ED A5 02                		mov.L	8[r10], r5
+ 563 0588 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 564 058d ED A4 04                		mov.L	16[r10], r4
+ 565 0590 53 45                   		and	r4, r5
+ 566 0592 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 567 0597 EF 54                   		mov.L	r5, r4
+ 568 0599 06 89 A4 01             		add	4[r10].L, r4
+ 569 059d EC A5                   		mov.L	[r10], r5
+ 570 059f 71 55 24                		add	#36, r5
+ 571 05a2 EC 55                   		mov.L	[r5], r5
+ 572 05a4 4B 45                   		add	r4, r5
+ 573 05a6 70 55 E6 CD E1 21       		add	#0x21e1cde6, r5
+ 574 05ac 66 52                   		mov.L	#5, r2
+ 575 05ae EF 51                   		mov.L	r5, r1
+ 576 05b0 05 00 00 00             		bsr	_rotlFixed
+ 577 05b4 EF 15                   		mov.L	r1, r5
+ 578 05b6 ED A4 02                		mov.L	8[r10], r4
+ 579 05b9 4B 45                   		add	r4, r5
+ 580 05bb E7 A5 01                		mov.L	r5, 4[r10]
+ 232:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, d, a, b, c, buffer[14] + 0xc33707d6,  9);
+ 581                             		.loc 2 232 5
+ 582 05be ED A5 01                		mov.L	4[r10], r5
+ 583 05c1 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 584 05c6 ED A4 03                		mov.L	12[r10], r4
+ 585 05c9 53 45                   		and	r4, r5
+ 586 05cb 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 587 05d0 EF 54                   		mov.L	r5, r4
+ 588 05d2 06 89 A4 04             		add	16[r10].L, r4
+ 589 05d6 EC A5                   		mov.L	[r10], r5
+ 590 05d8 71 55 38                		add	#56, r5
+ 591 05db EC 55                   		mov.L	[r5], r5
+ 592 05dd 4B 45                   		add	r4, r5
+ 593 05df 70 55 D6 07 37 C3       		add	#-1019803690, r5
+ 594 05e5 66 92                   		mov.L	#9, r2
+ 595 05e7 EF 51                   		mov.L	r5, r1
+ 596 05e9 05 00 00 00             		bsr	_rotlFixed
+ 597 05ed EF 15                   		mov.L	r1, r5
+ 598 05ef ED A4 01                		mov.L	4[r10], r4
+ 599 05f2 4B 45                   		add	r4, r5
+ 600 05f4 E7 A5 04                		mov.L	r5, 16[r10]
+ 233:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, c, d, a, b, buffer[3]  + 0xf4d50d87, 14);
+ 601                             		.loc 2 233 5
+ 602 05f7 ED A5 04                		mov.L	16[r10], r5
+ 603 05fa 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 604 05ff ED A4 02                		mov.L	8[r10], r4
+ 605 0602 53 45                   		and	r4, r5
+ 606 0604 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 607 0609 EF 54                   		mov.L	r5, r4
+ 608 060b 06 89 A4 03             		add	12[r10].L, r4
+ 609 060f EC A5                   		mov.L	[r10], r5
+ 610 0611 62 C5                   		add	#12, r5
+ 611 0613 EC 55                   		mov.L	[r5], r5
+ 612 0615 4B 45                   		add	r4, r5
+ 613 0617 70 55 87 0D D5 F4       		add	#-187363961, r5
+ 614 061d 66 E2                   		mov.L	#14, r2
+ 615 061f EF 51                   		mov.L	r5, r1
+ 616 0621 05 00 00 00             		bsr	_rotlFixed
+ 617 0625 EF 15                   		mov.L	r1, r5
+ 618 0627 ED A4 04                		mov.L	16[r10], r4
+ 619 062a 4B 45                   		add	r4, r5
+ 620 062c E7 A5 03                		mov.L	r5, 12[r10]
+ 234:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, b, c, d, a, buffer[8]  + 0x455a14ed, 20);
+ 621                             		.loc 2 234 5
+ 622 062f ED A5 03                		mov.L	12[r10], r5
+ 623 0632 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 624 0637 ED A4 01                		mov.L	4[r10], r4
+ 625 063a 53 45                   		and	r4, r5
+ 626 063c 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 627 0641 EF 54                   		mov.L	r5, r4
+ 628 0643 06 89 A4 02             		add	8[r10].L, r4
+ 629 0647 EC A5                   		mov.L	[r10], r5
+ 630 0649 71 55 20                		add	#32, r5
+ 631 064c EC 55                   		mov.L	[r5], r5
+ 632 064e 4B 45                   		add	r4, r5
+ 633 0650 70 55 ED 14 5A 45       		add	#0x455a14ed, r5
+ 634 0656 75 42 14                		mov.L	#20, r2
+ 635 0659 EF 51                   		mov.L	r5, r1
+ 636 065b 05 00 00 00             		bsr	_rotlFixed
+ 637 065f EF 15                   		mov.L	r1, r5
+ 638 0661 ED A4 03                		mov.L	12[r10], r4
+ 639 0664 4B 45                   		add	r4, r5
+ 640 0666 E7 A5 02                		mov.L	r5, 8[r10]
+ 235:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, a, b, c, d, buffer[13] + 0xa9e3e905,  5);
+ 641                             		.loc 2 235 5
+ 642 0669 ED A5 02                		mov.L	8[r10], r5
+ 643 066c 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 644 0671 ED A4 04                		mov.L	16[r10], r4
+ 645 0674 53 45                   		and	r4, r5
+ 646 0676 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 647 067b EF 54                   		mov.L	r5, r4
+ 648 067d 06 89 A4 01             		add	4[r10].L, r4
+ 649 0681 EC A5                   		mov.L	[r10], r5
+ 650 0683 71 55 34                		add	#52, r5
+ 651 0686 EC 55                   		mov.L	[r5], r5
+ 652 0688 4B 45                   		add	r4, r5
+ 653 068a 70 55 05 E9 E3 A9       		add	#-1444681467, r5
+ 654 0690 66 52                   		mov.L	#5, r2
+ 655 0692 EF 51                   		mov.L	r5, r1
+ 656 0694 05 00 00 00             		bsr	_rotlFixed
+ 657 0698 EF 15                   		mov.L	r1, r5
+ 658 069a ED A4 02                		mov.L	8[r10], r4
+ 659 069d 4B 45                   		add	r4, r5
+ 660 069f E7 A5 01                		mov.L	r5, 4[r10]
+ 236:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, d, a, b, c, buffer[2]  + 0xfcefa3f8,  9);
+ 661                             		.loc 2 236 5
+ 662 06a2 ED A5 01                		mov.L	4[r10], r5
+ 663 06a5 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 664 06aa ED A4 03                		mov.L	12[r10], r4
+ 665 06ad 53 45                   		and	r4, r5
+ 666 06af 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 667 06b4 EF 54                   		mov.L	r5, r4
+ 668 06b6 06 89 A4 04             		add	16[r10].L, r4
+ 669 06ba EC A5                   		mov.L	[r10], r5
+ 670 06bc 62 85                   		add	#8, r5
+ 671 06be EC 55                   		mov.L	[r5], r5
+ 672 06c0 4B 45                   		add	r4, r5
+ 673 06c2 70 55 F8 A3 EF FC       		add	#-51403784, r5
+ 674 06c8 66 92                   		mov.L	#9, r2
+ 675 06ca EF 51                   		mov.L	r5, r1
+ 676 06cc 05 00 00 00             		bsr	_rotlFixed
+ 677 06d0 EF 15                   		mov.L	r1, r5
+ 678 06d2 ED A4 01                		mov.L	4[r10], r4
+ 679 06d5 4B 45                   		add	r4, r5
+ 680 06d7 E7 A5 04                		mov.L	r5, 16[r10]
+ 237:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, c, d, a, b, buffer[7]  + 0x676f02d9, 14);
+ 681                             		.loc 2 237 5
+ 682 06da ED A5 04                		mov.L	16[r10], r5
+ 683 06dd 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 684 06e2 ED A4 02                		mov.L	8[r10], r4
+ 685 06e5 53 45                   		and	r4, r5
+ 686 06e7 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 687 06ec EF 54                   		mov.L	r5, r4
+ 688 06ee 06 89 A4 03             		add	12[r10].L, r4
+ 689 06f2 EC A5                   		mov.L	[r10], r5
+ 690 06f4 71 55 1C                		add	#28, r5
+ 691 06f7 EC 55                   		mov.L	[r5], r5
+ 692 06f9 4B 45                   		add	r4, r5
+ 693 06fb 70 55 D9 02 6F 67       		add	#0x676f02d9, r5
+ 694 0701 66 E2                   		mov.L	#14, r2
+ 695 0703 EF 51                   		mov.L	r5, r1
+ 696 0705 05 00 00 00             		bsr	_rotlFixed
+ 697 0709 EF 15                   		mov.L	r1, r5
+ 698 070b ED A4 04                		mov.L	16[r10], r4
+ 699 070e 4B 45                   		add	r4, r5
+ 700 0710 E7 A5 03                		mov.L	r5, 12[r10]
+ 238:../src/wolfcrypt/src/md5.c ****     MD5STEP(F2, b, c, d, a, buffer[12] + 0x8d2a4c8a, 20);
+ 701                             		.loc 2 238 5
+ 702 0713 ED A5 03                		mov.L	12[r10], r5
+ 703 0716 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 704 071b ED A4 01                		mov.L	4[r10], r4
+ 705 071e 53 45                   		and	r4, r5
+ 706 0720 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 707 0725 EF 54                   		mov.L	r5, r4
+ 708 0727 06 89 A4 02             		add	8[r10].L, r4
+ 709 072b EC A5                   		mov.L	[r10], r5
+ 710 072d 71 55 30                		add	#48, r5
+ 711 0730 EC 55                   		mov.L	[r5], r5
+ 712 0732 4B 45                   		add	r4, r5
+ 713 0734 70 55 8A 4C 2A 8D       		add	#-1926607734, r5
+ 714 073a 75 42 14                		mov.L	#20, r2
+ 715 073d EF 51                   		mov.L	r5, r1
+ 716 073f 05 00 00 00             		bsr	_rotlFixed
+ 717 0743 EF 15                   		mov.L	r1, r5
+ 718 0745 ED A4 03                		mov.L	12[r10], r4
+ 719 0748 4B 45                   		add	r4, r5
+ 720 074a E7 A5 02                		mov.L	r5, 8[r10]
+ 239:../src/wolfcrypt/src/md5.c **** 
+ 240:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, a, b, c, d, buffer[5]  + 0xfffa3942,  4);
+ 721                             		.loc 2 240 5
+ 722 074d ED A5 02                		mov.L	8[r10], r5
+ 723 0750 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 724 0755 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 725 075a EF 54                   		mov.L	r5, r4
+ 726 075c 06 89 A4 01             		add	4[r10].L, r4
+ 727 0760 EC A5                   		mov.L	[r10], r5
+ 728 0762 71 55 14                		add	#20, r5
+ 729 0765 EC 55                   		mov.L	[r5], r5
+ 730 0767 4B 45                   		add	r4, r5
+ 731 0769 73 55 42 39 FA          		add	#-378558, r5
+ 732 076e 66 42                   		mov.L	#4, r2
+ 733 0770 EF 51                   		mov.L	r5, r1
+ 734 0772 05 00 00 00             		bsr	_rotlFixed
+ 735 0776 EF 15                   		mov.L	r1, r5
+ 736 0778 ED A4 02                		mov.L	8[r10], r4
+ 737 077b 4B 45                   		add	r4, r5
+ 738 077d E7 A5 01                		mov.L	r5, 4[r10]
+ 241:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, d, a, b, c, buffer[8]  + 0x8771f681, 11);
+ 739                             		.loc 2 241 5
+ 740 0780 ED A5 01                		mov.L	4[r10], r5
+ 741 0783 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 742 0788 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 743 078d EF 54                   		mov.L	r5, r4
+ 744 078f 06 89 A4 04             		add	16[r10].L, r4
+ 745 0793 EC A5                   		mov.L	[r10], r5
+ 746 0795 71 55 20                		add	#32, r5
+ 747 0798 EC 55                   		mov.L	[r5], r5
+ 748 079a 4B 45                   		add	r4, r5
+ 749 079c 70 55 81 F6 71 87       		add	#-2022574463, r5
+ 750 07a2 66 B2                   		mov.L	#11, r2
+ 751 07a4 EF 51                   		mov.L	r5, r1
+ 752 07a6 05 00 00 00             		bsr	_rotlFixed
+ 753 07aa EF 15                   		mov.L	r1, r5
+ 754 07ac ED A4 01                		mov.L	4[r10], r4
+ 755 07af 4B 45                   		add	r4, r5
+ 756 07b1 E7 A5 04                		mov.L	r5, 16[r10]
+ 242:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, c, d, a, b, buffer[11] + 0x6d9d6122, 16);
+ 757                             		.loc 2 242 5
+ 758 07b4 ED A5 04                		mov.L	16[r10], r5
+ 759 07b7 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 760 07bc 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 761 07c1 EF 54                   		mov.L	r5, r4
+ 762 07c3 06 89 A4 03             		add	12[r10].L, r4
+ 763 07c7 EC A5                   		mov.L	[r10], r5
+ 764 07c9 71 55 2C                		add	#44, r5
+ 765 07cc EC 55                   		mov.L	[r5], r5
+ 766 07ce 4B 45                   		add	r4, r5
+ 767 07d0 70 55 22 61 9D 6D       		add	#0x6d9d6122, r5
+ 768 07d6 75 42 10                		mov.L	#16, r2
+ 769 07d9 EF 51                   		mov.L	r5, r1
+ 770 07db 05 00 00 00             		bsr	_rotlFixed
+ 771 07df EF 15                   		mov.L	r1, r5
+ 772 07e1 ED A4 04                		mov.L	16[r10], r4
+ 773 07e4 4B 45                   		add	r4, r5
+ 774 07e6 E7 A5 03                		mov.L	r5, 12[r10]
+ 243:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, b, c, d, a, buffer[14] + 0xfde5380c, 23);
+ 775                             		.loc 2 243 5
+ 776 07e9 ED A5 03                		mov.L	12[r10], r5
+ 777 07ec 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 778 07f1 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 779 07f6 EF 54                   		mov.L	r5, r4
+ 780 07f8 06 89 A4 02             		add	8[r10].L, r4
+ 781 07fc EC A5                   		mov.L	[r10], r5
+ 782 07fe 71 55 38                		add	#56, r5
+ 783 0801 EC 55                   		mov.L	[r5], r5
+ 784 0803 4B 45                   		add	r4, r5
+ 785 0805 70 55 0C 38 E5 FD       		add	#-35309556, r5
+ 786 080b 75 42 17                		mov.L	#23, r2
+ 787 080e EF 51                   		mov.L	r5, r1
+ 788 0810 05 00 00 00             		bsr	_rotlFixed
+ 789 0814 EF 15                   		mov.L	r1, r5
+ 790 0816 ED A4 03                		mov.L	12[r10], r4
+ 791 0819 4B 45                   		add	r4, r5
+ 792 081b E7 A5 02                		mov.L	r5, 8[r10]
+ 244:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, a, b, c, d, buffer[1]  + 0xa4beea44,  4);
+ 793                             		.loc 2 244 5
+ 794 081e ED A5 02                		mov.L	8[r10], r5
+ 795 0821 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 796 0826 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 797 082b EF 54                   		mov.L	r5, r4
+ 798 082d 06 89 A4 01             		add	4[r10].L, r4
+ 799 0831 EC A5                   		mov.L	[r10], r5
+ 800 0833 62 45                   		add	#4, r5
+ 801 0835 EC 55                   		mov.L	[r5], r5
+ 802 0837 4B 45                   		add	r4, r5
+ 803 0839 70 55 44 EA BE A4       		add	#-1530992060, r5
+ 804 083f 66 42                   		mov.L	#4, r2
+ 805 0841 EF 51                   		mov.L	r5, r1
+ 806 0843 05 00 00 00             		bsr	_rotlFixed
+ 807 0847 EF 15                   		mov.L	r1, r5
+ 808 0849 ED A4 02                		mov.L	8[r10], r4
+ 809 084c 4B 45                   		add	r4, r5
+ 810 084e E7 A5 01                		mov.L	r5, 4[r10]
+ 245:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, d, a, b, c, buffer[4]  + 0x4bdecfa9, 11);
+ 811                             		.loc 2 245 5
+ 812 0851 ED A5 01                		mov.L	4[r10], r5
+ 813 0854 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 814 0859 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 815 085e EF 54                   		mov.L	r5, r4
+ 816 0860 06 89 A4 04             		add	16[r10].L, r4
+ 817 0864 EC A5                   		mov.L	[r10], r5
+ 818 0866 71 55 10                		add	#16, r5
+ 819 0869 EC 55                   		mov.L	[r5], r5
+ 820 086b 4B 45                   		add	r4, r5
+ 821 086d 70 55 A9 CF DE 4B       		add	#0x4bdecfa9, r5
+ 822 0873 66 B2                   		mov.L	#11, r2
+ 823 0875 EF 51                   		mov.L	r5, r1
+ 824 0877 05 00 00 00             		bsr	_rotlFixed
+ 825 087b EF 15                   		mov.L	r1, r5
+ 826 087d ED A4 01                		mov.L	4[r10], r4
+ 827 0880 4B 45                   		add	r4, r5
+ 828 0882 E7 A5 04                		mov.L	r5, 16[r10]
+ 246:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, c, d, a, b, buffer[7]  + 0xf6bb4b60, 16);
+ 829                             		.loc 2 246 5
+ 830 0885 ED A5 04                		mov.L	16[r10], r5
+ 831 0888 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 832 088d 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 833 0892 EF 54                   		mov.L	r5, r4
+ 834 0894 06 89 A4 03             		add	12[r10].L, r4
+ 835 0898 EC A5                   		mov.L	[r10], r5
+ 836 089a 71 55 1C                		add	#28, r5
+ 837 089d EC 55                   		mov.L	[r5], r5
+ 838 089f 4B 45                   		add	r4, r5
+ 839 08a1 70 55 60 4B BB F6       		add	#-155497632, r5
+ 840 08a7 75 42 10                		mov.L	#16, r2
+ 841 08aa EF 51                   		mov.L	r5, r1
+ 842 08ac 05 00 00 00             		bsr	_rotlFixed
+ 843 08b0 EF 15                   		mov.L	r1, r5
+ 844 08b2 ED A4 04                		mov.L	16[r10], r4
+ 845 08b5 4B 45                   		add	r4, r5
+ 846 08b7 E7 A5 03                		mov.L	r5, 12[r10]
+ 247:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, b, c, d, a, buffer[10] + 0xbebfbc70, 23);
+ 847                             		.loc 2 247 5
+ 848 08ba ED A5 03                		mov.L	12[r10], r5
+ 849 08bd 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 850 08c2 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 851 08c7 EF 54                   		mov.L	r5, r4
+ 852 08c9 06 89 A4 02             		add	8[r10].L, r4
+ 853 08cd EC A5                   		mov.L	[r10], r5
+ 854 08cf 71 55 28                		add	#40, r5
+ 855 08d2 EC 55                   		mov.L	[r5], r5
+ 856 08d4 4B 45                   		add	r4, r5
+ 857 08d6 70 55 70 BC BF BE       		add	#-1094730640, r5
+ 858 08dc 75 42 17                		mov.L	#23, r2
+ 859 08df EF 51                   		mov.L	r5, r1
+ 860 08e1 05 00 00 00             		bsr	_rotlFixed
+ 861 08e5 EF 15                   		mov.L	r1, r5
+ 862 08e7 ED A4 03                		mov.L	12[r10], r4
+ 863 08ea 4B 45                   		add	r4, r5
+ 864 08ec E7 A5 02                		mov.L	r5, 8[r10]
+ 248:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, a, b, c, d, buffer[13] + 0x289b7ec6,  4);
+ 865                             		.loc 2 248 5
+ 866 08ef ED A5 02                		mov.L	8[r10], r5
+ 867 08f2 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 868 08f7 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 869 08fc EF 54                   		mov.L	r5, r4
+ 870 08fe 06 89 A4 01             		add	4[r10].L, r4
+ 871 0902 EC A5                   		mov.L	[r10], r5
+ 872 0904 71 55 34                		add	#52, r5
+ 873 0907 EC 55                   		mov.L	[r5], r5
+ 874 0909 4B 45                   		add	r4, r5
+ 875 090b 70 55 C6 7E 9B 28       		add	#0x289b7ec6, r5
+ 876 0911 66 42                   		mov.L	#4, r2
+ 877 0913 EF 51                   		mov.L	r5, r1
+ 878 0915 05 00 00 00             		bsr	_rotlFixed
+ 879 0919 EF 15                   		mov.L	r1, r5
+ 880 091b ED A4 02                		mov.L	8[r10], r4
+ 881 091e 4B 45                   		add	r4, r5
+ 882 0920 E7 A5 01                		mov.L	r5, 4[r10]
+ 249:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, d, a, b, c, buffer[0]  + 0xeaa127fa, 11);
+ 883                             		.loc 2 249 5
+ 884 0923 ED A5 01                		mov.L	4[r10], r5
+ 885 0926 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 886 092b 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 887 0930 06 89 A5 04             		add	16[r10].L, r5
+ 888 0934 EC A4                   		mov.L	[r10], r4
+ 889 0936 EC 44                   		mov.L	[r4], r4
+ 890 0938 4B 45                   		add	r4, r5
+ 891 093a 70 55 FA 27 A1 EA       		add	#-358537222, r5
+ 892 0940 66 B2                   		mov.L	#11, r2
+ 893 0942 EF 51                   		mov.L	r5, r1
+ 894 0944 05 00 00 00             		bsr	_rotlFixed
+ 895 0948 EF 15                   		mov.L	r1, r5
+ 896 094a ED A4 01                		mov.L	4[r10], r4
+ 897 094d 4B 45                   		add	r4, r5
+ 898 094f E7 A5 04                		mov.L	r5, 16[r10]
+ 250:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, c, d, a, b, buffer[3]  + 0xd4ef3085, 16);
+ 899                             		.loc 2 250 5
+ 900 0952 ED A5 04                		mov.L	16[r10], r5
+ 901 0955 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 902 095a 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 903 095f EF 54                   		mov.L	r5, r4
+ 904 0961 06 89 A4 03             		add	12[r10].L, r4
+ 905 0965 EC A5                   		mov.L	[r10], r5
+ 906 0967 62 C5                   		add	#12, r5
+ 907 0969 EC 55                   		mov.L	[r5], r5
+ 908 096b 4B 45                   		add	r4, r5
+ 909 096d 70 55 85 30 EF D4       		add	#-722521979, r5
+ 910 0973 75 42 10                		mov.L	#16, r2
+ 911 0976 EF 51                   		mov.L	r5, r1
+ 912 0978 05 00 00 00             		bsr	_rotlFixed
+ 913 097c EF 15                   		mov.L	r1, r5
+ 914 097e ED A4 04                		mov.L	16[r10], r4
+ 915 0981 4B 45                   		add	r4, r5
+ 916 0983 E7 A5 03                		mov.L	r5, 12[r10]
+ 251:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, b, c, d, a, buffer[6]  + 0x04881d05, 23);
+ 917                             		.loc 2 251 5
+ 918 0986 ED A5 03                		mov.L	12[r10], r5
+ 919 0989 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 920 098e 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 921 0993 EF 54                   		mov.L	r5, r4
+ 922 0995 06 89 A4 02             		add	8[r10].L, r4
+ 923 0999 EC A5                   		mov.L	[r10], r5
+ 924 099b 71 55 18                		add	#24, r5
+ 925 099e EC 55                   		mov.L	[r5], r5
+ 926 09a0 4B 45                   		add	r4, r5
+ 927 09a2 70 55 05 1D 88 04       		add	#0x4881d05, r5
+ 928 09a8 75 42 17                		mov.L	#23, r2
+ 929 09ab EF 51                   		mov.L	r5, r1
+ 930 09ad 05 00 00 00             		bsr	_rotlFixed
+ 931 09b1 EF 15                   		mov.L	r1, r5
+ 932 09b3 ED A4 03                		mov.L	12[r10], r4
+ 933 09b6 4B 45                   		add	r4, r5
+ 934 09b8 E7 A5 02                		mov.L	r5, 8[r10]
+ 252:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, a, b, c, d, buffer[9]  + 0xd9d4d039,  4);
+ 935                             		.loc 2 252 5
+ 936 09bb ED A5 02                		mov.L	8[r10], r5
+ 937 09be 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 938 09c3 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 939 09c8 EF 54                   		mov.L	r5, r4
+ 940 09ca 06 89 A4 01             		add	4[r10].L, r4
+ 941 09ce EC A5                   		mov.L	[r10], r5
+ 942 09d0 71 55 24                		add	#36, r5
+ 943 09d3 EC 55                   		mov.L	[r5], r5
+ 944 09d5 4B 45                   		add	r4, r5
+ 945 09d7 70 55 39 D0 D4 D9       		add	#-640364487, r5
+ 946 09dd 66 42                   		mov.L	#4, r2
+ 947 09df EF 51                   		mov.L	r5, r1
+ 948 09e1 05 00 00 00             		bsr	_rotlFixed
+ 949 09e5 EF 15                   		mov.L	r1, r5
+ 950 09e7 ED A4 02                		mov.L	8[r10], r4
+ 951 09ea 4B 45                   		add	r4, r5
+ 952 09ec E7 A5 01                		mov.L	r5, 4[r10]
+ 253:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, d, a, b, c, buffer[12] + 0xe6db99e5, 11);
+ 953                             		.loc 2 253 5
+ 954 09ef ED A5 01                		mov.L	4[r10], r5
+ 955 09f2 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 956 09f7 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 957 09fc EF 54                   		mov.L	r5, r4
+ 958 09fe 06 89 A4 04             		add	16[r10].L, r4
+ 959 0a02 EC A5                   		mov.L	[r10], r5
+ 960 0a04 71 55 30                		add	#48, r5
+ 961 0a07 EC 55                   		mov.L	[r5], r5
+ 962 0a09 4B 45                   		add	r4, r5
+ 963 0a0b 70 55 E5 99 DB E6       		add	#-421815835, r5
+ 964 0a11 66 B2                   		mov.L	#11, r2
+ 965 0a13 EF 51                   		mov.L	r5, r1
+ 966 0a15 05 00 00 00             		bsr	_rotlFixed
+ 967 0a19 EF 15                   		mov.L	r1, r5
+ 968 0a1b ED A4 01                		mov.L	4[r10], r4
+ 969 0a1e 4B 45                   		add	r4, r5
+ 970 0a20 E7 A5 04                		mov.L	r5, 16[r10]
+ 254:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, c, d, a, b, buffer[15] + 0x1fa27cf8, 16);
+ 971                             		.loc 2 254 5
+ 972 0a23 ED A5 04                		mov.L	16[r10], r5
+ 973 0a26 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 974 0a2b 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 975 0a30 EF 54                   		mov.L	r5, r4
+ 976 0a32 06 89 A4 03             		add	12[r10].L, r4
+ 977 0a36 EC A5                   		mov.L	[r10], r5
+ 978 0a38 71 55 3C                		add	#60, r5
+ 979 0a3b EC 55                   		mov.L	[r5], r5
+ 980 0a3d 4B 45                   		add	r4, r5
+ 981 0a3f 70 55 F8 7C A2 1F       		add	#0x1fa27cf8, r5
+ 982 0a45 75 42 10                		mov.L	#16, r2
+ 983 0a48 EF 51                   		mov.L	r5, r1
+ 984 0a4a 05 00 00 00             		bsr	_rotlFixed
+ 985 0a4e EF 15                   		mov.L	r1, r5
+ 986 0a50 ED A4 04                		mov.L	16[r10], r4
+ 987 0a53 4B 45                   		add	r4, r5
+ 988 0a55 E7 A5 03                		mov.L	r5, 12[r10]
+ 255:../src/wolfcrypt/src/md5.c ****     MD5STEP(F3, b, c, d, a, buffer[2]  + 0xc4ac5665, 23);
+ 989                             		.loc 2 255 5
+ 990 0a58 ED A5 03                		mov.L	12[r10], r5
+ 991 0a5b 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 992 0a60 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 993 0a65 EF 54                   		mov.L	r5, r4
+ 994 0a67 06 89 A4 02             		add	8[r10].L, r4
+ 995 0a6b EC A5                   		mov.L	[r10], r5
+ 996 0a6d 62 85                   		add	#8, r5
+ 997 0a6f EC 55                   		mov.L	[r5], r5
+ 998 0a71 4B 45                   		add	r4, r5
+ 999 0a73 70 55 65 56 AC C4       		add	#-995338651, r5
+ 1000 0a79 75 42 17                		mov.L	#23, r2
+ 1001 0a7c EF 51                   		mov.L	r5, r1
+ 1002 0a7e 05 00 00 00             		bsr	_rotlFixed
+ 1003 0a82 EF 15                   		mov.L	r1, r5
+ 1004 0a84 ED A4 03                		mov.L	12[r10], r4
+ 1005 0a87 4B 45                   		add	r4, r5
+ 1006 0a89 E7 A5 02                		mov.L	r5, 8[r10]
+ 256:../src/wolfcrypt/src/md5.c **** 
+ 257:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, a, b, c, d, buffer[0]  + 0xf4292244,  6);
+ 1007                             		.loc 2 257 5
+ 1008 0a8c ED A5 04                		mov.L	16[r10], r5
+ 1009 0a8f 7E 05                   		not	r5
+ 1010 0a91 ED A4 02                		mov.L	8[r10], r4
+ 1011 0a94 57 45                   		or	r4, r5
+ 1012 0a96 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 1013 0a9b 06 89 A5 01             		add	4[r10].L, r5
+ 1014 0a9f EC A4                   		mov.L	[r10], r4
+ 1015 0aa1 EC 44                   		mov.L	[r4], r4
+ 1016 0aa3 4B 45                   		add	r4, r5
+ 1017 0aa5 70 55 44 22 29 F4       		add	#-198630844, r5
+ 1018 0aab 66 62                   		mov.L	#6, r2
+ 1019 0aad EF 51                   		mov.L	r5, r1
+ 1020 0aaf 05 00 00 00             		bsr	_rotlFixed
+ 1021 0ab3 EF 15                   		mov.L	r1, r5
+ 1022 0ab5 ED A4 02                		mov.L	8[r10], r4
+ 1023 0ab8 4B 45                   		add	r4, r5
+ 1024 0aba E7 A5 01                		mov.L	r5, 4[r10]
+ 258:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, d, a, b, c, buffer[7]  + 0x432aff97, 10);
+ 1025                             		.loc 2 258 5
+ 1026 0abd ED A5 03                		mov.L	12[r10], r5
+ 1027 0ac0 7E 05                   		not	r5
+ 1028 0ac2 ED A4 01                		mov.L	4[r10], r4
+ 1029 0ac5 57 45                   		or	r4, r5
+ 1030 0ac7 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 1031 0acc EF 54                   		mov.L	r5, r4
+ 1032 0ace 06 89 A4 04             		add	16[r10].L, r4
+ 1033 0ad2 EC A5                   		mov.L	[r10], r5
+ 1034 0ad4 71 55 1C                		add	#28, r5
+ 1035 0ad7 EC 55                   		mov.L	[r5], r5
+ 1036 0ad9 4B 45                   		add	r4, r5
+ 1037 0adb 70 55 97 FF 2A 43       		add	#0x432aff97, r5
+ 1038 0ae1 66 A2                   		mov.L	#10, r2
+ 1039 0ae3 EF 51                   		mov.L	r5, r1
+ 1040 0ae5 05 00 00 00             		bsr	_rotlFixed
+ 1041 0ae9 EF 15                   		mov.L	r1, r5
+ 1042 0aeb ED A4 01                		mov.L	4[r10], r4
+ 1043 0aee 4B 45                   		add	r4, r5
+ 1044 0af0 E7 A5 04                		mov.L	r5, 16[r10]
+ 259:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, c, d, a, b, buffer[14] + 0xab9423a7, 15);
+ 1045                             		.loc 2 259 5
+ 1046 0af3 ED A5 02                		mov.L	8[r10], r5
+ 1047 0af6 7E 05                   		not	r5
+ 1048 0af8 ED A4 04                		mov.L	16[r10], r4
+ 1049 0afb 57 45                   		or	r4, r5
+ 1050 0afd 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 1051 0b02 EF 54                   		mov.L	r5, r4
+ 1052 0b04 06 89 A4 03             		add	12[r10].L, r4
+ 1053 0b08 EC A5                   		mov.L	[r10], r5
+ 1054 0b0a 71 55 38                		add	#56, r5
+ 1055 0b0d EC 55                   		mov.L	[r5], r5
+ 1056 0b0f 4B 45                   		add	r4, r5
+ 1057 0b11 70 55 A7 23 94 AB       		add	#-1416354905, r5
+ 1058 0b17 66 F2                   		mov.L	#15, r2
+ 1059 0b19 EF 51                   		mov.L	r5, r1
+ 1060 0b1b 05 00 00 00             		bsr	_rotlFixed
+ 1061 0b1f EF 15                   		mov.L	r1, r5
+ 1062 0b21 ED A4 04                		mov.L	16[r10], r4
+ 1063 0b24 4B 45                   		add	r4, r5
+ 1064 0b26 E7 A5 03                		mov.L	r5, 12[r10]
+ 260:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, b, c, d, a, buffer[5]  + 0xfc93a039, 21);
+ 1065                             		.loc 2 260 5
+ 1066 0b29 ED A5 01                		mov.L	4[r10], r5
+ 1067 0b2c 7E 05                   		not	r5
+ 1068 0b2e ED A4 03                		mov.L	12[r10], r4
+ 1069 0b31 57 45                   		or	r4, r5
+ 1070 0b33 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 1071 0b38 EF 54                   		mov.L	r5, r4
+ 1072 0b3a 06 89 A4 02             		add	8[r10].L, r4
+ 1073 0b3e EC A5                   		mov.L	[r10], r5
+ 1074 0b40 71 55 14                		add	#20, r5
+ 1075 0b43 EC 55                   		mov.L	[r5], r5
+ 1076 0b45 4B 45                   		add	r4, r5
+ 1077 0b47 70 55 39 A0 93 FC       		add	#-57434055, r5
+ 1078 0b4d 75 42 15                		mov.L	#21, r2
+ 1079 0b50 EF 51                   		mov.L	r5, r1
+ 1080 0b52 05 00 00 00             		bsr	_rotlFixed
+ 1081 0b56 EF 15                   		mov.L	r1, r5
+ 1082 0b58 ED A4 03                		mov.L	12[r10], r4
+ 1083 0b5b 4B 45                   		add	r4, r5
+ 1084 0b5d E7 A5 02                		mov.L	r5, 8[r10]
+ 261:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, a, b, c, d, buffer[12] + 0x655b59c3,  6);
+ 1085                             		.loc 2 261 5
+ 1086 0b60 ED A5 04                		mov.L	16[r10], r5
+ 1087 0b63 7E 05                   		not	r5
+ 1088 0b65 ED A4 02                		mov.L	8[r10], r4
+ 1089 0b68 57 45                   		or	r4, r5
+ 1090 0b6a 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 1091 0b6f EF 54                   		mov.L	r5, r4
+ 1092 0b71 06 89 A4 01             		add	4[r10].L, r4
+ 1093 0b75 EC A5                   		mov.L	[r10], r5
+ 1094 0b77 71 55 30                		add	#48, r5
+ 1095 0b7a EC 55                   		mov.L	[r5], r5
+ 1096 0b7c 4B 45                   		add	r4, r5
+ 1097 0b7e 70 55 C3 59 5B 65       		add	#0x655b59c3, r5
+ 1098 0b84 66 62                   		mov.L	#6, r2
+ 1099 0b86 EF 51                   		mov.L	r5, r1
+ 1100 0b88 05 00 00 00             		bsr	_rotlFixed
+ 1101 0b8c EF 15                   		mov.L	r1, r5
+ 1102 0b8e ED A4 02                		mov.L	8[r10], r4
+ 1103 0b91 4B 45                   		add	r4, r5
+ 1104 0b93 E7 A5 01                		mov.L	r5, 4[r10]
+ 262:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, d, a, b, c, buffer[3]  + 0x8f0ccc92, 10);
+ 1105                             		.loc 2 262 5
+ 1106 0b96 ED A5 03                		mov.L	12[r10], r5
+ 1107 0b99 7E 05                   		not	r5
+ 1108 0b9b ED A4 01                		mov.L	4[r10], r4
+ 1109 0b9e 57 45                   		or	r4, r5
+ 1110 0ba0 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 1111 0ba5 EF 54                   		mov.L	r5, r4
+ 1112 0ba7 06 89 A4 04             		add	16[r10].L, r4
+ 1113 0bab EC A5                   		mov.L	[r10], r5
+ 1114 0bad 62 C5                   		add	#12, r5
+ 1115 0baf EC 55                   		mov.L	[r5], r5
+ 1116 0bb1 4B 45                   		add	r4, r5
+ 1117 0bb3 70 55 92 CC 0C 8F       		add	#-1894986606, r5
+ 1118 0bb9 66 A2                   		mov.L	#10, r2
+ 1119 0bbb EF 51                   		mov.L	r5, r1
+ 1120 0bbd 05 00 00 00             		bsr	_rotlFixed
+ 1121 0bc1 EF 15                   		mov.L	r1, r5
+ 1122 0bc3 ED A4 01                		mov.L	4[r10], r4
+ 1123 0bc6 4B 45                   		add	r4, r5
+ 1124 0bc8 E7 A5 04                		mov.L	r5, 16[r10]
+ 263:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, c, d, a, b, buffer[10] + 0xffeff47d, 15);
+ 1125                             		.loc 2 263 5
+ 1126 0bcb ED A5 02                		mov.L	8[r10], r5
+ 1127 0bce 7E 05                   		not	r5
+ 1128 0bd0 ED A4 04                		mov.L	16[r10], r4
+ 1129 0bd3 57 45                   		or	r4, r5
+ 1130 0bd5 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 1131 0bda EF 54                   		mov.L	r5, r4
+ 1132 0bdc 06 89 A4 03             		add	12[r10].L, r4
+ 1133 0be0 EC A5                   		mov.L	[r10], r5
+ 1134 0be2 71 55 28                		add	#40, r5
+ 1135 0be5 EC 55                   		mov.L	[r5], r5
+ 1136 0be7 4B 45                   		add	r4, r5
+ 1137 0be9 73 55 7D F4 EF          		add	#-1051523, r5
+ 1138 0bee 66 F2                   		mov.L	#15, r2
+ 1139 0bf0 EF 51                   		mov.L	r5, r1
+ 1140 0bf2 05 00 00 00             		bsr	_rotlFixed
+ 1141 0bf6 EF 15                   		mov.L	r1, r5
+ 1142 0bf8 ED A4 04                		mov.L	16[r10], r4
+ 1143 0bfb 4B 45                   		add	r4, r5
+ 1144 0bfd E7 A5 03                		mov.L	r5, 12[r10]
+ 264:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, b, c, d, a, buffer[1]  + 0x85845dd1, 21);
+ 1145                             		.loc 2 264 5
+ 1146 0c00 ED A5 01                		mov.L	4[r10], r5
+ 1147 0c03 7E 05                   		not	r5
+ 1148 0c05 ED A4 03                		mov.L	12[r10], r4
+ 1149 0c08 57 45                   		or	r4, r5
+ 1150 0c0a 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 1151 0c0f EF 54                   		mov.L	r5, r4
+ 1152 0c11 06 89 A4 02             		add	8[r10].L, r4
+ 1153 0c15 EC A5                   		mov.L	[r10], r5
+ 1154 0c17 62 45                   		add	#4, r5
+ 1155 0c19 EC 55                   		mov.L	[r5], r5
+ 1156 0c1b 4B 45                   		add	r4, r5
+ 1157 0c1d 70 55 D1 5D 84 85       		add	#-2054922799, r5
+ 1158 0c23 75 42 15                		mov.L	#21, r2
+ 1159 0c26 EF 51                   		mov.L	r5, r1
+ 1160 0c28 05 00 00 00             		bsr	_rotlFixed
+ 1161 0c2c EF 15                   		mov.L	r1, r5
+ 1162 0c2e ED A4 03                		mov.L	12[r10], r4
+ 1163 0c31 4B 45                   		add	r4, r5
+ 1164 0c33 E7 A5 02                		mov.L	r5, 8[r10]
+ 265:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, a, b, c, d, buffer[8]  + 0x6fa87e4f,  6);
+ 1165                             		.loc 2 265 5
+ 1166 0c36 ED A5 04                		mov.L	16[r10], r5
+ 1167 0c39 7E 05                   		not	r5
+ 1168 0c3b ED A4 02                		mov.L	8[r10], r4
+ 1169 0c3e 57 45                   		or	r4, r5
+ 1170 0c40 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 1171 0c45 EF 54                   		mov.L	r5, r4
+ 1172 0c47 06 89 A4 01             		add	4[r10].L, r4
+ 1173 0c4b EC A5                   		mov.L	[r10], r5
+ 1174 0c4d 71 55 20                		add	#32, r5
+ 1175 0c50 EC 55                   		mov.L	[r5], r5
+ 1176 0c52 4B 45                   		add	r4, r5
+ 1177 0c54 70 55 4F 7E A8 6F       		add	#0x6fa87e4f, r5
+ 1178 0c5a 66 62                   		mov.L	#6, r2
+ 1179 0c5c EF 51                   		mov.L	r5, r1
+ 1180 0c5e 05 00 00 00             		bsr	_rotlFixed
+ 1181 0c62 EF 15                   		mov.L	r1, r5
+ 1182 0c64 ED A4 02                		mov.L	8[r10], r4
+ 1183 0c67 4B 45                   		add	r4, r5
+ 1184 0c69 E7 A5 01                		mov.L	r5, 4[r10]
+ 266:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, d, a, b, c, buffer[15] + 0xfe2ce6e0, 10);
+ 1185                             		.loc 2 266 5
+ 1186 0c6c ED A5 03                		mov.L	12[r10], r5
+ 1187 0c6f 7E 05                   		not	r5
+ 1188 0c71 ED A4 01                		mov.L	4[r10], r4
+ 1189 0c74 57 45                   		or	r4, r5
+ 1190 0c76 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 1191 0c7b EF 54                   		mov.L	r5, r4
+ 1192 0c7d 06 89 A4 04             		add	16[r10].L, r4
+ 1193 0c81 EC A5                   		mov.L	[r10], r5
+ 1194 0c83 71 55 3C                		add	#60, r5
+ 1195 0c86 EC 55                   		mov.L	[r5], r5
+ 1196 0c88 4B 45                   		add	r4, r5
+ 1197 0c8a 70 55 E0 E6 2C FE       		add	#-30611744, r5
+ 1198 0c90 66 A2                   		mov.L	#10, r2
+ 1199 0c92 EF 51                   		mov.L	r5, r1
+ 1200 0c94 05 00 00 00             		bsr	_rotlFixed
+ 1201 0c98 EF 15                   		mov.L	r1, r5
+ 1202 0c9a ED A4 01                		mov.L	4[r10], r4
+ 1203 0c9d 4B 45                   		add	r4, r5
+ 1204 0c9f E7 A5 04                		mov.L	r5, 16[r10]
+ 267:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, c, d, a, b, buffer[6]  + 0xa3014314, 15);
+ 1205                             		.loc 2 267 5
+ 1206 0ca2 ED A5 02                		mov.L	8[r10], r5
+ 1207 0ca5 7E 05                   		not	r5
+ 1208 0ca7 ED A4 04                		mov.L	16[r10], r4
+ 1209 0caa 57 45                   		or	r4, r5
+ 1210 0cac 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 1211 0cb1 EF 54                   		mov.L	r5, r4
+ 1212 0cb3 06 89 A4 03             		add	12[r10].L, r4
+ 1213 0cb7 EC A5                   		mov.L	[r10], r5
+ 1214 0cb9 71 55 18                		add	#24, r5
+ 1215 0cbc EC 55                   		mov.L	[r5], r5
+ 1216 0cbe 4B 45                   		add	r4, r5
+ 1217 0cc0 70 55 14 43 01 A3       		add	#-1560198380, r5
+ 1218 0cc6 66 F2                   		mov.L	#15, r2
+ 1219 0cc8 EF 51                   		mov.L	r5, r1
+ 1220 0cca 05 00 00 00             		bsr	_rotlFixed
+ 1221 0cce EF 15                   		mov.L	r1, r5
+ 1222 0cd0 ED A4 04                		mov.L	16[r10], r4
+ 1223 0cd3 4B 45                   		add	r4, r5
+ 1224 0cd5 E7 A5 03                		mov.L	r5, 12[r10]
+ 268:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, b, c, d, a, buffer[13] + 0x4e0811a1, 21);
+ 1225                             		.loc 2 268 5
+ 1226 0cd8 ED A5 01                		mov.L	4[r10], r5
+ 1227 0cdb 7E 05                   		not	r5
+ 1228 0cdd ED A4 03                		mov.L	12[r10], r4
+ 1229 0ce0 57 45                   		or	r4, r5
+ 1230 0ce2 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 1231 0ce7 EF 54                   		mov.L	r5, r4
+ 1232 0ce9 06 89 A4 02             		add	8[r10].L, r4
+ 1233 0ced EC A5                   		mov.L	[r10], r5
+ 1234 0cef 71 55 34                		add	#52, r5
+ 1235 0cf2 EC 55                   		mov.L	[r5], r5
+ 1236 0cf4 4B 45                   		add	r4, r5
+ 1237 0cf6 70 55 A1 11 08 4E       		add	#0x4e0811a1, r5
+ 1238 0cfc 75 42 15                		mov.L	#21, r2
+ 1239 0cff EF 51                   		mov.L	r5, r1
+ 1240 0d01 05 00 00 00             		bsr	_rotlFixed
+ 1241 0d05 EF 15                   		mov.L	r1, r5
+ 1242 0d07 ED A4 03                		mov.L	12[r10], r4
+ 1243 0d0a 4B 45                   		add	r4, r5
+ 1244 0d0c E7 A5 02                		mov.L	r5, 8[r10]
+ 269:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, a, b, c, d, buffer[4]  + 0xf7537e82,  6);
+ 1245                             		.loc 2 269 5
+ 1246 0d0f ED A5 04                		mov.L	16[r10], r5
+ 1247 0d12 7E 05                   		not	r5
+ 1248 0d14 ED A4 02                		mov.L	8[r10], r4
+ 1249 0d17 57 45                   		or	r4, r5
+ 1250 0d19 06 A1 0D A5 03          		xor	12[r10].L, r5
+ 1251 0d1e EF 54                   		mov.L	r5, r4
+ 1252 0d20 06 89 A4 01             		add	4[r10].L, r4
+ 1253 0d24 EC A5                   		mov.L	[r10], r5
+ 1254 0d26 71 55 10                		add	#16, r5
+ 1255 0d29 EC 55                   		mov.L	[r5], r5
+ 1256 0d2b 4B 45                   		add	r4, r5
+ 1257 0d2d 70 55 82 7E 53 F7       		add	#-145523070, r5
+ 1258 0d33 66 62                   		mov.L	#6, r2
+ 1259 0d35 EF 51                   		mov.L	r5, r1
+ 1260 0d37 05 00 00 00             		bsr	_rotlFixed
+ 1261 0d3b EF 15                   		mov.L	r1, r5
+ 1262 0d3d ED A4 02                		mov.L	8[r10], r4
+ 1263 0d40 4B 45                   		add	r4, r5
+ 1264 0d42 E7 A5 01                		mov.L	r5, 4[r10]
+ 270:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, d, a, b, c, buffer[11] + 0xbd3af235, 10);
+ 1265                             		.loc 2 270 5
+ 1266 0d45 ED A5 03                		mov.L	12[r10], r5
+ 1267 0d48 7E 05                   		not	r5
+ 1268 0d4a ED A4 01                		mov.L	4[r10], r4
+ 1269 0d4d 57 45                   		or	r4, r5
+ 1270 0d4f 06 A1 0D A5 02          		xor	8[r10].L, r5
+ 1271 0d54 EF 54                   		mov.L	r5, r4
+ 1272 0d56 06 89 A4 04             		add	16[r10].L, r4
+ 1273 0d5a EC A5                   		mov.L	[r10], r5
+ 1274 0d5c 71 55 2C                		add	#44, r5
+ 1275 0d5f EC 55                   		mov.L	[r5], r5
+ 1276 0d61 4B 45                   		add	r4, r5
+ 1277 0d63 70 55 35 F2 3A BD       		add	#-1120210379, r5
+ 1278 0d69 66 A2                   		mov.L	#10, r2
+ 1279 0d6b EF 51                   		mov.L	r5, r1
+ 1280 0d6d 05 00 00 00             		bsr	_rotlFixed
+ 1281 0d71 EF 15                   		mov.L	r1, r5
+ 1282 0d73 ED A4 01                		mov.L	4[r10], r4
+ 1283 0d76 4B 45                   		add	r4, r5
+ 1284 0d78 E7 A5 04                		mov.L	r5, 16[r10]
+ 271:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, c, d, a, b, buffer[2]  + 0x2ad7d2bb, 15);
+ 1285                             		.loc 2 271 5
+ 1286 0d7b ED A5 02                		mov.L	8[r10], r5
+ 1287 0d7e 7E 05                   		not	r5
+ 1288 0d80 ED A4 04                		mov.L	16[r10], r4
+ 1289 0d83 57 45                   		or	r4, r5
+ 1290 0d85 06 A1 0D A5 01          		xor	4[r10].L, r5
+ 1291 0d8a EF 54                   		mov.L	r5, r4
+ 1292 0d8c 06 89 A4 03             		add	12[r10].L, r4
+ 1293 0d90 EC A5                   		mov.L	[r10], r5
+ 1294 0d92 62 85                   		add	#8, r5
+ 1295 0d94 EC 55                   		mov.L	[r5], r5
+ 1296 0d96 4B 45                   		add	r4, r5
+ 1297 0d98 70 55 BB D2 D7 2A       		add	#0x2ad7d2bb, r5
+ 1298 0d9e 66 F2                   		mov.L	#15, r2
+ 1299 0da0 EF 51                   		mov.L	r5, r1
+ 1300 0da2 05 00 00 00             		bsr	_rotlFixed
+ 1301 0da6 EF 15                   		mov.L	r1, r5
+ 1302 0da8 ED A4 04                		mov.L	16[r10], r4
+ 1303 0dab 4B 45                   		add	r4, r5
+ 1304 0dad E7 A5 03                		mov.L	r5, 12[r10]
+ 272:../src/wolfcrypt/src/md5.c ****     MD5STEP(F4, b, c, d, a, buffer[9]  + 0xeb86d391, 21);
+ 1305                             		.loc 2 272 5
+ 1306 0db0 ED A5 01                		mov.L	4[r10], r5
+ 1307 0db3 7E 05                   		not	r5
+ 1308 0db5 ED A4 03                		mov.L	12[r10], r4
+ 1309 0db8 57 45                   		or	r4, r5
+ 1310 0dba 06 A1 0D A5 04          		xor	16[r10].L, r5
+ 1311 0dbf EF 54                   		mov.L	r5, r4
+ 1312 0dc1 06 89 A4 02             		add	8[r10].L, r4
+ 1313 0dc5 EC A5                   		mov.L	[r10], r5
+ 1314 0dc7 71 55 24                		add	#36, r5
+ 1315 0dca EC 55                   		mov.L	[r5], r5
+ 1316 0dcc 4B 45                   		add	r4, r5
+ 1317 0dce 70 55 91 D3 86 EB       		add	#-343485551, r5
+ 1318 0dd4 75 42 15                		mov.L	#21, r2
+ 1319 0dd7 EF 51                   		mov.L	r5, r1
+ 1320 0dd9 05 00 00 00             		bsr	_rotlFixed
+ 1321 0ddd EF 15                   		mov.L	r1, r5
+ 1322 0ddf ED A4 03                		mov.L	12[r10], r4
+ 1323 0de2 4B 45                   		add	r4, r5
+ 1324 0de4 E7 A5 02                		mov.L	r5, 8[r10]
+ 273:../src/wolfcrypt/src/md5.c **** 
+ 274:../src/wolfcrypt/src/md5.c ****     /* Add the working vars back into digest state[]  */
+ 275:../src/wolfcrypt/src/md5.c ****     md5->digest[0] += a;
+ 1325                             		.loc 2 275 20
+ 1326 0de7 ED A5 05                		mov.L	20[r10], r5
+ 1327 0dea AC DD                   		mov.L	76[r5], r5
+ 1328 0dec EF 54                   		mov.L	r5, r4
+ 1329 0dee 06 89 A4 01             		add	4[r10].L, r4
+ 1330 0df2 ED A5 05                		mov.L	20[r10], r5
+ 1331 0df5 A4 DC                   		mov.L	r4, 76[r5]
+ 276:../src/wolfcrypt/src/md5.c ****     md5->digest[1] += b;
+ 1332                             		.loc 2 276 20
+ 1333 0df7 ED A5 05                		mov.L	20[r10], r5
+ 1334 0dfa AD 55                   		mov.L	80[r5], r5
+ 1335 0dfc EF 54                   		mov.L	r5, r4
+ 1336 0dfe 06 89 A4 02             		add	8[r10].L, r4
+ 1337 0e02 ED A5 05                		mov.L	20[r10], r5
+ 1338 0e05 A5 54                   		mov.L	r4, 80[r5]
+ 277:../src/wolfcrypt/src/md5.c ****     md5->digest[2] += c;
+ 1339                             		.loc 2 277 20
+ 1340 0e07 ED A5 05                		mov.L	20[r10], r5
+ 1341 0e0a AD 5D                   		mov.L	84[r5], r5
+ 1342 0e0c EF 54                   		mov.L	r5, r4
+ 1343 0e0e 06 89 A4 03             		add	12[r10].L, r4
+ 1344 0e12 ED A5 05                		mov.L	20[r10], r5
+ 1345 0e15 A5 5C                   		mov.L	r4, 84[r5]
+ 278:../src/wolfcrypt/src/md5.c ****     md5->digest[3] += d;
+ 1346                             		.loc 2 278 20
+ 1347 0e17 ED A5 05                		mov.L	20[r10], r5
+ 1348 0e1a AD D5                   		mov.L	88[r5], r5
+ 1349 0e1c EF 54                   		mov.L	r5, r4
+ 1350 0e1e 06 89 A4 04             		add	16[r10].L, r4
+ 1351 0e22 ED A5 05                		mov.L	20[r10], r5
+ 1352 0e25 A5 D4                   		mov.L	r4, 88[r5]
+ 279:../src/wolfcrypt/src/md5.c **** 
+ 280:../src/wolfcrypt/src/md5.c ****     return 0;
+ 1353                             		.loc 2 280 12
+ 1354 0e27 66 05                   		mov.L	#0, r5
+ 281:../src/wolfcrypt/src/md5.c **** }
+ 1355                             		.loc 2 281 1
+ 1356 0e29 EF 51                   		mov.L	r5, r1
+ 1357 0e2b 3F AA 08                		rtsd	#32, r10-r10
+ 1358                             	.LFE43:
+ 1360                             		.section	.text.AddLength,"ax",@progbits
+ 1362                             	_AddLength:
+ 1363                             	.LFB44:
+ 282:../src/wolfcrypt/src/md5.c **** #endif /* NEED_SOFT_MD5 */
+ 283:../src/wolfcrypt/src/md5.c **** 
+ 284:../src/wolfcrypt/src/md5.c **** #ifndef HAVE_MD5_CUST_API
+ 285:../src/wolfcrypt/src/md5.c **** 
+ 286:../src/wolfcrypt/src/md5.c **** static WC_INLINE void AddLength(wc_Md5* md5, word32 len)
+ 287:../src/wolfcrypt/src/md5.c **** {
+ 1364                             		.loc 2 287 1
+ 1365 0000 7E AA                   		push.l	r10
+ 1366                             	.LCFI6:
+ 1367 0002 71 0A F4                		add	#-12, r0, r10
+ 1368                             	.LCFI7:
+ 1369 0005 EF A0                   		mov.L	r10, r0
+ 1370 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 1371 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 288:../src/wolfcrypt/src/md5.c ****     word32 tmp = md5->loLen;
+ 1372                             		.loc 2 288 12
+ 1373 000d ED A5 01                		mov.L	4[r10], r5
+ 1374 0010 A8 5D                   		mov.L	4[r5], r5
+ 1375 0012 E3 A5                   		mov.L	r5, [r10]
+ 289:../src/wolfcrypt/src/md5.c ****     if ((md5->loLen += len) < tmp) {
+ 1376                             		.loc 2 289 21
+ 1377 0014 ED A5 01                		mov.L	4[r10], r5
+ 1378 0017 A8 5D                   		mov.L	4[r5], r5
+ 1379 0019 EF 54                   		mov.L	r5, r4
+ 1380 001b 06 89 A4 02             		add	8[r10].L, r4
+ 1381 001f ED A5 01                		mov.L	4[r10], r5
+ 1382 0022 A0 5C                   		mov.L	r4, 4[r5]
+ 1383 0024 ED A5 01                		mov.L	4[r10], r5
+ 1384 0027 A8 5D                   		mov.L	4[r5], r5
+ 1385                             		.loc 2 289 8
+ 1386 0029 EC A4                   		mov.L	[r10], r4
+ 1387 002b 47 54                   		cmp	r5, r4
+ 1388 002d 25 0F                   		bleu	.L9
+ 290:../src/wolfcrypt/src/md5.c ****         md5->hiLen++;                       /* carry low to high */
+ 1389                             		.loc 2 290 12
+ 1390 002f ED A5 01                		mov.L	4[r10], r5
+ 1391 0032 A8 D5                   		mov.L	8[r5], r5
+ 1392                             		.loc 2 290 19
+ 1393 0034 71 54 01                		add	#1, r5, r4
+ 1394 0037 ED A5 01                		mov.L	4[r10], r5
+ 1395 003a A0 D4                   		mov.L	r4, 8[r5]
+ 1396                             	.L9:
+ 291:../src/wolfcrypt/src/md5.c ****     }
+ 292:../src/wolfcrypt/src/md5.c **** }
+ 1397                             		.loc 2 292 1
+ 1398 003c 03                      		nop
+ 1399 003d 3F AA 04                		rtsd	#16, r10-r10
+ 1400                             	.LFE44:
+ 1402                             		.section	.text._InitMd5,"ax",@progbits
+ 1404                             	__InitMd5:
+ 1405                             	.LFB45:
+ 293:../src/wolfcrypt/src/md5.c **** 
+ 294:../src/wolfcrypt/src/md5.c **** static int _InitMd5(wc_Md5* md5)
+ 295:../src/wolfcrypt/src/md5.c **** {
+ 1406                             		.loc 2 295 1
+ 1407 0000 7E AA                   		push.l	r10
+ 1408                             	.LCFI8:
+ 1409 0002 71 0A F8                		add	#-8, r0, r10
+ 1410                             	.LCFI9:
+ 1411 0005 EF A0                   		mov.L	r10, r0
+ 1412 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 296:../src/wolfcrypt/src/md5.c ****     int ret = 0;
+ 1413                             		.loc 2 296 9
+ 1414 000a F8 A6 00                		mov.L	#0, [r10]
+ 297:../src/wolfcrypt/src/md5.c **** 
+ 298:../src/wolfcrypt/src/md5.c ****     md5->digest[0] = 0x67452301L;
+ 1415                             		.loc 2 298 20
+ 1416 000d ED A5 01                		mov.L	4[r10], r5
+ 1417 0010 F9 52 13 01 23 45 67    		mov.L	#0x67452301, 76[r5]
+ 299:../src/wolfcrypt/src/md5.c ****     md5->digest[1] = 0xefcdab89L;
+ 1418                             		.loc 2 299 20
+ 1419 0017 ED A5 01                		mov.L	4[r10], r5
+ 1420 001a F9 52 14 89 AB CD EF    		mov.L	#-271733879, 80[r5]
+ 300:../src/wolfcrypt/src/md5.c ****     md5->digest[2] = 0x98badcfeL;
+ 1421                             		.loc 2 300 20
+ 1422 0021 ED A5 01                		mov.L	4[r10], r5
+ 1423 0024 F9 52 15 FE DC BA 98    		mov.L	#-1732584194, 84[r5]
+ 301:../src/wolfcrypt/src/md5.c ****     md5->digest[3] = 0x10325476L;
+ 1424                             		.loc 2 301 20
+ 1425 002b ED A5 01                		mov.L	4[r10], r5
+ 1426 002e F9 52 16 76 54 32 10    		mov.L	#0x10325476, 88[r5]
+ 302:../src/wolfcrypt/src/md5.c **** 
+ 303:../src/wolfcrypt/src/md5.c ****     md5->buffLen = 0;
+ 1427                             		.loc 2 303 18
+ 1428 0035 ED A5 01                		mov.L	4[r10], r5
+ 1429 0038 F8 56 00                		mov.L	#0, [r5]
+ 304:../src/wolfcrypt/src/md5.c ****     md5->loLen   = 0;
+ 1430                             		.loc 2 304 18
+ 1431 003b ED A5 01                		mov.L	4[r10], r5
+ 1432 003e 3E 51 00                		mov.L	#0, 4[r5]
+ 305:../src/wolfcrypt/src/md5.c ****     md5->hiLen   = 0;
+ 1433                             		.loc 2 305 18
+ 1434 0041 ED A5 01                		mov.L	4[r10], r5
+ 1435 0044 3E 52 00                		mov.L	#0, 8[r5]
+ 306:../src/wolfcrypt/src/md5.c **** #ifdef WOLFSSL_HASH_FLAGS
+ 307:../src/wolfcrypt/src/md5.c ****     md5->flags = 0;
+ 308:../src/wolfcrypt/src/md5.c **** #endif
+ 309:../src/wolfcrypt/src/md5.c **** 
+ 310:../src/wolfcrypt/src/md5.c ****     return ret;
+ 1436                             		.loc 2 310 12
+ 1437 0047 EC A5                   		mov.L	[r10], r5
+ 311:../src/wolfcrypt/src/md5.c **** }
+ 1438                             		.loc 2 311 1
+ 1439 0049 EF 51                   		mov.L	r5, r1
+ 1440 004b 3F AA 03                		rtsd	#12, r10-r10
+ 1441                             	.LFE45:
+ 1443                             		.section	.text.wc_InitMd5_ex,"ax",@progbits
+ 1444                             		.global	_wc_InitMd5_ex
+ 1446                             	_wc_InitMd5_ex:
+ 1447                             	.LFB46:
+ 312:../src/wolfcrypt/src/md5.c **** 
+ 313:../src/wolfcrypt/src/md5.c **** int wc_InitMd5_ex(wc_Md5* md5, void* heap, int devId)
+ 314:../src/wolfcrypt/src/md5.c **** {
+ 1448                             		.loc 2 314 1
+ 1449 0000 7E AA                   		push.l	r10
+ 1450                             	.LCFI10:
+ 1451 0002 71 0A F0                		add	#-16, r0, r10
+ 1452                             	.LCFI11:
+ 1453 0005 EF A0                   		mov.L	r10, r0
+ 1454 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 1455 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 1456 000d E7 A3 03                		mov.L	r3, 12[r10]
+ 315:../src/wolfcrypt/src/md5.c ****     int ret = 0;
+ 1457                             		.loc 2 315 9
+ 1458 0010 F8 A6 00                		mov.L	#0, [r10]
+ 316:../src/wolfcrypt/src/md5.c **** 
+ 317:../src/wolfcrypt/src/md5.c ****     if (md5 == NULL)
+ 1459                             		.loc 2 317 8
+ 1460 0013 ED A5 01                		mov.L	4[r10], r5
+ 1461 0016 61 05                   		cmp	#0, r5
+ 1462 0018 1F                      		bne	.L13
+ 318:../src/wolfcrypt/src/md5.c ****         return BAD_FUNC_ARG;
+ 1463                             		.loc 2 318 16
+ 1464 0019 FB 5A 53 FF             		mov.L	#-173, r5
+ 1465 001d 2E 1D                   		bra	.L14
+ 1466                             	.L13:
+ 319:../src/wolfcrypt/src/md5.c **** 
+ 320:../src/wolfcrypt/src/md5.c ****     md5->heap = heap;
+ 1467                             		.loc 2 320 15
+ 1468 001f ED A5 01                		mov.L	4[r10], r5
+ 1469 0022 ED A4 02                		mov.L	8[r10], r4
+ 1470 0025 A5 DC                   		mov.L	r4, 92[r5]
+ 321:../src/wolfcrypt/src/md5.c **** 
+ 322:../src/wolfcrypt/src/md5.c ****     ret = _InitMd5(md5);
+ 1471                             		.loc 2 322 11
+ 1472 0027 ED A1 01                		mov.L	4[r10], r1
+ 1473 002a 05 00 00 00             		bsr	__InitMd5
+ 1474 002e E3 A1                   		mov.L	r1, [r10]
+ 323:../src/wolfcrypt/src/md5.c ****     if (ret != 0)
+ 1475                             		.loc 2 323 8
+ 1476 0030 EC A5                   		mov.L	[r10], r5
+ 1477 0032 61 05                   		cmp	#0, r5
+ 1478 0034 14                      		beq	.L15
+ 324:../src/wolfcrypt/src/md5.c ****         return ret;
+ 1479                             		.loc 2 324 16
+ 1480 0035 EC A5                   		mov.L	[r10], r5
+ 1481 0037 0B                      		bra	.L14
+ 1482                             	.L15:
+ 325:../src/wolfcrypt/src/md5.c **** 
+ 326:../src/wolfcrypt/src/md5.c **** #if defined(WOLFSSL_ASYNC_CRYPT) && defined(WC_ASYNC_ENABLE_MD5)
+ 327:../src/wolfcrypt/src/md5.c ****     ret = wolfAsync_DevCtxInit(&md5->asyncDev, WOLFSSL_ASYNC_MARKER_MD5,
+ 328:../src/wolfcrypt/src/md5.c ****                                md5->heap, devId);
+ 329:../src/wolfcrypt/src/md5.c **** #else
+ 330:../src/wolfcrypt/src/md5.c ****     (void)devId;
+ 331:../src/wolfcrypt/src/md5.c **** #endif
+ 332:../src/wolfcrypt/src/md5.c ****     return ret;
+ 1483                             		.loc 2 332 12
+ 1484 0038 EC A5                   		mov.L	[r10], r5
+ 1485                             	.L14:
+ 333:../src/wolfcrypt/src/md5.c **** }
+ 1486                             		.loc 2 333 1
+ 1487 003a EF 51                   		mov.L	r5, r1
+ 1488 003c 3F AA 05                		rtsd	#20, r10-r10
+ 1489                             	.LFE46:
+ 1491                             		.section	.text.wc_Md5Update,"ax",@progbits
+ 1492                             		.global	_wc_Md5Update
+ 1494                             	_wc_Md5Update:
+ 1495                             	.LFB47:
+ 334:../src/wolfcrypt/src/md5.c **** 
+ 335:../src/wolfcrypt/src/md5.c **** /* do block size increments/updates */
+ 336:../src/wolfcrypt/src/md5.c **** int wc_Md5Update(wc_Md5* md5, const byte* data, word32 len)
+ 337:../src/wolfcrypt/src/md5.c **** {
+ 1496                             		.loc 2 337 1
+ 1497 0000 7E AA                   		push.l	r10
+ 1498                             	.LCFI12:
+ 1499 0002 71 0A E4                		add	#-28, r0, r10
+ 1500                             	.LCFI13:
+ 1501 0005 EF A0                   		mov.L	r10, r0
+ 1502 0007 E7 A1 04                		mov.L	r1, 16[r10]
+ 1503 000a E7 A2 05                		mov.L	r2, 20[r10]
+ 1504 000d E7 A3 06                		mov.L	r3, 24[r10]
+ 338:../src/wolfcrypt/src/md5.c ****     int ret = 0;
+ 1505                             		.loc 2 338 9
+ 1506 0010 F8 A6 00                		mov.L	#0, [r10]
+ 339:../src/wolfcrypt/src/md5.c ****     word32 blocksLen;
+ 340:../src/wolfcrypt/src/md5.c ****     byte* local;
+ 341:../src/wolfcrypt/src/md5.c **** 
+ 342:../src/wolfcrypt/src/md5.c ****     if (md5 == NULL || (data == NULL && len > 0)) {
+ 1507                             		.loc 2 342 8
+ 1508 0013 ED A5 04                		mov.L	16[r10], r5
+ 1509 0016 61 05                   		cmp	#0, r5
+ 1510 0018 20 0F                   		beq	.L17
+ 1511                             		.loc 2 342 21 discriminator 1
+ 1512 001a ED A5 05                		mov.L	20[r10], r5
+ 1513 001d 61 05                   		cmp	#0, r5
+ 1514 001f 21 0F                   		bne	.L18
+ 1515                             		.loc 2 342 38 discriminator 2
+ 1516 0021 ED A5 06                		mov.L	24[r10], r5
+ 1517 0024 61 05                   		cmp	#0, r5
+ 1518 0026 10                      		beq	.L18
+ 1519                             	.L17:
+ 343:../src/wolfcrypt/src/md5.c ****         return BAD_FUNC_ARG;
+ 1520                             		.loc 2 343 16
+ 1521 0027 FB 5A 53 FF             		mov.L	#-173, r5
+ 1522 002b 38 15 01                		bra	.L19
+ 1523                             	.L18:
+ 344:../src/wolfcrypt/src/md5.c ****     }
+ 345:../src/wolfcrypt/src/md5.c **** 
+ 346:../src/wolfcrypt/src/md5.c **** #if defined(WOLFSSL_ASYNC_CRYPT) && defined(WC_ASYNC_ENABLE_MD5)
+ 347:../src/wolfcrypt/src/md5.c ****     if (md5->asyncDev.marker == WOLFSSL_ASYNC_MARKER_MD5) {
+ 348:../src/wolfcrypt/src/md5.c **** #if defined(HAVE_INTEL_QA)
+ 349:../src/wolfcrypt/src/md5.c ****         return IntelQaSymMd5(&md5->asyncDev, NULL, data, len);
+ 350:../src/wolfcrypt/src/md5.c **** #endif
+ 351:../src/wolfcrypt/src/md5.c ****     }
+ 352:../src/wolfcrypt/src/md5.c **** #endif /* WOLFSSL_ASYNC_CRYPT */
+ 353:../src/wolfcrypt/src/md5.c **** 
+ 354:../src/wolfcrypt/src/md5.c ****     /* check that internal buffLen is valid */
+ 355:../src/wolfcrypt/src/md5.c ****     if (md5->buffLen >= WC_MD5_BLOCK_SIZE)
+ 1524                             		.loc 2 355 12
+ 1525 002e ED A5 04                		mov.L	16[r10], r5
+ 1526 0031 EC 55                   		mov.L	[r5], r5
+ 1527                             		.loc 2 355 8
+ 1528 0033 75 55 3F                		cmp	#63, r5
+ 1529 0036 25 09                   		bleu	.L20
+ 356:../src/wolfcrypt/src/md5.c ****         return BUFFER_E;
+ 1530                             		.loc 2 356 16
+ 1531 0038 FB 5A 7C FF             		mov.L	#-132, r5
+ 1532 003c 38 04 01                		bra	.L19
+ 1533                             	.L20:
+ 357:../src/wolfcrypt/src/md5.c **** 
+ 358:../src/wolfcrypt/src/md5.c ****     if (data == NULL && len == 0) {
+ 1534                             		.loc 2 358 8
+ 1535 003f ED A5 05                		mov.L	20[r10], r5
+ 1536 0042 61 05                   		cmp	#0, r5
+ 1537 0044 21 0D                   		bne	.L21
+ 1538                             		.loc 2 358 22 discriminator 1
+ 1539 0046 ED A5 06                		mov.L	24[r10], r5
+ 1540 0049 61 05                   		cmp	#0, r5
+ 1541 004b 1E                      		bne	.L21
+ 359:../src/wolfcrypt/src/md5.c ****         /* valid, but do nothing */
+ 360:../src/wolfcrypt/src/md5.c ****         return 0;
+ 1542                             		.loc 2 360 16
+ 1543 004c 66 05                   		mov.L	#0, r5
+ 1544 004e 38 F2 00                		bra	.L19
+ 1545                             	.L21:
+ 361:../src/wolfcrypt/src/md5.c ****     }
+ 362:../src/wolfcrypt/src/md5.c **** 
+ 363:../src/wolfcrypt/src/md5.c ****     /* add length for final */
+ 364:../src/wolfcrypt/src/md5.c ****     AddLength(md5, len);
+ 1546                             		.loc 2 364 5
+ 1547 0051 ED A2 06                		mov.L	24[r10], r2
+ 1548 0054 ED A1 04                		mov.L	16[r10], r1
+ 1549 0057 05 00 00 00             		bsr	_AddLength
+ 365:../src/wolfcrypt/src/md5.c **** 
+ 366:../src/wolfcrypt/src/md5.c ****     local = (byte*)md5->buffer;
+ 1550                             		.loc 2 366 11
+ 1551 005b ED A5 04                		mov.L	16[r10], r5
+ 1552 005e 62 C5                   		add	#12, r5
+ 1553 0060 E7 A5 01                		mov.L	r5, 4[r10]
+ 367:../src/wolfcrypt/src/md5.c **** 
+ 368:../src/wolfcrypt/src/md5.c ****     /* process any remainder from previous operation */
+ 369:../src/wolfcrypt/src/md5.c ****     if (md5->buffLen > 0) {
+ 1554                             		.loc 2 369 12
+ 1555 0063 ED A5 04                		mov.L	16[r10], r5
+ 1556 0066 EC 55                   		mov.L	[r5], r5
+ 1557                             		.loc 2 369 8
+ 1558 0068 61 05                   		cmp	#0, r5
+ 1559 006a 3A B0 00                		beq	.L24
+ 370:../src/wolfcrypt/src/md5.c ****         blocksLen = min(len, WC_MD5_BLOCK_SIZE - md5->buffLen);
+ 1560                             		.loc 2 370 53
+ 1561 006d ED A5 04                		mov.L	16[r10], r5
+ 1562 0070 EC 55                   		mov.L	[r5], r5
+ 1563                             		.loc 2 370 21
+ 1564 0072 75 44 40                		mov.L	#0x40, r4
+ 1565 0075 FF 05 54                		sub	r5, r4, r5
+ 1566 0078 EF 52                   		mov.L	r5, r2
+ 1567 007a ED A1 06                		mov.L	24[r10], r1
+ 1568 007d 05 00 00 00             		bsr	_min
+ 1569 0081 E7 A1 02                		mov.L	r1, 8[r10]
+ 371:../src/wolfcrypt/src/md5.c ****         XMEMCPY(&local[md5->buffLen], data, blocksLen);
+ 1570                             		.loc 2 371 9
+ 1571 0084 ED A5 04                		mov.L	16[r10], r5
+ 1572 0087 EC 55                   		mov.L	[r5], r5
+ 1573 0089 ED A4 01                		mov.L	4[r10], r4
+ 1574 008c 4B 45                   		add	r4, r5
+ 1575 008e ED A3 02                		mov.L	8[r10], r3
+ 1576 0091 ED A2 05                		mov.L	20[r10], r2
+ 1577 0094 EF 51                   		mov.L	r5, r1
+ 1578 0096 05 00 00 00             		bsr	_memcpy
+ 372:../src/wolfcrypt/src/md5.c **** 
+ 373:../src/wolfcrypt/src/md5.c ****         md5->buffLen += blocksLen;
+ 1579                             		.loc 2 373 22
+ 1580 009a ED A5 04                		mov.L	16[r10], r5
+ 1581 009d EC 55                   		mov.L	[r5], r5
+ 1582 009f EF 54                   		mov.L	r5, r4
+ 1583 00a1 06 89 A4 02             		add	8[r10].L, r4
+ 1584 00a5 ED A5 04                		mov.L	16[r10], r5
+ 1585 00a8 E3 54                   		mov.L	r4, [r5]
+ 374:../src/wolfcrypt/src/md5.c ****         data         += blocksLen;
+ 1586                             		.loc 2 374 22
+ 1587 00aa ED A5 05                		mov.L	20[r10], r5
+ 1588 00ad 06 89 A5 02             		add	8[r10].L, r5
+ 1589 00b1 E7 A5 05                		mov.L	r5, 20[r10]
+ 375:../src/wolfcrypt/src/md5.c ****         len          -= blocksLen;
+ 1590                             		.loc 2 375 22
+ 1591 00b4 ED A4 06                		mov.L	24[r10], r4
+ 1592 00b7 ED A5 02                		mov.L	8[r10], r5
+ 1593 00ba FF 05 54                		sub	r5, r4, r5
+ 1594 00bd E7 A5 06                		mov.L	r5, 24[r10]
+ 376:../src/wolfcrypt/src/md5.c **** 
+ 377:../src/wolfcrypt/src/md5.c ****         if (md5->buffLen == WC_MD5_BLOCK_SIZE) {
+ 1595                             		.loc 2 377 16
+ 1596 00c0 ED A5 04                		mov.L	16[r10], r5
+ 1597 00c3 EC 55                   		mov.L	[r5], r5
+ 1598                             		.loc 2 377 12
+ 1599 00c5 75 55 40                		cmp	#0x40, r5
+ 1600 00c8 21 52                   		bne	.L24
+ 378:../src/wolfcrypt/src/md5.c ****         #if defined(BIG_ENDIAN_ORDER) && !defined(FREESCALE_MMCAU_SHA)
+ 379:../src/wolfcrypt/src/md5.c ****             ByteReverseWords(md5->buffer, md5->buffer, WC_MD5_BLOCK_SIZE);
+ 380:../src/wolfcrypt/src/md5.c ****         #endif
+ 381:../src/wolfcrypt/src/md5.c **** 
+ 382:../src/wolfcrypt/src/md5.c ****             ret = XTRANSFORM(md5, (const byte*)local);
+ 1601                             		.loc 2 382 19
+ 1602 00ca ED A2 01                		mov.L	4[r10], r2
+ 1603 00cd ED A1 04                		mov.L	16[r10], r1
+ 1604 00d0 05 00 00 00             		bsr	_Transform
+ 1605 00d4 E3 A1                   		mov.L	r1, [r10]
+ 383:../src/wolfcrypt/src/md5.c ****             if (ret != 0)
+ 1606                             		.loc 2 383 16
+ 1607 00d6 EC A5                   		mov.L	[r10], r5
+ 1608 00d8 61 05                   		cmp	#0, r5
+ 1609 00da 15                      		beq	.L23
+ 384:../src/wolfcrypt/src/md5.c ****                 return ret;
+ 1610                             		.loc 2 384 24
+ 1611 00db EC A5                   		mov.L	[r10], r5
+ 1612 00dd 2E 63                   		bra	.L19
+ 1613                             	.L23:
+ 385:../src/wolfcrypt/src/md5.c **** 
+ 386:../src/wolfcrypt/src/md5.c ****             md5->buffLen = 0;
+ 1614                             		.loc 2 386 26
+ 1615 00df ED A5 04                		mov.L	16[r10], r5
+ 1616 00e2 F8 56 00                		mov.L	#0, [r5]
+ 387:../src/wolfcrypt/src/md5.c ****         }
+ 388:../src/wolfcrypt/src/md5.c ****     }
+ 389:../src/wolfcrypt/src/md5.c **** 
+ 390:../src/wolfcrypt/src/md5.c ****     /* process blocks */
+ 391:../src/wolfcrypt/src/md5.c **** #ifdef XTRANSFORM_LEN
+ 392:../src/wolfcrypt/src/md5.c ****     /* get number of blocks */
+ 393:../src/wolfcrypt/src/md5.c ****     /* 64-1 = 0x3F (~ Inverted = 0xFFFFFFC0) */
+ 394:../src/wolfcrypt/src/md5.c ****     /* len (masked by 0xFFFFFFC0) returns block aligned length */
+ 395:../src/wolfcrypt/src/md5.c ****     blocksLen = len & ~(WC_MD5_BLOCK_SIZE-1);
+ 396:../src/wolfcrypt/src/md5.c ****     if (blocksLen > 0) {
+ 397:../src/wolfcrypt/src/md5.c ****         /* Byte reversal performed in function if required. */
+ 398:../src/wolfcrypt/src/md5.c ****         XTRANSFORM_LEN(md5, data, blocksLen);
+ 399:../src/wolfcrypt/src/md5.c ****         data += blocksLen;
+ 400:../src/wolfcrypt/src/md5.c ****         len  -= blocksLen;
+ 401:../src/wolfcrypt/src/md5.c ****     }
+ 402:../src/wolfcrypt/src/md5.c **** #else
+ 403:../src/wolfcrypt/src/md5.c ****     while (len >= WC_MD5_BLOCK_SIZE) {
+ 1617                             		.loc 2 403 11
+ 1618 00e5 2E 35                   		bra	.L24
+ 1619                             	.L25:
+ 1620                             	.LBB2:
+ 404:../src/wolfcrypt/src/md5.c ****         word32* local32 = md5->buffer;
+ 1621                             		.loc 2 404 17
+ 1622 00e7 ED A5 04                		mov.L	16[r10], r5
+ 1623 00ea 62 C5                   		add	#12, r5
+ 1624 00ec E7 A5 03                		mov.L	r5, 12[r10]
+ 405:../src/wolfcrypt/src/md5.c ****         /* optimization to avoid memcpy if data pointer is properly aligned */
+ 406:../src/wolfcrypt/src/md5.c ****         /* Big Endian requires byte swap, so can't use data directly */
+ 407:../src/wolfcrypt/src/md5.c ****     #if defined(WC_HASH_DATA_ALIGNMENT) && !defined(BIG_ENDIAN_ORDER)
+ 408:../src/wolfcrypt/src/md5.c ****         if (((wc_ptr_t)data % WC_HASH_DATA_ALIGNMENT) == 0) {
+ 409:../src/wolfcrypt/src/md5.c ****             local32 = (word32*)data;
+ 410:../src/wolfcrypt/src/md5.c ****         }
+ 411:../src/wolfcrypt/src/md5.c ****         else
+ 412:../src/wolfcrypt/src/md5.c ****     #endif
+ 413:../src/wolfcrypt/src/md5.c ****         {
+ 414:../src/wolfcrypt/src/md5.c ****             XMEMCPY(local32, data, WC_MD5_BLOCK_SIZE);
+ 1625                             		.loc 2 414 13
+ 1626 00ef 75 43 40                		mov.L	#0x40, r3
+ 1627 00f2 ED A2 05                		mov.L	20[r10], r2
+ 1628 00f5 ED A1 03                		mov.L	12[r10], r1
+ 1629 00f8 05 00 00 00             		bsr	_memcpy
+ 415:../src/wolfcrypt/src/md5.c ****         }
+ 416:../src/wolfcrypt/src/md5.c **** 
+ 417:../src/wolfcrypt/src/md5.c ****         data += WC_MD5_BLOCK_SIZE;
+ 1630                             		.loc 2 417 14
+ 1631 00fc ED A5 05                		mov.L	20[r10], r5
+ 1632 00ff 71 55 40                		add	#0x40, r5
+ 1633 0102 E7 A5 05                		mov.L	r5, 20[r10]
+ 418:../src/wolfcrypt/src/md5.c ****         len  -= WC_MD5_BLOCK_SIZE;
+ 1634                             		.loc 2 418 14
+ 1635 0105 ED A5 06                		mov.L	24[r10], r5
+ 1636 0108 71 55 C0                		add	#-64, r5
+ 1637 010b E7 A5 06                		mov.L	r5, 24[r10]
+ 419:../src/wolfcrypt/src/md5.c **** 
+ 420:../src/wolfcrypt/src/md5.c ****     #if defined(BIG_ENDIAN_ORDER) && !defined(FREESCALE_MMCAU_SHA)
+ 421:../src/wolfcrypt/src/md5.c ****         ByteReverseWords(local32, local32, WC_MD5_BLOCK_SIZE);
+ 422:../src/wolfcrypt/src/md5.c ****     #endif
+ 423:../src/wolfcrypt/src/md5.c **** 
+ 424:../src/wolfcrypt/src/md5.c ****         ret = XTRANSFORM(md5, (const byte*)local32);
+ 1638                             		.loc 2 424 15
+ 1639 010e ED A2 03                		mov.L	12[r10], r2
+ 1640 0111 ED A1 04                		mov.L	16[r10], r1
+ 1641 0114 05 00 00 00             		bsr	_Transform
+ 1642 0118 E3 A1                   		mov.L	r1, [r10]
+ 1643                             		.balign 8,3,1
+ 1644                             	.L24:
+ 1645                             	.LBE2:
+ 403:../src/wolfcrypt/src/md5.c ****         word32* local32 = md5->buffer;
+ 1646                             		.loc 2 403 11
+ 1647 011a ED A5 06                		mov.L	24[r10], r5
+ 1648 011d 75 55 3F                		cmp	#63, r5
+ 1649 0120 24 C7                   		bgtu	.L25
+ 425:../src/wolfcrypt/src/md5.c ****     }
+ 426:../src/wolfcrypt/src/md5.c **** #endif /* XTRANSFORM_LEN */
+ 427:../src/wolfcrypt/src/md5.c **** 
+ 428:../src/wolfcrypt/src/md5.c ****     /* save remainder */
+ 429:../src/wolfcrypt/src/md5.c ****     if (len > 0) {
+ 1650                             		.loc 2 429 8
+ 1651 0122 ED A5 06                		mov.L	24[r10], r5
+ 1652 0125 61 05                   		cmp	#0, r5
+ 1653 0127 20 17                   		beq	.L26
+ 430:../src/wolfcrypt/src/md5.c ****         XMEMCPY(local, data, len);
+ 1654                             		.loc 2 430 9
+ 1655 0129 ED A3 06                		mov.L	24[r10], r3
+ 1656 012c ED A2 05                		mov.L	20[r10], r2
+ 1657 012f ED A1 01                		mov.L	4[r10], r1
+ 1658 0132 05 00 00 00             		bsr	_memcpy
+ 431:../src/wolfcrypt/src/md5.c ****         md5->buffLen = len;
+ 1659                             		.loc 2 431 22
+ 1660 0136 ED A5 04                		mov.L	16[r10], r5
+ 1661 0139 ED A4 06                		mov.L	24[r10], r4
+ 1662 013c E3 54                   		mov.L	r4, [r5]
+ 1663                             	.L26:
+ 432:../src/wolfcrypt/src/md5.c ****     }
+ 433:../src/wolfcrypt/src/md5.c **** 
+ 434:../src/wolfcrypt/src/md5.c ****     return ret;
+ 1664                             		.loc 2 434 12
+ 1665 013e EC A5                   		mov.L	[r10], r5
+ 1666                             		.balign 8,3,1
+ 1667                             	.L19:
+ 435:../src/wolfcrypt/src/md5.c **** }
+ 1668                             		.loc 2 435 1
+ 1669 0140 EF 51                   		mov.L	r5, r1
+ 1670 0142 3F AA 08                		rtsd	#32, r10-r10
+ 1671                             	.LFE47:
+ 1673 0145 FC 13 00                		.section	.text.wc_Md5Final,"ax",@progbits
+ 1674                             		.global	_wc_Md5Final
+ 1676                             	_wc_Md5Final:
+ 1677                             	.LFB48:
+ 436:../src/wolfcrypt/src/md5.c **** 
+ 437:../src/wolfcrypt/src/md5.c **** int wc_Md5Final(wc_Md5* md5, byte* hash)
+ 438:../src/wolfcrypt/src/md5.c **** {
+ 1678                             		.loc 2 438 1
+ 1679 0000 7E AA                   		push.l	r10
+ 1680                             	.LCFI14:
+ 1681 0002 71 0A F4                		add	#-12, r0, r10
+ 1682                             	.LCFI15:
+ 1683 0005 EF A0                   		mov.L	r10, r0
+ 1684 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 1685 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 439:../src/wolfcrypt/src/md5.c ****     byte* local;
+ 440:../src/wolfcrypt/src/md5.c **** 
+ 441:../src/wolfcrypt/src/md5.c ****     if (md5 == NULL || hash == NULL) {
+ 1686                             		.loc 2 441 8
+ 1687 000d ED A5 01                		mov.L	4[r10], r5
+ 1688 0010 61 05                   		cmp	#0, r5
+ 1689 0012 17                      		beq	.L28
+ 1690                             		.loc 2 441 21 discriminator 1
+ 1691 0013 ED A5 02                		mov.L	8[r10], r5
+ 1692 0016 61 05                   		cmp	#0, r5
+ 1693 0018 18                      		bne	.L29
+ 1694                             	.L28:
+ 442:../src/wolfcrypt/src/md5.c ****         return BAD_FUNC_ARG;
+ 1695                             		.loc 2 442 16
+ 1696 0019 FB 5A 53 FF             		mov.L	#-173, r5
+ 1697 001d 38 DA 00                		bra	.L30
+ 1698                             	.L29:
+ 443:../src/wolfcrypt/src/md5.c ****     }
+ 444:../src/wolfcrypt/src/md5.c **** 
+ 445:../src/wolfcrypt/src/md5.c **** #if defined(WOLFSSL_ASYNC_CRYPT) && defined(WC_ASYNC_ENABLE_MD5)
+ 446:../src/wolfcrypt/src/md5.c ****     if (md5->asyncDev.marker == WOLFSSL_ASYNC_MARKER_MD5) {
+ 447:../src/wolfcrypt/src/md5.c **** #if defined(HAVE_INTEL_QA)
+ 448:../src/wolfcrypt/src/md5.c ****         return IntelQaSymMd5(&md5->asyncDev, hash, NULL, WC_MD5_DIGEST_SIZE);
+ 449:../src/wolfcrypt/src/md5.c **** #endif
+ 450:../src/wolfcrypt/src/md5.c ****     }
+ 451:../src/wolfcrypt/src/md5.c **** #endif /* WOLFSSL_ASYNC_CRYPT */
+ 452:../src/wolfcrypt/src/md5.c **** 
+ 453:../src/wolfcrypt/src/md5.c ****     local = (byte*)md5->buffer;
+ 1699                             		.loc 2 453 11
+ 1700 0020 ED A5 01                		mov.L	4[r10], r5
+ 1701 0023 62 C5                   		add	#12, r5
+ 1702 0025 E3 A5                   		mov.L	r5, [r10]
+ 454:../src/wolfcrypt/src/md5.c **** 
+ 455:../src/wolfcrypt/src/md5.c ****     local[md5->buffLen++] = 0x80;  /* add 1 */
+ 1703                             		.loc 2 455 14
+ 1704 0027 ED A5 01                		mov.L	4[r10], r5
+ 1705 002a EC 55                   		mov.L	[r5], r5
+ 1706                             		.loc 2 455 23
+ 1707 002c 71 53 01                		add	#1, r5, r3
+ 1708 002f ED A4 01                		mov.L	4[r10], r4
+ 1709 0032 E3 43                   		mov.L	r3, [r4]
+ 1710                             		.loc 2 455 10
+ 1711 0034 EC A4                   		mov.L	[r10], r4
+ 1712 0036 4B 45                   		add	r4, r5
+ 1713                             		.loc 2 455 27
+ 1714 0038 F8 54 80                		mov.B	#-128, [r5]
+ 456:../src/wolfcrypt/src/md5.c **** 
+ 457:../src/wolfcrypt/src/md5.c ****     /* pad with zeros */
+ 458:../src/wolfcrypt/src/md5.c ****     if (md5->buffLen > WC_MD5_PAD_SIZE) {
+ 1715                             		.loc 2 458 12
+ 1716 003b ED A5 01                		mov.L	4[r10], r5
+ 1717 003e EC 55                   		mov.L	[r5], r5
+ 1718                             		.loc 2 458 8
+ 1719 0040 75 55 38                		cmp	#56, r5
+ 1720 0043 25 34                   		bleu	.L31
+ 459:../src/wolfcrypt/src/md5.c ****         XMEMSET(&local[md5->buffLen], 0, WC_MD5_BLOCK_SIZE - md5->buffLen);
+ 1721                             		.loc 2 459 9
+ 1722 0045 ED A5 01                		mov.L	4[r10], r5
+ 1723 0048 EC 55                   		mov.L	[r5], r5
+ 1724 004a EC A4                   		mov.L	[r10], r4
+ 1725 004c FF 21 54                		add	r5, r4, r1
+ 1726 004f ED A5 01                		mov.L	4[r10], r5
+ 1727 0052 EC 55                   		mov.L	[r5], r5
+ 1728 0054 75 44 40                		mov.L	#0x40, r4
+ 1729 0057 FF 05 54                		sub	r5, r4, r5
+ 1730 005a EF 53                   		mov.L	r5, r3
+ 1731 005c 66 02                   		mov.L	#0, r2
+ 1732 005e 05 00 00 00             		bsr	_memset
+ 460:../src/wolfcrypt/src/md5.c ****         md5->buffLen += WC_MD5_BLOCK_SIZE - md5->buffLen;
+ 1733                             		.loc 2 460 22
+ 1734 0062 ED A5 01                		mov.L	4[r10], r5
+ 1735 0065 F8 56 40                		mov.L	#0x40, [r5]
+ 461:../src/wolfcrypt/src/md5.c **** 
+ 462:../src/wolfcrypt/src/md5.c **** #if defined(BIG_ENDIAN_ORDER) && !defined(FREESCALE_MMCAU_SHA)
+ 463:../src/wolfcrypt/src/md5.c ****         ByteReverseWords(md5->buffer, md5->buffer, WC_MD5_BLOCK_SIZE);
+ 464:../src/wolfcrypt/src/md5.c **** #endif
+ 465:../src/wolfcrypt/src/md5.c ****         XTRANSFORM(md5, local);
+ 1736                             		.loc 2 465 9
+ 1737 0068 EC A2                   		mov.L	[r10], r2
+ 1738 006a ED A1 01                		mov.L	4[r10], r1
+ 1739 006d 05 00 00 00             		bsr	_Transform
+ 466:../src/wolfcrypt/src/md5.c ****         md5->buffLen = 0;
+ 1740                             		.loc 2 466 22
+ 1741 0071 ED A5 01                		mov.L	4[r10], r5
+ 1742 0074 F8 56 00                		mov.L	#0, [r5]
+ 1743                             	.L31:
+ 467:../src/wolfcrypt/src/md5.c ****     }
+ 468:../src/wolfcrypt/src/md5.c ****     XMEMSET(&local[md5->buffLen], 0, WC_MD5_PAD_SIZE - md5->buffLen);
+ 1744                             		.loc 2 468 5
+ 1745 0077 ED A5 01                		mov.L	4[r10], r5
+ 1746 007a EC 55                   		mov.L	[r5], r5
+ 1747 007c EC A4                   		mov.L	[r10], r4
+ 1748 007e FF 21 54                		add	r5, r4, r1
+ 1749 0081 ED A5 01                		mov.L	4[r10], r5
+ 1750 0084 EC 55                   		mov.L	[r5], r5
+ 1751 0086 75 44 38                		mov.L	#56, r4
+ 1752 0089 FF 05 54                		sub	r5, r4, r5
+ 1753 008c EF 53                   		mov.L	r5, r3
+ 1754 008e 66 02                   		mov.L	#0, r2
+ 1755 0090 05 00 00 00             		bsr	_memset
+ 469:../src/wolfcrypt/src/md5.c **** 
+ 470:../src/wolfcrypt/src/md5.c **** #if defined(BIG_ENDIAN_ORDER) && !defined(FREESCALE_MMCAU_SHA)
+ 471:../src/wolfcrypt/src/md5.c ****     ByteReverseWords(md5->buffer, md5->buffer, WC_MD5_BLOCK_SIZE);
+ 472:../src/wolfcrypt/src/md5.c **** #endif
+ 473:../src/wolfcrypt/src/md5.c **** 
+ 474:../src/wolfcrypt/src/md5.c ****     /* put lengths in bits */
+ 475:../src/wolfcrypt/src/md5.c ****     md5->hiLen = (md5->loLen >> (8 * sizeof(md5->loLen) - 3)) +
+ 1756                             		.loc 2 475 22
+ 1757 0094 ED A5 01                		mov.L	4[r10], r5
+ 1758 0097 A8 5D                   		mov.L	4[r5], r5
+ 1759                             		.loc 2 475 30
+ 1760 0099 FD 9D 54                		shlr	#29, r5, r4
+ 476:../src/wolfcrypt/src/md5.c ****                  (md5->hiLen << 3);
+ 1761                             		.loc 2 476 22
+ 1762 009c ED A5 01                		mov.L	4[r10], r5
+ 1763 009f A8 D5                   		mov.L	8[r5], r5
+ 1764                             		.loc 2 476 30
+ 1765 00a1 6C 35                   		shll	#3, r5
+ 475:../src/wolfcrypt/src/md5.c ****                  (md5->hiLen << 3);
+ 1766                             		.loc 2 475 63
+ 1767 00a3 4B 54                   		add	r5, r4
+ 475:../src/wolfcrypt/src/md5.c ****                  (md5->hiLen << 3);
+ 1768                             		.loc 2 475 16
+ 1769 00a5 ED A5 01                		mov.L	4[r10], r5
+ 1770 00a8 A0 D4                   		mov.L	r4, 8[r5]
+ 477:../src/wolfcrypt/src/md5.c ****     md5->loLen = md5->loLen << 3;
+ 1771                             		.loc 2 477 21
+ 1772 00aa ED A5 01                		mov.L	4[r10], r5
+ 1773 00ad A8 5D                   		mov.L	4[r5], r5
+ 1774                             		.loc 2 477 29
+ 1775 00af FD C3 54                		shll	#3, r5, r4
+ 1776                             		.loc 2 477 16
+ 1777 00b2 ED A5 01                		mov.L	4[r10], r5
+ 1778 00b5 A0 5C                   		mov.L	r4, 4[r5]
+ 478:../src/wolfcrypt/src/md5.c **** 
+ 479:../src/wolfcrypt/src/md5.c ****     /* store lengths */
+ 480:../src/wolfcrypt/src/md5.c ****     /* ! length ordering dependent on digest endian type ! */
+ 481:../src/wolfcrypt/src/md5.c ****     XMEMCPY(&local[WC_MD5_PAD_SIZE], &md5->loLen, sizeof(word32));
+ 1779                             		.loc 2 481 5
+ 1780 00b7 EC A5                   		mov.L	[r10], r5
+ 1781 00b9 71 55 38                		add	#56, r5
+ 1782 00bc ED A4 01                		mov.L	4[r10], r4
+ 1783 00bf 62 44                   		add	#4, r4
+ 1784 00c1 EC 44                   		mov.L	[r4], r4
+ 1785 00c3 E3 54                   		mov.L	r4, [r5]
+ 482:../src/wolfcrypt/src/md5.c ****     XMEMCPY(&local[WC_MD5_PAD_SIZE + sizeof(word32)], &md5->hiLen, sizeof(word32));
+ 1786                             		.loc 2 482 5
+ 1787 00c5 EC A5                   		mov.L	[r10], r5
+ 1788 00c7 71 55 3C                		add	#60, r5
+ 1789 00ca ED A4 01                		mov.L	4[r10], r4
+ 1790 00cd 62 84                   		add	#8, r4
+ 1791 00cf EC 44                   		mov.L	[r4], r4
+ 1792 00d1 E3 54                   		mov.L	r4, [r5]
+ 483:../src/wolfcrypt/src/md5.c **** 
+ 484:../src/wolfcrypt/src/md5.c ****     /* final transform and result to hash */
+ 485:../src/wolfcrypt/src/md5.c ****     XTRANSFORM(md5, local);
+ 1793                             		.loc 2 485 5
+ 1794 00d3 EC A2                   		mov.L	[r10], r2
+ 1795 00d5 ED A1 01                		mov.L	4[r10], r1
+ 1796 00d8 05 00 00 00             		bsr	_Transform
+ 486:../src/wolfcrypt/src/md5.c **** #ifdef BIG_ENDIAN_ORDER
+ 487:../src/wolfcrypt/src/md5.c ****     ByteReverseWords(md5->digest, md5->digest, WC_MD5_DIGEST_SIZE);
+ 488:../src/wolfcrypt/src/md5.c **** #endif
+ 489:../src/wolfcrypt/src/md5.c ****     XMEMCPY(hash, md5->digest, WC_MD5_DIGEST_SIZE);
+ 1797                             		.loc 2 489 5
+ 1798 00dc ED A5 01                		mov.L	4[r10], r5
+ 1799 00df 71 55 4C                		add	#0x4c, r5
+ 1800 00e2 75 43 10                		mov.L	#16, r3
+ 1801 00e5 EF 52                   		mov.L	r5, r2
+ 1802 00e7 ED A1 02                		mov.L	8[r10], r1
+ 1803 00ea 05 00 00 00             		bsr	_memcpy
+ 490:../src/wolfcrypt/src/md5.c **** 
+ 491:../src/wolfcrypt/src/md5.c ****     return _InitMd5(md5); /* reset state */
+ 1804                             		.loc 2 491 12
+ 1805 00ee ED A1 01                		mov.L	4[r10], r1
+ 1806 00f1 05 00 00 00             		bsr	__InitMd5
+ 1807 00f5 EF 15                   		mov.L	r1, r5
+ 1808                             	.L30:
+ 492:../src/wolfcrypt/src/md5.c **** }
+ 1809                             		.loc 2 492 1
+ 1810 00f7 EF 51                   		mov.L	r5, r1
+ 1811 00f9 3F AA 04                		rtsd	#16, r10-r10
+ 1812                             	.LFE48:
+ 1814                             		.section	.text.wc_InitMd5,"ax",@progbits
+ 1815                             		.global	_wc_InitMd5
+ 1817                             	_wc_InitMd5:
+ 1818                             	.LFB49:
+ 493:../src/wolfcrypt/src/md5.c **** #endif /* !HAVE_MD5_CUST_API */
+ 494:../src/wolfcrypt/src/md5.c **** 
+ 495:../src/wolfcrypt/src/md5.c **** 
+ 496:../src/wolfcrypt/src/md5.c **** int wc_InitMd5(wc_Md5* md5)
+ 497:../src/wolfcrypt/src/md5.c **** {
+ 1819                             		.loc 2 497 1
+ 1820 0000 7E AA                   		push.l	r10
+ 1821                             	.LCFI16:
+ 1822 0002 71 0A FC                		add	#-4, r0, r10
+ 1823                             	.LCFI17:
+ 1824 0005 EF A0                   		mov.L	r10, r0
+ 1825 0007 E3 A1                   		mov.L	r1, [r10]
+ 498:../src/wolfcrypt/src/md5.c ****     if (md5 == NULL) {
+ 1826                             		.loc 2 498 8
+ 1827 0009 EC A5                   		mov.L	[r10], r5
+ 1828 000b 61 05                   		cmp	#0, r5
+ 1829 000d 1F                      		bne	.L33
+ 499:../src/wolfcrypt/src/md5.c ****         return BAD_FUNC_ARG;
+ 1830                             		.loc 2 499 16
+ 1831 000e FB 5A 53 FF             		mov.L	#-173, r5
+ 1832 0012 2E 0F                   		bra	.L34
+ 1833                             	.L33:
+ 500:../src/wolfcrypt/src/md5.c ****     }
+ 501:../src/wolfcrypt/src/md5.c ****     return wc_InitMd5_ex(md5, NULL, INVALID_DEVID);
+ 1834                             		.loc 2 501 12
+ 1835 0014 FB 36 FE                		mov.L	#-2, r3
+ 1836 0017 66 02                   		mov.L	#0, r2
+ 1837 0019 EC A1                   		mov.L	[r10], r1
+ 1838 001b 05 00 00 00             		bsr	_wc_InitMd5_ex
+ 1839 001f EF 15                   		mov.L	r1, r5
+ 1840                             	.L34:
+ 502:../src/wolfcrypt/src/md5.c **** }
+ 1841                             		.loc 2 502 1
+ 1842 0021 EF 51                   		mov.L	r5, r1
+ 1843 0023 3F AA 02                		rtsd	#8, r10-r10
+ 1844                             	.LFE49:
+ 1846                             		.section	.text.wc_Md5Free,"ax",@progbits
+ 1847                             		.global	_wc_Md5Free
+ 1849                             	_wc_Md5Free:
+ 1850                             	.LFB50:
+ 503:../src/wolfcrypt/src/md5.c **** 
+ 504:../src/wolfcrypt/src/md5.c **** void wc_Md5Free(wc_Md5* md5)
+ 505:../src/wolfcrypt/src/md5.c **** {
+ 1851                             		.loc 2 505 1
+ 1852 0000 7E AA                   		push.l	r10
+ 1853                             	.LCFI18:
+ 1854 0002 71 0A FC                		add	#-4, r0, r10
+ 1855                             	.LCFI19:
+ 1856 0005 EF A0                   		mov.L	r10, r0
+ 1857 0007 E3 A1                   		mov.L	r1, [r10]
+ 506:../src/wolfcrypt/src/md5.c ****     if (md5 == NULL)
+ 507:../src/wolfcrypt/src/md5.c ****         return;
+ 508:../src/wolfcrypt/src/md5.c **** #if defined(WOLFSSL_ASYNC_CRYPT) && defined(WC_ASYNC_ENABLE_MD5)
+ 509:../src/wolfcrypt/src/md5.c ****     wolfAsync_DevCtxFree(&md5->asyncDev, WOLFSSL_ASYNC_MARKER_MD5);
+ 510:../src/wolfcrypt/src/md5.c **** #endif /* WOLFSSL_ASYNC_CRYPT */
+ 511:../src/wolfcrypt/src/md5.c **** 
+ 512:../src/wolfcrypt/src/md5.c **** #ifdef WOLFSSL_PIC32MZ_HASH
+ 513:../src/wolfcrypt/src/md5.c ****     wc_Md5Pic32Free(md5);
+ 514:../src/wolfcrypt/src/md5.c **** #endif
+ 515:../src/wolfcrypt/src/md5.c **** }
+ 1858                             		.loc 2 515 1
+ 1859 0009 3F AA 02                		rtsd	#8, r10-r10
+ 1860                             	.LFE50:
+ 1862                             		.section	.text.wc_Md5GetHash,"ax",@progbits
+ 1863                             		.global	_wc_Md5GetHash
+ 1865                             	_wc_Md5GetHash:
+ 1866                             	.LFB51:
+ 516:../src/wolfcrypt/src/md5.c **** 
+ 517:../src/wolfcrypt/src/md5.c **** int wc_Md5GetHash(wc_Md5* md5, byte* hash)
+ 518:../src/wolfcrypt/src/md5.c **** {
+ 1867                             		.loc 2 518 1
+ 1868 0000 7E AA                   		push.l	r10
+ 1869                             	.LCFI20:
+ 1870 0002 71 0A 94                		add	#-108, r0, r10
+ 1871                             	.LCFI21:
+ 1872 0005 EF A0                   		mov.L	r10, r0
+ 1873 0007 E7 A1 19                		mov.L	r1, 100[r10]
+ 1874 000a E7 A2 1A                		mov.L	r2, 104[r10]
+ 519:../src/wolfcrypt/src/md5.c ****     int ret;
+ 520:../src/wolfcrypt/src/md5.c ****     wc_Md5 tmpMd5;
+ 521:../src/wolfcrypt/src/md5.c **** 
+ 522:../src/wolfcrypt/src/md5.c ****     if (md5 == NULL || hash == NULL)
+ 1875                             		.loc 2 522 8
+ 1876 000d ED A5 19                		mov.L	100[r10], r5
+ 1877 0010 61 05                   		cmp	#0, r5
+ 1878 0012 17                      		beq	.L38
+ 1879                             		.loc 2 522 21 discriminator 1
+ 1880 0013 ED A5 1A                		mov.L	104[r10], r5
+ 1881 0016 61 05                   		cmp	#0, r5
+ 1882 0018 1F                      		bne	.L39
+ 1883                             	.L38:
+ 523:../src/wolfcrypt/src/md5.c ****         return BAD_FUNC_ARG;
+ 1884                             		.loc 2 523 16
+ 1885 0019 FB 5A 53 FF             		mov.L	#-173, r5
+ 1886 001d 2E 26                   		bra	.L42
+ 1887                             	.L39:
+ 524:../src/wolfcrypt/src/md5.c **** 
+ 525:../src/wolfcrypt/src/md5.c ****     ret = wc_Md5Copy(md5, &tmpMd5);
+ 1888                             		.loc 2 525 11
+ 1889 001f 71 A5 04                		add	#4, r10, r5
+ 1890 0022 EF 52                   		mov.L	r5, r2
+ 1891 0024 ED A1 19                		mov.L	100[r10], r1
+ 1892 0027 05 00 00 00             		bsr	_wc_Md5Copy
+ 1893 002b E3 A1                   		mov.L	r1, [r10]
+ 526:../src/wolfcrypt/src/md5.c ****     if (ret == 0) {
+ 1894                             		.loc 2 526 8
+ 1895 002d EC A5                   		mov.L	[r10], r5
+ 1896 002f 61 05                   		cmp	#0, r5
+ 1897 0031 21 10                   		bne	.L41
+ 527:../src/wolfcrypt/src/md5.c ****         ret = wc_Md5Final(&tmpMd5, hash);
+ 1898                             		.loc 2 527 15
+ 1899 0033 71 A5 04                		add	#4, r10, r5
+ 1900 0036 ED A2 1A                		mov.L	104[r10], r2
+ 1901 0039 EF 51                   		mov.L	r5, r1
+ 1902 003b 05 00 00 00             		bsr	_wc_Md5Final
+ 1903 003f E3 A1                   		mov.L	r1, [r10]
+ 1904                             	.L41:
+ 528:../src/wolfcrypt/src/md5.c ****     }
+ 529:../src/wolfcrypt/src/md5.c **** 
+ 530:../src/wolfcrypt/src/md5.c ****     return ret;
+ 1905                             		.loc 2 530 12
+ 1906 0041 EC A5                   		mov.L	[r10], r5
+ 1907                             	.L42:
+ 531:../src/wolfcrypt/src/md5.c **** }
+ 1908                             		.loc 2 531 1 discriminator 1
+ 1909 0043 EF 51                   		mov.L	r5, r1
+ 1910 0045 3F AA 1C                		rtsd	#112, r10-r10
+ 1911                             	.LFE51:
+ 1913                             		.section	.text.wc_Md5Copy,"ax",@progbits
+ 1914                             		.global	_wc_Md5Copy
+ 1916                             	_wc_Md5Copy:
+ 1917                             	.LFB52:
+ 532:../src/wolfcrypt/src/md5.c **** 
+ 533:../src/wolfcrypt/src/md5.c **** int wc_Md5Copy(wc_Md5* src, wc_Md5* dst)
+ 534:../src/wolfcrypt/src/md5.c **** {
+ 1918                             		.loc 2 534 1
+ 1919 0000 7E AA                   		push.l	r10
+ 1920                             	.LCFI22:
+ 1921 0002 71 0A F4                		add	#-12, r0, r10
+ 1922                             	.LCFI23:
+ 1923 0005 EF A0                   		mov.L	r10, r0
+ 1924 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 1925 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 535:../src/wolfcrypt/src/md5.c ****     int ret = 0;
+ 1926                             		.loc 2 535 9
+ 1927 000d F8 A6 00                		mov.L	#0, [r10]
+ 536:../src/wolfcrypt/src/md5.c **** 
+ 537:../src/wolfcrypt/src/md5.c ****     if (src == NULL || dst == NULL)
+ 1928                             		.loc 2 537 8
+ 1929 0010 ED A5 01                		mov.L	4[r10], r5
+ 1930 0013 61 05                   		cmp	#0, r5
+ 1931 0015 17                      		beq	.L44
+ 1932                             		.loc 2 537 21 discriminator 1
+ 1933 0016 ED A5 02                		mov.L	8[r10], r5
+ 1934 0019 61 05                   		cmp	#0, r5
+ 1935 001b 1F                      		bne	.L45
+ 1936                             	.L44:
+ 538:../src/wolfcrypt/src/md5.c ****         return BAD_FUNC_ARG;
+ 1937                             		.loc 2 538 16
+ 1938 001c FB 5A 53 FF             		mov.L	#-173, r5
+ 1939 0020 2E 11                   		bra	.L46
+ 1940                             	.L45:
+ 539:../src/wolfcrypt/src/md5.c **** 
+ 540:../src/wolfcrypt/src/md5.c ****     XMEMCPY(dst, src, sizeof(wc_Md5));
+ 1941                             		.loc 2 540 5
+ 1942 0022 75 43 60                		mov.L	#0x60, r3
+ 1943 0025 ED A2 01                		mov.L	4[r10], r2
+ 1944 0028 ED A1 02                		mov.L	8[r10], r1
+ 1945 002b 05 00 00 00             		bsr	_memcpy
+ 541:../src/wolfcrypt/src/md5.c **** 
+ 542:../src/wolfcrypt/src/md5.c **** #if defined(WOLFSSL_ASYNC_CRYPT) && defined(WC_ASYNC_ENABLE_MD5)
+ 543:../src/wolfcrypt/src/md5.c ****     ret = wolfAsync_DevCopy(&src->asyncDev, &dst->asyncDev);
+ 544:../src/wolfcrypt/src/md5.c **** #endif
+ 545:../src/wolfcrypt/src/md5.c **** #ifdef WOLFSSL_PIC32MZ_HASH
+ 546:../src/wolfcrypt/src/md5.c ****     ret = wc_Pic32HashCopy(&src->cache, &dst->cache);
+ 547:../src/wolfcrypt/src/md5.c **** #endif
+ 548:../src/wolfcrypt/src/md5.c **** #ifdef WOLFSSL_HASH_FLAGS
+ 549:../src/wolfcrypt/src/md5.c ****     dst->flags |= WC_HASH_FLAG_ISCOPY;
+ 550:../src/wolfcrypt/src/md5.c **** #endif
+ 551:../src/wolfcrypt/src/md5.c **** 
+ 552:../src/wolfcrypt/src/md5.c ****     return ret;
+ 1946                             		.loc 2 552 12
+ 1947 002f EC A5                   		mov.L	[r10], r5
+ 1948                             	.L46:
+ 553:../src/wolfcrypt/src/md5.c **** }
+ 1949                             		.loc 2 553 1
+ 1950 0031 EF 51                   		mov.L	r5, r1
+ 1951 0033 3F AA 04                		rtsd	#16, r10-r10
+ 1952                             	.LFE52:
+ 2206                             	.Letext0:
+ 2207                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 2208                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2209                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2210                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2211                             		.file 7 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2212                             		.file 8 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/types.h"
+ 2213                             		.file 9 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2214                             		.file 10 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\incl
+ 2215                             		.file 11 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md5.h"
+ 2216                             		.file 12 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/error-crypt.h"

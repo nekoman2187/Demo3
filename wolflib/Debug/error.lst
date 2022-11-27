@@ -1,0 +1,2485 @@
+   1                             		.file	"error.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section C,"a",@progbits
+   5                             		.p2align 2
+   6                             	.LC0:
+   7 0000 6F 70 65 6E 69 6E 67 20 		.string	"opening random device error"
+   7      72 61 6E 64 6F 6D 20 64 
+   7      65 76 69 63 65 20 65 72 
+   7      72 6F 72 00 
+   8                             	.LC1:
+   9 001c 72 65 61 64 69 6E 67 20 		.string	"reading random device error"
+   9      72 61 6E 64 6F 6D 20 64 
+   9      65 76 69 63 65 20 65 72 
+   9      72 6F 72 00 
+  10                             	.LC2:
+  11 0038 77 69 6E 64 6F 77 73 20 		.string	"windows crypt init error"
+  11      63 72 79 70 74 20 69 6E 
+  11      69 74 20 65 72 72 6F 72 
+  11      00 
+  12                             	.LC3:
+  13 0051 77 69 6E 64 6F 77 73 20 		.string	"windows crypt generation error"
+  13      63 72 79 70 74 20 67 65 
+  13      6E 65 72 61 74 69 6F 6E 
+  13      20 65 72 72 6F 72 00 
+  14                             	.LC4:
+  15 0070 72 61 6E 64 6F 6D 20 64 		.string	"random device read would block error"
+  15      65 76 69 63 65 20 72 65 
+  15      61 64 20 77 6F 75 6C 64 
+  15      20 62 6C 6F 63 6B 20 65 
+  15      72 72 6F 72 00 
+  16                             	.LC5:
+  17 0095 42 61 64 20 6D 75 74 65 		.string	"Bad mutex, operation failed"
+  17      78 2C 20 6F 70 65 72 61 
+  17      74 69 6F 6E 20 66 61 69 
+  17      6C 65 64 00 
+  18                             	.LC6:
+  19 00b1 54 69 6D 65 6F 75 74 20 		.string	"Timeout error"
+  19      65 72 72 6F 72 00 
+  20                             	.LC7:
+  21 00bf 77 6F 6C 66 43 72 79 70 		.string	"wolfCrypt Operation Pending (would block / eagain) error"
+  21      74 20 4F 70 65 72 61 74 
+  21      69 6F 6E 20 50 65 6E 64 
+  21      69 6E 67 20 28 77 6F 75 
+  21      6C 64 20 62 6C 6F 63 6B 
+  22                             	.LC8:
+  23 00f8 77 6F 6C 66 43 72 79 70 		.string	"wolfCrypt operation not pending error"
+  23      74 20 6F 70 65 72 61 74 
+  23      69 6F 6E 20 6E 6F 74 20 
+  23      70 65 6E 64 69 6E 67 20 
+  23      65 72 72 6F 72 00 
+  24                             	.LC9:
+  25 011e 6D 70 5F 69 6E 69 74 20 		.string	"mp_init error state"
+  25      65 72 72 6F 72 20 73 74 
+  25      61 74 65 00 
+  26                             	.LC10:
+  27 0132 6D 70 5F 72 65 61 64 20 		.string	"mp_read error state"
+  27      65 72 72 6F 72 20 73 74 
+  27      61 74 65 00 
+  28                             	.LC11:
+  29 0146 6D 70 5F 65 78 70 74 6D 		.string	"mp_exptmod error state"
+  29      6F 64 20 65 72 72 6F 72 
+  29      20 73 74 61 74 65 00 
+  30                             	.LC12:
+  31 015d 6D 70 5F 74 6F 5F 78 78 		.string	"mp_to_xxx error state, can't convert"
+  31      78 20 65 72 72 6F 72 20 
+  31      73 74 61 74 65 2C 20 63 
+  31      61 6E 27 74 20 63 6F 6E 
+  31      76 65 72 74 00 
+  32                             	.LC13:
+  33 0182 6D 70 5F 73 75 62 20 65 		.string	"mp_sub error state, can't subtract"
+  33      72 72 6F 72 20 73 74 61 
+  33      74 65 2C 20 63 61 6E 27 
+  33      74 20 73 75 62 74 72 61 
+  33      63 74 00 
+  34                             	.LC14:
+  35 01a5 6D 70 5F 61 64 64 20 65 		.string	"mp_add error state, can't add"
+  35      72 72 6F 72 20 73 74 61 
+  35      74 65 2C 20 63 61 6E 27 
+  35      74 20 61 64 64 00 
+  36                             	.LC15:
+  37 01c3 6D 70 5F 6D 75 6C 20 65 		.string	"mp_mul error state, can't multiply"
+  37      72 72 6F 72 20 73 74 61 
+  37      74 65 2C 20 63 61 6E 27 
+  37      74 20 6D 75 6C 74 69 70 
+  37      6C 79 00 
+  38                             	.LC16:
+  39 01e6 6D 70 5F 6D 75 6C 6D 6F 		.string	"mp_mulmod error state, can't multiply mod"
+  39      64 20 65 72 72 6F 72 20 
+  39      73 74 61 74 65 2C 20 63 
+  39      61 6E 27 74 20 6D 75 6C 
+  39      74 69 70 6C 79 20 6D 6F 
+  40                             	.LC17:
+  41 0210 6D 70 5F 6D 6F 64 20 65 		.string	"mp_mod error state, can't mod"
+  41      72 72 6F 72 20 73 74 61 
+  41      74 65 2C 20 63 61 6E 27 
+  41      74 20 6D 6F 64 00 
+  42                             	.LC18:
+  43 022e 6D 70 5F 69 6E 76 6D 6F 		.string	"mp_invmod error state, can't inv mod"
+  43      64 20 65 72 72 6F 72 20 
+  43      73 74 61 74 65 2C 20 63 
+  43      61 6E 27 74 20 69 6E 76 
+  43      20 6D 6F 64 00 
+  44                             	.LC19:
+  45 0253 6D 70 5F 63 6D 70 20 65 		.string	"mp_cmp error state"
+  45      72 72 6F 72 20 73 74 61 
+  45      74 65 00 
+  46                             	.LC20:
+  47 0266 6D 70 20 7A 65 72 6F 20 		.string	"mp zero result, not expected"
+  47      72 65 73 75 6C 74 2C 20 
+  47      6E 6F 74 20 65 78 70 65 
+  47      63 74 65 64 00 
+  48                             	.LC21:
+  49 0283 6F 75 74 20 6F 66 20 6D 		.string	"out of memory error"
+  49      65 6D 6F 72 79 20 65 72 
+  49      72 6F 72 00 
+  50                             	.LC22:
+  51 0297 56 61 72 69 61 62 6C 65 		.string	"Variable state modified by different thread"
+  51      20 73 74 61 74 65 20 6D 
+  51      6F 64 69 66 69 65 64 20 
+  51      62 79 20 64 69 66 66 65 
+  51      72 65 6E 74 20 74 68 72 
+  52                             	.LC23:
+  53 02c3 52 53 41 20 77 72 6F 6E 		.string	"RSA wrong block type for RSA function"
+  53      67 20 62 6C 6F 63 6B 20 
+  53      74 79 70 65 20 66 6F 72 
+  53      20 52 53 41 20 66 75 6E 
+  53      63 74 69 6F 6E 00 
+  54                             	.LC24:
+  55 02e9 52 53 41 20 62 75 66 66 		.string	"RSA buffer error, output too small or input too big"
+  55      65 72 20 65 72 72 6F 72 
+  55      2C 20 6F 75 74 70 75 74 
+  55      20 74 6F 6F 20 73 6D 61 
+  55      6C 6C 20 6F 72 20 69 6E 
+  56                             	.LC25:
+  57 031d 42 75 66 66 65 72 20 65 		.string	"Buffer error, output too small or input too big"
+  57      72 72 6F 72 2C 20 6F 75 
+  57      74 70 75 74 20 74 6F 6F 
+  57      20 73 6D 61 6C 6C 20 6F 
+  57      72 20 69 6E 70 75 74 20 
+  58                             	.LC26:
+  59 034d 53 65 74 74 69 6E 67 20 		.string	"Setting Cert AlgoID error"
+  59      43 65 72 74 20 41 6C 67 
+  59      6F 49 44 20 65 72 72 6F 
+  59      72 00 
+  60                             	.LC27:
+  61 0367 53 65 74 74 69 6E 67 20 		.string	"Setting Cert Public Key error"
+  61      43 65 72 74 20 50 75 62 
+  61      6C 69 63 20 4B 65 79 20 
+  61      65 72 72 6F 72 00 
+  62                             	.LC28:
+  63 0385 53 65 74 74 69 6E 67 20 		.string	"Setting Cert Date validity error"
+  63      43 65 72 74 20 44 61 74 
+  63      65 20 76 61 6C 69 64 69 
+  63      74 79 20 65 72 72 6F 72 
+  63      00 
+  64                             	.LC29:
+  65 03a6 53 65 74 74 69 6E 67 20 		.string	"Setting Cert Subject name error"
+  65      43 65 72 74 20 53 75 62 
+  65      6A 65 63 74 20 6E 61 6D 
+  65      65 20 65 72 72 6F 72 00 
+  66                             	.LC30:
+  67 03c6 53 65 74 74 69 6E 67 20 		.string	"Setting Cert Issuer name error"
+  67      43 65 72 74 20 49 73 73 
+  67      75 65 72 20 6E 61 6D 65 
+  67      20 65 72 72 6F 72 00 
+  68                             	.LC31:
+  69 03e5 53 65 74 74 69 6E 67 20 		.string	"Setting basic constraint CA true error"
+  69      62 61 73 69 63 20 63 6F 
+  69      6E 73 74 72 61 69 6E 74 
+  69      20 43 41 20 74 72 75 65 
+  69      20 65 72 72 6F 72 00 
+  70                             	.LC32:
+  71 040c 53 65 74 74 69 6E 67 20 		.string	"Setting extensions error"
+  71      65 78 74 65 6E 73 69 6F 
+  71      6E 73 20 65 72 72 6F 72 
+  71      00 
+  72                             	.LC33:
+  73 0425 41 53 4E 20 70 61 72 73 		.string	"ASN parsing error, invalid input"
+  73      69 6E 67 20 65 72 72 6F 
+  73      72 2C 20 69 6E 76 61 6C 
+  73      69 64 20 69 6E 70 75 74 
+  73      00 
+  74                             	.LC34:
+  75 0446 41 53 4E 20 76 65 72 73 		.string	"ASN version error, invalid number"
+  75      69 6F 6E 20 65 72 72 6F 
+  75      72 2C 20 69 6E 76 61 6C 
+  75      69 64 20 6E 75 6D 62 65 
+  75      72 00 
+  76                             	.LC35:
+  77 0468 41 53 4E 20 67 65 74 20 		.string	"ASN get big int error, invalid data"
+  77      62 69 67 20 69 6E 74 20 
+  77      65 72 72 6F 72 2C 20 69 
+  77      6E 76 61 6C 69 64 20 64 
+  77      61 74 61 00 
+  78                             	.LC36:
+  79 048c 41 53 4E 20 6B 65 79 20 		.string	"ASN key init error, invalid input"
+  79      69 6E 69 74 20 65 72 72 
+  79      6F 72 2C 20 69 6E 76 61 
+  79      6C 69 64 20 69 6E 70 75 
+  79      74 00 
+  80                             	.LC37:
+  81 04ae 41 53 4E 20 6F 62 6A 65 		.string	"ASN object id error, invalid id"
+  81      63 74 20 69 64 20 65 72 
+  81      72 6F 72 2C 20 69 6E 76 
+  81      61 6C 69 64 20 69 64 00 
+  82                             	.LC38:
+  83 04ce 41 53 4E 20 74 61 67 20 		.string	"ASN tag error, not null"
+  83      65 72 72 6F 72 2C 20 6E 
+  83      6F 74 20 6E 75 6C 6C 00 
+  84                             	.LC39:
+  85 04e6 41 53 4E 20 65 78 70 65 		.string	"ASN expect error, not zero"
+  85      63 74 20 65 72 72 6F 72 
+  85      2C 20 6E 6F 74 20 7A 65 
+  85      72 6F 00 
+  86                             	.LC40:
+  87 0501 41 53 4E 20 62 69 74 20 		.string	"ASN bit string error, wrong id"
+  87      73 74 72 69 6E 67 20 65 
+  87      72 72 6F 72 2C 20 77 72 
+  87      6F 6E 67 20 69 64 00 
+  88                             	.LC41:
+  89 0520 41 53 4E 20 6F 69 64 20 		.string	"ASN oid error, unknown sum id"
+  89      65 72 72 6F 72 2C 20 75 
+  89      6E 6B 6E 6F 77 6E 20 73 
+  89      75 6D 20 69 64 00 
+  90                             	.LC42:
+  91 053e 41 53 4E 20 64 61 74 65 		.string	"ASN date error, bad size"
+  91      20 65 72 72 6F 72 2C 20 
+  91      62 61 64 20 73 69 7A 65 
+  91      00 
+  92                             	.LC43:
+  93 0557 41 53 4E 20 64 61 74 65 		.string	"ASN date error, current date before"
+  93      20 65 72 72 6F 72 2C 20 
+  93      63 75 72 72 65 6E 74 20 
+  93      64 61 74 65 20 62 65 66 
+  93      6F 72 65 00 
+  94                             	.LC44:
+  95 057b 41 53 4E 20 64 61 74 65 		.string	"ASN date error, current date after"
+  95      20 65 72 72 6F 72 2C 20 
+  95      63 75 72 72 65 6E 74 20 
+  95      64 61 74 65 20 61 66 74 
+  95      65 72 00 
+  96                             	.LC45:
+  97 059e 41 53 4E 20 73 69 67 6E 		.string	"ASN signature error, mismatched oid"
+  97      61 74 75 72 65 20 65 72 
+  97      72 6F 72 2C 20 6D 69 73 
+  97      6D 61 74 63 68 65 64 20 
+  97      6F 69 64 00 
+  98                             	.LC46:
+  99 05c2 41 53 4E 20 74 69 6D 65 		.string	"ASN time error, unknown time type"
+  99      20 65 72 72 6F 72 2C 20 
+  99      75 6E 6B 6E 6F 77 6E 20 
+  99      74 69 6D 65 20 74 79 70 
+  99      65 00 
+ 100                             	.LC47:
+ 101 05e4 41 53 4E 20 69 6E 70 75 		.string	"ASN input error, not enough data"
+ 101      74 20 65 72 72 6F 72 2C 
+ 101      20 6E 6F 74 20 65 6E 6F 
+ 101      75 67 68 20 64 61 74 61 
+ 101      00 
+ 102                             	.LC48:
+ 103 0605 41 53 4E 20 73 69 67 20 		.string	"ASN sig error, confirm failure"
+ 103      65 72 72 6F 72 2C 20 63 
+ 103      6F 6E 66 69 72 6D 20 66 
+ 103      61 69 6C 75 72 65 00 
+ 104                             	.LC49:
+ 105 0624 41 53 4E 20 73 69 67 20 		.string	"ASN sig error, unsupported hash type"
+ 105      65 72 72 6F 72 2C 20 75 
+ 105      6E 73 75 70 70 6F 72 74 
+ 105      65 64 20 68 61 73 68 20 
+ 105      74 79 70 65 00 
+ 106                             	.LC50:
+ 107 0649 41 53 4E 20 73 69 67 20 		.string	"ASN sig error, unsupported key type"
+ 107      65 72 72 6F 72 2C 20 75 
+ 107      6E 73 75 70 70 6F 72 74 
+ 107      65 64 20 6B 65 79 20 74 
+ 107      79 70 65 00 
+ 108                             	.LC51:
+ 109 066d 58 2E 35 30 39 20 43 72 		.string	"X.509 Critical extension ignored or invalid"
+ 109      69 74 69 63 61 6C 20 65 
+ 109      78 74 65 6E 73 69 6F 6E 
+ 109      20 69 67 6E 6F 72 65 64 
+ 109      20 6F 72 20 69 6E 76 61 
+ 110                             	.LC52:
+ 111 0699 41 53 4E 20 61 6C 74 65 		.string	"ASN alternate name error"
+ 111      72 6E 61 74 65 20 6E 61 
+ 111      6D 65 20 65 72 72 6F 72 
+ 111      00 
+ 112                             	.LC53:
+ 113 06b2 45 43 43 20 69 6E 70 75 		.string	"ECC input argument wrong type, invalid input"
+ 113      74 20 61 72 67 75 6D 65 
+ 113      6E 74 20 77 72 6F 6E 67 
+ 113      20 74 79 70 65 2C 20 69 
+ 113      6E 76 61 6C 69 64 20 69 
+ 114                             	.LC54:
+ 115 06df 45 43 43 20 41 53 4E 31 		.string	"ECC ASN1 bad key data, invalid input"
+ 115      20 62 61 64 20 6B 65 79 
+ 115      20 64 61 74 61 2C 20 69 
+ 115      6E 76 61 6C 69 64 20 69 
+ 115      6E 70 75 74 00 
+ 116                             	.LC55:
+ 117 0704 45 43 43 20 63 75 72 76 		.string	"ECC curve sum OID unsupported, invalid input"
+ 117      65 20 73 75 6D 20 4F 49 
+ 117      44 20 75 6E 73 75 70 70 
+ 117      6F 72 74 65 64 2C 20 69 
+ 117      6E 76 61 6C 69 64 20 69 
+ 118                             	.LC56:
+ 119 0731 42 61 64 20 66 75 6E 63 		.string	"Bad function argument"
+ 119      74 69 6F 6E 20 61 72 67 
+ 119      75 6D 65 6E 74 00 
+ 120                             	.LC57:
+ 121 0747 46 65 61 74 75 72 65 20 		.string	"Feature not compiled in"
+ 121      6E 6F 74 20 63 6F 6D 70 
+ 121      69 6C 65 64 20 69 6E 00 
+ 122                             	.LC58:
+ 123 075f 55 6E 69 63 6F 64 65 20 		.string	"Unicode password too big"
+ 123      70 61 73 73 77 6F 72 64 
+ 123      20 74 6F 6F 20 62 69 67 
+ 123      00 
+ 124                             	.LC59:
+ 125 0778 4E 6F 20 70 61 73 73 77 		.string	"No password provided by user"
+ 125      6F 72 64 20 70 72 6F 76 
+ 125      69 64 65 64 20 62 79 20 
+ 125      75 73 65 72 00 
+ 126                             	.LC60:
+ 127 0795 41 6C 74 20 4E 61 6D 65 		.string	"Alt Name problem, too big"
+ 127      20 70 72 6F 62 6C 65 6D 
+ 127      2C 20 74 6F 6F 20 62 69 
+ 127      67 00 
+ 128                             	.LC61:
+ 129 07af 41 45 53 2D 47 43 4D 20 		.string	"AES-GCM Authentication check fail"
+ 129      41 75 74 68 65 6E 74 69 
+ 129      63 61 74 69 6F 6E 20 63 
+ 129      68 65 63 6B 20 66 61 69 
+ 129      6C 00 
+ 130                             	.LC62:
+ 131 07d1 41 45 53 2D 43 43 4D 20 		.string	"AES-CCM Authentication check fail"
+ 131      41 75 74 68 65 6E 74 69 
+ 131      63 61 74 69 6F 6E 20 63 
+ 131      68 65 63 6B 20 66 61 69 
+ 131      6C 00 
+ 132                             	.LC63:
+ 133 07f3 41 45 53 2D 53 49 56 20 		.string	"AES-SIV authentication failure"
+ 133      61 75 74 68 65 6E 74 69 
+ 133      63 61 74 69 6F 6E 20 66 
+ 133      61 69 6C 75 72 65 00 
+ 134                             	.LC64:
+ 135 0812 41 73 79 6E 63 20 49 6E 		.string	"Async Init error"
+ 135      69 74 20 65 72 72 6F 72 
+ 135      00 
+ 136                             	.LC65:
+ 137 0823 43 6F 6D 70 72 65 73 73 		.string	"Compress Init error"
+ 137      20 49 6E 69 74 20 65 72 
+ 137      72 6F 72 00 
+ 138                             	.LC66:
+ 139 0837 43 6F 6D 70 72 65 73 73 		.string	"Compress error"
+ 139      20 65 72 72 6F 72 00 
+ 140                             	.LC67:
+ 141 0846 44 65 43 6F 6D 70 72 65 		.string	"DeCompress Init error"
+ 141      73 73 20 49 6E 69 74 20 
+ 141      65 72 72 6F 72 00 
+ 142                             	.LC68:
+ 143 085c 44 65 43 6F 6D 70 72 65 		.string	"DeCompress error"
+ 143      73 73 20 65 72 72 6F 72 
+ 143      00 
+ 144                             	.LC69:
+ 145 086d 42 61 64 20 61 6C 69 67 		.string	"Bad alignment error, no alloc help"
+ 145      6E 6D 65 6E 74 20 65 72 
+ 145      72 6F 72 2C 20 6E 6F 20 
+ 145      61 6C 6C 6F 63 20 68 65 
+ 145      6C 70 00 
+ 146                             	.LC70:
+ 147 0890 41 53 4E 20 6E 6F 20 73 		.string	"ASN no signer error to confirm failure"
+ 147      69 67 6E 65 72 20 65 72 
+ 147      72 6F 72 20 74 6F 20 63 
+ 147      6F 6E 66 69 72 6D 20 66 
+ 147      61 69 6C 75 72 65 00 
+ 148                             	.LC71:
+ 149 08b7 41 53 4E 20 43 52 4C 20 		.string	"ASN CRL sig error, confirm failure"
+ 149      73 69 67 20 65 72 72 6F 
+ 149      72 2C 20 63 6F 6E 66 69 
+ 149      72 6D 20 66 61 69 6C 75 
+ 149      72 65 00 
+ 150                             	.LC72:
+ 151 08da 41 53 4E 20 43 52 4C 20 		.string	"ASN CRL no signer error to confirm failure"
+ 151      6E 6F 20 73 69 67 6E 65 
+ 151      72 20 65 72 72 6F 72 20 
+ 151      74 6F 20 63 6F 6E 66 69 
+ 151      72 6D 20 66 61 69 6C 75 
+ 152                             	.LC73:
+ 153 0905 43 52 4C 20 64 61 74 65 		.string	"CRL date error"
+ 153      20 65 72 72 6F 72 00 
+ 154                             	.LC74:
+ 155 0914 41 53 4E 20 4F 43 53 50 		.string	"ASN OCSP sig error, confirm failure"
+ 155      20 73 69 67 20 65 72 72 
+ 155      6F 72 2C 20 63 6F 6E 66 
+ 155      69 72 6D 20 66 61 69 6C 
+ 155      75 72 65 00 
+ 156                             	.LC75:
+ 157 0938 41 53 4E 20 6E 6F 20 50 		.string	"ASN no PEM Header Error"
+ 157      45 4D 20 48 65 61 64 65 
+ 157      72 20 45 72 72 6F 72 00 
+ 158                             	.LC76:
+ 159 0950 42 61 64 20 73 74 61 74 		.string	"Bad state operation"
+ 159      65 20 6F 70 65 72 61 74 
+ 159      69 6F 6E 00 
+ 160                             	.LC77:
+ 161 0964 42 61 64 20 70 61 64 64 		.string	"Bad padding, message wrong length"
+ 161      69 6E 67 2C 20 6D 65 73 
+ 161      73 61 67 65 20 77 72 6F 
+ 161      6E 67 20 6C 65 6E 67 74 
+ 161      68 00 
+ 162                             	.LC78:
+ 163 0986 53 65 74 74 69 6E 67 20 		.string	"Setting cert request attributes error"
+ 163      63 65 72 74 20 72 65 71 
+ 163      75 65 73 74 20 61 74 74 
+ 163      72 69 62 75 74 65 73 20 
+ 163      65 72 72 6F 72 00 
+ 164                             	.LC79:
+ 165 09ac 50 4B 43 53 23 37 20 65 		.string	"PKCS#7 error: mismatched OID value"
+ 165      72 72 6F 72 3A 20 6D 69 
+ 165      73 6D 61 74 63 68 65 64 
+ 165      20 4F 49 44 20 76 61 6C 
+ 165      75 65 00 
+ 166                             	.LC80:
+ 167 09cf 50 4B 43 53 23 37 20 65 		.string	"PKCS#7 error: no matching recipient found"
+ 167      72 72 6F 72 3A 20 6E 6F 
+ 167      20 6D 61 74 63 68 69 6E 
+ 167      67 20 72 65 63 69 70 69 
+ 167      65 6E 74 20 66 6F 75 6E 
+ 168                             	.LC81:
+ 169 09f9 50 4B 43 53 23 37 20 6F 		.string	"PKCS#7 operations wants more input, call again"
+ 169      70 65 72 61 74 69 6F 6E 
+ 169      73 20 77 61 6E 74 73 20 
+ 169      6D 6F 72 65 20 69 6E 70 
+ 169      75 74 2C 20 63 61 6C 6C 
+ 170                             	.LC82:
+ 171 0a28 46 49 50 53 20 6D 6F 64 		.string	"FIPS mode not allowed error"
+ 171      65 20 6E 6F 74 20 61 6C 
+ 171      6C 6F 77 65 64 20 65 72 
+ 171      72 6F 72 00 
+ 172                             	.LC83:
+ 173 0a44 4E 61 6D 65 20 43 6F 6E 		.string	"Name Constraint error"
+ 173      73 74 72 61 69 6E 74 20 
+ 173      65 72 72 6F 72 00 
+ 174                             	.LC84:
+ 175 0a5a 52 61 6E 64 6F 6D 20 4E 		.string	"Random Number Generator failed"
+ 175      75 6D 62 65 72 20 47 65 
+ 175      6E 65 72 61 74 6F 72 20 
+ 175      66 61 69 6C 65 64 00 
+ 176                             	.LC85:
+ 177 0a79 46 49 50 53 20 4D 6F 64 		.string	"FIPS Mode HMAC Minimum Key Length error"
+ 177      65 20 48 4D 41 43 20 4D 
+ 177      69 6E 69 6D 75 6D 20 4B 
+ 177      65 79 20 4C 65 6E 67 74 
+ 177      68 20 65 72 72 6F 72 00 
+ 178                             	.LC86:
+ 179 0aa1 52 73 61 20 50 61 64 64 		.string	"Rsa Padding error"
+ 179      69 6E 67 20 65 72 72 6F 
+ 179      72 00 
+ 180                             	.LC87:
+ 181 0ab3 4F 75 74 70 75 74 20 6C 		.string	"Output length only set, not for other use error"
+ 181      65 6E 67 74 68 20 6F 6E 
+ 181      6C 79 20 73 65 74 2C 20 
+ 181      6E 6F 74 20 66 6F 72 20 
+ 181      6F 74 68 65 72 20 75 73 
+ 182                             	.LC88:
+ 183 0ae3 49 6E 20 43 6F 72 65 20 		.string	"In Core Integrity check FIPS error"
+ 183      49 6E 74 65 67 72 69 74 
+ 183      79 20 63 68 65 63 6B 20 
+ 183      46 49 50 53 20 65 72 72 
+ 183      6F 72 00 
+ 184                             	.LC89:
+ 185 0b06 41 45 53 20 4B 6E 6F 77 		.string	"AES Known Answer Test check FIPS error"
+ 185      6E 20 41 6E 73 77 65 72 
+ 185      20 54 65 73 74 20 63 68 
+ 185      65 63 6B 20 46 49 50 53 
+ 185      20 65 72 72 6F 72 00 
+ 186                             	.LC90:
+ 187 0b2d 44 45 53 33 20 4B 6E 6F 		.string	"DES3 Known Answer Test check FIPS error"
+ 187      77 6E 20 41 6E 73 77 65 
+ 187      72 20 54 65 73 74 20 63 
+ 187      68 65 63 6B 20 46 49 50 
+ 187      53 20 65 72 72 6F 72 00 
+ 188                             	.LC91:
+ 189 0b55 48 4D 41 43 20 4B 6E 6F 		.string	"HMAC Known Answer Test check FIPS error"
+ 189      77 6E 20 41 6E 73 77 65 
+ 189      72 20 54 65 73 74 20 63 
+ 189      68 65 63 6B 20 46 49 50 
+ 189      53 20 65 72 72 6F 72 00 
+ 190                             	.LC92:
+ 191 0b7d 52 53 41 20 4B 6E 6F 77 		.string	"RSA Known Answer Test check FIPS error"
+ 191      6E 20 41 6E 73 77 65 72 
+ 191      20 54 65 73 74 20 63 68 
+ 191      65 63 6B 20 46 49 50 53 
+ 191      20 65 72 72 6F 72 00 
+ 192                             	.LC93:
+ 193 0ba4 44 52 42 47 20 4B 6E 6F 		.string	"DRBG Known Answer Test check FIPS error"
+ 193      77 6E 20 41 6E 73 77 65 
+ 193      72 20 54 65 73 74 20 63 
+ 193      68 65 63 6B 20 46 49 50 
+ 193      53 20 65 72 72 6F 72 00 
+ 194                             	.LC94:
+ 195 0bcc 44 52 42 47 20 43 6F 6E 		.string	"DRBG Continuous Test FIPS error"
+ 195      74 69 6E 75 6F 75 73 20 
+ 195      54 65 73 74 20 46 49 50 
+ 195      53 20 65 72 72 6F 72 00 
+ 196                             	.LC95:
+ 197 0bec 41 45 53 47 43 4D 20 4B 		.string	"AESGCM Known Answer Test check FIPS error"
+ 197      6E 6F 77 6E 20 41 6E 73 
+ 197      77 65 72 20 54 65 73 74 
+ 197      20 63 68 65 63 6B 20 46 
+ 197      49 50 53 20 65 72 72 6F 
+ 198                             	.LC96:
+ 199 0c16 54 68 72 65 61 64 20 53 		.string	"Thread Storage Key Create error"
+ 199      74 6F 72 61 67 65 20 4B 
+ 199      65 79 20 43 72 65 61 74 
+ 199      65 20 65 72 72 6F 72 00 
+ 200                             	.LC97:
+ 201 0c36 54 68 72 65 61 64 20 53 		.string	"Thread Storage Set error"
+ 201      74 6F 72 61 67 65 20 53 
+ 201      65 74 20 65 72 72 6F 72 
+ 201      00 
+ 202                             	.LC98:
+ 203 0c4f 4D 41 43 20 63 6F 6D 70 		.string	"MAC comparison failed"
+ 203      61 72 69 73 6F 6E 20 66 
+ 203      61 69 6C 65 64 00 
+ 204                             	.LC99:
+ 205 0c65 45 43 43 20 69 73 20 70 		.string	"ECC is point on curve failed"
+ 205      6F 69 6E 74 20 6F 6E 20 
+ 205      63 75 72 76 65 20 66 61 
+ 205      69 6C 65 64 00 
+ 206                             	.LC100:
+ 207 0c82 20 45 43 43 20 70 6F 69 		.string	" ECC point at infinity error"
+ 207      6E 74 20 61 74 20 69 6E 
+ 207      66 69 6E 69 74 79 20 65 
+ 207      72 72 6F 72 00 
+ 208                             	.LC101:
+ 209 0c9f 20 45 43 43 20 51 78 20 		.string	" ECC Qx or Qy out of range error"
+ 209      6F 72 20 51 79 20 6F 75 
+ 209      74 20 6F 66 20 72 61 6E 
+ 209      67 65 20 65 72 72 6F 72 
+ 209      00 
+ 210                             	.LC102:
+ 211 0cc0 20 45 43 43 20 70 72 69 		.string	" ECC private key is not valid error"
+ 211      76 61 74 65 20 6B 65 79 
+ 211      20 69 73 20 6E 6F 74 20 
+ 211      76 61 6C 69 64 20 65 72 
+ 211      72 6F 72 00 
+ 212                             	.LC103:
+ 213 0ce4 53 52 50 20 66 75 6E 63 		.string	"SRP function called in the wrong order error"
+ 213      74 69 6F 6E 20 63 61 6C 
+ 213      6C 65 64 20 69 6E 20 74 
+ 213      68 65 20 77 72 6F 6E 67 
+ 213      20 6F 72 64 65 72 20 65 
+ 214                             	.LC104:
+ 215 0d11 53 52 50 20 70 72 6F 6F 		.string	"SRP proof verification error"
+ 215      66 20 76 65 72 69 66 69 
+ 215      63 61 74 69 6F 6E 20 65 
+ 215      72 72 6F 72 00 
+ 216                             	.LC105:
+ 217 0d2e 53 52 50 20 62 61 64 20 		.string	"SRP bad key values error"
+ 217      6B 65 79 20 76 61 6C 75 
+ 217      65 73 20 65 72 72 6F 72 
+ 217      00 
+ 218                             	.LC106:
+ 219 0d47 41 53 4E 20 6E 6F 20 53 		.string	"ASN no Subject Key Identifier found error"
+ 219      75 62 6A 65 63 74 20 4B 
+ 219      65 79 20 49 64 65 6E 74 
+ 219      69 66 69 65 72 20 66 6F 
+ 219      75 6E 64 20 65 72 72 6F 
+ 220                             	.LC107:
+ 221 0d71 41 53 4E 20 6E 6F 20 41 		.string	"ASN no Authority Key Identifier found error"
+ 221      75 74 68 6F 72 69 74 79 
+ 221      20 4B 65 79 20 49 64 65 
+ 221      6E 74 69 66 69 65 72 20 
+ 221      66 6F 75 6E 64 20 65 72 
+ 222                             	.LC108:
+ 223 0d9d 41 53 4E 20 6E 6F 20 4B 		.string	"ASN no Key Usage found error"
+ 223      65 79 20 55 73 61 67 65 
+ 223      20 66 6F 75 6E 64 20 65 
+ 223      72 72 6F 72 00 
+ 224                             	.LC109:
+ 225 0dba 53 65 74 74 69 6E 67 20 		.string	"Setting Subject Key Identifier error"
+ 225      53 75 62 6A 65 63 74 20 
+ 225      4B 65 79 20 49 64 65 6E 
+ 225      74 69 66 69 65 72 20 65 
+ 225      72 72 6F 72 00 
+ 226                             	.LC110:
+ 227 0ddf 53 65 74 74 69 6E 67 20 		.string	"Setting Authority Key Identifier error"
+ 227      41 75 74 68 6F 72 69 74 
+ 227      79 20 4B 65 79 20 49 64 
+ 227      65 6E 74 69 66 69 65 72 
+ 227      20 65 72 72 6F 72 00 
+ 228                             	.LC111:
+ 229 0e06 4B 65 79 20 55 73 61 67 		.string	"Key Usage value error"
+ 229      65 20 76 61 6C 75 65 20 
+ 229      65 72 72 6F 72 00 
+ 230                             	.LC112:
+ 231 0e1c 45 78 74 65 6E 64 65 64 		.string	"Extended Key Usage value error"
+ 231      20 4B 65 79 20 55 73 61 
+ 231      67 65 20 76 61 6C 75 65 
+ 231      20 65 72 72 6F 72 00 
+ 232                             	.LC113:
+ 233 0e3b 53 65 74 74 69 6E 67 20 		.string	"Setting Certificate Policies error"
+ 233      43 65 72 74 69 66 69 63 
+ 233      61 74 65 20 50 6F 6C 69 
+ 233      63 69 65 73 20 65 72 72 
+ 233      6F 72 00 
+ 234                             	.LC114:
+ 235 0e5e 77 6F 6C 66 43 72 79 70 		.string	"wolfCrypt Initialize Failure error"
+ 235      74 20 49 6E 69 74 69 61 
+ 235      6C 69 7A 65 20 46 61 69 
+ 235      6C 75 72 65 20 65 72 72 
+ 235      6F 72 00 
+ 236                             	.LC115:
+ 237 0e81 53 69 67 6E 61 74 75 72 		.string	"Signature verify error"
+ 237      65 20 76 65 72 69 66 79 
+ 237      20 65 72 72 6F 72 00 
+ 238                             	.LC116:
+ 239 0e98 42 61 64 20 63 6F 6E 64 		.string	"Bad condition variable operation error"
+ 239      69 74 69 6F 6E 20 76 61 
+ 239      72 69 61 62 6C 65 20 6F 
+ 239      70 65 72 61 74 69 6F 6E 
+ 239      20 65 72 72 6F 72 00 
+ 240                             	.LC117:
+ 241 0ebf 53 69 67 6E 61 74 75 72 		.string	"Signature type not enabled/available"
+ 241      65 20 74 79 70 65 20 6E 
+ 241      6F 74 20 65 6E 61 62 6C 
+ 241      65 64 2F 61 76 61 69 6C 
+ 241      61 62 6C 65 00 
+ 242                             	.LC118:
+ 243 0ee4 48 61 73 68 20 74 79 70 		.string	"Hash type not enabled/available"
+ 243      65 20 6E 6F 74 20 65 6E 
+ 243      61 62 6C 65 64 2F 61 76 
+ 243      61 69 6C 61 62 6C 65 00 
+ 244                             	.LC119:
+ 245 0f04 4B 65 79 20 73 69 7A 65 		.string	"Key size error, either too small or large"
+ 245      20 65 72 72 6F 72 2C 20 
+ 245      65 69 74 68 65 72 20 74 
+ 245      6F 6F 20 73 6D 61 6C 6C 
+ 245      20 6F 72 20 6C 61 72 67 
+ 246                             	.LC120:
+ 247 0f2e 43 6F 75 6E 74 72 79 20 		.string	"Country code size error, either too small or large"
+ 247      63 6F 64 65 20 73 69 7A 
+ 247      65 20 65 72 72 6F 72 2C 
+ 247      20 65 69 74 68 65 72 20 
+ 247      74 6F 6F 20 73 6D 61 6C 
+ 248                             	.LC121:
+ 249 0f61 52 4E 47 20 72 65 71 75 		.string	"RNG required but not provided"
+ 249      69 72 65 64 20 62 75 74 
+ 249      20 6E 6F 74 20 70 72 6F 
+ 249      76 69 64 65 64 00 
+ 250                             	.LC122:
+ 251 0f7f 41 53 4E 20 43 41 20 70 		.string	"ASN CA path length value too large error"
+ 251      61 74 68 20 6C 65 6E 67 
+ 251      74 68 20 76 61 6C 75 65 
+ 251      20 74 6F 6F 20 6C 61 72 
+ 251      67 65 20 65 72 72 6F 72 
+ 252                             	.LC123:
+ 253 0fa8 41 53 4E 20 43 41 20 70 		.string	"ASN CA path length larger than signer error"
+ 253      61 74 68 20 6C 65 6E 67 
+ 253      74 68 20 6C 61 72 67 65 
+ 253      72 20 74 68 61 6E 20 73 
+ 253      69 67 6E 65 72 20 65 72 
+ 254                             	.LC124:
+ 255 0fd4 55 6E 73 75 70 70 6F 72 		.string	"Unsupported key wrap algorithm error"
+ 255      74 65 64 20 6B 65 79 20 
+ 255      77 72 61 70 20 61 6C 67 
+ 255      6F 72 69 74 68 6D 20 65 
+ 255      72 72 6F 72 00 
+ 256                             	.LC125:
+ 257 0ff9 44 65 63 72 79 70 74 65 		.string	"Decrypted AES key wrap IV does not match expected"
+ 257      64 20 41 45 53 20 6B 65 
+ 257      79 20 77 72 61 70 20 49 
+ 257      56 20 64 6F 65 73 20 6E 
+ 257      6F 74 20 6D 61 74 63 68 
+ 258                             	.LC126:
+ 259 102b 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt cleanup failed"
+ 259      74 20 63 6C 65 61 6E 75 
+ 259      70 20 66 61 69 6C 65 64 
+ 259      00 
+ 260                             	.LC127:
+ 261 1044 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt FIPS ECC CDH Known Answer Test Failure"
+ 261      74 20 46 49 50 53 20 45 
+ 261      43 43 20 43 44 48 20 4B 
+ 261      6E 6F 77 6E 20 41 6E 73 
+ 261      77 65 72 20 54 65 73 74 
+ 262                             	.LC128:
+ 263 1075 44 48 20 43 68 65 63 6B 		.string	"DH Check Public Key failure"
+ 263      20 50 75 62 6C 69 63 20 
+ 263      4B 65 79 20 66 61 69 6C 
+ 263      75 72 65 00 
+ 264                             	.LC129:
+ 265 1091 42 61 64 20 70 61 74 68 		.string	"Bad path for opendir error"
+ 265      20 66 6F 72 20 6F 70 65 
+ 265      6E 64 69 72 20 65 72 72 
+ 265      6F 72 00 
+ 266                             	.LC130:
+ 267 10ac 41 73 79 6E 63 20 6F 70 		.string	"Async operation error"
+ 267      65 72 61 74 69 6F 6E 20 
+ 267      65 72 72 6F 72 00 
+ 268                             	.LC131:
+ 269 10c2 49 6E 76 61 6C 69 64 20 		.string	"Invalid OCSP Responder, missing specific key usage extensions"
+ 269      4F 43 53 50 20 52 65 73 
+ 269      70 6F 6E 64 65 72 2C 20 
+ 269      6D 69 73 73 69 6E 67 20 
+ 269      73 70 65 63 69 66 69 63 
+ 270                             	.LC132:
+ 271 1100 49 6E 76 61 6C 69 64 20 		.string	"Invalid use of private only ECC key"
+ 271      75 73 65 20 6F 66 20 70 
+ 271      72 69 76 61 74 65 20 6F 
+ 271      6E 6C 79 20 45 43 43 20 
+ 271      6B 65 79 00 
+ 272                             	.LC133:
+ 273 1124 45 72 72 6F 72 20 77 69 		.string	"Error with hardware crypto use"
+ 273      74 68 20 68 61 72 64 77 
+ 273      61 72 65 20 63 72 79 70 
+ 273      74 6F 20 75 73 65 00 
+ 274                             	.LC134:
+ 275 1143 48 61 72 64 77 61 72 65 		.string	"Hardware waiting on resource"
+ 275      20 77 61 69 74 69 6E 67 
+ 275      20 6F 6E 20 72 65 73 6F 
+ 275      75 72 63 65 00 
+ 276                             	.LC135:
+ 277 1160 50 53 53 20 2D 20 4C 65 		.string	"PSS - Length of salt is too big for hash algorithm"
+ 277      6E 67 74 68 20 6F 66 20 
+ 277      73 61 6C 74 20 69 73 20 
+ 277      74 6F 6F 20 62 69 67 20 
+ 277      66 6F 72 20 68 61 73 68 
+ 278                             	.LC136:
+ 279 1193 55 6E 61 62 6C 65 20 74 		.string	"Unable to find a prime for RSA key"
+ 279      6F 20 66 69 6E 64 20 61 
+ 279      20 70 72 69 6D 65 20 66 
+ 279      6F 72 20 52 53 41 20 6B 
+ 279      65 79 00 
+ 280                             	.LC137:
+ 281 11b6 55 6E 61 62 6C 65 20 74 		.string	"Unable to decode an indefinite length encoded message"
+ 281      6F 20 64 65 63 6F 64 65 
+ 281      20 61 6E 20 69 6E 64 65 
+ 281      66 69 6E 69 74 65 20 6C 
+ 281      65 6E 67 74 68 20 65 6E 
+ 282                             	.LC138:
+ 283 11ec 43 69 70 68 65 72 74 65 		.string	"Ciphertext to decrypt is out of range"
+ 283      78 74 20 74 6F 20 64 65 
+ 283      63 72 79 70 74 20 69 73 
+ 283      20 6F 75 74 20 6F 66 20 
+ 283      72 61 6E 67 65 00 
+ 284                             	.LC139:
+ 285 1212 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt FIPS RSA-PSS Pairwise Agreement Test Failure"
+ 285      74 20 46 49 50 53 20 52 
+ 285      53 41 2D 50 53 53 20 50 
+ 285      61 69 72 77 69 73 65 20 
+ 285      41 67 72 65 65 6D 65 6E 
+ 286                             	.LC140:
+ 287 1249 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt FIPS ECDSA Pairwise Agreement Test Failure"
+ 287      74 20 46 49 50 53 20 45 
+ 287      43 44 53 41 20 50 61 69 
+ 287      72 77 69 73 65 20 41 67 
+ 287      72 65 65 6D 65 6E 74 20 
+ 288                             	.LC141:
+ 289 127e 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt FIPS DH Known Answer Test Failure"
+ 289      74 20 46 49 50 53 20 44 
+ 289      48 20 4B 6E 6F 77 6E 20 
+ 289      41 6E 73 77 65 72 20 54 
+ 289      65 73 74 20 46 61 69 6C 
+ 290                             	.LC142:
+ 291 12aa 41 45 53 43 43 4D 20 4B 		.string	"AESCCM Known Answer Test check FIPS error"
+ 291      6E 6F 77 6E 20 41 6E 73 
+ 291      77 65 72 20 54 65 73 74 
+ 291      20 63 68 65 63 6B 20 46 
+ 291      49 50 53 20 65 72 72 6F 
+ 292                             	.LC143:
+ 293 12d4 53 48 41 2D 33 20 4B 6E 		.string	"SHA-3 Known Answer Test check FIPS error"
+ 293      6F 77 6E 20 41 6E 73 77 
+ 293      65 72 20 54 65 73 74 20 
+ 293      63 68 65 63 6B 20 46 49 
+ 293      50 53 20 65 72 72 6F 72 
+ 294                             	.LC144:
+ 295 12fd 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt FIPS ECDHE Known Answer Test Failure"
+ 295      74 20 46 49 50 53 20 45 
+ 295      43 44 48 45 20 4B 6E 6F 
+ 295      77 6E 20 41 6E 73 77 65 
+ 295      72 20 54 65 73 74 20 46 
+ 296                             	.LC145:
+ 297 132c 41 45 53 2D 47 43 4D 20 		.string	"AES-GCM invocation counter overflow"
+ 297      69 6E 76 6F 63 61 74 69 
+ 297      6F 6E 20 63 6F 75 6E 74 
+ 297      65 72 20 6F 76 65 72 66 
+ 297      6C 6F 77 00 
+ 298                             	.LC146:
+ 299 1350 41 45 53 2D 43 43 4D 20 		.string	"AES-CCM invocation counter overflow"
+ 299      69 6E 76 6F 63 61 74 69 
+ 299      6F 6E 20 63 6F 75 6E 74 
+ 299      65 72 20 6F 76 65 72 66 
+ 299      6C 6F 77 00 
+ 300                             	.LC147:
+ 301 1374 52 53 41 20 4B 65 79 20 		.string	"RSA Key Pair-Wise Consistency check fail"
+ 301      50 61 69 72 2D 57 69 73 
+ 301      65 20 43 6F 6E 73 69 73 
+ 301      74 65 6E 63 79 20 63 68 
+ 301      65 63 6B 20 66 61 69 6C 
+ 302                             	.LC148:
+ 303 139d 44 48 20 43 68 65 63 6B 		.string	"DH Check Private Key failure"
+ 303      20 50 72 69 76 61 74 65 
+ 303      20 4B 65 79 20 66 61 69 
+ 303      6C 75 72 65 00 
+ 304                             	.LC149:
+ 305 13ba 41 46 5F 41 4C 47 20 73 		.string	"AF_ALG socket error"
+ 305      6F 63 6B 65 74 20 65 72 
+ 305      72 6F 72 00 
+ 306                             	.LC150:
+ 307 13ce 45 72 72 6F 72 20 77 69 		.string	"Error with /dev/crypto"
+ 307      74 68 20 2F 64 65 76 2F 
+ 307      63 72 79 70 74 6F 00 
+ 308                             	.LC151:
+ 309 13e5 7A 6C 69 62 20 69 6E 69 		.string	"zlib init error"
+ 309      74 20 65 72 72 6F 72 00 
+ 310                             	.LC152:
+ 311 13f5 7A 6C 69 62 20 63 6F 6D 		.string	"zlib compress error"
+ 311      70 72 65 73 73 20 65 72 
+ 311      72 6F 72 00 
+ 312                             	.LC153:
+ 313 1409 7A 6C 69 62 20 64 65 63 		.string	"zlib decompress error"
+ 313      6F 6D 70 72 65 73 73 20 
+ 313      65 72 72 6F 72 00 
+ 314                             	.LC154:
+ 315 141f 4E 6F 20 73 69 67 6E 65 		.string	"No signer in PKCS#7 signed data"
+ 315      72 20 69 6E 20 50 4B 43 
+ 315      53 23 37 20 73 69 67 6E 
+ 315      65 64 20 64 61 74 61 00 
+ 316                             	.LC155:
+ 317 143f 43 72 79 70 74 6F 20 63 		.string	"Crypto callback unavailable"
+ 317      61 6C 6C 62 61 63 6B 20 
+ 317      75 6E 61 76 61 69 6C 61 
+ 317      62 6C 65 00 
+ 318                             	.LC156:
+ 319 145b 53 69 67 6E 61 74 75 72 		.string	"Signature found but no certificate to verify"
+ 319      65 20 66 6F 75 6E 64 20 
+ 319      62 75 74 20 6E 6F 20 63 
+ 319      65 72 74 69 66 69 63 61 
+ 319      74 65 20 74 6F 20 76 65 
+ 320                             	.LC157:
+ 321 1488 50 53 53 20 2D 20 53 61 		.string	"PSS - Salt length unable to be recovered"
+ 321      6C 74 20 6C 65 6E 67 74 
+ 321      68 20 75 6E 61 62 6C 65 
+ 321      20 74 6F 20 62 65 20 72 
+ 321      65 63 6F 76 65 72 65 64 
+ 322                             	.LC158:
+ 323 14b1 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt - ChaCha20_Poly1305 limit overflow 4GB"
+ 323      74 20 2D 20 43 68 61 43 
+ 323      68 61 32 30 5F 50 6F 6C 
+ 323      79 31 33 30 35 20 6C 69 
+ 323      6D 69 74 20 6F 76 65 72 
+ 324                             	.LC159:
+ 325 14e2 41 53 4E 20 73 65 6C 66 		.string	"ASN self-signed certificate error"
+ 325      2D 73 69 67 6E 65 64 20 
+ 325      63 65 72 74 69 66 69 63 
+ 325      61 74 65 20 65 72 72 6F 
+ 325      72 00 
+ 326                             	.LC160:
+ 327 1504 53 41 4B 4B 45 20 64 65 		.string	"SAKKE derivation verification error"
+ 327      72 69 76 61 74 69 6F 6E 
+ 327      20 76 65 72 69 66 69 63 
+ 327      61 74 69 6F 6E 20 65 72 
+ 327      72 6F 72 00 
+ 328                             	.LC161:
+ 329 1528 52 65 71 75 69 72 65 64 		.string	"Required IV not set"
+ 329      20 49 56 20 6E 6F 74 20 
+ 329      73 65 74 00 
+ 330                             	.LC162:
+ 331 153c 52 65 71 75 69 72 65 64 		.string	"Required key not set"
+ 331      20 6B 65 79 20 6E 6F 74 
+ 331      20 73 65 74 00 
+ 332                             	.LC163:
+ 333 1551 56 61 6C 75 65 20 6F 66 		.string	"Value of length parameter is invalid."
+ 333      20 6C 65 6E 67 74 68 20 
+ 333      70 61 72 61 6D 65 74 65 
+ 333      72 20 69 73 20 69 6E 76 
+ 333      61 6C 69 64 2E 00 
+ 334                             	.LC164:
+ 335 1577 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt FIPS ECDSA Known Answer Test Failure"
+ 335      74 20 46 49 50 53 20 45 
+ 335      43 44 53 41 20 4B 6E 6F 
+ 335      77 6E 20 41 6E 73 77 65 
+ 335      72 20 54 65 73 74 20 46 
+ 336                             	.LC165:
+ 337 15a6 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt FIPS RSA Pairwise Agreement Test Failure"
+ 337      74 20 46 49 50 53 20 52 
+ 337      53 41 20 50 61 69 72 77 
+ 337      69 73 65 20 41 67 72 65 
+ 337      65 6D 65 6E 74 20 54 65 
+ 338                             	.LC166:
+ 339 15d9 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt FIPS TLSv1.2 KDF Known Answer Test Failure"
+ 339      74 20 46 49 50 53 20 54 
+ 339      4C 53 76 31 2E 32 20 4B 
+ 339      44 46 20 4B 6E 6F 77 6E 
+ 339      20 41 6E 73 77 65 72 20 
+ 340                             	.LC167:
+ 341 160e 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt FIPS TLSv1.3 KDF Known Answer Test Failure"
+ 341      74 20 46 49 50 53 20 54 
+ 341      4C 53 76 31 2E 33 20 4B 
+ 341      44 46 20 4B 6E 6F 77 6E 
+ 341      20 41 6E 73 77 65 72 20 
+ 342                             	.LC168:
+ 343 1643 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt FIPS SSH KDF Known Answer Test Failure"
+ 343      74 20 46 49 50 53 20 53 
+ 343      53 48 20 4B 44 46 20 4B 
+ 343      6E 6F 77 6E 20 41 6E 73 
+ 343      77 65 72 20 54 65 73 74 
+ 344                             	.LC169:
+ 345 1674 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt DHE Pairwise Consistency Test Failure"
+ 345      74 20 44 48 45 20 50 61 
+ 345      69 72 77 69 73 65 20 43 
+ 345      6F 6E 73 69 73 74 65 6E 
+ 345      63 79 20 54 65 73 74 20 
+ 346                             	.LC170:
+ 347 16a4 77 6F 6C 66 63 72 79 70 		.string	"wolfcrypt ECDHE Pairwise Consistency Test Failure"
+ 347      74 20 45 43 44 48 45 20 
+ 347      50 61 69 72 77 69 73 65 
+ 347      20 43 6F 6E 73 69 73 74 
+ 347      65 6E 63 79 20 54 65 73 
+ 348                             	.LC171:
+ 349 16d6 43 61 6E 6E 6F 74 20 65 		.string	"Cannot export private key, locked"
+ 349      78 70 6F 72 74 20 70 72 
+ 349      69 76 61 74 65 20 6B 65 
+ 349      79 2C 20 6C 6F 63 6B 65 
+ 349      64 00 
+ 350                             	.LC172:
+ 351 16f8 50 72 6F 74 6F 63 6F 6C 		.string	"Protocol callback unavailable"
+ 351      20 63 61 6C 6C 62 61 63 
+ 351      6B 20 75 6E 61 76 61 69 
+ 351      6C 61 62 6C 65 00 
+ 352                             	.LC173:
+ 353 1716 4E 6F 20 76 61 6C 69 64 		.string	"No valid device ID set"
+ 353      20 64 65 76 69 63 65 20 
+ 353      49 44 20 73 65 74 00 
+ 354                             	.LC174:
+ 355 172d 75 6E 6B 6E 6F 77 6E 20 		.string	"unknown error number"
+ 355      65 72 72 6F 72 20 6E 75 
+ 355      6D 62 65 72 00 
+ 356 1742 00 00                   		.section	.text.wc_GetErrorString,"ax",@progbits
+ 357                             		.global	_wc_GetErrorString
+ 359                             	_wc_GetErrorString:
+ 360                             	.LFB1:
+ 361                             		.file 1 "../src/wolfcrypt/src/error.c"
+   1:../src/wolfcrypt/src/error.c **** /* error.c
+   2:../src/wolfcrypt/src/error.c ****  *
+   3:../src/wolfcrypt/src/error.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/wolfcrypt/src/error.c ****  *
+   5:../src/wolfcrypt/src/error.c ****  * This file is part of wolfSSL.
+   6:../src/wolfcrypt/src/error.c ****  *
+   7:../src/wolfcrypt/src/error.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/wolfcrypt/src/error.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/wolfcrypt/src/error.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/wolfcrypt/src/error.c ****  * (at your option) any later version.
+  11:../src/wolfcrypt/src/error.c ****  *
+  12:../src/wolfcrypt/src/error.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/wolfcrypt/src/error.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/wolfcrypt/src/error.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/wolfcrypt/src/error.c ****  * GNU General Public License for more details.
+  16:../src/wolfcrypt/src/error.c ****  *
+  17:../src/wolfcrypt/src/error.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/wolfcrypt/src/error.c ****  * along with this program; if not, write to the Free Software
+  19:../src/wolfcrypt/src/error.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/wolfcrypt/src/error.c ****  */
+  21:../src/wolfcrypt/src/error.c **** 
+  22:../src/wolfcrypt/src/error.c **** 
+  23:../src/wolfcrypt/src/error.c **** #ifdef HAVE_CONFIG_H
+  24:../src/wolfcrypt/src/error.c ****     #include <config.h>
+  25:../src/wolfcrypt/src/error.c **** #endif
+  26:../src/wolfcrypt/src/error.c **** 
+  27:../src/wolfcrypt/src/error.c **** #include <wolfssl/wolfcrypt/settings.h>
+  28:../src/wolfcrypt/src/error.c **** 
+  29:../src/wolfcrypt/src/error.c **** #include <wolfssl/wolfcrypt/error-crypt.h>
+  30:../src/wolfcrypt/src/error.c **** 
+  31:../src/wolfcrypt/src/error.c **** #ifdef _MSC_VER
+  32:../src/wolfcrypt/src/error.c ****     /* 4996 warning to use MS extensions e.g., strcpy_s instead of XSTRNCPY */
+  33:../src/wolfcrypt/src/error.c ****     #pragma warning(disable: 4996)
+  34:../src/wolfcrypt/src/error.c **** #endif
+  35:../src/wolfcrypt/src/error.c **** 
+  36:../src/wolfcrypt/src/error.c **** #ifndef NO_ERROR_STRINGS
+  37:../src/wolfcrypt/src/error.c **** const char* wc_GetErrorString(int error)
+  38:../src/wolfcrypt/src/error.c **** {
+ 362                             		.loc 1 38 1
+ 363 0000 7E AA                   		push.l	r10
+ 364                             	.LCFI0:
+ 365 0002 71 0A FC                		add	#-4, r0, r10
+ 366                             	.LCFI1:
+ 367 0005 EF A0                   		mov.L	r10, r0
+ 368 0007 E3 A1                   		mov.L	r1, [r10]
+  39:../src/wolfcrypt/src/error.c ****     switch (error) {
+ 369                             		.loc 1 39 5
+ 370 0009 EC A5                   		mov.L	[r10], r5
+ 371 000b 72 55 22 01             		add	#0x122, r5
+ 372 000f 75 55 BD                		cmp	#0xbd, r5
+ 373 0012 25 05 38 26 06          		bgtu	.L2
+ 374 0017 6C 25                   		shll	#2, r5
+ 375 0019 70 55 00 00 00 00       		add	#.L4, r5
+ 376 001f EC 55                   		mov.L	[r5], r5
+ 377                             		
+ 378 0021 7F 05                   	1:jmp	r5
+ 379                             		.section	.rodata.wc_GetErrorString,"a",@progbits
+ 380                             		.balign 4
+ 381                             		.balign 4
+ 382                             	.L4:
+ 383 0000 33 06 00 00             		.long .L178
+ 384 0004 63 02 00 00             		.long .L177
+ 385 0008 2B 06 00 00             		.long .L176
+ 386 000c 23 06 00 00             		.long .L175
+ 387 0010 1B 06 00 00             		.long .L174
+ 388 0014 13 06 00 00             		.long .L173
+ 389 0018 0B 06 00 00             		.long .L172
+ 390 001c 03 06 00 00             		.long .L171
+ 391 0020 FB 05 00 00             		.long .L170
+ 392 0024 F3 05 00 00             		.long .L169
+ 393 0028 EB 05 00 00             		.long .L168
+ 394 002c E3 05 00 00             		.long .L167
+ 395 0030 DB 05 00 00             		.long .L166
+ 396 0034 D3 05 00 00             		.long .L165
+ 397 0038 CB 05 00 00             		.long .L164
+ 398 003c C3 05 00 00             		.long .L163
+ 399 0040 BA 05 00 00             		.long .L162
+ 400 0044 B1 05 00 00             		.long .L161
+ 401 0048 A8 05 00 00             		.long .L160
+ 402 004c 9F 05 00 00             		.long .L159
+ 403 0050 05 03 00 00             		.long .L158
+ 404 0054 96 05 00 00             		.long .L157
+ 405 0058 8D 05 00 00             		.long .L156
+ 406 005c 84 05 00 00             		.long .L155
+ 407 0060 7B 05 00 00             		.long .L154
+ 408 0064 72 05 00 00             		.long .L153
+ 409 0068 69 05 00 00             		.long .L152
+ 410 006c 60 05 00 00             		.long .L151
+ 411 0070 57 05 00 00             		.long .L150
+ 412 0074 4E 05 00 00             		.long .L149
+ 413 0078 45 05 00 00             		.long .L148
+ 414 007c 3C 05 00 00             		.long .L147
+ 415 0080 33 05 00 00             		.long .L146
+ 416 0084 2A 05 00 00             		.long .L145
+ 417 0088 21 05 00 00             		.long .L144
+ 418 008c 18 05 00 00             		.long .L143
+ 419 0090 0F 05 00 00             		.long .L142
+ 420 0094 06 05 00 00             		.long .L141
+ 421 0098 FD 04 00 00             		.long .L140
+ 422 009c F4 04 00 00             		.long .L139
+ 423 00a0 EB 04 00 00             		.long .L138
+ 424 00a4 E2 04 00 00             		.long .L137
+ 425 00a8 D9 04 00 00             		.long .L136
+ 426 00ac 1C 04 00 00             		.long .L135
+ 427 00b0 D0 04 00 00             		.long .L134
+ 428 00b4 BE 04 00 00             		.long .L133
+ 429 00b8 B5 04 00 00             		.long .L132
+ 430 00bc AC 04 00 00             		.long .L131
+ 431 00c0 A3 04 00 00             		.long .L130
+ 432 00c4 9A 04 00 00             		.long .L129
+ 433 00c8 91 04 00 00             		.long .L128
+ 434 00cc 88 04 00 00             		.long .L127
+ 435 00d0 7F 04 00 00             		.long .L126
+ 436 00d4 76 04 00 00             		.long .L125
+ 437 00d8 6D 04 00 00             		.long .L124
+ 438 00dc 64 04 00 00             		.long .L123
+ 439 00e0 5B 04 00 00             		.long .L122
+ 440 00e4 3A 06 00 00             		.long .L2
+ 441 00e8 52 04 00 00             		.long .L121
+ 442 00ec 49 04 00 00             		.long .L120
+ 443 00f0 40 04 00 00             		.long .L119
+ 444 00f4 37 04 00 00             		.long .L118
+ 445 00f8 2E 04 00 00             		.long .L117
+ 446 00fc 25 04 00 00             		.long .L116
+ 447 0100 13 04 00 00             		.long .L115
+ 448 0104 0A 04 00 00             		.long .L114
+ 449 0108 01 04 00 00             		.long .L113
+ 450 010c F8 03 00 00             		.long .L112
+ 451 0110 EF 03 00 00             		.long .L111
+ 452 0114 E6 03 00 00             		.long .L110
+ 453 0118 DD 03 00 00             		.long .L109
+ 454 011c D4 03 00 00             		.long .L108
+ 455 0120 CB 03 00 00             		.long .L107
+ 456 0124 B9 03 00 00             		.long .L106
+ 457 0128 C2 03 00 00             		.long .L105
+ 458 012c B0 03 00 00             		.long .L104
+ 459 0130 A7 03 00 00             		.long .L103
+ 460 0134 9E 03 00 00             		.long .L102
+ 461 0138 95 03 00 00             		.long .L101
+ 462 013c 8C 03 00 00             		.long .L100
+ 463 0140 83 03 00 00             		.long .L99
+ 464 0144 7A 03 00 00             		.long .L98
+ 465 0148 71 03 00 00             		.long .L97
+ 466 014c 68 03 00 00             		.long .L96
+ 467 0150 5F 03 00 00             		.long .L95
+ 468 0154 56 03 00 00             		.long .L94
+ 469 0158 4D 03 00 00             		.long .L93
+ 470 015c 44 03 00 00             		.long .L92
+ 471 0160 3B 03 00 00             		.long .L91
+ 472 0164 32 03 00 00             		.long .L90
+ 473 0168 29 03 00 00             		.long .L89
+ 474 016c 20 03 00 00             		.long .L88
+ 475 0170 17 03 00 00             		.long .L87
+ 476 0174 0E 03 00 00             		.long .L86
+ 477 0178 FC 02 00 00             		.long .L85
+ 478 017c F3 02 00 00             		.long .L84
+ 479 0180 EA 02 00 00             		.long .L83
+ 480 0184 E1 02 00 00             		.long .L82
+ 481 0188 D8 02 00 00             		.long .L81
+ 482 018c C6 02 00 00             		.long .L80
+ 483 0190 B4 02 00 00             		.long .L79
+ 484 0194 AB 02 00 00             		.long .L78
+ 485 0198 A2 02 00 00             		.long .L77
+ 486 019c 99 02 00 00             		.long .L76
+ 487 01a0 90 02 00 00             		.long .L75
+ 488 01a4 87 02 00 00             		.long .L74
+ 489 01a8 7E 02 00 00             		.long .L73
+ 490 01ac 75 02 00 00             		.long .L72
+ 491 01b0 6C 02 00 00             		.long .L71
+ 492 01b4 5A 02 00 00             		.long .L70
+ 493 01b8 51 02 00 00             		.long .L69
+ 494 01bc BD 02 00 00             		.long .L68
+ 495 01c0 C7 04 00 00             		.long .L67
+ 496 01c4 48 02 00 00             		.long .L66
+ 497 01c8 3F 02 00 00             		.long .L65
+ 498 01cc 36 02 00 00             		.long .L64
+ 499 01d0 2D 02 00 00             		.long .L63
+ 500 01d4 24 02 00 00             		.long .L62
+ 501 01d8 1B 02 00 00             		.long .L61
+ 502 01dc 12 02 00 00             		.long .L60
+ 503 01e0 09 02 00 00             		.long .L59
+ 504 01e4 3A 06 00 00             		.long .L2
+ 505 01e8 3A 06 00 00             		.long .L2
+ 506 01ec 3A 06 00 00             		.long .L2
+ 507 01f0 3A 06 00 00             		.long .L2
+ 508 01f4 3A 06 00 00             		.long .L2
+ 509 01f8 3A 06 00 00             		.long .L2
+ 510 01fc 3A 06 00 00             		.long .L2
+ 511 0200 CF 02 00 00             		.long .L58
+ 512 0204 00 02 00 00             		.long .L57
+ 513 0208 F7 01 00 00             		.long .L56
+ 514 020c 3A 06 00 00             		.long .L2
+ 515 0210 EE 01 00 00             		.long .L55
+ 516 0214 E5 01 00 00             		.long .L54
+ 517 0218 DC 01 00 00             		.long .L53
+ 518 021c D3 01 00 00             		.long .L52
+ 519 0220 CA 01 00 00             		.long .L51
+ 520 0224 C1 01 00 00             		.long .L50
+ 521 0228 B8 01 00 00             		.long .L49
+ 522 022c AF 01 00 00             		.long .L48
+ 523 0230 A6 01 00 00             		.long .L47
+ 524 0234 9D 01 00 00             		.long .L46
+ 525 0238 94 01 00 00             		.long .L45
+ 526 023c 8B 01 00 00             		.long .L44
+ 527 0240 82 01 00 00             		.long .L43
+ 528 0244 79 01 00 00             		.long .L42
+ 529 0248 70 01 00 00             		.long .L41
+ 530 024c 67 01 00 00             		.long .L40
+ 531 0250 5E 01 00 00             		.long .L39
+ 532 0254 55 01 00 00             		.long .L38
+ 533 0258 4C 01 00 00             		.long .L37
+ 534 025c 43 01 00 00             		.long .L36
+ 535 0260 3A 01 00 00             		.long .L35
+ 536 0264 31 01 00 00             		.long .L34
+ 537 0268 28 01 00 00             		.long .L33
+ 538 026c 1F 01 00 00             		.long .L32
+ 539 0270 16 01 00 00             		.long .L31
+ 540 0274 0D 01 00 00             		.long .L30
+ 541 0278 04 01 00 00             		.long .L29
+ 542 027c FB 00 00 00             		.long .L28
+ 543 0280 F2 00 00 00             		.long .L27
+ 544 0284 3A 06 00 00             		.long .L2
+ 545 0288 3A 06 00 00             		.long .L2
+ 546 028c 3A 06 00 00             		.long .L2
+ 547 0290 E9 00 00 00             		.long .L26
+ 548 0294 E0 00 00 00             		.long .L25
+ 549 0298 3A 06 00 00             		.long .L2
+ 550 029c 3A 06 00 00             		.long .L2
+ 551 02a0 3A 06 00 00             		.long .L2
+ 552 02a4 D7 00 00 00             		.long .L24
+ 553 02a8 CE 00 00 00             		.long .L23
+ 554 02ac C5 00 00 00             		.long .L22
+ 555 02b0 BC 00 00 00             		.long .L21
+ 556 02b4 B3 00 00 00             		.long .L20
+ 557 02b8 AA 00 00 00             		.long .L19
+ 558 02bc A1 00 00 00             		.long .L18
+ 559 02c0 98 00 00 00             		.long .L17
+ 560 02c4 8F 00 00 00             		.long .L16
+ 561 02c8 86 00 00 00             		.long .L15
+ 562 02cc 7D 00 00 00             		.long .L14
+ 563 02d0 74 00 00 00             		.long .L13
+ 564 02d4 6B 00 00 00             		.long .L12
+ 565 02d8 62 00 00 00             		.long .L11
+ 566 02dc 59 00 00 00             		.long .L10
+ 567 02e0 50 00 00 00             		.long .L9
+ 568 02e4 47 00 00 00             		.long .L8
+ 569 02e8 3E 00 00 00             		.long .L7
+ 570 02ec 35 00 00 00             		.long .L6
+ 571 02f0 2C 00 00 00             		.long .L5
+ 572 02f4 23 00 00 00             		.long .L3
+ 573                             		.section	.text.wc_GetErrorString
+ 574                             	.L3:
+  40:../src/wolfcrypt/src/error.c **** 
+  41:../src/wolfcrypt/src/error.c ****     case OPEN_RAN_E :
+  42:../src/wolfcrypt/src/error.c ****         return "opening random device error";
+ 575                             		.loc 1 42 16
+ 576 0023 FB 52 00 00 00 00       		mov.L	#.LC0, r5
+ 577 0029 38 17 06                		bra	.L179
+ 578                             	.L5:
+  43:../src/wolfcrypt/src/error.c **** 
+  44:../src/wolfcrypt/src/error.c ****     case READ_RAN_E :
+  45:../src/wolfcrypt/src/error.c ****         return "reading random device error";
+ 579                             		.loc 1 45 16
+ 580 002c FB 52 1C 00 00 00       		mov.L	#.LC1, r5
+ 581 0032 38 0E 06                		bra	.L179
+ 582                             	.L6:
+  46:../src/wolfcrypt/src/error.c **** 
+  47:../src/wolfcrypt/src/error.c ****     case WINCRYPT_E :
+  48:../src/wolfcrypt/src/error.c ****         return "windows crypt init error";
+ 583                             		.loc 1 48 16
+ 584 0035 FB 52 38 00 00 00       		mov.L	#.LC2, r5
+ 585 003b 38 05 06                		bra	.L179
+ 586                             	.L7:
+  49:../src/wolfcrypt/src/error.c **** 
+  50:../src/wolfcrypt/src/error.c ****     case CRYPTGEN_E :
+  51:../src/wolfcrypt/src/error.c ****         return "windows crypt generation error";
+ 587                             		.loc 1 51 16
+ 588 003e FB 52 51 00 00 00       		mov.L	#.LC3, r5
+ 589 0044 38 FC 05                		bra	.L179
+ 590                             	.L8:
+  52:../src/wolfcrypt/src/error.c **** 
+  53:../src/wolfcrypt/src/error.c ****     case RAN_BLOCK_E :
+  54:../src/wolfcrypt/src/error.c ****         return "random device read would block error";
+ 591                             		.loc 1 54 16
+ 592 0047 FB 52 70 00 00 00       		mov.L	#.LC4, r5
+ 593 004d 38 F3 05                		bra	.L179
+ 594                             	.L9:
+  55:../src/wolfcrypt/src/error.c **** 
+  56:../src/wolfcrypt/src/error.c ****     case BAD_MUTEX_E :
+  57:../src/wolfcrypt/src/error.c ****         return "Bad mutex, operation failed";
+ 595                             		.loc 1 57 16
+ 596 0050 FB 52 95 00 00 00       		mov.L	#.LC5, r5
+ 597 0056 38 EA 05                		bra	.L179
+ 598                             	.L10:
+  58:../src/wolfcrypt/src/error.c **** 
+  59:../src/wolfcrypt/src/error.c ****     case WC_TIMEOUT_E:
+  60:../src/wolfcrypt/src/error.c ****         return "Timeout error";
+ 599                             		.loc 1 60 16
+ 600 0059 FB 52 B1 00 00 00       		mov.L	#.LC6, r5
+ 601 005f 38 E1 05                		bra	.L179
+ 602                             	.L11:
+  61:../src/wolfcrypt/src/error.c **** 
+  62:../src/wolfcrypt/src/error.c ****     case WC_PENDING_E:
+  63:../src/wolfcrypt/src/error.c ****         return "wolfCrypt Operation Pending (would block / eagain) error";
+ 603                             		.loc 1 63 16
+ 604 0062 FB 52 BF 00 00 00       		mov.L	#.LC7, r5
+ 605 0068 38 D8 05                		bra	.L179
+ 606                             	.L12:
+  64:../src/wolfcrypt/src/error.c **** 
+  65:../src/wolfcrypt/src/error.c ****     case WC_NOT_PENDING_E:
+  66:../src/wolfcrypt/src/error.c ****         return "wolfCrypt operation not pending error";
+ 607                             		.loc 1 66 16
+ 608 006b FB 52 F8 00 00 00       		mov.L	#.LC8, r5
+ 609 0071 38 CF 05                		bra	.L179
+ 610                             	.L13:
+  67:../src/wolfcrypt/src/error.c **** 
+  68:../src/wolfcrypt/src/error.c ****     case MP_INIT_E :
+  69:../src/wolfcrypt/src/error.c ****         return "mp_init error state";
+ 611                             		.loc 1 69 16
+ 612 0074 FB 52 1E 01 00 00       		mov.L	#.LC9, r5
+ 613 007a 38 C6 05                		bra	.L179
+ 614                             	.L14:
+  70:../src/wolfcrypt/src/error.c **** 
+  71:../src/wolfcrypt/src/error.c ****     case MP_READ_E :
+  72:../src/wolfcrypt/src/error.c ****         return "mp_read error state";
+ 615                             		.loc 1 72 16
+ 616 007d FB 52 32 01 00 00       		mov.L	#.LC10, r5
+ 617 0083 38 BD 05                		bra	.L179
+ 618                             	.L15:
+  73:../src/wolfcrypt/src/error.c **** 
+  74:../src/wolfcrypt/src/error.c ****     case MP_EXPTMOD_E :
+  75:../src/wolfcrypt/src/error.c ****         return "mp_exptmod error state";
+ 619                             		.loc 1 75 16
+ 620 0086 FB 52 46 01 00 00       		mov.L	#.LC11, r5
+ 621 008c 38 B4 05                		bra	.L179
+ 622                             	.L16:
+  76:../src/wolfcrypt/src/error.c **** 
+  77:../src/wolfcrypt/src/error.c ****     case MP_TO_E :
+  78:../src/wolfcrypt/src/error.c ****         return "mp_to_xxx error state, can't convert";
+ 623                             		.loc 1 78 16
+ 624 008f FB 52 5D 01 00 00       		mov.L	#.LC12, r5
+ 625 0095 38 AB 05                		bra	.L179
+ 626                             	.L17:
+  79:../src/wolfcrypt/src/error.c **** 
+  80:../src/wolfcrypt/src/error.c ****     case MP_SUB_E :
+  81:../src/wolfcrypt/src/error.c ****         return "mp_sub error state, can't subtract";
+ 627                             		.loc 1 81 16
+ 628 0098 FB 52 82 01 00 00       		mov.L	#.LC13, r5
+ 629 009e 38 A2 05                		bra	.L179
+ 630                             	.L18:
+  82:../src/wolfcrypt/src/error.c **** 
+  83:../src/wolfcrypt/src/error.c ****     case MP_ADD_E :
+  84:../src/wolfcrypt/src/error.c ****         return "mp_add error state, can't add";
+ 631                             		.loc 1 84 16
+ 632 00a1 FB 52 A5 01 00 00       		mov.L	#.LC14, r5
+ 633 00a7 38 99 05                		bra	.L179
+ 634                             	.L19:
+  85:../src/wolfcrypt/src/error.c **** 
+  86:../src/wolfcrypt/src/error.c ****     case MP_MUL_E :
+  87:../src/wolfcrypt/src/error.c ****         return "mp_mul error state, can't multiply";
+ 635                             		.loc 1 87 16
+ 636 00aa FB 52 C3 01 00 00       		mov.L	#.LC15, r5
+ 637 00b0 38 90 05                		bra	.L179
+ 638                             	.L20:
+  88:../src/wolfcrypt/src/error.c **** 
+  89:../src/wolfcrypt/src/error.c ****     case MP_MULMOD_E :
+  90:../src/wolfcrypt/src/error.c ****         return "mp_mulmod error state, can't multiply mod";
+ 639                             		.loc 1 90 16
+ 640 00b3 FB 52 E6 01 00 00       		mov.L	#.LC16, r5
+ 641 00b9 38 87 05                		bra	.L179
+ 642                             	.L21:
+  91:../src/wolfcrypt/src/error.c **** 
+  92:../src/wolfcrypt/src/error.c ****     case MP_MOD_E :
+  93:../src/wolfcrypt/src/error.c ****         return "mp_mod error state, can't mod";
+ 643                             		.loc 1 93 16
+ 644 00bc FB 52 10 02 00 00       		mov.L	#.LC17, r5
+ 645 00c2 38 7E 05                		bra	.L179
+ 646                             	.L22:
+  94:../src/wolfcrypt/src/error.c **** 
+  95:../src/wolfcrypt/src/error.c ****     case MP_INVMOD_E :
+  96:../src/wolfcrypt/src/error.c ****         return "mp_invmod error state, can't inv mod";
+ 647                             		.loc 1 96 16
+ 648 00c5 FB 52 2E 02 00 00       		mov.L	#.LC18, r5
+ 649 00cb 38 75 05                		bra	.L179
+ 650                             	.L23:
+  97:../src/wolfcrypt/src/error.c **** 
+  98:../src/wolfcrypt/src/error.c ****     case MP_CMP_E :
+  99:../src/wolfcrypt/src/error.c ****         return "mp_cmp error state";
+ 651                             		.loc 1 99 16
+ 652 00ce FB 52 53 02 00 00       		mov.L	#.LC19, r5
+ 653 00d4 38 6C 05                		bra	.L179
+ 654                             	.L24:
+ 100:../src/wolfcrypt/src/error.c **** 
+ 101:../src/wolfcrypt/src/error.c ****     case MP_ZERO_E :
+ 102:../src/wolfcrypt/src/error.c ****         return "mp zero result, not expected";
+ 655                             		.loc 1 102 16
+ 656 00d7 FB 52 66 02 00 00       		mov.L	#.LC20, r5
+ 657 00dd 38 63 05                		bra	.L179
+ 658                             	.L25:
+ 103:../src/wolfcrypt/src/error.c **** 
+ 104:../src/wolfcrypt/src/error.c ****     case MEMORY_E :
+ 105:../src/wolfcrypt/src/error.c ****         return "out of memory error";
+ 659                             		.loc 1 105 16
+ 660 00e0 FB 52 83 02 00 00       		mov.L	#.LC21, r5
+ 661 00e6 38 5A 05                		bra	.L179
+ 662                             	.L26:
+ 106:../src/wolfcrypt/src/error.c **** 
+ 107:../src/wolfcrypt/src/error.c ****     case VAR_STATE_CHANGE_E :
+ 108:../src/wolfcrypt/src/error.c ****         return "Variable state modified by different thread";
+ 663                             		.loc 1 108 16
+ 664 00e9 FB 52 97 02 00 00       		mov.L	#.LC22, r5
+ 665 00ef 38 51 05                		bra	.L179
+ 666                             	.L27:
+ 109:../src/wolfcrypt/src/error.c **** 
+ 110:../src/wolfcrypt/src/error.c ****     case RSA_WRONG_TYPE_E :
+ 111:../src/wolfcrypt/src/error.c ****         return "RSA wrong block type for RSA function";
+ 667                             		.loc 1 111 16
+ 668 00f2 FB 52 C3 02 00 00       		mov.L	#.LC23, r5
+ 669 00f8 38 48 05                		bra	.L179
+ 670                             	.L28:
+ 112:../src/wolfcrypt/src/error.c **** 
+ 113:../src/wolfcrypt/src/error.c ****     case RSA_BUFFER_E :
+ 114:../src/wolfcrypt/src/error.c ****         return "RSA buffer error, output too small or input too big";
+ 671                             		.loc 1 114 16
+ 672 00fb FB 52 E9 02 00 00       		mov.L	#.LC24, r5
+ 673 0101 38 3F 05                		bra	.L179
+ 674                             	.L29:
+ 115:../src/wolfcrypt/src/error.c **** 
+ 116:../src/wolfcrypt/src/error.c ****     case BUFFER_E :
+ 117:../src/wolfcrypt/src/error.c ****         return "Buffer error, output too small or input too big";
+ 675                             		.loc 1 117 16
+ 676 0104 FB 52 1D 03 00 00       		mov.L	#.LC25, r5
+ 677 010a 38 36 05                		bra	.L179
+ 678                             	.L30:
+ 118:../src/wolfcrypt/src/error.c **** 
+ 119:../src/wolfcrypt/src/error.c ****     case ALGO_ID_E :
+ 120:../src/wolfcrypt/src/error.c ****         return "Setting Cert AlgoID error";
+ 679                             		.loc 1 120 16
+ 680 010d FB 52 4D 03 00 00       		mov.L	#.LC26, r5
+ 681 0113 38 2D 05                		bra	.L179
+ 682                             	.L31:
+ 121:../src/wolfcrypt/src/error.c **** 
+ 122:../src/wolfcrypt/src/error.c ****     case PUBLIC_KEY_E :
+ 123:../src/wolfcrypt/src/error.c ****         return "Setting Cert Public Key error";
+ 683                             		.loc 1 123 16
+ 684 0116 FB 52 67 03 00 00       		mov.L	#.LC27, r5
+ 685 011c 38 24 05                		bra	.L179
+ 686                             	.L32:
+ 124:../src/wolfcrypt/src/error.c **** 
+ 125:../src/wolfcrypt/src/error.c ****     case DATE_E :
+ 126:../src/wolfcrypt/src/error.c ****         return "Setting Cert Date validity error";
+ 687                             		.loc 1 126 16
+ 688 011f FB 52 85 03 00 00       		mov.L	#.LC28, r5
+ 689 0125 38 1B 05                		bra	.L179
+ 690                             	.L33:
+ 127:../src/wolfcrypt/src/error.c **** 
+ 128:../src/wolfcrypt/src/error.c ****     case SUBJECT_E :
+ 129:../src/wolfcrypt/src/error.c ****         return "Setting Cert Subject name error";
+ 691                             		.loc 1 129 16
+ 692 0128 FB 52 A6 03 00 00       		mov.L	#.LC29, r5
+ 693 012e 38 12 05                		bra	.L179
+ 694                             	.L34:
+ 130:../src/wolfcrypt/src/error.c **** 
+ 131:../src/wolfcrypt/src/error.c ****     case ISSUER_E :
+ 132:../src/wolfcrypt/src/error.c ****         return "Setting Cert Issuer name error";
+ 695                             		.loc 1 132 16
+ 696 0131 FB 52 C6 03 00 00       		mov.L	#.LC30, r5
+ 697 0137 38 09 05                		bra	.L179
+ 698                             	.L35:
+ 133:../src/wolfcrypt/src/error.c **** 
+ 134:../src/wolfcrypt/src/error.c ****     case CA_TRUE_E :
+ 135:../src/wolfcrypt/src/error.c ****         return "Setting basic constraint CA true error";
+ 699                             		.loc 1 135 16
+ 700 013a FB 52 E5 03 00 00       		mov.L	#.LC31, r5
+ 701 0140 38 00 05                		bra	.L179
+ 702                             	.L36:
+ 136:../src/wolfcrypt/src/error.c **** 
+ 137:../src/wolfcrypt/src/error.c ****     case EXTENSIONS_E :
+ 138:../src/wolfcrypt/src/error.c ****         return "Setting extensions error";
+ 703                             		.loc 1 138 16
+ 704 0143 FB 52 0C 04 00 00       		mov.L	#.LC32, r5
+ 705 0149 38 F7 04                		bra	.L179
+ 706                             	.L37:
+ 139:../src/wolfcrypt/src/error.c **** 
+ 140:../src/wolfcrypt/src/error.c ****     case ASN_PARSE_E :
+ 141:../src/wolfcrypt/src/error.c ****         return "ASN parsing error, invalid input";
+ 707                             		.loc 1 141 16
+ 708 014c FB 52 25 04 00 00       		mov.L	#.LC33, r5
+ 709 0152 38 EE 04                		bra	.L179
+ 710                             	.L38:
+ 142:../src/wolfcrypt/src/error.c **** 
+ 143:../src/wolfcrypt/src/error.c ****     case ASN_VERSION_E :
+ 144:../src/wolfcrypt/src/error.c ****         return "ASN version error, invalid number";
+ 711                             		.loc 1 144 16
+ 712 0155 FB 52 46 04 00 00       		mov.L	#.LC34, r5
+ 713 015b 38 E5 04                		bra	.L179
+ 714                             	.L39:
+ 145:../src/wolfcrypt/src/error.c **** 
+ 146:../src/wolfcrypt/src/error.c ****     case ASN_GETINT_E :
+ 147:../src/wolfcrypt/src/error.c ****         return "ASN get big int error, invalid data";
+ 715                             		.loc 1 147 16
+ 716 015e FB 52 68 04 00 00       		mov.L	#.LC35, r5
+ 717 0164 38 DC 04                		bra	.L179
+ 718                             	.L40:
+ 148:../src/wolfcrypt/src/error.c **** 
+ 149:../src/wolfcrypt/src/error.c ****     case ASN_RSA_KEY_E :
+ 150:../src/wolfcrypt/src/error.c ****         return "ASN key init error, invalid input";
+ 719                             		.loc 1 150 16
+ 720 0167 FB 52 8C 04 00 00       		mov.L	#.LC36, r5
+ 721 016d 38 D3 04                		bra	.L179
+ 722                             	.L41:
+ 151:../src/wolfcrypt/src/error.c **** 
+ 152:../src/wolfcrypt/src/error.c ****     case ASN_OBJECT_ID_E :
+ 153:../src/wolfcrypt/src/error.c ****         return "ASN object id error, invalid id";
+ 723                             		.loc 1 153 16
+ 724 0170 FB 52 AE 04 00 00       		mov.L	#.LC37, r5
+ 725 0176 38 CA 04                		bra	.L179
+ 726                             	.L42:
+ 154:../src/wolfcrypt/src/error.c **** 
+ 155:../src/wolfcrypt/src/error.c ****     case ASN_TAG_NULL_E :
+ 156:../src/wolfcrypt/src/error.c ****         return "ASN tag error, not null";
+ 727                             		.loc 1 156 16
+ 728 0179 FB 52 CE 04 00 00       		mov.L	#.LC38, r5
+ 729 017f 38 C1 04                		bra	.L179
+ 730                             	.L43:
+ 157:../src/wolfcrypt/src/error.c **** 
+ 158:../src/wolfcrypt/src/error.c ****     case ASN_EXPECT_0_E :
+ 159:../src/wolfcrypt/src/error.c ****         return "ASN expect error, not zero";
+ 731                             		.loc 1 159 16
+ 732 0182 FB 52 E6 04 00 00       		mov.L	#.LC39, r5
+ 733 0188 38 B8 04                		bra	.L179
+ 734                             	.L44:
+ 160:../src/wolfcrypt/src/error.c **** 
+ 161:../src/wolfcrypt/src/error.c ****     case ASN_BITSTR_E :
+ 162:../src/wolfcrypt/src/error.c ****         return "ASN bit string error, wrong id";
+ 735                             		.loc 1 162 16
+ 736 018b FB 52 01 05 00 00       		mov.L	#.LC40, r5
+ 737 0191 38 AF 04                		bra	.L179
+ 738                             	.L45:
+ 163:../src/wolfcrypt/src/error.c **** 
+ 164:../src/wolfcrypt/src/error.c ****     case ASN_UNKNOWN_OID_E :
+ 165:../src/wolfcrypt/src/error.c ****         return "ASN oid error, unknown sum id";
+ 739                             		.loc 1 165 16
+ 740 0194 FB 52 20 05 00 00       		mov.L	#.LC41, r5
+ 741 019a 38 A6 04                		bra	.L179
+ 742                             	.L46:
+ 166:../src/wolfcrypt/src/error.c **** 
+ 167:../src/wolfcrypt/src/error.c ****     case ASN_DATE_SZ_E :
+ 168:../src/wolfcrypt/src/error.c ****         return "ASN date error, bad size";
+ 743                             		.loc 1 168 16
+ 744 019d FB 52 3E 05 00 00       		mov.L	#.LC42, r5
+ 745 01a3 38 9D 04                		bra	.L179
+ 746                             	.L47:
+ 169:../src/wolfcrypt/src/error.c **** 
+ 170:../src/wolfcrypt/src/error.c ****     case ASN_BEFORE_DATE_E :
+ 171:../src/wolfcrypt/src/error.c ****         return "ASN date error, current date before";
+ 747                             		.loc 1 171 16
+ 748 01a6 FB 52 57 05 00 00       		mov.L	#.LC43, r5
+ 749 01ac 38 94 04                		bra	.L179
+ 750                             	.L48:
+ 172:../src/wolfcrypt/src/error.c **** 
+ 173:../src/wolfcrypt/src/error.c ****     case ASN_AFTER_DATE_E :
+ 174:../src/wolfcrypt/src/error.c ****         return "ASN date error, current date after";
+ 751                             		.loc 1 174 16
+ 752 01af FB 52 7B 05 00 00       		mov.L	#.LC44, r5
+ 753 01b5 38 8B 04                		bra	.L179
+ 754                             	.L49:
+ 175:../src/wolfcrypt/src/error.c **** 
+ 176:../src/wolfcrypt/src/error.c ****     case ASN_SIG_OID_E :
+ 177:../src/wolfcrypt/src/error.c ****         return "ASN signature error, mismatched oid";
+ 755                             		.loc 1 177 16
+ 756 01b8 FB 52 9E 05 00 00       		mov.L	#.LC45, r5
+ 757 01be 38 82 04                		bra	.L179
+ 758                             	.L50:
+ 178:../src/wolfcrypt/src/error.c **** 
+ 179:../src/wolfcrypt/src/error.c ****     case ASN_TIME_E :
+ 180:../src/wolfcrypt/src/error.c ****         return "ASN time error, unknown time type";
+ 759                             		.loc 1 180 16
+ 760 01c1 FB 52 C2 05 00 00       		mov.L	#.LC46, r5
+ 761 01c7 38 79 04                		bra	.L179
+ 762                             	.L51:
+ 181:../src/wolfcrypt/src/error.c **** 
+ 182:../src/wolfcrypt/src/error.c ****     case ASN_INPUT_E :
+ 183:../src/wolfcrypt/src/error.c ****         return "ASN input error, not enough data";
+ 763                             		.loc 1 183 16
+ 764 01ca FB 52 E4 05 00 00       		mov.L	#.LC47, r5
+ 765 01d0 38 70 04                		bra	.L179
+ 766                             	.L52:
+ 184:../src/wolfcrypt/src/error.c **** 
+ 185:../src/wolfcrypt/src/error.c ****     case ASN_SIG_CONFIRM_E :
+ 186:../src/wolfcrypt/src/error.c ****         return "ASN sig error, confirm failure";
+ 767                             		.loc 1 186 16
+ 768 01d3 FB 52 05 06 00 00       		mov.L	#.LC48, r5
+ 769 01d9 38 67 04                		bra	.L179
+ 770                             	.L53:
+ 187:../src/wolfcrypt/src/error.c **** 
+ 188:../src/wolfcrypt/src/error.c ****     case ASN_SIG_HASH_E :
+ 189:../src/wolfcrypt/src/error.c ****         return "ASN sig error, unsupported hash type";
+ 771                             		.loc 1 189 16
+ 772 01dc FB 52 24 06 00 00       		mov.L	#.LC49, r5
+ 773 01e2 38 5E 04                		bra	.L179
+ 774                             	.L54:
+ 190:../src/wolfcrypt/src/error.c **** 
+ 191:../src/wolfcrypt/src/error.c ****     case ASN_SIG_KEY_E :
+ 192:../src/wolfcrypt/src/error.c ****         return "ASN sig error, unsupported key type";
+ 775                             		.loc 1 192 16
+ 776 01e5 FB 52 49 06 00 00       		mov.L	#.LC50, r5
+ 777 01eb 38 55 04                		bra	.L179
+ 778                             	.L55:
+ 193:../src/wolfcrypt/src/error.c **** 
+ 194:../src/wolfcrypt/src/error.c ****     case ASN_DH_KEY_E :
+ 195:../src/wolfcrypt/src/error.c ****         return "ASN key init error, invalid input";
+ 779                             		.loc 1 195 16
+ 780 01ee FB 52 8C 04 00 00       		mov.L	#.LC36, r5
+ 781 01f4 38 4C 04                		bra	.L179
+ 782                             	.L56:
+ 196:../src/wolfcrypt/src/error.c **** 
+ 197:../src/wolfcrypt/src/error.c ****     case ASN_CRIT_EXT_E:
+ 198:../src/wolfcrypt/src/error.c ****         return "X.509 Critical extension ignored or invalid";
+ 783                             		.loc 1 198 16
+ 784 01f7 FB 52 6D 06 00 00       		mov.L	#.LC51, r5
+ 785 01fd 38 43 04                		bra	.L179
+ 786                             	.L57:
+ 199:../src/wolfcrypt/src/error.c **** 
+ 200:../src/wolfcrypt/src/error.c ****     case ASN_ALT_NAME_E:
+ 201:../src/wolfcrypt/src/error.c ****         return "ASN alternate name error";
+ 787                             		.loc 1 201 16
+ 788 0200 FB 52 99 06 00 00       		mov.L	#.LC52, r5
+ 789 0206 38 3A 04                		bra	.L179
+ 790                             	.L59:
+ 202:../src/wolfcrypt/src/error.c **** 
+ 203:../src/wolfcrypt/src/error.c ****     case ECC_BAD_ARG_E :
+ 204:../src/wolfcrypt/src/error.c ****         return "ECC input argument wrong type, invalid input";
+ 791                             		.loc 1 204 16
+ 792 0209 FB 52 B2 06 00 00       		mov.L	#.LC53, r5
+ 793 020f 38 31 04                		bra	.L179
+ 794                             	.L60:
+ 205:../src/wolfcrypt/src/error.c **** 
+ 206:../src/wolfcrypt/src/error.c ****     case ASN_ECC_KEY_E :
+ 207:../src/wolfcrypt/src/error.c ****         return "ECC ASN1 bad key data, invalid input";
+ 795                             		.loc 1 207 16
+ 796 0212 FB 52 DF 06 00 00       		mov.L	#.LC54, r5
+ 797 0218 38 28 04                		bra	.L179
+ 798                             	.L61:
+ 208:../src/wolfcrypt/src/error.c **** 
+ 209:../src/wolfcrypt/src/error.c ****     case ECC_CURVE_OID_E :
+ 210:../src/wolfcrypt/src/error.c ****         return "ECC curve sum OID unsupported, invalid input";
+ 799                             		.loc 1 210 16
+ 800 021b FB 52 04 07 00 00       		mov.L	#.LC55, r5
+ 801 0221 38 1F 04                		bra	.L179
+ 802                             	.L62:
+ 211:../src/wolfcrypt/src/error.c **** 
+ 212:../src/wolfcrypt/src/error.c ****     case BAD_FUNC_ARG :
+ 213:../src/wolfcrypt/src/error.c ****         return "Bad function argument";
+ 803                             		.loc 1 213 16
+ 804 0224 FB 52 31 07 00 00       		mov.L	#.LC56, r5
+ 805 022a 38 16 04                		bra	.L179
+ 806                             	.L63:
+ 214:../src/wolfcrypt/src/error.c **** 
+ 215:../src/wolfcrypt/src/error.c ****     case NOT_COMPILED_IN :
+ 216:../src/wolfcrypt/src/error.c ****         return "Feature not compiled in";
+ 807                             		.loc 1 216 16
+ 808 022d FB 52 47 07 00 00       		mov.L	#.LC57, r5
+ 809 0233 38 0D 04                		bra	.L179
+ 810                             	.L64:
+ 217:../src/wolfcrypt/src/error.c **** 
+ 218:../src/wolfcrypt/src/error.c ****     case UNICODE_SIZE_E :
+ 219:../src/wolfcrypt/src/error.c ****         return "Unicode password too big";
+ 811                             		.loc 1 219 16
+ 812 0236 FB 52 5F 07 00 00       		mov.L	#.LC58, r5
+ 813 023c 38 04 04                		bra	.L179
+ 814                             	.L65:
+ 220:../src/wolfcrypt/src/error.c **** 
+ 221:../src/wolfcrypt/src/error.c ****     case NO_PASSWORD :
+ 222:../src/wolfcrypt/src/error.c ****         return "No password provided by user";
+ 815                             		.loc 1 222 16
+ 816 023f FB 52 78 07 00 00       		mov.L	#.LC59, r5
+ 817 0245 38 FB 03                		bra	.L179
+ 818                             	.L66:
+ 223:../src/wolfcrypt/src/error.c **** 
+ 224:../src/wolfcrypt/src/error.c ****     case ALT_NAME_E :
+ 225:../src/wolfcrypt/src/error.c ****         return "Alt Name problem, too big";
+ 819                             		.loc 1 225 16
+ 820 0248 FB 52 95 07 00 00       		mov.L	#.LC60, r5
+ 821 024e 38 F2 03                		bra	.L179
+ 822                             	.L69:
+ 226:../src/wolfcrypt/src/error.c **** 
+ 227:../src/wolfcrypt/src/error.c ****     case AES_GCM_AUTH_E:
+ 228:../src/wolfcrypt/src/error.c ****         return "AES-GCM Authentication check fail";
+ 823                             		.loc 1 228 16
+ 824 0251 FB 52 AF 07 00 00       		mov.L	#.LC61, r5
+ 825 0257 38 E9 03                		bra	.L179
+ 826                             	.L70:
+ 229:../src/wolfcrypt/src/error.c **** 
+ 230:../src/wolfcrypt/src/error.c ****     case AES_CCM_AUTH_E:
+ 231:../src/wolfcrypt/src/error.c ****         return "AES-CCM Authentication check fail";
+ 827                             		.loc 1 231 16
+ 828 025a FB 52 D1 07 00 00       		mov.L	#.LC62, r5
+ 829 0260 38 E0 03                		bra	.L179
+ 830                             	.L177:
+ 232:../src/wolfcrypt/src/error.c **** 
+ 233:../src/wolfcrypt/src/error.c ****     case AES_SIV_AUTH_E:
+ 234:../src/wolfcrypt/src/error.c ****         return "AES-SIV authentication failure";
+ 831                             		.loc 1 234 16
+ 832 0263 FB 52 F3 07 00 00       		mov.L	#.LC63, r5
+ 833 0269 38 D7 03                		bra	.L179
+ 834                             	.L71:
+ 235:../src/wolfcrypt/src/error.c **** 
+ 236:../src/wolfcrypt/src/error.c ****     case ASYNC_INIT_E:
+ 237:../src/wolfcrypt/src/error.c ****         return "Async Init error";
+ 835                             		.loc 1 237 16
+ 836 026c FB 52 12 08 00 00       		mov.L	#.LC64, r5
+ 837 0272 38 CE 03                		bra	.L179
+ 838                             	.L72:
+ 238:../src/wolfcrypt/src/error.c **** 
+ 239:../src/wolfcrypt/src/error.c ****     case COMPRESS_INIT_E:
+ 240:../src/wolfcrypt/src/error.c ****         return "Compress Init error";
+ 839                             		.loc 1 240 16
+ 840 0275 FB 52 23 08 00 00       		mov.L	#.LC65, r5
+ 841 027b 38 C5 03                		bra	.L179
+ 842                             	.L73:
+ 241:../src/wolfcrypt/src/error.c **** 
+ 242:../src/wolfcrypt/src/error.c ****     case COMPRESS_E:
+ 243:../src/wolfcrypt/src/error.c ****         return "Compress error";
+ 843                             		.loc 1 243 16
+ 844 027e FB 52 37 08 00 00       		mov.L	#.LC66, r5
+ 845 0284 38 BC 03                		bra	.L179
+ 846                             	.L74:
+ 244:../src/wolfcrypt/src/error.c **** 
+ 245:../src/wolfcrypt/src/error.c ****     case DECOMPRESS_INIT_E:
+ 246:../src/wolfcrypt/src/error.c ****         return "DeCompress Init error";
+ 847                             		.loc 1 246 16
+ 848 0287 FB 52 46 08 00 00       		mov.L	#.LC67, r5
+ 849 028d 38 B3 03                		bra	.L179
+ 850                             	.L75:
+ 247:../src/wolfcrypt/src/error.c **** 
+ 248:../src/wolfcrypt/src/error.c ****     case DECOMPRESS_E:
+ 249:../src/wolfcrypt/src/error.c ****         return "DeCompress error";
+ 851                             		.loc 1 249 16
+ 852 0290 FB 52 5C 08 00 00       		mov.L	#.LC68, r5
+ 853 0296 38 AA 03                		bra	.L179
+ 854                             	.L76:
+ 250:../src/wolfcrypt/src/error.c **** 
+ 251:../src/wolfcrypt/src/error.c ****     case BAD_ALIGN_E:
+ 252:../src/wolfcrypt/src/error.c ****         return "Bad alignment error, no alloc help";
+ 855                             		.loc 1 252 16
+ 856 0299 FB 52 6D 08 00 00       		mov.L	#.LC69, r5
+ 857 029f 38 A1 03                		bra	.L179
+ 858                             	.L77:
+ 253:../src/wolfcrypt/src/error.c **** 
+ 254:../src/wolfcrypt/src/error.c ****     case ASN_NO_SIGNER_E :
+ 255:../src/wolfcrypt/src/error.c **** #ifndef OPENSSL_EXTRA
+ 256:../src/wolfcrypt/src/error.c ****         return "ASN no signer error to confirm failure";
+ 859                             		.loc 1 256 16
+ 860 02a2 FB 52 90 08 00 00       		mov.L	#.LC70, r5
+ 861 02a8 38 98 03                		bra	.L179
+ 862                             	.L78:
+ 257:../src/wolfcrypt/src/error.c **** #else
+ 258:../src/wolfcrypt/src/error.c ****         return "certificate verify failed";
+ 259:../src/wolfcrypt/src/error.c **** #endif
+ 260:../src/wolfcrypt/src/error.c **** 
+ 261:../src/wolfcrypt/src/error.c ****     case ASN_CRL_CONFIRM_E :
+ 262:../src/wolfcrypt/src/error.c ****         return "ASN CRL sig error, confirm failure";
+ 863                             		.loc 1 262 16
+ 864 02ab FB 52 B7 08 00 00       		mov.L	#.LC71, r5
+ 865 02b1 38 8F 03                		bra	.L179
+ 866                             	.L79:
+ 263:../src/wolfcrypt/src/error.c **** 
+ 264:../src/wolfcrypt/src/error.c ****     case ASN_CRL_NO_SIGNER_E :
+ 265:../src/wolfcrypt/src/error.c ****         return "ASN CRL no signer error to confirm failure";
+ 867                             		.loc 1 265 16
+ 868 02b4 FB 52 DA 08 00 00       		mov.L	#.LC72, r5
+ 869 02ba 38 86 03                		bra	.L179
+ 870                             	.L68:
+ 266:../src/wolfcrypt/src/error.c **** 
+ 267:../src/wolfcrypt/src/error.c ****     case CRL_CERT_DATE_ERR:
+ 268:../src/wolfcrypt/src/error.c ****         return "CRL date error";
+ 871                             		.loc 1 268 16
+ 872 02bd FB 52 05 09 00 00       		mov.L	#.LC73, r5
+ 873 02c3 38 7D 03                		bra	.L179
+ 874                             	.L80:
+ 269:../src/wolfcrypt/src/error.c **** 
+ 270:../src/wolfcrypt/src/error.c ****     case ASN_OCSP_CONFIRM_E :
+ 271:../src/wolfcrypt/src/error.c ****         return "ASN OCSP sig error, confirm failure";
+ 875                             		.loc 1 271 16
+ 876 02c6 FB 52 14 09 00 00       		mov.L	#.LC74, r5
+ 877 02cc 38 74 03                		bra	.L179
+ 878                             	.L58:
+ 272:../src/wolfcrypt/src/error.c **** 
+ 273:../src/wolfcrypt/src/error.c ****     case ASN_NO_PEM_HEADER:
+ 274:../src/wolfcrypt/src/error.c ****         return "ASN no PEM Header Error";
+ 879                             		.loc 1 274 16
+ 880 02cf FB 52 38 09 00 00       		mov.L	#.LC75, r5
+ 881 02d5 38 6B 03                		bra	.L179
+ 882                             	.L81:
+ 275:../src/wolfcrypt/src/error.c **** 
+ 276:../src/wolfcrypt/src/error.c ****     case BAD_STATE_E:
+ 277:../src/wolfcrypt/src/error.c ****         return "Bad state operation";
+ 883                             		.loc 1 277 16
+ 884 02d8 FB 52 50 09 00 00       		mov.L	#.LC76, r5
+ 885 02de 38 62 03                		bra	.L179
+ 886                             	.L82:
+ 278:../src/wolfcrypt/src/error.c **** 
+ 279:../src/wolfcrypt/src/error.c ****     case BAD_PADDING_E:
+ 280:../src/wolfcrypt/src/error.c ****         return "Bad padding, message wrong length";
+ 887                             		.loc 1 280 16
+ 888 02e1 FB 52 64 09 00 00       		mov.L	#.LC77, r5
+ 889 02e7 38 59 03                		bra	.L179
+ 890                             	.L83:
+ 281:../src/wolfcrypt/src/error.c **** 
+ 282:../src/wolfcrypt/src/error.c ****     case REQ_ATTRIBUTE_E:
+ 283:../src/wolfcrypt/src/error.c ****         return "Setting cert request attributes error";
+ 891                             		.loc 1 283 16
+ 892 02ea FB 52 86 09 00 00       		mov.L	#.LC78, r5
+ 893 02f0 38 50 03                		bra	.L179
+ 894                             	.L84:
+ 284:../src/wolfcrypt/src/error.c **** 
+ 285:../src/wolfcrypt/src/error.c ****     case PKCS7_OID_E:
+ 286:../src/wolfcrypt/src/error.c ****         return "PKCS#7 error: mismatched OID value";
+ 895                             		.loc 1 286 16
+ 896 02f3 FB 52 AC 09 00 00       		mov.L	#.LC79, r5
+ 897 02f9 38 47 03                		bra	.L179
+ 898                             	.L85:
+ 287:../src/wolfcrypt/src/error.c **** 
+ 288:../src/wolfcrypt/src/error.c ****     case PKCS7_RECIP_E:
+ 289:../src/wolfcrypt/src/error.c ****         return "PKCS#7 error: no matching recipient found";
+ 899                             		.loc 1 289 16
+ 900 02fc FB 52 CF 09 00 00       		mov.L	#.LC80, r5
+ 901 0302 38 3E 03                		bra	.L179
+ 902                             	.L158:
+ 290:../src/wolfcrypt/src/error.c **** 
+ 291:../src/wolfcrypt/src/error.c ****     case WC_PKCS7_WANT_READ_E:
+ 292:../src/wolfcrypt/src/error.c ****         return "PKCS#7 operations wants more input, call again";
+ 903                             		.loc 1 292 16
+ 904 0305 FB 52 F9 09 00 00       		mov.L	#.LC81, r5
+ 905 030b 38 35 03                		bra	.L179
+ 906                             	.L86:
+ 293:../src/wolfcrypt/src/error.c **** 
+ 294:../src/wolfcrypt/src/error.c ****     case FIPS_NOT_ALLOWED_E:
+ 295:../src/wolfcrypt/src/error.c ****         return "FIPS mode not allowed error";
+ 907                             		.loc 1 295 16
+ 908 030e FB 52 28 0A 00 00       		mov.L	#.LC82, r5
+ 909 0314 38 2C 03                		bra	.L179
+ 910                             	.L87:
+ 296:../src/wolfcrypt/src/error.c **** 
+ 297:../src/wolfcrypt/src/error.c ****     case ASN_NAME_INVALID_E:
+ 298:../src/wolfcrypt/src/error.c ****         return "Name Constraint error";
+ 911                             		.loc 1 298 16
+ 912 0317 FB 52 44 0A 00 00       		mov.L	#.LC83, r5
+ 913 031d 38 23 03                		bra	.L179
+ 914                             	.L88:
+ 299:../src/wolfcrypt/src/error.c **** 
+ 300:../src/wolfcrypt/src/error.c ****     case RNG_FAILURE_E:
+ 301:../src/wolfcrypt/src/error.c ****         return "Random Number Generator failed";
+ 915                             		.loc 1 301 16
+ 916 0320 FB 52 5A 0A 00 00       		mov.L	#.LC84, r5
+ 917 0326 38 1A 03                		bra	.L179
+ 918                             	.L89:
+ 302:../src/wolfcrypt/src/error.c **** 
+ 303:../src/wolfcrypt/src/error.c ****     case HMAC_MIN_KEYLEN_E:
+ 304:../src/wolfcrypt/src/error.c ****         return "FIPS Mode HMAC Minimum Key Length error";
+ 919                             		.loc 1 304 16
+ 920 0329 FB 52 79 0A 00 00       		mov.L	#.LC85, r5
+ 921 032f 38 11 03                		bra	.L179
+ 922                             	.L90:
+ 305:../src/wolfcrypt/src/error.c **** 
+ 306:../src/wolfcrypt/src/error.c ****     case RSA_PAD_E:
+ 307:../src/wolfcrypt/src/error.c ****         return "Rsa Padding error";
+ 923                             		.loc 1 307 16
+ 924 0332 FB 52 A1 0A 00 00       		mov.L	#.LC86, r5
+ 925 0338 38 08 03                		bra	.L179
+ 926                             	.L91:
+ 308:../src/wolfcrypt/src/error.c **** 
+ 309:../src/wolfcrypt/src/error.c ****     case LENGTH_ONLY_E:
+ 310:../src/wolfcrypt/src/error.c ****         return "Output length only set, not for other use error";
+ 927                             		.loc 1 310 16
+ 928 033b FB 52 B3 0A 00 00       		mov.L	#.LC87, r5
+ 929 0341 38 FF 02                		bra	.L179
+ 930                             	.L92:
+ 311:../src/wolfcrypt/src/error.c **** 
+ 312:../src/wolfcrypt/src/error.c ****     case IN_CORE_FIPS_E:
+ 313:../src/wolfcrypt/src/error.c ****         return "In Core Integrity check FIPS error";
+ 931                             		.loc 1 313 16
+ 932 0344 FB 52 E3 0A 00 00       		mov.L	#.LC88, r5
+ 933 034a 38 F6 02                		bra	.L179
+ 934                             	.L93:
+ 314:../src/wolfcrypt/src/error.c **** 
+ 315:../src/wolfcrypt/src/error.c ****     case AES_KAT_FIPS_E:
+ 316:../src/wolfcrypt/src/error.c ****         return "AES Known Answer Test check FIPS error";
+ 935                             		.loc 1 316 16
+ 936 034d FB 52 06 0B 00 00       		mov.L	#.LC89, r5
+ 937 0353 38 ED 02                		bra	.L179
+ 938                             	.L94:
+ 317:../src/wolfcrypt/src/error.c **** 
+ 318:../src/wolfcrypt/src/error.c ****     case DES3_KAT_FIPS_E:
+ 319:../src/wolfcrypt/src/error.c ****         return "DES3 Known Answer Test check FIPS error";
+ 939                             		.loc 1 319 16
+ 940 0356 FB 52 2D 0B 00 00       		mov.L	#.LC90, r5
+ 941 035c 38 E4 02                		bra	.L179
+ 942                             	.L95:
+ 320:../src/wolfcrypt/src/error.c **** 
+ 321:../src/wolfcrypt/src/error.c ****     case HMAC_KAT_FIPS_E:
+ 322:../src/wolfcrypt/src/error.c ****         return "HMAC Known Answer Test check FIPS error";
+ 943                             		.loc 1 322 16
+ 944 035f FB 52 55 0B 00 00       		mov.L	#.LC91, r5
+ 945 0365 38 DB 02                		bra	.L179
+ 946                             	.L96:
+ 323:../src/wolfcrypt/src/error.c **** 
+ 324:../src/wolfcrypt/src/error.c ****     case RSA_KAT_FIPS_E:
+ 325:../src/wolfcrypt/src/error.c ****         return "RSA Known Answer Test check FIPS error";
+ 947                             		.loc 1 325 16
+ 948 0368 FB 52 7D 0B 00 00       		mov.L	#.LC92, r5
+ 949 036e 38 D2 02                		bra	.L179
+ 950                             	.L97:
+ 326:../src/wolfcrypt/src/error.c **** 
+ 327:../src/wolfcrypt/src/error.c ****     case DRBG_KAT_FIPS_E:
+ 328:../src/wolfcrypt/src/error.c ****         return "DRBG Known Answer Test check FIPS error";
+ 951                             		.loc 1 328 16
+ 952 0371 FB 52 A4 0B 00 00       		mov.L	#.LC93, r5
+ 953 0377 38 C9 02                		bra	.L179
+ 954                             	.L98:
+ 329:../src/wolfcrypt/src/error.c **** 
+ 330:../src/wolfcrypt/src/error.c ****     case DRBG_CONT_FIPS_E:
+ 331:../src/wolfcrypt/src/error.c ****         return "DRBG Continuous Test FIPS error";
+ 955                             		.loc 1 331 16
+ 956 037a FB 52 CC 0B 00 00       		mov.L	#.LC94, r5
+ 957 0380 38 C0 02                		bra	.L179
+ 958                             	.L99:
+ 332:../src/wolfcrypt/src/error.c **** 
+ 333:../src/wolfcrypt/src/error.c ****     case AESGCM_KAT_FIPS_E:
+ 334:../src/wolfcrypt/src/error.c ****         return "AESGCM Known Answer Test check FIPS error";
+ 959                             		.loc 1 334 16
+ 960 0383 FB 52 EC 0B 00 00       		mov.L	#.LC95, r5
+ 961 0389 38 B7 02                		bra	.L179
+ 962                             	.L100:
+ 335:../src/wolfcrypt/src/error.c **** 
+ 336:../src/wolfcrypt/src/error.c ****     case THREAD_STORE_KEY_E:
+ 337:../src/wolfcrypt/src/error.c ****         return "Thread Storage Key Create error";
+ 963                             		.loc 1 337 16
+ 964 038c FB 52 16 0C 00 00       		mov.L	#.LC96, r5
+ 965 0392 38 AE 02                		bra	.L179
+ 966                             	.L101:
+ 338:../src/wolfcrypt/src/error.c **** 
+ 339:../src/wolfcrypt/src/error.c ****     case THREAD_STORE_SET_E:
+ 340:../src/wolfcrypt/src/error.c ****         return "Thread Storage Set error";
+ 967                             		.loc 1 340 16
+ 968 0395 FB 52 36 0C 00 00       		mov.L	#.LC97, r5
+ 969 039b 38 A5 02                		bra	.L179
+ 970                             	.L102:
+ 341:../src/wolfcrypt/src/error.c **** 
+ 342:../src/wolfcrypt/src/error.c ****     case MAC_CMP_FAILED_E:
+ 343:../src/wolfcrypt/src/error.c ****         return "MAC comparison failed";
+ 971                             		.loc 1 343 16
+ 972 039e FB 52 4F 0C 00 00       		mov.L	#.LC98, r5
+ 973 03a4 38 9C 02                		bra	.L179
+ 974                             	.L103:
+ 344:../src/wolfcrypt/src/error.c **** 
+ 345:../src/wolfcrypt/src/error.c ****     case IS_POINT_E:
+ 346:../src/wolfcrypt/src/error.c ****         return "ECC is point on curve failed";
+ 975                             		.loc 1 346 16
+ 976 03a7 FB 52 65 0C 00 00       		mov.L	#.LC99, r5
+ 977 03ad 38 93 02                		bra	.L179
+ 978                             	.L104:
+ 347:../src/wolfcrypt/src/error.c **** 
+ 348:../src/wolfcrypt/src/error.c ****     case ECC_INF_E:
+ 349:../src/wolfcrypt/src/error.c ****         return " ECC point at infinity error";
+ 979                             		.loc 1 349 16
+ 980 03b0 FB 52 82 0C 00 00       		mov.L	#.LC100, r5
+ 981 03b6 38 8A 02                		bra	.L179
+ 982                             	.L106:
+ 350:../src/wolfcrypt/src/error.c **** 
+ 351:../src/wolfcrypt/src/error.c ****     case ECC_OUT_OF_RANGE_E:
+ 352:../src/wolfcrypt/src/error.c ****         return " ECC Qx or Qy out of range error";
+ 983                             		.loc 1 352 16
+ 984 03b9 FB 52 9F 0C 00 00       		mov.L	#.LC101, r5
+ 985 03bf 38 81 02                		bra	.L179
+ 986                             	.L105:
+ 353:../src/wolfcrypt/src/error.c **** 
+ 354:../src/wolfcrypt/src/error.c ****     case ECC_PRIV_KEY_E:
+ 355:../src/wolfcrypt/src/error.c ****         return " ECC private key is not valid error";
+ 987                             		.loc 1 355 16
+ 988 03c2 FB 52 C0 0C 00 00       		mov.L	#.LC102, r5
+ 989 03c8 38 78 02                		bra	.L179
+ 990                             	.L107:
+ 356:../src/wolfcrypt/src/error.c **** 
+ 357:../src/wolfcrypt/src/error.c ****     case SRP_CALL_ORDER_E:
+ 358:../src/wolfcrypt/src/error.c ****         return "SRP function called in the wrong order error";
+ 991                             		.loc 1 358 16
+ 992 03cb FB 52 E4 0C 00 00       		mov.L	#.LC103, r5
+ 993 03d1 38 6F 02                		bra	.L179
+ 994                             	.L108:
+ 359:../src/wolfcrypt/src/error.c **** 
+ 360:../src/wolfcrypt/src/error.c ****     case SRP_VERIFY_E:
+ 361:../src/wolfcrypt/src/error.c ****         return "SRP proof verification error";
+ 995                             		.loc 1 361 16
+ 996 03d4 FB 52 11 0D 00 00       		mov.L	#.LC104, r5
+ 997 03da 38 66 02                		bra	.L179
+ 998                             	.L109:
+ 362:../src/wolfcrypt/src/error.c **** 
+ 363:../src/wolfcrypt/src/error.c ****     case SRP_BAD_KEY_E:
+ 364:../src/wolfcrypt/src/error.c ****         return "SRP bad key values error";
+ 999                             		.loc 1 364 16
+ 1000 03dd FB 52 2E 0D 00 00       		mov.L	#.LC105, r5
+ 1001 03e3 38 5D 02                		bra	.L179
+ 1002                             	.L110:
+ 365:../src/wolfcrypt/src/error.c **** 
+ 366:../src/wolfcrypt/src/error.c ****     case ASN_NO_SKID:
+ 367:../src/wolfcrypt/src/error.c ****         return "ASN no Subject Key Identifier found error";
+ 1003                             		.loc 1 367 16
+ 1004 03e6 FB 52 47 0D 00 00       		mov.L	#.LC106, r5
+ 1005 03ec 38 54 02                		bra	.L179
+ 1006                             	.L111:
+ 368:../src/wolfcrypt/src/error.c **** 
+ 369:../src/wolfcrypt/src/error.c ****     case ASN_NO_AKID:
+ 370:../src/wolfcrypt/src/error.c ****         return "ASN no Authority Key Identifier found error";
+ 1007                             		.loc 1 370 16
+ 1008 03ef FB 52 71 0D 00 00       		mov.L	#.LC107, r5
+ 1009 03f5 38 4B 02                		bra	.L179
+ 1010                             	.L112:
+ 371:../src/wolfcrypt/src/error.c **** 
+ 372:../src/wolfcrypt/src/error.c ****     case ASN_NO_KEYUSAGE:
+ 373:../src/wolfcrypt/src/error.c ****         return "ASN no Key Usage found error";
+ 1011                             		.loc 1 373 16
+ 1012 03f8 FB 52 9D 0D 00 00       		mov.L	#.LC108, r5
+ 1013 03fe 38 42 02                		bra	.L179
+ 1014                             	.L113:
+ 374:../src/wolfcrypt/src/error.c **** 
+ 375:../src/wolfcrypt/src/error.c ****     case SKID_E:
+ 376:../src/wolfcrypt/src/error.c ****         return "Setting Subject Key Identifier error";
+ 1015                             		.loc 1 376 16
+ 1016 0401 FB 52 BA 0D 00 00       		mov.L	#.LC109, r5
+ 1017 0407 38 39 02                		bra	.L179
+ 1018                             	.L114:
+ 377:../src/wolfcrypt/src/error.c **** 
+ 378:../src/wolfcrypt/src/error.c ****     case AKID_E:
+ 379:../src/wolfcrypt/src/error.c ****         return "Setting Authority Key Identifier error";
+ 1019                             		.loc 1 379 16
+ 1020 040a FB 52 DF 0D 00 00       		mov.L	#.LC110, r5
+ 1021 0410 38 30 02                		bra	.L179
+ 1022                             	.L115:
+ 380:../src/wolfcrypt/src/error.c **** 
+ 381:../src/wolfcrypt/src/error.c ****     case KEYUSAGE_E:
+ 382:../src/wolfcrypt/src/error.c ****         return "Key Usage value error";
+ 1023                             		.loc 1 382 16
+ 1024 0413 FB 52 06 0E 00 00       		mov.L	#.LC111, r5
+ 1025 0419 38 27 02                		bra	.L179
+ 1026                             	.L135:
+ 383:../src/wolfcrypt/src/error.c **** 
+ 384:../src/wolfcrypt/src/error.c ****     case EXTKEYUSAGE_E:
+ 385:../src/wolfcrypt/src/error.c ****         return "Extended Key Usage value error";
+ 1027                             		.loc 1 385 16
+ 1028 041c FB 52 1C 0E 00 00       		mov.L	#.LC112, r5
+ 1029 0422 38 1E 02                		bra	.L179
+ 1030                             	.L116:
+ 386:../src/wolfcrypt/src/error.c **** 
+ 387:../src/wolfcrypt/src/error.c ****     case CERTPOLICIES_E:
+ 388:../src/wolfcrypt/src/error.c ****         return "Setting Certificate Policies error";
+ 1031                             		.loc 1 388 16
+ 1032 0425 FB 52 3B 0E 00 00       		mov.L	#.LC113, r5
+ 1033 042b 38 15 02                		bra	.L179
+ 1034                             	.L117:
+ 389:../src/wolfcrypt/src/error.c **** 
+ 390:../src/wolfcrypt/src/error.c ****     case WC_INIT_E:
+ 391:../src/wolfcrypt/src/error.c ****         return "wolfCrypt Initialize Failure error";
+ 1035                             		.loc 1 391 16
+ 1036 042e FB 52 5E 0E 00 00       		mov.L	#.LC114, r5
+ 1037 0434 38 0C 02                		bra	.L179
+ 1038                             	.L118:
+ 392:../src/wolfcrypt/src/error.c **** 
+ 393:../src/wolfcrypt/src/error.c ****     case SIG_VERIFY_E:
+ 394:../src/wolfcrypt/src/error.c ****         return "Signature verify error";
+ 1039                             		.loc 1 394 16
+ 1040 0437 FB 52 81 0E 00 00       		mov.L	#.LC115, r5
+ 1041 043d 38 03 02                		bra	.L179
+ 1042                             	.L119:
+ 395:../src/wolfcrypt/src/error.c **** 
+ 396:../src/wolfcrypt/src/error.c ****     case BAD_COND_E:
+ 397:../src/wolfcrypt/src/error.c ****         return "Bad condition variable operation error";
+ 1043                             		.loc 1 397 16
+ 1044 0440 FB 52 98 0E 00 00       		mov.L	#.LC116, r5
+ 1045 0446 38 FA 01                		bra	.L179
+ 1046                             	.L120:
+ 398:../src/wolfcrypt/src/error.c **** 
+ 399:../src/wolfcrypt/src/error.c ****     case SIG_TYPE_E:
+ 400:../src/wolfcrypt/src/error.c ****         return "Signature type not enabled/available";
+ 1047                             		.loc 1 400 16
+ 1048 0449 FB 52 BF 0E 00 00       		mov.L	#.LC117, r5
+ 1049 044f 38 F1 01                		bra	.L179
+ 1050                             	.L121:
+ 401:../src/wolfcrypt/src/error.c **** 
+ 402:../src/wolfcrypt/src/error.c ****     case HASH_TYPE_E:
+ 403:../src/wolfcrypt/src/error.c ****         return "Hash type not enabled/available";
+ 1051                             		.loc 1 403 16
+ 1052 0452 FB 52 E4 0E 00 00       		mov.L	#.LC118, r5
+ 1053 0458 38 E8 01                		bra	.L179
+ 1054                             	.L122:
+ 404:../src/wolfcrypt/src/error.c **** 
+ 405:../src/wolfcrypt/src/error.c ****     case WC_KEY_SIZE_E:
+ 406:../src/wolfcrypt/src/error.c ****         return "Key size error, either too small or large";
+ 1055                             		.loc 1 406 16
+ 1056 045b FB 52 04 0F 00 00       		mov.L	#.LC119, r5
+ 1057 0461 38 DF 01                		bra	.L179
+ 1058                             	.L123:
+ 407:../src/wolfcrypt/src/error.c **** 
+ 408:../src/wolfcrypt/src/error.c ****     case ASN_COUNTRY_SIZE_E:
+ 409:../src/wolfcrypt/src/error.c ****         return "Country code size error, either too small or large";
+ 1059                             		.loc 1 409 16
+ 1060 0464 FB 52 2E 0F 00 00       		mov.L	#.LC120, r5
+ 1061 046a 38 D6 01                		bra	.L179
+ 1062                             	.L124:
+ 410:../src/wolfcrypt/src/error.c **** 
+ 411:../src/wolfcrypt/src/error.c ****     case MISSING_RNG_E:
+ 412:../src/wolfcrypt/src/error.c ****         return "RNG required but not provided";
+ 1063                             		.loc 1 412 16
+ 1064 046d FB 52 61 0F 00 00       		mov.L	#.LC121, r5
+ 1065 0473 38 CD 01                		bra	.L179
+ 1066                             	.L125:
+ 413:../src/wolfcrypt/src/error.c **** 
+ 414:../src/wolfcrypt/src/error.c ****     case ASN_PATHLEN_SIZE_E:
+ 415:../src/wolfcrypt/src/error.c ****         return "ASN CA path length value too large error";
+ 1067                             		.loc 1 415 16
+ 1068 0476 FB 52 7F 0F 00 00       		mov.L	#.LC122, r5
+ 1069 047c 38 C4 01                		bra	.L179
+ 1070                             	.L126:
+ 416:../src/wolfcrypt/src/error.c **** 
+ 417:../src/wolfcrypt/src/error.c ****     case ASN_PATHLEN_INV_E:
+ 418:../src/wolfcrypt/src/error.c ****         return "ASN CA path length larger than signer error";
+ 1071                             		.loc 1 418 16
+ 1072 047f FB 52 A8 0F 00 00       		mov.L	#.LC123, r5
+ 1073 0485 38 BB 01                		bra	.L179
+ 1074                             	.L127:
+ 419:../src/wolfcrypt/src/error.c **** 
+ 420:../src/wolfcrypt/src/error.c ****     case BAD_KEYWRAP_ALG_E:
+ 421:../src/wolfcrypt/src/error.c ****         return "Unsupported key wrap algorithm error";
+ 1075                             		.loc 1 421 16
+ 1076 0488 FB 52 D4 0F 00 00       		mov.L	#.LC124, r5
+ 1077 048e 38 B2 01                		bra	.L179
+ 1078                             	.L128:
+ 422:../src/wolfcrypt/src/error.c **** 
+ 423:../src/wolfcrypt/src/error.c ****     case BAD_KEYWRAP_IV_E:
+ 424:../src/wolfcrypt/src/error.c ****         return "Decrypted AES key wrap IV does not match expected";
+ 1079                             		.loc 1 424 16
+ 1080 0491 FB 52 F9 0F 00 00       		mov.L	#.LC125, r5
+ 1081 0497 38 A9 01                		bra	.L179
+ 1082                             	.L129:
+ 425:../src/wolfcrypt/src/error.c **** 
+ 426:../src/wolfcrypt/src/error.c ****     case WC_CLEANUP_E:
+ 427:../src/wolfcrypt/src/error.c ****         return "wolfcrypt cleanup failed";
+ 1083                             		.loc 1 427 16
+ 1084 049a FB 52 2B 10 00 00       		mov.L	#.LC126, r5
+ 1085 04a0 38 A0 01                		bra	.L179
+ 1086                             	.L130:
+ 428:../src/wolfcrypt/src/error.c **** 
+ 429:../src/wolfcrypt/src/error.c ****     case ECC_CDH_KAT_FIPS_E:
+ 430:../src/wolfcrypt/src/error.c ****         return "wolfcrypt FIPS ECC CDH Known Answer Test Failure";
+ 1087                             		.loc 1 430 16
+ 1088 04a3 FB 52 44 10 00 00       		mov.L	#.LC127, r5
+ 1089 04a9 38 97 01                		bra	.L179
+ 1090                             	.L131:
+ 431:../src/wolfcrypt/src/error.c **** 
+ 432:../src/wolfcrypt/src/error.c ****     case DH_CHECK_PUB_E:
+ 433:../src/wolfcrypt/src/error.c ****         return "DH Check Public Key failure";
+ 1091                             		.loc 1 433 16
+ 1092 04ac FB 52 75 10 00 00       		mov.L	#.LC128, r5
+ 1093 04b2 38 8E 01                		bra	.L179
+ 1094                             	.L132:
+ 434:../src/wolfcrypt/src/error.c **** 
+ 435:../src/wolfcrypt/src/error.c ****     case BAD_PATH_ERROR:
+ 436:../src/wolfcrypt/src/error.c ****         return "Bad path for opendir error";
+ 1095                             		.loc 1 436 16
+ 1096 04b5 FB 52 91 10 00 00       		mov.L	#.LC129, r5
+ 1097 04bb 38 85 01                		bra	.L179
+ 1098                             	.L133:
+ 437:../src/wolfcrypt/src/error.c **** 
+ 438:../src/wolfcrypt/src/error.c ****     case ASYNC_OP_E:
+ 439:../src/wolfcrypt/src/error.c ****         return "Async operation error";
+ 1099                             		.loc 1 439 16
+ 1100 04be FB 52 AC 10 00 00       		mov.L	#.LC130, r5
+ 1101 04c4 38 7C 01                		bra	.L179
+ 1102                             	.L67:
+ 440:../src/wolfcrypt/src/error.c **** 
+ 441:../src/wolfcrypt/src/error.c ****     case BAD_OCSP_RESPONDER:
+ 442:../src/wolfcrypt/src/error.c ****         return "Invalid OCSP Responder, missing specific key usage extensions";
+ 1103                             		.loc 1 442 16
+ 1104 04c7 FB 52 C2 10 00 00       		mov.L	#.LC131, r5
+ 1105 04cd 38 73 01                		bra	.L179
+ 1106                             	.L134:
+ 443:../src/wolfcrypt/src/error.c **** 
+ 444:../src/wolfcrypt/src/error.c ****     case ECC_PRIVATEONLY_E:
+ 445:../src/wolfcrypt/src/error.c ****         return "Invalid use of private only ECC key";
+ 1107                             		.loc 1 445 16
+ 1108 04d0 FB 52 00 11 00 00       		mov.L	#.LC132, r5
+ 1109 04d6 38 6A 01                		bra	.L179
+ 1110                             	.L136:
+ 446:../src/wolfcrypt/src/error.c **** 
+ 447:../src/wolfcrypt/src/error.c ****     case WC_HW_E:
+ 448:../src/wolfcrypt/src/error.c ****         return "Error with hardware crypto use";
+ 1111                             		.loc 1 448 16
+ 1112 04d9 FB 52 24 11 00 00       		mov.L	#.LC133, r5
+ 1113 04df 38 61 01                		bra	.L179
+ 1114                             	.L137:
+ 449:../src/wolfcrypt/src/error.c **** 
+ 450:../src/wolfcrypt/src/error.c ****     case WC_HW_WAIT_E:
+ 451:../src/wolfcrypt/src/error.c ****         return "Hardware waiting on resource";
+ 1115                             		.loc 1 451 16
+ 1116 04e2 FB 52 43 11 00 00       		mov.L	#.LC134, r5
+ 1117 04e8 38 58 01                		bra	.L179
+ 1118                             	.L138:
+ 452:../src/wolfcrypt/src/error.c **** 
+ 453:../src/wolfcrypt/src/error.c ****     case PSS_SALTLEN_E:
+ 454:../src/wolfcrypt/src/error.c ****         return "PSS - Length of salt is too big for hash algorithm";
+ 1119                             		.loc 1 454 16
+ 1120 04eb FB 52 60 11 00 00       		mov.L	#.LC135, r5
+ 1121 04f1 38 4F 01                		bra	.L179
+ 1122                             	.L139:
+ 455:../src/wolfcrypt/src/error.c **** 
+ 456:../src/wolfcrypt/src/error.c ****     case PRIME_GEN_E:
+ 457:../src/wolfcrypt/src/error.c ****         return "Unable to find a prime for RSA key";
+ 1123                             		.loc 1 457 16
+ 1124 04f4 FB 52 93 11 00 00       		mov.L	#.LC136, r5
+ 1125 04fa 38 46 01                		bra	.L179
+ 1126                             	.L140:
+ 458:../src/wolfcrypt/src/error.c **** 
+ 459:../src/wolfcrypt/src/error.c ****     case BER_INDEF_E:
+ 460:../src/wolfcrypt/src/error.c ****         return "Unable to decode an indefinite length encoded message";
+ 1127                             		.loc 1 460 16
+ 1128 04fd FB 52 B6 11 00 00       		mov.L	#.LC137, r5
+ 1129 0503 38 3D 01                		bra	.L179
+ 1130                             	.L141:
+ 461:../src/wolfcrypt/src/error.c **** 
+ 462:../src/wolfcrypt/src/error.c ****     case RSA_OUT_OF_RANGE_E:
+ 463:../src/wolfcrypt/src/error.c ****         return "Ciphertext to decrypt is out of range";
+ 1131                             		.loc 1 463 16
+ 1132 0506 FB 52 EC 11 00 00       		mov.L	#.LC138, r5
+ 1133 050c 38 34 01                		bra	.L179
+ 1134                             	.L142:
+ 464:../src/wolfcrypt/src/error.c **** 
+ 465:../src/wolfcrypt/src/error.c ****     case RSAPSS_PAT_FIPS_E:
+ 466:../src/wolfcrypt/src/error.c ****         return "wolfcrypt FIPS RSA-PSS Pairwise Agreement Test Failure";
+ 1135                             		.loc 1 466 16
+ 1136 050f FB 52 12 12 00 00       		mov.L	#.LC139, r5
+ 1137 0515 38 2B 01                		bra	.L179
+ 1138                             	.L143:
+ 467:../src/wolfcrypt/src/error.c **** 
+ 468:../src/wolfcrypt/src/error.c ****     case ECDSA_PAT_FIPS_E:
+ 469:../src/wolfcrypt/src/error.c ****         return "wolfcrypt FIPS ECDSA Pairwise Agreement Test Failure";
+ 1139                             		.loc 1 469 16
+ 1140 0518 FB 52 49 12 00 00       		mov.L	#.LC140, r5
+ 1141 051e 38 22 01                		bra	.L179
+ 1142                             	.L144:
+ 470:../src/wolfcrypt/src/error.c **** 
+ 471:../src/wolfcrypt/src/error.c ****     case DH_KAT_FIPS_E:
+ 472:../src/wolfcrypt/src/error.c ****         return "wolfcrypt FIPS DH Known Answer Test Failure";
+ 1143                             		.loc 1 472 16
+ 1144 0521 FB 52 7E 12 00 00       		mov.L	#.LC141, r5
+ 1145 0527 38 19 01                		bra	.L179
+ 1146                             	.L145:
+ 473:../src/wolfcrypt/src/error.c **** 
+ 474:../src/wolfcrypt/src/error.c ****     case AESCCM_KAT_FIPS_E:
+ 475:../src/wolfcrypt/src/error.c ****         return "AESCCM Known Answer Test check FIPS error";
+ 1147                             		.loc 1 475 16
+ 1148 052a FB 52 AA 12 00 00       		mov.L	#.LC142, r5
+ 1149 0530 38 10 01                		bra	.L179
+ 1150                             	.L146:
+ 476:../src/wolfcrypt/src/error.c **** 
+ 477:../src/wolfcrypt/src/error.c ****     case SHA3_KAT_FIPS_E:
+ 478:../src/wolfcrypt/src/error.c ****         return "SHA-3 Known Answer Test check FIPS error";
+ 1151                             		.loc 1 478 16
+ 1152 0533 FB 52 D4 12 00 00       		mov.L	#.LC143, r5
+ 1153 0539 38 07 01                		bra	.L179
+ 1154                             	.L147:
+ 479:../src/wolfcrypt/src/error.c **** 
+ 480:../src/wolfcrypt/src/error.c ****     case ECDHE_KAT_FIPS_E:
+ 481:../src/wolfcrypt/src/error.c ****         return "wolfcrypt FIPS ECDHE Known Answer Test Failure";
+ 1155                             		.loc 1 481 16
+ 1156 053c FB 52 FD 12 00 00       		mov.L	#.LC144, r5
+ 1157 0542 38 FE 00                		bra	.L179
+ 1158                             	.L148:
+ 482:../src/wolfcrypt/src/error.c **** 
+ 483:../src/wolfcrypt/src/error.c ****     case AES_GCM_OVERFLOW_E:
+ 484:../src/wolfcrypt/src/error.c ****         return "AES-GCM invocation counter overflow";
+ 1159                             		.loc 1 484 16
+ 1160 0545 FB 52 2C 13 00 00       		mov.L	#.LC145, r5
+ 1161 054b 38 F5 00                		bra	.L179
+ 1162                             	.L149:
+ 485:../src/wolfcrypt/src/error.c **** 
+ 486:../src/wolfcrypt/src/error.c ****     case AES_CCM_OVERFLOW_E:
+ 487:../src/wolfcrypt/src/error.c ****         return "AES-CCM invocation counter overflow";
+ 1163                             		.loc 1 487 16
+ 1164 054e FB 52 50 13 00 00       		mov.L	#.LC146, r5
+ 1165 0554 38 EC 00                		bra	.L179
+ 1166                             	.L150:
+ 488:../src/wolfcrypt/src/error.c **** 
+ 489:../src/wolfcrypt/src/error.c ****     case RSA_KEY_PAIR_E:
+ 490:../src/wolfcrypt/src/error.c ****         return "RSA Key Pair-Wise Consistency check fail";
+ 1167                             		.loc 1 490 16
+ 1168 0557 FB 52 74 13 00 00       		mov.L	#.LC147, r5
+ 1169 055d 38 E3 00                		bra	.L179
+ 1170                             	.L151:
+ 491:../src/wolfcrypt/src/error.c **** 
+ 492:../src/wolfcrypt/src/error.c ****     case DH_CHECK_PRIV_E:
+ 493:../src/wolfcrypt/src/error.c ****         return "DH Check Private Key failure";
+ 1171                             		.loc 1 493 16
+ 1172 0560 FB 52 9D 13 00 00       		mov.L	#.LC148, r5
+ 1173 0566 38 DA 00                		bra	.L179
+ 1174                             	.L152:
+ 494:../src/wolfcrypt/src/error.c **** 
+ 495:../src/wolfcrypt/src/error.c ****     case WC_AFALG_SOCK_E:
+ 496:../src/wolfcrypt/src/error.c ****         return "AF_ALG socket error";
+ 1175                             		.loc 1 496 16
+ 1176 0569 FB 52 BA 13 00 00       		mov.L	#.LC149, r5
+ 1177 056f 38 D1 00                		bra	.L179
+ 1178                             	.L153:
+ 497:../src/wolfcrypt/src/error.c **** 
+ 498:../src/wolfcrypt/src/error.c ****     case WC_DEVCRYPTO_E:
+ 499:../src/wolfcrypt/src/error.c ****         return "Error with /dev/crypto";
+ 1179                             		.loc 1 499 16
+ 1180 0572 FB 52 CE 13 00 00       		mov.L	#.LC150, r5
+ 1181 0578 38 C8 00                		bra	.L179
+ 1182                             	.L154:
+ 500:../src/wolfcrypt/src/error.c **** 
+ 501:../src/wolfcrypt/src/error.c ****     case ZLIB_INIT_ERROR:
+ 502:../src/wolfcrypt/src/error.c ****         return "zlib init error";
+ 1183                             		.loc 1 502 16
+ 1184 057b FB 52 E5 13 00 00       		mov.L	#.LC151, r5
+ 1185 0581 38 BF 00                		bra	.L179
+ 1186                             	.L155:
+ 503:../src/wolfcrypt/src/error.c **** 
+ 504:../src/wolfcrypt/src/error.c ****     case ZLIB_COMPRESS_ERROR:
+ 505:../src/wolfcrypt/src/error.c ****         return "zlib compress error";
+ 1187                             		.loc 1 505 16
+ 1188 0584 FB 52 F5 13 00 00       		mov.L	#.LC152, r5
+ 1189 058a 38 B6 00                		bra	.L179
+ 1190                             	.L156:
+ 506:../src/wolfcrypt/src/error.c **** 
+ 507:../src/wolfcrypt/src/error.c ****     case ZLIB_DECOMPRESS_ERROR:
+ 508:../src/wolfcrypt/src/error.c ****         return "zlib decompress error";
+ 1191                             		.loc 1 508 16
+ 1192 058d FB 52 09 14 00 00       		mov.L	#.LC153, r5
+ 1193 0593 38 AD 00                		bra	.L179
+ 1194                             	.L157:
+ 509:../src/wolfcrypt/src/error.c **** 
+ 510:../src/wolfcrypt/src/error.c ****     case PKCS7_NO_SIGNER_E:
+ 511:../src/wolfcrypt/src/error.c ****         return "No signer in PKCS#7 signed data";
+ 1195                             		.loc 1 511 16
+ 1196 0596 FB 52 1F 14 00 00       		mov.L	#.LC154, r5
+ 1197 059c 38 A4 00                		bra	.L179
+ 1198                             	.L159:
+ 512:../src/wolfcrypt/src/error.c **** 
+ 513:../src/wolfcrypt/src/error.c ****     case CRYPTOCB_UNAVAILABLE:
+ 514:../src/wolfcrypt/src/error.c ****         return "Crypto callback unavailable";
+ 1199                             		.loc 1 514 16
+ 1200 059f FB 52 3F 14 00 00       		mov.L	#.LC155, r5
+ 1201 05a5 38 9B 00                		bra	.L179
+ 1202                             	.L160:
+ 515:../src/wolfcrypt/src/error.c **** 
+ 516:../src/wolfcrypt/src/error.c ****     case PKCS7_SIGNEEDS_CHECK:
+ 517:../src/wolfcrypt/src/error.c ****         return "Signature found but no certificate to verify";
+ 1203                             		.loc 1 517 16
+ 1204 05a8 FB 52 5B 14 00 00       		mov.L	#.LC156, r5
+ 1205 05ae 38 92 00                		bra	.L179
+ 1206                             	.L161:
+ 518:../src/wolfcrypt/src/error.c **** 
+ 519:../src/wolfcrypt/src/error.c ****     case PSS_SALTLEN_RECOVER_E:
+ 520:../src/wolfcrypt/src/error.c ****         return "PSS - Salt length unable to be recovered";
+ 1207                             		.loc 1 520 16
+ 1208 05b1 FB 52 88 14 00 00       		mov.L	#.LC157, r5
+ 1209 05b7 38 89 00                		bra	.L179
+ 1210                             	.L162:
+ 521:../src/wolfcrypt/src/error.c **** 
+ 522:../src/wolfcrypt/src/error.c ****     case CHACHA_POLY_OVERFLOW:
+ 523:../src/wolfcrypt/src/error.c ****         return "wolfcrypt - ChaCha20_Poly1305 limit overflow 4GB";
+ 1211                             		.loc 1 523 16
+ 1212 05ba FB 52 B1 14 00 00       		mov.L	#.LC158, r5
+ 1213 05c0 38 80 00                		bra	.L179
+ 1214                             	.L163:
+ 524:../src/wolfcrypt/src/error.c **** 
+ 525:../src/wolfcrypt/src/error.c ****     case ASN_SELF_SIGNED_E:
+ 526:../src/wolfcrypt/src/error.c ****         return "ASN self-signed certificate error";
+ 1215                             		.loc 1 526 16
+ 1216 05c3 FB 52 E2 14 00 00       		mov.L	#.LC159, r5
+ 1217 05c9 2E 77                   		bra	.L179
+ 1218                             	.L164:
+ 527:../src/wolfcrypt/src/error.c **** 
+ 528:../src/wolfcrypt/src/error.c ****     case SAKKE_VERIFY_FAIL_E:
+ 529:../src/wolfcrypt/src/error.c ****         return "SAKKE derivation verification error";
+ 1219                             		.loc 1 529 16
+ 1220 05cb FB 52 04 15 00 00       		mov.L	#.LC160, r5
+ 1221 05d1 2E 6F                   		bra	.L179
+ 1222                             	.L165:
+ 530:../src/wolfcrypt/src/error.c **** 
+ 531:../src/wolfcrypt/src/error.c ****     case MISSING_IV:
+ 532:../src/wolfcrypt/src/error.c ****         return "Required IV not set";
+ 1223                             		.loc 1 532 16
+ 1224 05d3 FB 52 28 15 00 00       		mov.L	#.LC161, r5
+ 1225 05d9 2E 67                   		bra	.L179
+ 1226                             	.L166:
+ 533:../src/wolfcrypt/src/error.c **** 
+ 534:../src/wolfcrypt/src/error.c ****     case MISSING_KEY:
+ 535:../src/wolfcrypt/src/error.c ****         return "Required key not set";
+ 1227                             		.loc 1 535 16
+ 1228 05db FB 52 3C 15 00 00       		mov.L	#.LC162, r5
+ 1229 05e1 2E 5F                   		bra	.L179
+ 1230                             	.L167:
+ 536:../src/wolfcrypt/src/error.c **** 
+ 537:../src/wolfcrypt/src/error.c ****     case BAD_LENGTH_E:
+ 538:../src/wolfcrypt/src/error.c ****         return "Value of length parameter is invalid.";
+ 1231                             		.loc 1 538 16
+ 1232 05e3 FB 52 51 15 00 00       		mov.L	#.LC163, r5
+ 1233 05e9 2E 57                   		bra	.L179
+ 1234                             	.L168:
+ 539:../src/wolfcrypt/src/error.c **** 
+ 540:../src/wolfcrypt/src/error.c ****     case ECDSA_KAT_FIPS_E:
+ 541:../src/wolfcrypt/src/error.c ****         return "wolfcrypt FIPS ECDSA Known Answer Test Failure";
+ 1235                             		.loc 1 541 16
+ 1236 05eb FB 52 77 15 00 00       		mov.L	#.LC164, r5
+ 1237 05f1 2E 4F                   		bra	.L179
+ 1238                             	.L169:
+ 542:../src/wolfcrypt/src/error.c **** 
+ 543:../src/wolfcrypt/src/error.c ****     case RSA_PAT_FIPS_E:
+ 544:../src/wolfcrypt/src/error.c ****         return "wolfcrypt FIPS RSA Pairwise Agreement Test Failure";
+ 1239                             		.loc 1 544 16
+ 1240 05f3 FB 52 A6 15 00 00       		mov.L	#.LC165, r5
+ 1241 05f9 2E 47                   		bra	.L179
+ 1242                             	.L170:
+ 545:../src/wolfcrypt/src/error.c **** 
+ 546:../src/wolfcrypt/src/error.c ****     case KDF_TLS12_KAT_FIPS_E:
+ 547:../src/wolfcrypt/src/error.c ****         return "wolfcrypt FIPS TLSv1.2 KDF Known Answer Test Failure";
+ 1243                             		.loc 1 547 16
+ 1244 05fb FB 52 D9 15 00 00       		mov.L	#.LC166, r5
+ 1245 0601 2E 3F                   		bra	.L179
+ 1246                             	.L171:
+ 548:../src/wolfcrypt/src/error.c **** 
+ 549:../src/wolfcrypt/src/error.c ****     case KDF_TLS13_KAT_FIPS_E:
+ 550:../src/wolfcrypt/src/error.c ****         return "wolfcrypt FIPS TLSv1.3 KDF Known Answer Test Failure";
+ 1247                             		.loc 1 550 16
+ 1248 0603 FB 52 0E 16 00 00       		mov.L	#.LC167, r5
+ 1249 0609 2E 37                   		bra	.L179
+ 1250                             	.L172:
+ 551:../src/wolfcrypt/src/error.c **** 
+ 552:../src/wolfcrypt/src/error.c ****     case KDF_SSH_KAT_FIPS_E:
+ 553:../src/wolfcrypt/src/error.c ****         return "wolfcrypt FIPS SSH KDF Known Answer Test Failure";
+ 1251                             		.loc 1 553 16
+ 1252 060b FB 52 43 16 00 00       		mov.L	#.LC168, r5
+ 1253 0611 2E 2F                   		bra	.L179
+ 1254                             	.L173:
+ 554:../src/wolfcrypt/src/error.c **** 
+ 555:../src/wolfcrypt/src/error.c ****      case DHE_PCT_E:
+ 556:../src/wolfcrypt/src/error.c ****         return "wolfcrypt DHE Pairwise Consistency Test Failure";
+ 1255                             		.loc 1 556 16
+ 1256 0613 FB 52 74 16 00 00       		mov.L	#.LC169, r5
+ 1257 0619 2E 27                   		bra	.L179
+ 1258                             	.L174:
+ 557:../src/wolfcrypt/src/error.c **** 
+ 558:../src/wolfcrypt/src/error.c ****     case ECC_PCT_E:
+ 559:../src/wolfcrypt/src/error.c ****         return "wolfcrypt ECDHE Pairwise Consistency Test Failure";
+ 1259                             		.loc 1 559 16
+ 1260 061b FB 52 A4 16 00 00       		mov.L	#.LC170, r5
+ 1261 0621 2E 1F                   		bra	.L179
+ 1262                             	.L175:
+ 560:../src/wolfcrypt/src/error.c **** 
+ 561:../src/wolfcrypt/src/error.c ****     case FIPS_PRIVATE_KEY_LOCKED_E:
+ 562:../src/wolfcrypt/src/error.c ****         return "Cannot export private key, locked";
+ 1263                             		.loc 1 562 16
+ 1264 0623 FB 52 D6 16 00 00       		mov.L	#.LC171, r5
+ 1265 0629 2E 17                   		bra	.L179
+ 1266                             	.L176:
+ 563:../src/wolfcrypt/src/error.c **** 
+ 564:../src/wolfcrypt/src/error.c ****     case PROTOCOLCB_UNAVAILABLE:
+ 565:../src/wolfcrypt/src/error.c ****         return "Protocol callback unavailable";
+ 1267                             		.loc 1 565 16
+ 1268 062b FB 52 F8 16 00 00       		mov.L	#.LC172, r5
+ 1269 0631 2E 0F                   		bra	.L179
+ 1270                             	.L178:
+ 566:../src/wolfcrypt/src/error.c **** 
+ 567:../src/wolfcrypt/src/error.c ****     case NO_VALID_DEVID:
+ 568:../src/wolfcrypt/src/error.c ****         return "No valid device ID set";
+ 1271                             		.loc 1 568 16
+ 1272 0633 FB 52 16 17 00 00       		mov.L	#.LC173, r5
+ 1273 0639 0F                      		bra	.L179
+ 1274                             	.L2:
+ 569:../src/wolfcrypt/src/error.c **** 
+ 570:../src/wolfcrypt/src/error.c ****     default:
+ 571:../src/wolfcrypt/src/error.c ****         return "unknown error number";
+ 1275                             		.loc 1 571 16
+ 1276 063a FB 52 2D 17 00 00       		mov.L	#.LC174, r5
+ 1277                             		.balign 8,3,1
+ 1278                             	.L179:
+ 572:../src/wolfcrypt/src/error.c **** 
+ 573:../src/wolfcrypt/src/error.c ****     }
+ 574:../src/wolfcrypt/src/error.c **** }
+ 1279                             		.loc 1 574 1
+ 1280 0640 EF 51                   		mov.L	r5, r1
+ 1281 0642 3F AA 02                		rtsd	#8, r10-r10
+ 1282                             	.LFE1:
+ 1284 0645 FC 13 00                		.section	.text.wc_ErrorString,"ax",@progbits
+ 1285                             		.global	_wc_ErrorString
+ 1287                             	_wc_ErrorString:
+ 1288                             	.LFB2:
+ 575:../src/wolfcrypt/src/error.c **** 
+ 576:../src/wolfcrypt/src/error.c **** void wc_ErrorString(int error, char* buffer)
+ 577:../src/wolfcrypt/src/error.c **** {
+ 1289                             		.loc 1 577 1
+ 1290 0000 7E AA                   		push.l	r10
+ 1291                             	.LCFI2:
+ 1292 0002 71 0A F8                		add	#-8, r0, r10
+ 1293                             	.LCFI3:
+ 1294 0005 EF A0                   		mov.L	r10, r0
+ 1295 0007 E3 A1                   		mov.L	r1, [r10]
+ 1296 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 578:../src/wolfcrypt/src/error.c ****     XSTRNCPY(buffer, wc_GetErrorString(error), WOLFSSL_MAX_ERROR_SZ);
+ 1297                             		.loc 1 578 5
+ 1298 000c EC A1                   		mov.L	[r10], r1
+ 1299 000e 05 00 00 00             		bsr	_wc_GetErrorString
+ 1300 0012 EF 15                   		mov.L	r1, r5
+ 1301 0014 75 43 50                		mov.L	#0x50, r3
+ 1302 0017 EF 52                   		mov.L	r5, r2
+ 1303 0019 ED A1 01                		mov.L	4[r10], r1
+ 1304 001c 05 00 00 00             		bsr	_strncpy
+ 579:../src/wolfcrypt/src/error.c ****     buffer[WOLFSSL_MAX_ERROR_SZ-1] = 0;
+ 1305                             		.loc 1 579 11
+ 1306 0020 ED A5 01                		mov.L	4[r10], r5
+ 1307 0023 71 55 4F                		add	#0x4f, r5
+ 1308                             		.loc 1 579 36
+ 1309 0026 F8 54 00                		mov.B	#0, [r5]
+ 580:../src/wolfcrypt/src/error.c **** }
+ 1310                             		.loc 1 580 1
+ 1311 0029 03                      		nop
+ 1312 002a 3F AA 03                		rtsd	#12, r10-r10
+ 1313                             	.LFE2:
+ 1371                             	.Letext0:
+ 1372                             		.file 2 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 1373                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1374                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1375                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1376                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1377                             		.file 7 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1378                             		.file 8 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1379                             		.file 9 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/error-crypt.h"

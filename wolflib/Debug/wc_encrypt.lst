@@ -1,0 +1,2514 @@
+   1                             		.file	"wc_encrypt.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.text.ForceZero,"ax",@progbits
+   6                             	_ForceZero:
+   7                             	.LFB13:
+   8                             		.file 1 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfcrypt/src/misc.c"
+   1:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* misc.c
+   2:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   3:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   5:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * This file is part of wolfSSL.
+   6:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   7:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * it under the terms of the GNU General Public License as published by
+   9:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * (at your option) any later version.
+  11:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+  12:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * GNU General Public License for more details.
+  16:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+  17:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * You should have received a copy of the GNU General Public License
+  18:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * along with this program; if not, write to the Free Software
+  19:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  */
+  21:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /*
+  22:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  23:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** DESCRIPTION
+  24:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** This module implements the arithmetic-shift right, left, byte swapping, XOR,
+  25:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** masking and clearing memory logic.
+  26:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  27:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** */
+  28:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef HAVE_CONFIG_H
+  29:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <config.h>
+  30:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  31:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  32:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #include <wolfssl/wolfcrypt/settings.h>
+  33:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  34:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLF_CRYPT_MISC_C
+  35:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #define WOLF_CRYPT_MISC_C
+  36:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  37:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #include <wolfssl/wolfcrypt/misc.h>
+  38:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  39:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* inlining these functions is a huge speed increase and a small size decrease,
+  40:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    because the functions are smaller than function call setup/cleanup, e.g.,
+  41:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    md5 benchmark is twice as fast with inline.  If you don't want it, then
+  42:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    define NO_INLINE and compile this file into wolfssl, otherwise it's used as
+  43:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    a source header
+  44:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  */
+  45:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  46:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef NO_INLINE
+  47:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WC_STATIC
+  48:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+  49:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WC_STATIC static
+  50:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  51:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  52:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* Check for if compiling misc.c when not needed. */
+  53:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if !defined(WOLFSSL_MISC_INCLUDED) && !defined(NO_INLINE)
+  54:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #ifndef WOLFSSL_IGNORE_FILE_WARN
+  55:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         #warning misc.c does not need to be compiled when using inline (NO_INLINE not defined)
+  56:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+  57:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  58:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+  59:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  60:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  61:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(__ICCARM__)
+  62:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <intrinsics.h>
+  63:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  64:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  65:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  66:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef INTEL_INTRINSICS
+  67:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  68:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <stdlib.h>      /* get intrinsic definitions */
+  69:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  70:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* for non visual studio probably need no long version, 32 bit only
+  71:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****      * i.e., _rotl and _rotr */
+  72:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #pragma intrinsic(_lrotl, _lrotr)
+  73:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  74:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+  75:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  76:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return y ? _lrotl(x, y) : x;
+  77:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  78:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  79:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+  80:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  81:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return y ? _lrotr(x, y) : x;
+  82:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  83:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  84:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__CCRX__)
+  85:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  86:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <builtin.h>      /* get intrinsic definitions */
+  87:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  88:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #if !defined(NO_INLINE)
+  89:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  90:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define rotlFixed(x, y) _builtin_rotl(x, y)
+  91:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  92:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define rotrFixed(x, y) _builtin_rotr(x, y)
+  93:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  94:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #else /* create real function */
+  95:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  96:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+  97:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  98:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return _builtin_rotl(x, y);
+  99:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 100:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 101:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+ 102:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 103:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return _builtin_rotr(x, y);
+ 104:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 105:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 106:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 107:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 108:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else /* generic */
+ 109:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a left circular arithmetic shift of <x> by <y> value. */
+ 110:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 111:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+ 112:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 113:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 114:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 115:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 116:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a right circular arithmetic shift of <x> by <y> value. */
+ 117:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+ 118:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 119:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 120:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 121:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 122:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 123:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 124:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef WC_RC2
+ 125:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 126:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a left circular arithmetic shift of <x> by <y> value */
+ 127:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word16 rotlFixed16(word16 x, word16 y)
+ 128:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 129:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 130:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 131:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 132:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 133:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a right circular arithmetic shift of <x> by <y> value */
+ 134:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word16 rotrFixed16(word16 x, word16 y)
+ 135:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 136:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 137:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 138:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 139:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* WC_RC2 */
+ 140:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 141:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a byte swap of 32-bit word value. */
+ 142:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(__CCRX__) && !defined(NO_INLINE) /* shortest version for CC-RX */
+ 143:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define ByteReverseWord32(value) _builtin_revl(value)
+ 144:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 145:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word32 ByteReverseWord32(word32 value)
+ 146:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 147:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef PPC_INTRINSICS
+ 148:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* PPC: load reverse indexed instruction */
+ 149:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__lwbrx(&value,0);
+ 150:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__ICCARM__)
+ 151:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__REV(value);
+ 152:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(KEIL_INTRINSICS)
+ 153:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__rev(value);
+ 154:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__CCRX__)
+ 155:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)_builtin_revl(value);
+ 156:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLF_ALLOW_BUILTIN) && \
+ 157:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         defined(__GNUC_PREREQ) && __GNUC_PREREQ(4, 3)
+ 158:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__builtin_bswap32(value);
+ 159:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFSSL_BYTESWAP32_ASM) && defined(__GNUC__) && \
+ 160:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****       defined(__aarch64__)
+ 161:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     __asm__ volatile (
+ 162:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         "REV32 %0, %0  \n"
+ 163:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         : "+r" (value)
+ 164:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         :
+ 165:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     );
+ 166:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return value;
+ 167:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFSSL_BYTESWAP32_ASM) && defined(__GNUC__) && \
+ 168:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****       (defined(__thumb__) || defined(__arm__))
+ 169:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     __asm__ volatile (
+ 170:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         "REV %0, %0  \n"
+ 171:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         : "+r" (value)
+ 172:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         :
+ 173:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     );
+ 174:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return value;
+ 175:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(FAST_ROTATE)
+ 176:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* 5 instructions with rotate instruction, 9 without */
+ 177:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (rotrFixed(value, 8U) & 0xff00ff00) |
+ 178:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****            (rotlFixed(value, 8U) & 0x00ff00ff);
+ 179:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 180:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* 6 instructions with rotate instruction, 8 without */
+ 181:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & 0xFF00FF00) >> 8) | ((value & 0x00FF00FF) << 8);
+ 182:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return rotlFixed(value, 16U);
+ 183:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 184:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 185:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* __CCRX__ */
+ 186:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a byte swap of words array of a given count. */
+ 187:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ByteReverseWords(word32* out, const word32* in,
+ 188:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                     word32 byteCount)
+ 189:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 190:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 count = byteCount/(word32)sizeof(word32), i;
+ 191:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 192:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < count; i++)
+ 193:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         out[i] = ByteReverseWord32(in[i]);
+ 194:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 195:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 196:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 197:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(WORD64_AVAILABLE) && !defined(WOLFSSL_NO_WORD64_OPS)
+ 198:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 199:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 200:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 rotlFixed64(word64 x, word64 y)
+ 201:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 202:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 203:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 204:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 205:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 206:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 rotrFixed64(word64 x, word64 y)
+ 207:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 208:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 209:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 210:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 211:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 212:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 ByteReverseWord64(word64 value)
+ 213:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 214:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(WOLF_ALLOW_BUILTIN) && defined(__GNUC_PREREQ) && __GNUC_PREREQ(4, 3)
+ 215:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word64)__builtin_bswap64(value);
+ 216:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFCRYPT_SLOW_WORD64)
+ 217:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word64)((word64)ByteReverseWord32((word32) value)) << 32 |
+ 218:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         (word64)ByteReverseWord32((word32)(value   >> 32));
+ 219:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 220:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & W64LIT(0xFF00FF00FF00FF00)) >> 8) |
+ 221:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         ((value & W64LIT(0x00FF00FF00FF00FF)) << 8);
+ 222:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & W64LIT(0xFFFF0000FFFF0000)) >> 16) |
+ 223:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         ((value & W64LIT(0x0000FFFF0000FFFF)) << 16);
+ 224:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return rotlFixed64(value, 32U);
+ 225:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 226:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 227:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 228:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 229:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ByteReverseWords64(word64* out, const word64* in,
+ 230:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                       word32 byteCount)
+ 231:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 232:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 count = byteCount/(word32)sizeof(word64), i;
+ 233:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 234:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < count; i++)
+ 235:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         out[i] = ByteReverseWord64(in[i]);
+ 236:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 237:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 238:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 239:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* WORD64_AVAILABLE && !WOLFSSL_NO_WORD64_OPS */
+ 240:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 241:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_XOR_OPS
+ 242:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*r> and <*a> for <n> number
+ 243:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** of wolfssl_words, placing the result in <*r>. */
+ 244:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void XorWordsOut(wolfssl_word* r, const wolfssl_word* a,
+ 245:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                      const wolfssl_word* b, word32 n)
+ 246:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 247:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 i;
+ 248:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 249:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < n; i++) r[i] = a[i] ^ b[i];
+ 250:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 251:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 252:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*buf> and <*mask> of n
+ 253:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** counts, placing the result in <*buf>. */
+ 254:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 255:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void xorbufout(void*out, const void* buf, const void* mask,
+ 256:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                    word32 count)
+ 257:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 258:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     if (((wc_ptr_t)out | (wc_ptr_t)buf | (wc_ptr_t)mask | count) %
+ 259:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                                          WOLFSSL_WORD_SIZE == 0)
+ 260:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         XorWordsOut( (wolfssl_word*)out, (wolfssl_word*)buf,
+ 261:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                      (const wolfssl_word*)mask, count / WOLFSSL_WORD_SIZE);
+ 262:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     else {
+ 263:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 i;
+ 264:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       o = (byte*)out;
+ 265:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       b = (byte*)buf;
+ 266:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+ 267:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 268:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         for (i = 0; i < count; i++) o[i] = b[i] ^ m[i];
+ 269:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 270:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 271:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 272:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*r> and <*a> for <n> number
+ 273:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** of wolfssl_words, placing the result in <*r>. */
+ 274:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void XorWords(wolfssl_word* r, const wolfssl_word* a, word32 n)
+ 275:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 276:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 i;
+ 277:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 278:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < n; i++) r[i] ^= a[i];
+ 279:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 280:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 281:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*buf> and <*mask> of n
+ 282:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** counts, placing the result in <*buf>. */
+ 283:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 284:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void xorbuf(void* buf, const void* mask, word32 count)
+ 285:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 286:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     if (((wc_ptr_t)buf | (wc_ptr_t)mask | count) % WOLFSSL_WORD_SIZE == 0)
+ 287:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         XorWords( (wolfssl_word*)buf,
+ 288:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                   (const wolfssl_word*)mask, count / WOLFSSL_WORD_SIZE);
+ 289:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     else {
+ 290:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 i;
+ 291:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       b = (byte*)buf;
+ 292:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+ 293:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         for (i = 0; i < count; i++) b[i] ^= m[i];
+ 295:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 296:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 297:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 298:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 299:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_FORCE_ZERO
+ 300:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine fills the first len bytes of the memory area pointed by mem
+ 301:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    with zeros. It ensures compiler optimizations doesn't skip it  */
+ 302:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ForceZero(void* mem, word32 len)
+ 303:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+   9                             		.loc 1 303 1
+  10 0000 7E AA                   		push.l	r10
+  11                             	.LCFI0:
+  12 0002 71 0A F4                		add	#-12, r0, r10
+  13                             	.LCFI1:
+  14 0005 EF A0                   		mov.L	r10, r0
+  15 0007 E7 A1 01                		mov.L	r1, 4[r10]
+  16 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 304:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     volatile byte* z = (volatile byte*)mem;
+  17                             		.loc 1 304 20
+  18 000d ED A5 01                		mov.L	4[r10], r5
+  19 0010 E3 A5                   		mov.L	r5, [r10]
+ 305:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 306:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if (defined(WOLFSSL_X86_64_BUILD) || defined(WOLFSSL_AARCH64_BUILD)) \
+ 307:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****             && defined(WORD64_AVAILABLE)
+ 308:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     volatile word64* w;
+ 309:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #ifndef WOLFSSL_UNALIGNED_64BIT_ACCESS
+ 310:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 l = (sizeof(word64) - ((size_t)z & (sizeof(word64)-1))) &
+ 311:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                                              (sizeof(word64)-1);
+ 312:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 313:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         if (len < l) l = len;
+ 314:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         len -= l;
+ 315:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         while (l--) *z++ = 0;
+ 316:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 317:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (w = (volatile word64*)z; len >= sizeof(*w); len -= sizeof(*w))
+ 318:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         *w++ = 0;
+ 319:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     z = (volatile byte*)w;
+ 320:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 321:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 322:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     while (len--) *z++ = 0;
+  20                             		.loc 1 322 11
+  21 0012 2E 0C                   		bra	.L2
+  22                             	.L3:
+  23                             		.loc 1 322 21 discriminator 2
+  24 0014 EC A5                   		mov.L	[r10], r5
+  25 0016 71 54 01                		add	#1, r5, r4
+  26 0019 E3 A4                   		mov.L	r4, [r10]
+  27                             		.loc 1 322 24 discriminator 2
+  28 001b F8 54 00                		mov.B	#0, [r5]
+  29                             	.L2:
+  30                             		.loc 1 322 15 discriminator 1
+  31 001e ED A5 02                		mov.L	8[r10], r5
+  32 0021 71 54 FF                		add	#-1, r5, r4
+  33 0024 E7 A4 02                		mov.L	r4, 8[r10]
+  34                             		.loc 1 322 11 discriminator 1
+  35 0027 61 05                   		cmp	#0, r5
+  36 0029 21 EB                   		bne	.L3
+ 323:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+  37                             		.loc 1 323 1
+  38 002b 03                      		nop
+  39 002c 3F AA 04                		rtsd	#16, r10-r10
+  40                             	.LFE13:
+  42                             		.section	.text.wc_AesCbcDecryptWithKey,"ax",@progbits
+  43                             		.global	_wc_AesCbcDecryptWithKey
+  45                             	_wc_AesCbcDecryptWithKey:
+  46                             	.LFB43:
+  47                             		.file 2 "../src/wolfcrypt/src/wc_encrypt.c"
+   1:../src/wolfcrypt/src/wc_encrypt.c **** /* wc_encrypt.c
+   2:../src/wolfcrypt/src/wc_encrypt.c ****  *
+   3:../src/wolfcrypt/src/wc_encrypt.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/wolfcrypt/src/wc_encrypt.c ****  *
+   5:../src/wolfcrypt/src/wc_encrypt.c ****  * This file is part of wolfSSL.
+   6:../src/wolfcrypt/src/wc_encrypt.c ****  *
+   7:../src/wolfcrypt/src/wc_encrypt.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/wolfcrypt/src/wc_encrypt.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/wolfcrypt/src/wc_encrypt.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/wolfcrypt/src/wc_encrypt.c ****  * (at your option) any later version.
+  11:../src/wolfcrypt/src/wc_encrypt.c ****  *
+  12:../src/wolfcrypt/src/wc_encrypt.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/wolfcrypt/src/wc_encrypt.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/wolfcrypt/src/wc_encrypt.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/wolfcrypt/src/wc_encrypt.c ****  * GNU General Public License for more details.
+  16:../src/wolfcrypt/src/wc_encrypt.c ****  *
+  17:../src/wolfcrypt/src/wc_encrypt.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/wolfcrypt/src/wc_encrypt.c ****  * along with this program; if not, write to the Free Software
+  19:../src/wolfcrypt/src/wc_encrypt.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/wolfcrypt/src/wc_encrypt.c ****  */
+  21:../src/wolfcrypt/src/wc_encrypt.c **** 
+  22:../src/wolfcrypt/src/wc_encrypt.c **** 
+  23:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef HAVE_CONFIG_H
+  24:../src/wolfcrypt/src/wc_encrypt.c ****     #include <config.h>
+  25:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+  26:../src/wolfcrypt/src/wc_encrypt.c **** 
+  27:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/settings.h>
+  28:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/aes.h>
+  29:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/des3.h>
+  30:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/hash.h>
+  31:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/rc2.h>
+  32:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/arc4.h>
+  33:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/wc_encrypt.h>
+  34:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/error-crypt.h>
+  35:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/asn.h>
+  36:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/coding.h>
+  37:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/pwdbased.h>
+  38:../src/wolfcrypt/src/wc_encrypt.c **** #include <wolfssl/wolfcrypt/logging.h>
+  39:../src/wolfcrypt/src/wc_encrypt.c **** 
+  40:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef NO_INLINE
+  41:../src/wolfcrypt/src/wc_encrypt.c ****     #include <wolfssl/wolfcrypt/misc.h>
+  42:../src/wolfcrypt/src/wc_encrypt.c **** #else
+  43:../src/wolfcrypt/src/wc_encrypt.c ****     #define WOLFSSL_MISC_INCLUDED
+  44:../src/wolfcrypt/src/wc_encrypt.c ****     #include <wolfcrypt/src/misc.c>
+  45:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+  46:../src/wolfcrypt/src/wc_encrypt.c **** 
+  47:../src/wolfcrypt/src/wc_encrypt.c **** #if !defined(NO_AES) && defined(HAVE_AES_CBC)
+  48:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef HAVE_AES_DECRYPT
+  49:../src/wolfcrypt/src/wc_encrypt.c **** int wc_AesCbcDecryptWithKey(byte* out, const byte* in, word32 inSz,
+  50:../src/wolfcrypt/src/wc_encrypt.c ****                                   const byte* key, word32 keySz, const byte* iv)
+  51:../src/wolfcrypt/src/wc_encrypt.c **** {
+  48                             		.loc 2 51 1
+  49 0000 7E AA                   		push.l	r10
+  50                             	.LCFI2:
+  51 0002 7E A6                   		push.l	r6
+  52                             	.LCFI3:
+  53 0004 71 0A DC                		add	#-36, r0, r10
+  54                             	.LCFI4:
+  55 0007 71 A0 FC                		add	#-4, r10, r0
+  56                             	.LCFI5:
+  57 000a 75 46 30                		mov.L	#48, r6
+  58 000d 4B A6                   		add	r10, r6
+  59 000f E7 A1 03                		mov.L	r1, 12[r10]
+  60 0012 E7 A2 04                		mov.L	r2, 16[r10]
+  61 0015 E7 A3 05                		mov.L	r3, 20[r10]
+  62 0018 E7 A4 06                		mov.L	r4, 24[r10]
+  52:../src/wolfcrypt/src/wc_encrypt.c ****     int  ret = 0;
+  63                             		.loc 2 52 10
+  64 001b F8 A6 00                		mov.L	#0, [r10]
+  53:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+  54:../src/wolfcrypt/src/wc_encrypt.c ****     Aes* aes = NULL;
+  65                             		.loc 2 54 10
+  66 001e F9 A6 01 00             		mov.L	#0, 4[r10]
+  55:../src/wolfcrypt/src/wc_encrypt.c **** #else
+  56:../src/wolfcrypt/src/wc_encrypt.c ****     Aes  aes[1];
+  57:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+  58:../src/wolfcrypt/src/wc_encrypt.c **** 
+  59:../src/wolfcrypt/src/wc_encrypt.c ****     if (out == NULL || in == NULL || key == NULL || iv == NULL) {
+  67                             		.loc 2 59 8
+  68 0022 ED A5 03                		mov.L	12[r10], r5
+  69 0025 61 05                   		cmp	#0, r5
+  70 0027 20 14                   		beq	.L5
+  71                             		.loc 2 59 21 discriminator 1
+  72 0029 ED A5 04                		mov.L	16[r10], r5
+  73 002c 61 05                   		cmp	#0, r5
+  74 002e 20 0D                   		beq	.L5
+  75                             		.loc 2 59 35 discriminator 2
+  76 0030 ED A5 06                		mov.L	24[r10], r5
+  77 0033 61 05                   		cmp	#0, r5
+  78 0035 16                      		beq	.L5
+  79                             		.loc 2 59 50 discriminator 3
+  80 0036 A8 6D                   		mov.L	4[r6], r5
+  81 0038 61 05                   		cmp	#0, r5
+  82 003a 1F                      		bne	.L6
+  83                             		.balign 8,3,2
+  84                             	.L5:
+  60:../src/wolfcrypt/src/wc_encrypt.c ****         return BAD_FUNC_ARG;
+  85                             		.loc 2 60 16
+  86 003b FB 5A 53 FF             		mov.L	#-173, r5
+  87 003f 2E 73                   		bra	.L7
+  88                             	.L6:
+  61:../src/wolfcrypt/src/wc_encrypt.c ****     }
+  62:../src/wolfcrypt/src/wc_encrypt.c **** 
+  63:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+  64:../src/wolfcrypt/src/wc_encrypt.c ****     aes = (Aes*)XMALLOC(sizeof(Aes), NULL, DYNAMIC_TYPE_TMP_BUFFER);
+  89                             		.loc 2 64 17
+  90 0041 FB 1A 38 01             		mov.L	#0x138, r1
+  91 0045 05 00 00 00             		bsr	_wolfSSL_Malloc
+  92 0049 E7 A1 01                		mov.L	r1, 4[r10]
+  65:../src/wolfcrypt/src/wc_encrypt.c ****     if (aes == NULL)
+  93                             		.loc 2 65 8
+  94 004c ED A5 01                		mov.L	4[r10], r5
+  95 004f 61 05                   		cmp	#0, r5
+  96 0051 1E                      		bne	.L8
+  66:../src/wolfcrypt/src/wc_encrypt.c ****         return MEMORY_E;
+  97                             		.loc 2 66 16
+  98 0052 FB 56 83                		mov.L	#-125, r5
+  99 0055 2E 5D                   		bra	.L7
+ 100                             	.L8:
+  67:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+  68:../src/wolfcrypt/src/wc_encrypt.c **** 
+  69:../src/wolfcrypt/src/wc_encrypt.c ****     ret = wc_AesInit(aes, NULL, INVALID_DEVID);
+ 101                             		.loc 2 69 11
+ 102 0057 FB 36 FE                		mov.L	#-2, r3
+ 103 005a 66 02                   		mov.L	#0, r2
+ 104 005c ED A1 01                		mov.L	4[r10], r1
+ 105 005f 05 00 00 00             		bsr	_wc_AesInit
+ 106 0063 E3 A1                   		mov.L	r1, [r10]
+  70:../src/wolfcrypt/src/wc_encrypt.c ****     if (ret == 0) {
+ 107                             		.loc 2 70 8
+ 108 0065 EC A5                   		mov.L	[r10], r5
+ 109 0067 61 05                   		cmp	#0, r5
+ 110 0069 21 34                   		bne	.L9
+  71:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_AesSetKey(aes, key, keySz, iv, AES_DECRYPTION);
+ 111                             		.loc 2 71 15
+ 112 006b F8 06 01                		mov.L	#1, [r0]
+ 113 006e A8 6C                   		mov.L	4[r6], r4
+ 114 0070 EC 63                   		mov.L	[r6], r3
+ 115 0072 ED A2 06                		mov.L	24[r10], r2
+ 116 0075 ED A1 01                		mov.L	4[r10], r1
+ 117 0078 05 00 00 00             		bsr	_wc_AesSetKey
+ 118 007c E3 A1                   		mov.L	r1, [r10]
+  72:../src/wolfcrypt/src/wc_encrypt.c ****         if (ret == 0)
+ 119                             		.loc 2 72 12
+ 120 007e EC A5                   		mov.L	[r10], r5
+ 121 0080 61 05                   		cmp	#0, r5
+ 122 0082 21 14                   		bne	.L10
+  73:../src/wolfcrypt/src/wc_encrypt.c ****             ret = wc_AesCbcDecrypt(aes, out, in, inSz);
+ 123                             		.loc 2 73 19
+ 124 0084 ED A4 05                		mov.L	20[r10], r4
+ 125 0087 ED A3 04                		mov.L	16[r10], r3
+ 126 008a ED A2 03                		mov.L	12[r10], r2
+ 127 008d ED A1 01                		mov.L	4[r10], r1
+ 128 0090 05 00 00 00             		bsr	_wc_AesCbcDecrypt
+ 129 0094 E3 A1                   		mov.L	r1, [r10]
+ 130                             	.L10:
+  74:../src/wolfcrypt/src/wc_encrypt.c **** 
+  75:../src/wolfcrypt/src/wc_encrypt.c ****         wc_AesFree(aes);
+ 131                             		.loc 2 75 9
+ 132 0096 ED A1 01                		mov.L	4[r10], r1
+ 133 0099 05 00 00 00             		bsr	_wc_AesFree
+ 134                             	.L9:
+ 135                             	.LBB2:
+  76:../src/wolfcrypt/src/wc_encrypt.c ****     }
+  77:../src/wolfcrypt/src/wc_encrypt.c **** 
+  78:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+  79:../src/wolfcrypt/src/wc_encrypt.c ****     XFREE(aes, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 136                             		.loc 2 79 5
+ 137 009d ED A5 01                		mov.L	4[r10], r5
+ 138 00a0 E7 A5 02                		mov.L	r5, 8[r10]
+ 139 00a3 ED A5 02                		mov.L	8[r10], r5
+ 140 00a6 61 05                   		cmp	#0, r5
+ 141 00a8 10                      		beq	.L11
+ 142                             		.loc 2 79 5 is_stmt 0 discriminator 1
+ 143 00a9 ED A1 02                		mov.L	8[r10], r1
+ 144 00ac 05 00 00 00             		bsr	_wolfSSL_Free
+ 145                             	.L11:
+ 146                             	.LBE2:
+  80:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+  81:../src/wolfcrypt/src/wc_encrypt.c **** 
+  82:../src/wolfcrypt/src/wc_encrypt.c ****     return ret;
+ 147                             		.loc 2 82 12 is_stmt 1
+ 148 00b0 EC A5                   		mov.L	[r10], r5
+ 149                             	.L7:
+  83:../src/wolfcrypt/src/wc_encrypt.c **** }
+ 150                             		.loc 2 83 1
+ 151 00b2 EF 51                   		mov.L	r5, r1
+ 152 00b4 71 00 28                		add	#40, r0
+ 153 00b7 7E B6                   		pop	r6
+ 154 00b9 7E BA                   		pop	r10
+ 155 00bb 02                      		rts
+ 156                             	.LFE43:
+ 158 00bc 76 10 01 00             		.section	.text.wc_AesCbcEncryptWithKey,"ax",@progbits
+ 159                             		.global	_wc_AesCbcEncryptWithKey
+ 161                             	_wc_AesCbcEncryptWithKey:
+ 162                             	.LFB44:
+  84:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* HAVE_AES_DECRYPT */
+  85:../src/wolfcrypt/src/wc_encrypt.c **** 
+  86:../src/wolfcrypt/src/wc_encrypt.c **** int wc_AesCbcEncryptWithKey(byte* out, const byte* in, word32 inSz,
+  87:../src/wolfcrypt/src/wc_encrypt.c ****                             const byte* key, word32 keySz, const byte* iv)
+  88:../src/wolfcrypt/src/wc_encrypt.c **** {
+ 163                             		.loc 2 88 1
+ 164 0000 7E AA                   		push.l	r10
+ 165                             	.LCFI6:
+ 166 0002 7E A6                   		push.l	r6
+ 167                             	.LCFI7:
+ 168 0004 71 0A DC                		add	#-36, r0, r10
+ 169                             	.LCFI8:
+ 170 0007 71 A0 FC                		add	#-4, r10, r0
+ 171                             	.LCFI9:
+ 172 000a 75 46 30                		mov.L	#48, r6
+ 173 000d 4B A6                   		add	r10, r6
+ 174 000f E7 A1 03                		mov.L	r1, 12[r10]
+ 175 0012 E7 A2 04                		mov.L	r2, 16[r10]
+ 176 0015 E7 A3 05                		mov.L	r3, 20[r10]
+ 177 0018 E7 A4 06                		mov.L	r4, 24[r10]
+  89:../src/wolfcrypt/src/wc_encrypt.c ****     int  ret = 0;
+ 178                             		.loc 2 89 10
+ 179 001b F8 A6 00                		mov.L	#0, [r10]
+  90:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+  91:../src/wolfcrypt/src/wc_encrypt.c ****     Aes* aes;
+  92:../src/wolfcrypt/src/wc_encrypt.c **** #else
+  93:../src/wolfcrypt/src/wc_encrypt.c ****     Aes  aes[1];
+  94:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+  95:../src/wolfcrypt/src/wc_encrypt.c **** 
+  96:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+  97:../src/wolfcrypt/src/wc_encrypt.c ****     aes = (Aes*)XMALLOC(sizeof(Aes), NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 180                             		.loc 2 97 17
+ 181 001e FB 1A 38 01             		mov.L	#0x138, r1
+ 182 0022 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 183 0026 E7 A1 01                		mov.L	r1, 4[r10]
+  98:../src/wolfcrypt/src/wc_encrypt.c ****     if (aes == NULL)
+ 184                             		.loc 2 98 8
+ 185 0029 ED A5 01                		mov.L	4[r10], r5
+ 186 002c 61 05                   		cmp	#0, r5
+ 187 002e 1E                      		bne	.L13
+  99:../src/wolfcrypt/src/wc_encrypt.c ****         return MEMORY_E;
+ 188                             		.loc 2 99 16
+ 189 002f FB 56 83                		mov.L	#-125, r5
+ 190 0032 2E 5D                   		bra	.L14
+ 191                             	.L13:
+ 100:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 101:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 102:../src/wolfcrypt/src/wc_encrypt.c ****     ret = wc_AesInit(aes, NULL, INVALID_DEVID);
+ 192                             		.loc 2 102 11
+ 193 0034 FB 36 FE                		mov.L	#-2, r3
+ 194 0037 66 02                   		mov.L	#0, r2
+ 195 0039 ED A1 01                		mov.L	4[r10], r1
+ 196 003c 05 00 00 00             		bsr	_wc_AesInit
+ 197 0040 E3 A1                   		mov.L	r1, [r10]
+ 103:../src/wolfcrypt/src/wc_encrypt.c ****     if (ret == 0) {
+ 198                             		.loc 2 103 8
+ 199 0042 EC A5                   		mov.L	[r10], r5
+ 200 0044 61 05                   		cmp	#0, r5
+ 201 0046 21 34                   		bne	.L15
+ 104:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_AesSetKey(aes, key, keySz, iv, AES_ENCRYPTION);
+ 202                             		.loc 2 104 15
+ 203 0048 F8 06 00                		mov.L	#0, [r0]
+ 204 004b A8 6C                   		mov.L	4[r6], r4
+ 205 004d EC 63                   		mov.L	[r6], r3
+ 206 004f ED A2 06                		mov.L	24[r10], r2
+ 207 0052 ED A1 01                		mov.L	4[r10], r1
+ 208 0055 05 00 00 00             		bsr	_wc_AesSetKey
+ 209 0059 E3 A1                   		mov.L	r1, [r10]
+ 105:../src/wolfcrypt/src/wc_encrypt.c ****         if (ret == 0)
+ 210                             		.loc 2 105 12
+ 211 005b EC A5                   		mov.L	[r10], r5
+ 212 005d 61 05                   		cmp	#0, r5
+ 213 005f 21 14                   		bne	.L16
+ 106:../src/wolfcrypt/src/wc_encrypt.c ****             ret = wc_AesCbcEncrypt(aes, out, in, inSz);
+ 214                             		.loc 2 106 19
+ 215 0061 ED A4 05                		mov.L	20[r10], r4
+ 216 0064 ED A3 04                		mov.L	16[r10], r3
+ 217 0067 ED A2 03                		mov.L	12[r10], r2
+ 218 006a ED A1 01                		mov.L	4[r10], r1
+ 219 006d 05 00 00 00             		bsr	_wc_AesCbcEncrypt
+ 220 0071 E3 A1                   		mov.L	r1, [r10]
+ 221                             	.L16:
+ 107:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 108:../src/wolfcrypt/src/wc_encrypt.c ****         wc_AesFree(aes);
+ 222                             		.loc 2 108 9
+ 223 0073 ED A1 01                		mov.L	4[r10], r1
+ 224 0076 05 00 00 00             		bsr	_wc_AesFree
+ 225                             	.L15:
+ 226                             	.LBB3:
+ 109:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 110:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 111:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 112:../src/wolfcrypt/src/wc_encrypt.c ****     XFREE(aes, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 227                             		.loc 2 112 5
+ 228 007a ED A5 01                		mov.L	4[r10], r5
+ 229 007d E7 A5 02                		mov.L	r5, 8[r10]
+ 230 0080 ED A5 02                		mov.L	8[r10], r5
+ 231 0083 61 05                   		cmp	#0, r5
+ 232 0085 10                      		beq	.L17
+ 233                             		.loc 2 112 5 is_stmt 0 discriminator 1
+ 234 0086 ED A1 02                		mov.L	8[r10], r1
+ 235 0089 05 00 00 00             		bsr	_wolfSSL_Free
+ 236                             	.L17:
+ 237                             	.LBE3:
+ 113:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 114:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 115:../src/wolfcrypt/src/wc_encrypt.c ****     return ret;
+ 238                             		.loc 2 115 12 is_stmt 1
+ 239 008d EC A5                   		mov.L	[r10], r5
+ 240                             	.L14:
+ 116:../src/wolfcrypt/src/wc_encrypt.c **** }
+ 241                             		.loc 2 116 1
+ 242 008f EF 51                   		mov.L	r5, r1
+ 243 0091 71 00 28                		add	#40, r0
+ 244 0094 7E B6                   		pop	r6
+ 245 0096 7E BA                   		pop	r10
+ 246 0098 02                      		rts
+ 247                             	.LFE44:
+ 249                             		.section	.text.wc_Des_CbcEncryptWithKey,"ax",@progbits
+ 250                             		.global	_wc_Des_CbcEncryptWithKey
+ 252                             	_wc_Des_CbcEncryptWithKey:
+ 253                             	.LFB45:
+ 117:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* !NO_AES && HAVE_AES_CBC */
+ 118:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 119:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 120:../src/wolfcrypt/src/wc_encrypt.c **** #if !defined(NO_DES3) && !defined(WOLFSSL_TI_CRYPT)
+ 121:../src/wolfcrypt/src/wc_encrypt.c **** int wc_Des_CbcEncryptWithKey(byte* out, const byte* in, word32 sz,
+ 122:../src/wolfcrypt/src/wc_encrypt.c ****                              const byte* key, const byte* iv)
+ 123:../src/wolfcrypt/src/wc_encrypt.c **** {
+ 254                             		.loc 2 123 1
+ 255 0000 7E AA                   		push.l	r10
+ 256                             	.LCFI10:
+ 257 0002 7E A6                   		push.l	r6
+ 258                             	.LCFI11:
+ 259 0004 71 0A E0                		add	#-32, r0, r10
+ 260                             	.LCFI12:
+ 261 0007 EF A0                   		mov.L	r10, r0
+ 262 0009 75 46 2C                		mov.L	#44, r6
+ 263 000c 4B A6                   		add	r10, r6
+ 264 000e E7 A1 03                		mov.L	r1, 12[r10]
+ 265 0011 E7 A2 04                		mov.L	r2, 16[r10]
+ 266 0014 E7 A3 05                		mov.L	r3, 20[r10]
+ 267 0017 E7 A4 06                		mov.L	r4, 24[r10]
+ 124:../src/wolfcrypt/src/wc_encrypt.c ****     int ret  = 0;
+ 268                             		.loc 2 124 9
+ 269 001a F8 A6 00                		mov.L	#0, [r10]
+ 125:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 126:../src/wolfcrypt/src/wc_encrypt.c ****     Des* des;
+ 127:../src/wolfcrypt/src/wc_encrypt.c **** #else
+ 128:../src/wolfcrypt/src/wc_encrypt.c ****     Des  des[1];
+ 129:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 130:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 131:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 132:../src/wolfcrypt/src/wc_encrypt.c ****     des = (Des*)XMALLOC(sizeof(Des), NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 270                             		.loc 2 132 17
+ 271 001d 75 41 90                		mov.L	#0x90, r1
+ 272 0020 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 273 0024 E7 A1 01                		mov.L	r1, 4[r10]
+ 133:../src/wolfcrypt/src/wc_encrypt.c ****     if (des == NULL)
+ 274                             		.loc 2 133 8
+ 275 0027 ED A5 01                		mov.L	4[r10], r5
+ 276 002a 61 05                   		cmp	#0, r5
+ 277 002c 1E                      		bne	.L19
+ 134:../src/wolfcrypt/src/wc_encrypt.c ****         return MEMORY_E;
+ 278                             		.loc 2 134 16
+ 279 002d FB 56 83                		mov.L	#-125, r5
+ 280 0030 2E 3F                   		bra	.L20
+ 281                             	.L19:
+ 135:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 136:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 137:../src/wolfcrypt/src/wc_encrypt.c ****     ret = wc_Des_SetKey(des, key, iv, DES_ENCRYPTION);
+ 282                             		.loc 2 137 11
+ 283 0032 66 04                   		mov.L	#0, r4
+ 284 0034 EC 63                   		mov.L	[r6], r3
+ 285 0036 ED A2 06                		mov.L	24[r10], r2
+ 286 0039 ED A1 01                		mov.L	4[r10], r1
+ 287 003c 05 00 00 00             		bsr	_wc_Des_SetKey
+ 288 0040 E3 A1                   		mov.L	r1, [r10]
+ 138:../src/wolfcrypt/src/wc_encrypt.c ****     if (ret == 0)
+ 289                             		.loc 2 138 8
+ 290 0042 EC A5                   		mov.L	[r10], r5
+ 291 0044 61 05                   		cmp	#0, r5
+ 292 0046 21 14                   		bne	.L21
+ 139:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_Des_CbcEncrypt(des, out, in, sz);
+ 293                             		.loc 2 139 15
+ 294 0048 ED A4 05                		mov.L	20[r10], r4
+ 295 004b ED A3 04                		mov.L	16[r10], r3
+ 296 004e ED A2 03                		mov.L	12[r10], r2
+ 297 0051 ED A1 01                		mov.L	4[r10], r1
+ 298 0054 05 00 00 00             		bsr	_wc_Des_CbcEncrypt
+ 299 0058 E3 A1                   		mov.L	r1, [r10]
+ 300                             	.L21:
+ 301                             	.LBB4:
+ 140:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 141:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 142:../src/wolfcrypt/src/wc_encrypt.c ****     XFREE(des, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 302                             		.loc 2 142 5
+ 303 005a ED A5 01                		mov.L	4[r10], r5
+ 304 005d E7 A5 02                		mov.L	r5, 8[r10]
+ 305 0060 ED A5 02                		mov.L	8[r10], r5
+ 306 0063 61 05                   		cmp	#0, r5
+ 307 0065 10                      		beq	.L22
+ 308                             		.loc 2 142 5 is_stmt 0 discriminator 1
+ 309 0066 ED A1 02                		mov.L	8[r10], r1
+ 310 0069 05 00 00 00             		bsr	_wolfSSL_Free
+ 311                             	.L22:
+ 312                             	.LBE4:
+ 143:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 144:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 145:../src/wolfcrypt/src/wc_encrypt.c ****     return ret;
+ 313                             		.loc 2 145 12 is_stmt 1
+ 314 006d EC A5                   		mov.L	[r10], r5
+ 315                             	.L20:
+ 146:../src/wolfcrypt/src/wc_encrypt.c **** }
+ 316                             		.loc 2 146 1
+ 317 006f EF 51                   		mov.L	r5, r1
+ 318 0071 71 00 20                		add	#32, r0
+ 319 0074 7E B6                   		pop	r6
+ 320 0076 7E BA                   		pop	r10
+ 321 0078 02                      		rts
+ 322                             	.LFE45:
+ 324                             		.section	.text.wc_Des_CbcDecryptWithKey,"ax",@progbits
+ 325                             		.global	_wc_Des_CbcDecryptWithKey
+ 327                             	_wc_Des_CbcDecryptWithKey:
+ 328                             	.LFB46:
+ 147:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 148:../src/wolfcrypt/src/wc_encrypt.c **** int wc_Des_CbcDecryptWithKey(byte* out, const byte* in, word32 sz,
+ 149:../src/wolfcrypt/src/wc_encrypt.c ****                              const byte* key, const byte* iv)
+ 150:../src/wolfcrypt/src/wc_encrypt.c **** {
+ 329                             		.loc 2 150 1
+ 330 0000 7E AA                   		push.l	r10
+ 331                             	.LCFI13:
+ 332 0002 7E A6                   		push.l	r6
+ 333                             	.LCFI14:
+ 334 0004 71 0A E0                		add	#-32, r0, r10
+ 335                             	.LCFI15:
+ 336 0007 EF A0                   		mov.L	r10, r0
+ 337 0009 75 46 2C                		mov.L	#44, r6
+ 338 000c 4B A6                   		add	r10, r6
+ 339 000e E7 A1 03                		mov.L	r1, 12[r10]
+ 340 0011 E7 A2 04                		mov.L	r2, 16[r10]
+ 341 0014 E7 A3 05                		mov.L	r3, 20[r10]
+ 342 0017 E7 A4 06                		mov.L	r4, 24[r10]
+ 151:../src/wolfcrypt/src/wc_encrypt.c ****     int ret  = 0;
+ 343                             		.loc 2 151 9
+ 344 001a F8 A6 00                		mov.L	#0, [r10]
+ 152:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 153:../src/wolfcrypt/src/wc_encrypt.c ****     Des* des;
+ 154:../src/wolfcrypt/src/wc_encrypt.c **** #else
+ 155:../src/wolfcrypt/src/wc_encrypt.c ****     Des  des[1];
+ 156:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 157:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 158:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 159:../src/wolfcrypt/src/wc_encrypt.c ****     des = (Des*)XMALLOC(sizeof(Des), NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 345                             		.loc 2 159 17
+ 346 001d 75 41 90                		mov.L	#0x90, r1
+ 347 0020 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 348 0024 E7 A1 01                		mov.L	r1, 4[r10]
+ 160:../src/wolfcrypt/src/wc_encrypt.c ****     if (des == NULL)
+ 349                             		.loc 2 160 8
+ 350 0027 ED A5 01                		mov.L	4[r10], r5
+ 351 002a 61 05                   		cmp	#0, r5
+ 352 002c 1E                      		bne	.L24
+ 161:../src/wolfcrypt/src/wc_encrypt.c ****         return MEMORY_E;
+ 353                             		.loc 2 161 16
+ 354 002d FB 56 83                		mov.L	#-125, r5
+ 355 0030 2E 3F                   		bra	.L25
+ 356                             	.L24:
+ 162:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 163:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 164:../src/wolfcrypt/src/wc_encrypt.c ****     ret = wc_Des_SetKey(des, key, iv, DES_DECRYPTION);
+ 357                             		.loc 2 164 11
+ 358 0032 66 14                   		mov.L	#1, r4
+ 359 0034 EC 63                   		mov.L	[r6], r3
+ 360 0036 ED A2 06                		mov.L	24[r10], r2
+ 361 0039 ED A1 01                		mov.L	4[r10], r1
+ 362 003c 05 00 00 00             		bsr	_wc_Des_SetKey
+ 363 0040 E3 A1                   		mov.L	r1, [r10]
+ 165:../src/wolfcrypt/src/wc_encrypt.c ****     if (ret == 0)
+ 364                             		.loc 2 165 8
+ 365 0042 EC A5                   		mov.L	[r10], r5
+ 366 0044 61 05                   		cmp	#0, r5
+ 367 0046 21 14                   		bne	.L26
+ 166:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_Des_CbcDecrypt(des, out, in, sz);
+ 368                             		.loc 2 166 15
+ 369 0048 ED A4 05                		mov.L	20[r10], r4
+ 370 004b ED A3 04                		mov.L	16[r10], r3
+ 371 004e ED A2 03                		mov.L	12[r10], r2
+ 372 0051 ED A1 01                		mov.L	4[r10], r1
+ 373 0054 05 00 00 00             		bsr	_wc_Des_CbcDecrypt
+ 374 0058 E3 A1                   		mov.L	r1, [r10]
+ 375                             	.L26:
+ 376                             	.LBB5:
+ 167:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 168:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 169:../src/wolfcrypt/src/wc_encrypt.c ****     XFREE(des, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 377                             		.loc 2 169 5
+ 378 005a ED A5 01                		mov.L	4[r10], r5
+ 379 005d E7 A5 02                		mov.L	r5, 8[r10]
+ 380 0060 ED A5 02                		mov.L	8[r10], r5
+ 381 0063 61 05                   		cmp	#0, r5
+ 382 0065 10                      		beq	.L27
+ 383                             		.loc 2 169 5 is_stmt 0 discriminator 1
+ 384 0066 ED A1 02                		mov.L	8[r10], r1
+ 385 0069 05 00 00 00             		bsr	_wolfSSL_Free
+ 386                             	.L27:
+ 387                             	.LBE5:
+ 170:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 171:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 172:../src/wolfcrypt/src/wc_encrypt.c ****     return ret;
+ 388                             		.loc 2 172 12 is_stmt 1
+ 389 006d EC A5                   		mov.L	[r10], r5
+ 390                             	.L25:
+ 173:../src/wolfcrypt/src/wc_encrypt.c **** }
+ 391                             		.loc 2 173 1
+ 392 006f EF 51                   		mov.L	r5, r1
+ 393 0071 71 00 20                		add	#32, r0
+ 394 0074 7E B6                   		pop	r6
+ 395 0076 7E BA                   		pop	r10
+ 396 0078 02                      		rts
+ 397                             	.LFE46:
+ 399                             		.section	.text.wc_Des3_CbcEncryptWithKey,"ax",@progbits
+ 400                             		.global	_wc_Des3_CbcEncryptWithKey
+ 402                             	_wc_Des3_CbcEncryptWithKey:
+ 403                             	.LFB47:
+ 174:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 175:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 176:../src/wolfcrypt/src/wc_encrypt.c **** int wc_Des3_CbcEncryptWithKey(byte* out, const byte* in, word32 sz,
+ 177:../src/wolfcrypt/src/wc_encrypt.c ****                               const byte* key, const byte* iv)
+ 178:../src/wolfcrypt/src/wc_encrypt.c **** {
+ 404                             		.loc 2 178 1
+ 405 0000 7E AA                   		push.l	r10
+ 406                             	.LCFI16:
+ 407 0002 7E A6                   		push.l	r6
+ 408                             	.LCFI17:
+ 409 0004 71 0A E0                		add	#-32, r0, r10
+ 410                             	.LCFI18:
+ 411 0007 EF A0                   		mov.L	r10, r0
+ 412 0009 75 46 2C                		mov.L	#44, r6
+ 413 000c 4B A6                   		add	r10, r6
+ 414 000e E7 A1 03                		mov.L	r1, 12[r10]
+ 415 0011 E7 A2 04                		mov.L	r2, 16[r10]
+ 416 0014 E7 A3 05                		mov.L	r3, 20[r10]
+ 417 0017 E7 A4 06                		mov.L	r4, 24[r10]
+ 179:../src/wolfcrypt/src/wc_encrypt.c ****     int ret    = 0;
+ 418                             		.loc 2 179 9
+ 419 001a F8 A6 00                		mov.L	#0, [r10]
+ 180:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 181:../src/wolfcrypt/src/wc_encrypt.c ****     Des3* des3;
+ 182:../src/wolfcrypt/src/wc_encrypt.c **** #else
+ 183:../src/wolfcrypt/src/wc_encrypt.c ****     Des3  des3[1];
+ 184:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 185:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 186:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 187:../src/wolfcrypt/src/wc_encrypt.c ****     des3 = (Des3*)XMALLOC(sizeof(Des3), NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 420                             		.loc 2 187 19
+ 421 001d FB 1A 94 01             		mov.L	#0x194, r1
+ 422 0021 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 423 0025 E7 A1 01                		mov.L	r1, 4[r10]
+ 188:../src/wolfcrypt/src/wc_encrypt.c ****     if (des3 == NULL)
+ 424                             		.loc 2 188 8
+ 425 0028 ED A5 01                		mov.L	4[r10], r5
+ 426 002b 61 05                   		cmp	#0, r5
+ 427 002d 1E                      		bne	.L29
+ 189:../src/wolfcrypt/src/wc_encrypt.c ****         return MEMORY_E;
+ 428                             		.loc 2 189 16
+ 429 002e FB 56 83                		mov.L	#-125, r5
+ 430 0031 2E 5A                   		bra	.L30
+ 431                             	.L29:
+ 190:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 191:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 192:../src/wolfcrypt/src/wc_encrypt.c ****     ret = wc_Des3Init(des3, NULL, INVALID_DEVID);
+ 432                             		.loc 2 192 11
+ 433 0033 FB 36 FE                		mov.L	#-2, r3
+ 434 0036 66 02                   		mov.L	#0, r2
+ 435 0038 ED A1 01                		mov.L	4[r10], r1
+ 436 003b 05 00 00 00             		bsr	_wc_Des3Init
+ 437 003f E3 A1                   		mov.L	r1, [r10]
+ 193:../src/wolfcrypt/src/wc_encrypt.c ****     if (ret == 0) {
+ 438                             		.loc 2 193 8
+ 439 0041 EC A5                   		mov.L	[r10], r5
+ 440 0043 61 05                   		cmp	#0, r5
+ 441 0045 21 31                   		bne	.L31
+ 194:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_Des3_SetKey(des3, key, iv, DES_ENCRYPTION);
+ 442                             		.loc 2 194 15
+ 443 0047 66 04                   		mov.L	#0, r4
+ 444 0049 EC 63                   		mov.L	[r6], r3
+ 445 004b ED A2 06                		mov.L	24[r10], r2
+ 446 004e ED A1 01                		mov.L	4[r10], r1
+ 447 0051 05 00 00 00             		bsr	_wc_Des3_SetKey
+ 448 0055 E3 A1                   		mov.L	r1, [r10]
+ 195:../src/wolfcrypt/src/wc_encrypt.c ****         if (ret == 0)
+ 449                             		.loc 2 195 12
+ 450 0057 EC A5                   		mov.L	[r10], r5
+ 451 0059 61 05                   		cmp	#0, r5
+ 452 005b 21 14                   		bne	.L32
+ 196:../src/wolfcrypt/src/wc_encrypt.c ****             ret = wc_Des3_CbcEncrypt(des3, out, in, sz);
+ 453                             		.loc 2 196 19
+ 454 005d ED A4 05                		mov.L	20[r10], r4
+ 455 0060 ED A3 04                		mov.L	16[r10], r3
+ 456 0063 ED A2 03                		mov.L	12[r10], r2
+ 457 0066 ED A1 01                		mov.L	4[r10], r1
+ 458 0069 05 00 00 00             		bsr	_wc_Des3_CbcEncrypt
+ 459 006d E3 A1                   		mov.L	r1, [r10]
+ 460                             	.L32:
+ 197:../src/wolfcrypt/src/wc_encrypt.c ****         wc_Des3Free(des3);
+ 461                             		.loc 2 197 9
+ 462 006f ED A1 01                		mov.L	4[r10], r1
+ 463 0072 05 00 00 00             		bsr	_wc_Des3Free
+ 464                             	.L31:
+ 465                             	.LBB6:
+ 198:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 199:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 200:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 201:../src/wolfcrypt/src/wc_encrypt.c ****     XFREE(des3, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 466                             		.loc 2 201 5
+ 467 0076 ED A5 01                		mov.L	4[r10], r5
+ 468 0079 E7 A5 02                		mov.L	r5, 8[r10]
+ 469 007c ED A5 02                		mov.L	8[r10], r5
+ 470 007f 61 05                   		cmp	#0, r5
+ 471 0081 10                      		beq	.L33
+ 472                             		.loc 2 201 5 is_stmt 0 discriminator 1
+ 473 0082 ED A1 02                		mov.L	8[r10], r1
+ 474 0085 05 00 00 00             		bsr	_wolfSSL_Free
+ 475                             	.L33:
+ 476                             	.LBE6:
+ 202:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 203:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 204:../src/wolfcrypt/src/wc_encrypt.c ****     return ret;
+ 477                             		.loc 2 204 12 is_stmt 1
+ 478 0089 EC A5                   		mov.L	[r10], r5
+ 479                             	.L30:
+ 205:../src/wolfcrypt/src/wc_encrypt.c **** }
+ 480                             		.loc 2 205 1
+ 481 008b EF 51                   		mov.L	r5, r1
+ 482 008d 71 00 20                		add	#32, r0
+ 483 0090 7E B6                   		pop	r6
+ 484 0092 7E BA                   		pop	r10
+ 485 0094 02                      		rts
+ 486                             	.LFE47:
+ 488                             		.section	.text.wc_Des3_CbcDecryptWithKey,"ax",@progbits
+ 489                             		.global	_wc_Des3_CbcDecryptWithKey
+ 491                             	_wc_Des3_CbcDecryptWithKey:
+ 492                             	.LFB48:
+ 206:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 207:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 208:../src/wolfcrypt/src/wc_encrypt.c **** int wc_Des3_CbcDecryptWithKey(byte* out, const byte* in, word32 sz,
+ 209:../src/wolfcrypt/src/wc_encrypt.c ****                               const byte* key, const byte* iv)
+ 210:../src/wolfcrypt/src/wc_encrypt.c **** {
+ 493                             		.loc 2 210 1
+ 494 0000 7E AA                   		push.l	r10
+ 495                             	.LCFI19:
+ 496 0002 7E A6                   		push.l	r6
+ 497                             	.LCFI20:
+ 498 0004 71 0A E0                		add	#-32, r0, r10
+ 499                             	.LCFI21:
+ 500 0007 EF A0                   		mov.L	r10, r0
+ 501 0009 75 46 2C                		mov.L	#44, r6
+ 502 000c 4B A6                   		add	r10, r6
+ 503 000e E7 A1 03                		mov.L	r1, 12[r10]
+ 504 0011 E7 A2 04                		mov.L	r2, 16[r10]
+ 505 0014 E7 A3 05                		mov.L	r3, 20[r10]
+ 506 0017 E7 A4 06                		mov.L	r4, 24[r10]
+ 211:../src/wolfcrypt/src/wc_encrypt.c ****     int ret    = 0;
+ 507                             		.loc 2 211 9
+ 508 001a F8 A6 00                		mov.L	#0, [r10]
+ 212:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 213:../src/wolfcrypt/src/wc_encrypt.c ****     Des3* des3;
+ 214:../src/wolfcrypt/src/wc_encrypt.c **** #else
+ 215:../src/wolfcrypt/src/wc_encrypt.c ****     Des3  des3[1];
+ 216:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 217:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 218:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 219:../src/wolfcrypt/src/wc_encrypt.c ****     des3 = (Des3*)XMALLOC(sizeof(Des3), NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 509                             		.loc 2 219 19
+ 510 001d FB 1A 94 01             		mov.L	#0x194, r1
+ 511 0021 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 512 0025 E7 A1 01                		mov.L	r1, 4[r10]
+ 220:../src/wolfcrypt/src/wc_encrypt.c ****     if (des3 == NULL)
+ 513                             		.loc 2 220 8
+ 514 0028 ED A5 01                		mov.L	4[r10], r5
+ 515 002b 61 05                   		cmp	#0, r5
+ 516 002d 1E                      		bne	.L35
+ 221:../src/wolfcrypt/src/wc_encrypt.c ****         return MEMORY_E;
+ 517                             		.loc 2 221 16
+ 518 002e FB 56 83                		mov.L	#-125, r5
+ 519 0031 2E 5A                   		bra	.L36
+ 520                             	.L35:
+ 222:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 223:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 224:../src/wolfcrypt/src/wc_encrypt.c ****     ret = wc_Des3Init(des3, NULL, INVALID_DEVID);
+ 521                             		.loc 2 224 11
+ 522 0033 FB 36 FE                		mov.L	#-2, r3
+ 523 0036 66 02                   		mov.L	#0, r2
+ 524 0038 ED A1 01                		mov.L	4[r10], r1
+ 525 003b 05 00 00 00             		bsr	_wc_Des3Init
+ 526 003f E3 A1                   		mov.L	r1, [r10]
+ 225:../src/wolfcrypt/src/wc_encrypt.c ****     if (ret == 0) {
+ 527                             		.loc 2 225 8
+ 528 0041 EC A5                   		mov.L	[r10], r5
+ 529 0043 61 05                   		cmp	#0, r5
+ 530 0045 21 31                   		bne	.L37
+ 226:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_Des3_SetKey(des3, key, iv, DES_DECRYPTION);
+ 531                             		.loc 2 226 15
+ 532 0047 66 14                   		mov.L	#1, r4
+ 533 0049 EC 63                   		mov.L	[r6], r3
+ 534 004b ED A2 06                		mov.L	24[r10], r2
+ 535 004e ED A1 01                		mov.L	4[r10], r1
+ 536 0051 05 00 00 00             		bsr	_wc_Des3_SetKey
+ 537 0055 E3 A1                   		mov.L	r1, [r10]
+ 227:../src/wolfcrypt/src/wc_encrypt.c ****         if (ret == 0)
+ 538                             		.loc 2 227 12
+ 539 0057 EC A5                   		mov.L	[r10], r5
+ 540 0059 61 05                   		cmp	#0, r5
+ 541 005b 21 14                   		bne	.L38
+ 228:../src/wolfcrypt/src/wc_encrypt.c ****             ret = wc_Des3_CbcDecrypt(des3, out, in, sz);
+ 542                             		.loc 2 228 19
+ 543 005d ED A4 05                		mov.L	20[r10], r4
+ 544 0060 ED A3 04                		mov.L	16[r10], r3
+ 545 0063 ED A2 03                		mov.L	12[r10], r2
+ 546 0066 ED A1 01                		mov.L	4[r10], r1
+ 547 0069 05 00 00 00             		bsr	_wc_Des3_CbcDecrypt
+ 548 006d E3 A1                   		mov.L	r1, [r10]
+ 549                             	.L38:
+ 229:../src/wolfcrypt/src/wc_encrypt.c ****         wc_Des3Free(des3);
+ 550                             		.loc 2 229 9
+ 551 006f ED A1 01                		mov.L	4[r10], r1
+ 552 0072 05 00 00 00             		bsr	_wc_Des3Free
+ 553                             	.L37:
+ 554                             	.LBB7:
+ 230:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 231:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 232:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 233:../src/wolfcrypt/src/wc_encrypt.c ****     XFREE(des3, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 555                             		.loc 2 233 5
+ 556 0076 ED A5 01                		mov.L	4[r10], r5
+ 557 0079 E7 A5 02                		mov.L	r5, 8[r10]
+ 558 007c ED A5 02                		mov.L	8[r10], r5
+ 559 007f 61 05                   		cmp	#0, r5
+ 560 0081 10                      		beq	.L39
+ 561                             		.loc 2 233 5 is_stmt 0 discriminator 1
+ 562 0082 ED A1 02                		mov.L	8[r10], r1
+ 563 0085 05 00 00 00             		bsr	_wolfSSL_Free
+ 564                             	.L39:
+ 565                             	.LBE7:
+ 234:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 235:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 236:../src/wolfcrypt/src/wc_encrypt.c ****     return ret;
+ 566                             		.loc 2 236 12 is_stmt 1
+ 567 0089 EC A5                   		mov.L	[r10], r5
+ 568                             	.L36:
+ 237:../src/wolfcrypt/src/wc_encrypt.c **** }
+ 569                             		.loc 2 237 1
+ 570 008b EF 51                   		mov.L	r5, r1
+ 571 008d 71 00 20                		add	#32, r0
+ 572 0090 7E B6                   		pop	r6
+ 573 0092 7E BA                   		pop	r10
+ 574 0094 02                      		rts
+ 575                             	.LFE48:
+ 577                             		.section C,"a",@progbits
+ 578                             		.p2align 2
+ 579                             	.LC0:
+ 580 0000 77 63 5F 43 72 79 70 74 		.string	"wc_CryptKey"
+ 580      4B 65 79 00 
+ 581                             	.LC1:
+ 582 000c 55 6E 6B 6E 6F 77 6E 2F 		.string	"Unknown/Unsupported encrypt/decrypt id"
+ 582      55 6E 73 75 70 70 6F 72 
+ 582      74 65 64 20 65 6E 63 72 
+ 582      79 70 74 2F 64 65 63 72 
+ 582      79 70 74 20 69 64 00 
+ 583                             	.LC2:
+ 584 0033 55 6E 6B 6E 6F 77 6E 2F 		.string	"Unknown/Unsupported PKCS version"
+ 584      55 6E 73 75 70 70 6F 72 
+ 584      74 65 64 20 50 4B 43 53 
+ 584      20 76 65 72 73 69 6F 6E 
+ 584      00 
+ 585                             	.LC3:
+ 586 0054 55 6E 6B 6E 6F 77 6E 2F 		.string	"Unknown/Unsupported encrypt/decryption algorithm"
+ 586      55 6E 73 75 70 70 6F 72 
+ 586      74 65 64 20 65 6E 63 72 
+ 586      79 70 74 2F 64 65 63 72 
+ 586      79 70 74 69 6F 6E 20 61 
+ 587 0085 00 00 00                		.section	.text.wc_CryptKey,"ax",@progbits
+ 588                             		.global	_wc_CryptKey
+ 590                             	_wc_CryptKey:
+ 591                             	.LFB49:
+ 238:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 239:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* !NO_DES3 */
+ 240:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 241:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 242:../src/wolfcrypt/src/wc_encrypt.c **** #if !defined(NO_ASN) && defined(WOLFSSL_ENCRYPTED_KEYS)
+ 243:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 244:../src/wolfcrypt/src/wc_encrypt.c **** int wc_BufferKeyDecrypt(EncryptedInfo* info, byte* der, word32 derSz,
+ 245:../src/wolfcrypt/src/wc_encrypt.c ****     const byte* password, int passwordSz, int hashType)
+ 246:../src/wolfcrypt/src/wc_encrypt.c **** {
+ 247:../src/wolfcrypt/src/wc_encrypt.c ****     int ret = NOT_COMPILED_IN;
+ 248:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 249:../src/wolfcrypt/src/wc_encrypt.c ****     byte* key      = NULL;
+ 250:../src/wolfcrypt/src/wc_encrypt.c **** #else
+ 251:../src/wolfcrypt/src/wc_encrypt.c ****     byte  key[WC_MAX_SYM_KEY_SIZE];
+ 252:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 253:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 254:../src/wolfcrypt/src/wc_encrypt.c ****     (void)derSz;
+ 255:../src/wolfcrypt/src/wc_encrypt.c ****     (void)passwordSz;
+ 256:../src/wolfcrypt/src/wc_encrypt.c ****     (void)hashType;
+ 257:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 258:../src/wolfcrypt/src/wc_encrypt.c ****     if (der == NULL || password == NULL || info == NULL || info->keySz == 0) {
+ 259:../src/wolfcrypt/src/wc_encrypt.c ****         return BAD_FUNC_ARG;
+ 260:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 261:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 262:../src/wolfcrypt/src/wc_encrypt.c ****     /* use file's salt for key derivation, hex decode first */
+ 263:../src/wolfcrypt/src/wc_encrypt.c ****     if (Base16_Decode(info->iv, info->ivSz, info->iv, &info->ivSz) != 0) {
+ 264:../src/wolfcrypt/src/wc_encrypt.c ****         return BUFFER_E;
+ 265:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 266:../src/wolfcrypt/src/wc_encrypt.c ****     if (info->ivSz < PKCS5_SALT_SZ)
+ 267:../src/wolfcrypt/src/wc_encrypt.c ****         return BUFFER_E;
+ 268:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 269:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 270:../src/wolfcrypt/src/wc_encrypt.c ****     key = (byte*)XMALLOC(WC_MAX_SYM_KEY_SIZE, NULL, DYNAMIC_TYPE_SYMMETRIC_KEY);
+ 271:../src/wolfcrypt/src/wc_encrypt.c ****     if (key == NULL) {
+ 272:../src/wolfcrypt/src/wc_encrypt.c ****         return MEMORY_E;
+ 273:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 274:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 275:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_CHECK_MEM_ZERO
+ 276:../src/wolfcrypt/src/wc_encrypt.c ****     wc_MemZero_Add("wc_BufferKeyDecrypt key", key, WC_MAX_SYM_KEY_SIZE);
+ 277:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 278:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 279:../src/wolfcrypt/src/wc_encrypt.c ****     (void)XMEMSET(key, 0, WC_MAX_SYM_KEY_SIZE);
+ 280:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 281:../src/wolfcrypt/src/wc_encrypt.c **** #ifndef NO_PWDBASED
+ 282:../src/wolfcrypt/src/wc_encrypt.c ****     if ((ret = wc_PBKDF1(key, password, passwordSz, info->iv, PKCS5_SALT_SZ, 1,
+ 283:../src/wolfcrypt/src/wc_encrypt.c ****                                         info->keySz, hashType)) != 0) {
+ 284:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 285:../src/wolfcrypt/src/wc_encrypt.c ****         XFREE(key, NULL, DYNAMIC_TYPE_SYMMETRIC_KEY);
+ 286:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 287:../src/wolfcrypt/src/wc_encrypt.c ****         wc_MemZero_Check(key, WC_MAX_SYM_KEY_SIZE);
+ 288:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 289:../src/wolfcrypt/src/wc_encrypt.c ****         return ret;
+ 290:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 291:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 292:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 293:../src/wolfcrypt/src/wc_encrypt.c **** #ifndef NO_DES3
+ 294:../src/wolfcrypt/src/wc_encrypt.c ****     if (info->cipherType == WC_CIPHER_DES)
+ 295:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_Des_CbcDecryptWithKey(der, der, derSz, key, info->iv);
+ 296:../src/wolfcrypt/src/wc_encrypt.c ****     if (info->cipherType == WC_CIPHER_DES3)
+ 297:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_Des3_CbcDecryptWithKey(der, der, derSz, key, info->iv);
+ 298:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* NO_DES3 */
+ 299:../src/wolfcrypt/src/wc_encrypt.c **** #if !defined(NO_AES) && defined(HAVE_AES_CBC) && defined(HAVE_AES_DECRYPT)
+ 300:../src/wolfcrypt/src/wc_encrypt.c ****     if (info->cipherType == WC_CIPHER_AES_CBC)
+ 301:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_AesCbcDecryptWithKey(der, der, derSz, key, info->keySz,
+ 302:../src/wolfcrypt/src/wc_encrypt.c ****             info->iv);
+ 303:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* !NO_AES && HAVE_AES_CBC && HAVE_AES_DECRYPT */
+ 304:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 305:../src/wolfcrypt/src/wc_encrypt.c ****     ForceZero(key, WC_MAX_SYM_KEY_SIZE);
+ 306:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 307:../src/wolfcrypt/src/wc_encrypt.c ****     XFREE(key, NULL, DYNAMIC_TYPE_SYMMETRIC_KEY);
+ 308:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 309:../src/wolfcrypt/src/wc_encrypt.c ****     wc_MemZero_Check(key, WC_MAX_SYM_KEY_SIZE);
+ 310:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 311:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 312:../src/wolfcrypt/src/wc_encrypt.c ****     return ret;
+ 313:../src/wolfcrypt/src/wc_encrypt.c **** }
+ 314:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 315:../src/wolfcrypt/src/wc_encrypt.c **** int wc_BufferKeyEncrypt(EncryptedInfo* info, byte* der, word32 derSz,
+ 316:../src/wolfcrypt/src/wc_encrypt.c ****     const byte* password, int passwordSz, int hashType)
+ 317:../src/wolfcrypt/src/wc_encrypt.c **** {
+ 318:../src/wolfcrypt/src/wc_encrypt.c ****     int ret = NOT_COMPILED_IN;
+ 319:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 320:../src/wolfcrypt/src/wc_encrypt.c ****     byte* key      = NULL;
+ 321:../src/wolfcrypt/src/wc_encrypt.c **** #else
+ 322:../src/wolfcrypt/src/wc_encrypt.c ****     byte  key[WC_MAX_SYM_KEY_SIZE];
+ 323:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 324:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 325:../src/wolfcrypt/src/wc_encrypt.c ****     (void)derSz;
+ 326:../src/wolfcrypt/src/wc_encrypt.c ****     (void)passwordSz;
+ 327:../src/wolfcrypt/src/wc_encrypt.c ****     (void)hashType;
+ 328:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 329:../src/wolfcrypt/src/wc_encrypt.c ****     if (der == NULL || password == NULL || info == NULL || info->keySz == 0 ||
+ 330:../src/wolfcrypt/src/wc_encrypt.c ****             info->ivSz < PKCS5_SALT_SZ) {
+ 331:../src/wolfcrypt/src/wc_encrypt.c ****         return BAD_FUNC_ARG;
+ 332:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 333:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 334:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 335:../src/wolfcrypt/src/wc_encrypt.c ****     key = (byte*)XMALLOC(WC_MAX_SYM_KEY_SIZE, NULL, DYNAMIC_TYPE_SYMMETRIC_KEY);
+ 336:../src/wolfcrypt/src/wc_encrypt.c ****     if (key == NULL) {
+ 337:../src/wolfcrypt/src/wc_encrypt.c ****         return MEMORY_E;
+ 338:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 339:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* WOLFSSL_SMALL_STACK */
+ 340:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_CHECK_MEM_ZERO
+ 341:../src/wolfcrypt/src/wc_encrypt.c ****     wc_MemZero_Add("wc_BufferKeyDecrypt key", key, WC_MAX_SYM_KEY_SIZE);
+ 342:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 343:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 344:../src/wolfcrypt/src/wc_encrypt.c ****     (void)XMEMSET(key, 0, WC_MAX_SYM_KEY_SIZE);
+ 345:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 346:../src/wolfcrypt/src/wc_encrypt.c **** #ifndef NO_PWDBASED
+ 347:../src/wolfcrypt/src/wc_encrypt.c ****     if ((ret = wc_PBKDF1(key, password, passwordSz, info->iv, PKCS5_SALT_SZ, 1,
+ 348:../src/wolfcrypt/src/wc_encrypt.c ****                                         info->keySz, hashType)) != 0) {
+ 349:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 350:../src/wolfcrypt/src/wc_encrypt.c ****         XFREE(key, NULL, DYNAMIC_TYPE_SYMMETRIC_KEY);
+ 351:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 352:../src/wolfcrypt/src/wc_encrypt.c ****         wc_MemZero_Check(key, WC_MAX_SYM_KEY_SIZE);
+ 353:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 354:../src/wolfcrypt/src/wc_encrypt.c ****         return ret;
+ 355:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 356:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 357:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 358:../src/wolfcrypt/src/wc_encrypt.c **** #ifndef NO_DES3
+ 359:../src/wolfcrypt/src/wc_encrypt.c ****     if (info->cipherType == WC_CIPHER_DES)
+ 360:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_Des_CbcEncryptWithKey(der, der, derSz, key, info->iv);
+ 361:../src/wolfcrypt/src/wc_encrypt.c ****     if (info->cipherType == WC_CIPHER_DES3)
+ 362:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_Des3_CbcEncryptWithKey(der, der, derSz, key, info->iv);
+ 363:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* NO_DES3 */
+ 364:../src/wolfcrypt/src/wc_encrypt.c **** #if !defined(NO_AES) && defined(HAVE_AES_CBC)
+ 365:../src/wolfcrypt/src/wc_encrypt.c ****     if (info->cipherType == WC_CIPHER_AES_CBC)
+ 366:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_AesCbcEncryptWithKey(der, der, derSz, key, info->keySz,
+ 367:../src/wolfcrypt/src/wc_encrypt.c ****             info->iv);
+ 368:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* !NO_AES && HAVE_AES_CBC */
+ 369:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 370:../src/wolfcrypt/src/wc_encrypt.c ****     ForceZero(key, WC_MAX_SYM_KEY_SIZE);
+ 371:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 372:../src/wolfcrypt/src/wc_encrypt.c ****     XFREE(key, NULL, DYNAMIC_TYPE_SYMMETRIC_KEY);
+ 373:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 374:../src/wolfcrypt/src/wc_encrypt.c ****     wc_MemZero_Check(key, WC_MAX_SYM_KEY_SIZE);
+ 375:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 376:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 377:../src/wolfcrypt/src/wc_encrypt.c ****     return ret;
+ 378:../src/wolfcrypt/src/wc_encrypt.c **** }
+ 379:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 380:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* !NO_ASN && WOLFSSL_ENCRYPTED_KEYS */
+ 381:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 382:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 383:../src/wolfcrypt/src/wc_encrypt.c **** #if !defined(NO_PWDBASED) && !defined(NO_ASN)
+ 384:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 385:../src/wolfcrypt/src/wc_encrypt.c **** #if defined(HAVE_PKCS8) || defined(HAVE_PKCS12)
+ 386:../src/wolfcrypt/src/wc_encrypt.c **** /* Decrypt/Encrypt input in place from parameters based on id
+ 387:../src/wolfcrypt/src/wc_encrypt.c ****  *
+ 388:../src/wolfcrypt/src/wc_encrypt.c ****  * returns a negative value on fail case
+ 389:../src/wolfcrypt/src/wc_encrypt.c ****  */
+ 390:../src/wolfcrypt/src/wc_encrypt.c **** int wc_CryptKey(const char* password, int passwordSz, byte* salt,
+ 391:../src/wolfcrypt/src/wc_encrypt.c ****                       int saltSz, int iterations, int id, byte* input,
+ 392:../src/wolfcrypt/src/wc_encrypt.c ****                       int length, int version, byte* cbcIv, int enc, int shaOid)
+ 393:../src/wolfcrypt/src/wc_encrypt.c **** {
+ 592                             		.loc 2 393 1
+ 593 0000 7E AA                   		push.l	r10
+ 594                             	.LCFI22:
+ 595 0002 7E A6                   		push.l	r6
+ 596                             	.LCFI23:
+ 597 0004 72 0A E8 FD             		add	#-536, r0, r10
+ 598                             	.LCFI24:
+ 599 0008 71 A0 EC                		add	#-20, r10, r0
+ 600                             	.LCFI25:
+ 601 000b FB 6A 24 02             		mov.L	#0x224, r6
+ 602 000f 4B A6                   		add	r10, r6
+ 603 0011 E7 A1 7A                		mov.L	r1, 488[r10]
+ 604 0014 E7 A2 7B                		mov.L	r2, 492[r10]
+ 605 0017 E7 A3 7C                		mov.L	r3, 496[r10]
+ 606 001a E7 A4 7D                		mov.L	r4, 500[r10]
+ 394:../src/wolfcrypt/src/wc_encrypt.c ****     int typeH = WC_HASH_TYPE_NONE;
+ 607                             		.loc 2 394 9
+ 608 001d F8 A6 00                		mov.L	#0, [r10]
+ 395:../src/wolfcrypt/src/wc_encrypt.c ****     int derivedLen = 0;
+ 609                             		.loc 2 395 9
+ 610 0020 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 396:../src/wolfcrypt/src/wc_encrypt.c ****     int ret = 0;
+ 611                             		.loc 2 396 9
+ 612 0024 F9 A6 02 00             		mov.L	#0, 8[r10]
+ 397:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 398:../src/wolfcrypt/src/wc_encrypt.c ****     byte* key;
+ 399:../src/wolfcrypt/src/wc_encrypt.c **** #else
+ 400:../src/wolfcrypt/src/wc_encrypt.c ****     byte key[PKCS_MAX_KEY_SIZE];
+ 401:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 402:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 403:../src/wolfcrypt/src/wc_encrypt.c ****     (void)input;
+ 404:../src/wolfcrypt/src/wc_encrypt.c ****     (void)length;
+ 405:../src/wolfcrypt/src/wc_encrypt.c ****     (void)enc;
+ 406:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 407:../src/wolfcrypt/src/wc_encrypt.c ****     WOLFSSL_ENTER("wc_CryptKey");
+ 613                             		.loc 2 407 5
+ 614 0028 FB 12 00 00 00 00       		mov.L	#.LC0, r1
+ 615 002e 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 408:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 409:../src/wolfcrypt/src/wc_encrypt.c ****     switch (id) {
+ 616                             		.loc 2 409 5
+ 617 0032 A8 6D                   		mov.L	4[r6], r5
+ 618 0034 61 35                   		cmp	#3, r5
+ 619 0036 20 36                   		beq	.L41
+ 620 0038 A8 6D                   		mov.L	4[r6], r5
+ 621 003a 61 35                   		cmp	#3, r5
+ 622 003c 2A 10                   		bgt	.L42
+ 623 003e A8 6D                   		mov.L	4[r6], r5
+ 624 0040 61 05                   		cmp	#0, r5
+ 625 0042 20 18                   		beq	.L43
+ 626 0044 A8 6D                   		mov.L	4[r6], r5
+ 627 0046 61 25                   		cmp	#2, r5
+ 628 0048 20 1B                   		beq	.L44
+ 629 004a 2E 6D                   		bra	.L45
+ 630                             	.L42:
+ 631 004c A8 6D                   		mov.L	4[r6], r5
+ 632 004e 61 45                   		cmp	#4, r5
+ 633 0050 20 35                   		beq	.L46
+ 634 0052 A8 6D                   		mov.L	4[r6], r5
+ 635 0054 61 55                   		cmp	#5, r5
+ 636 0056 20 48                   		beq	.L47
+ 637 0058 2E 5F                   		bra	.L45
+ 638                             	.L43:
+ 410:../src/wolfcrypt/src/wc_encrypt.c ****     #ifndef NO_DES3
+ 411:../src/wolfcrypt/src/wc_encrypt.c ****         #ifndef NO_MD5
+ 412:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_MD5_DES:
+ 413:../src/wolfcrypt/src/wc_encrypt.c ****             typeH = WC_MD5;
+ 639                             		.loc 2 413 19
+ 640 005a F8 A6 03                		mov.L	#3, [r10]
+ 414:../src/wolfcrypt/src/wc_encrypt.c ****             derivedLen = 16;           /* may need iv for v1.5 */
+ 641                             		.loc 2 414 24
+ 642 005d F9 A6 01 10             		mov.L	#16, 4[r10]
+ 415:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 643                             		.loc 2 415 13
+ 644 0061 2E 67                   		bra	.L48
+ 645                             	.L44:
+ 416:../src/wolfcrypt/src/wc_encrypt.c ****         #endif
+ 417:../src/wolfcrypt/src/wc_encrypt.c ****         #ifndef NO_SHA
+ 418:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_SHA1_DES:
+ 419:../src/wolfcrypt/src/wc_encrypt.c ****             typeH = WC_SHA;
+ 646                             		.loc 2 419 19
+ 647 0063 F8 A6 04                		mov.L	#4, [r10]
+ 420:../src/wolfcrypt/src/wc_encrypt.c ****             derivedLen = 16;           /* may need iv for v1.5 */
+ 648                             		.loc 2 420 24
+ 649 0066 F9 A6 01 10             		mov.L	#16, 4[r10]
+ 421:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 650                             		.loc 2 421 13
+ 651 006a 2E 5E                   		bra	.L48
+ 652                             	.L41:
+ 653 006c A9 ED                   		mov.L	28[r6], r5
+ 654 006e 76 05 8D 02             		cmp	#0x28d, r5
+ 655 0072 19                      		bne	.L49
+ 422:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 423:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_SHA1_DES3:
+ 424:../src/wolfcrypt/src/wc_encrypt.c ****             switch(shaOid) {
+ 425:../src/wolfcrypt/src/wc_encrypt.c ****                 case HMAC_SHA256_OID:
+ 426:../src/wolfcrypt/src/wc_encrypt.c ****                     typeH = WC_SHA256;
+ 656                             		.loc 2 426 27
+ 657 0073 F8 A6 06                		mov.L	#6, [r10]
+ 427:../src/wolfcrypt/src/wc_encrypt.c ****                     derivedLen = 32;
+ 658                             		.loc 2 427 32
+ 659 0076 F9 A6 01 20             		mov.L	#32, 4[r10]
+ 428:../src/wolfcrypt/src/wc_encrypt.c ****                     break;
+ 660                             		.loc 2 428 21
+ 661 007a 09                      		bra	.L50
+ 662                             	.L49:
+ 429:../src/wolfcrypt/src/wc_encrypt.c ****                 default:
+ 430:../src/wolfcrypt/src/wc_encrypt.c ****                     typeH = WC_SHA;
+ 663                             		.loc 2 430 27
+ 664 007b F8 A6 04                		mov.L	#4, [r10]
+ 431:../src/wolfcrypt/src/wc_encrypt.c ****                     derivedLen = 32;           /* may need iv for v1.5 */
+ 665                             		.loc 2 431 32
+ 666 007e F9 A6 01 20             		mov.L	#32, 4[r10]
+ 432:../src/wolfcrypt/src/wc_encrypt.c ****                     break;
+ 667                             		.loc 2 432 21
+ 668 0082 03                      		nop
+ 669                             	.L50:
+ 433:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 434:../src/wolfcrypt/src/wc_encrypt.c ****         break;
+ 670                             		.loc 2 434 9
+ 671 0083 2E 45                   		bra	.L48
+ 672                             	.L46:
+ 673 0085 A9 ED                   		mov.L	28[r6], r5
+ 674 0087 76 05 8D 02             		cmp	#0x28d, r5
+ 675 008b 19                      		bne	.L51
+ 435:../src/wolfcrypt/src/wc_encrypt.c ****         #endif /* !NO_SHA */
+ 436:../src/wolfcrypt/src/wc_encrypt.c ****     #endif /* !NO_DES3 */
+ 437:../src/wolfcrypt/src/wc_encrypt.c ****     #if !defined(NO_SHA) && !defined(NO_RC4)
+ 438:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_SHA1_RC4_128:
+ 439:../src/wolfcrypt/src/wc_encrypt.c ****             typeH = WC_SHA;
+ 440:../src/wolfcrypt/src/wc_encrypt.c ****             derivedLen = 16;
+ 441:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 442:../src/wolfcrypt/src/wc_encrypt.c ****     #endif
+ 443:../src/wolfcrypt/src/wc_encrypt.c ****     #if defined(WOLFSSL_AES_256)
+ 444:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_AES256_CBC:
+ 445:../src/wolfcrypt/src/wc_encrypt.c ****             switch(shaOid) {
+ 446:../src/wolfcrypt/src/wc_encrypt.c ****                 case HMAC_SHA256_OID:
+ 447:../src/wolfcrypt/src/wc_encrypt.c ****                     typeH = WC_SHA256;
+ 676                             		.loc 2 447 27
+ 677 008c F8 A6 06                		mov.L	#6, [r10]
+ 448:../src/wolfcrypt/src/wc_encrypt.c ****                     derivedLen = 32;
+ 678                             		.loc 2 448 32
+ 679 008f F9 A6 01 20             		mov.L	#32, 4[r10]
+ 449:../src/wolfcrypt/src/wc_encrypt.c ****                     break;
+ 680                             		.loc 2 449 21
+ 681 0093 09                      		bra	.L52
+ 682                             	.L51:
+ 450:../src/wolfcrypt/src/wc_encrypt.c ****             #ifndef NO_SHA
+ 451:../src/wolfcrypt/src/wc_encrypt.c ****                 default:
+ 452:../src/wolfcrypt/src/wc_encrypt.c ****                     typeH = WC_SHA;
+ 683                             		.loc 2 452 27
+ 684 0094 F8 A6 04                		mov.L	#4, [r10]
+ 453:../src/wolfcrypt/src/wc_encrypt.c ****                     derivedLen = 32;
+ 685                             		.loc 2 453 32
+ 686 0097 F9 A6 01 20             		mov.L	#32, 4[r10]
+ 454:../src/wolfcrypt/src/wc_encrypt.c ****                     break;
+ 687                             		.loc 2 454 21
+ 688 009b 03                      		nop
+ 689                             	.L52:
+ 455:../src/wolfcrypt/src/wc_encrypt.c ****             #endif
+ 456:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 457:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 690                             		.loc 2 457 13
+ 691 009c 2E 2C                   		bra	.L48
+ 692                             	.L47:
+ 693 009e A9 ED                   		mov.L	28[r6], r5
+ 694 00a0 76 05 8D 02             		cmp	#0x28d, r5
+ 695 00a4 19                      		bne	.L53
+ 458:../src/wolfcrypt/src/wc_encrypt.c ****     #endif /* WOLFSSL_AES_256 && !NO_SHA */
+ 459:../src/wolfcrypt/src/wc_encrypt.c ****     #if defined(WOLFSSL_AES_128)
+ 460:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_AES128_CBC:
+ 461:../src/wolfcrypt/src/wc_encrypt.c ****             switch(shaOid) {
+ 462:../src/wolfcrypt/src/wc_encrypt.c ****                 case HMAC_SHA256_OID:
+ 463:../src/wolfcrypt/src/wc_encrypt.c ****                     typeH = WC_SHA256;
+ 696                             		.loc 2 463 27
+ 697 00a5 F8 A6 06                		mov.L	#6, [r10]
+ 464:../src/wolfcrypt/src/wc_encrypt.c ****                     derivedLen = 16;
+ 698                             		.loc 2 464 32
+ 699 00a8 F9 A6 01 10             		mov.L	#16, 4[r10]
+ 465:../src/wolfcrypt/src/wc_encrypt.c ****                     break;
+ 700                             		.loc 2 465 21
+ 701 00ac 09                      		bra	.L54
+ 702                             	.L53:
+ 466:../src/wolfcrypt/src/wc_encrypt.c ****             #ifndef NO_SHA
+ 467:../src/wolfcrypt/src/wc_encrypt.c ****                 default:
+ 468:../src/wolfcrypt/src/wc_encrypt.c ****                     typeH = WC_SHA;
+ 703                             		.loc 2 468 27
+ 704 00ad F8 A6 04                		mov.L	#4, [r10]
+ 469:../src/wolfcrypt/src/wc_encrypt.c ****                     derivedLen = 16;
+ 705                             		.loc 2 469 32
+ 706 00b0 F9 A6 01 10             		mov.L	#16, 4[r10]
+ 470:../src/wolfcrypt/src/wc_encrypt.c ****                     break;
+ 707                             		.loc 2 470 21
+ 708 00b4 03                      		nop
+ 709                             	.L54:
+ 471:../src/wolfcrypt/src/wc_encrypt.c ****             #endif
+ 472:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 473:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 710                             		.loc 2 473 13
+ 711 00b5 2E 13                   		bra	.L48
+ 712                             	.L45:
+ 474:../src/wolfcrypt/src/wc_encrypt.c ****     #endif /* WOLFSSL_AES_128 && !NO_SHA */
+ 475:../src/wolfcrypt/src/wc_encrypt.c ****     #ifdef WC_RC2
+ 476:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_SHA1_40RC2_CBC:
+ 477:../src/wolfcrypt/src/wc_encrypt.c ****             typeH = WC_SHA;
+ 478:../src/wolfcrypt/src/wc_encrypt.c ****             derivedLen = 5;
+ 479:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 480:../src/wolfcrypt/src/wc_encrypt.c ****     #endif
+ 481:../src/wolfcrypt/src/wc_encrypt.c ****         default:
+ 482:../src/wolfcrypt/src/wc_encrypt.c ****             WOLFSSL_MSG("Unknown/Unsupported encrypt/decrypt id");
+ 713                             		.loc 2 482 13
+ 714 00b7 FB 12 0C 00 00 00       		mov.L	#.LC1, r1
+ 715 00bd 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 483:../src/wolfcrypt/src/wc_encrypt.c ****             (void)shaOid;
+ 484:../src/wolfcrypt/src/wc_encrypt.c ****             return ALGO_ID_E;
+ 716                             		.loc 2 484 20
+ 717 00c1 FB 5A 7B FF             		mov.L	#-133, r5
+ 718 00c5 38 E5 04                		bra	.L55
+ 719                             	.L48:
+ 485:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 486:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 487:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 488:../src/wolfcrypt/src/wc_encrypt.c ****     key = (byte*)XMALLOC(PKCS_MAX_KEY_SIZE, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 720                             		.loc 2 488 18
+ 721 00c8 75 41 40                		mov.L	#0x40, r1
+ 722 00cb 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 723 00cf E7 A1 08                		mov.L	r1, 32[r10]
+ 489:../src/wolfcrypt/src/wc_encrypt.c ****     if (key == NULL)
+ 724                             		.loc 2 489 8
+ 725 00d2 ED A5 08                		mov.L	32[r10], r5
+ 726 00d5 61 05                   		cmp	#0, r5
+ 727 00d7 1F                      		bne	.L56
+ 490:../src/wolfcrypt/src/wc_encrypt.c ****         return MEMORY_E;
+ 728                             		.loc 2 490 16
+ 729 00d8 FB 56 83                		mov.L	#-125, r5
+ 730 00db 38 CF 04                		bra	.L55
+ 731                             	.L56:
+ 491:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 492:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_CHECK_MEM_ZERO
+ 493:../src/wolfcrypt/src/wc_encrypt.c ****     wc_MemZero_Add("wc_CryptKey key", key, PKCS_MAX_KEY_SIZE);
+ 494:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 495:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 496:../src/wolfcrypt/src/wc_encrypt.c ****     switch (version) {
+ 732                             		.loc 2 496 5
+ 733 00de A9 65                   		mov.L	16[r6], r5
+ 734 00e0 61 65                   		cmp	#6, r5
+ 735 00e2 20 11                   		beq	.L57
+ 736 00e4 A9 65                   		mov.L	16[r6], r5
+ 737 00e6 61 C5                   		cmp	#12, r5
+ 738 00e8 20 5B                   		beq	.L58
+ 739 00ea A9 65                   		mov.L	16[r6], r5
+ 740 00ec 61 55                   		cmp	#5, r5
+ 741 00ee 20 2D                   		beq	.L59
+ 742 00f0 38 45 01                		bra	.L108
+ 743                             	.L57:
+ 497:../src/wolfcrypt/src/wc_encrypt.c **** #ifndef NO_HMAC
+ 498:../src/wolfcrypt/src/wc_encrypt.c ****     case PKCS5v2:
+ 499:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_PBKDF2(key, (byte*)password, passwordSz,
+ 744                             		.loc 2 499 15
+ 745 00f3 EC A5                   		mov.L	[r10], r5
+ 746 00f5 A0 8D                   		mov.L	r5, 12[r0]
+ 747 00f7 ED A5 01                		mov.L	4[r10], r5
+ 748 00fa A0 85                   		mov.L	r5, 8[r0]
+ 749 00fc EC 65                   		mov.L	[r6], r5
+ 750 00fe A0 0D                   		mov.L	r5, 4[r0]
+ 751 0100 ED A5 7D                		mov.L	500[r10], r5
+ 752 0103 E3 05                   		mov.L	r5, [r0]
+ 753 0105 ED A4 7C                		mov.L	496[r10], r4
+ 754 0108 ED A3 7B                		mov.L	492[r10], r3
+ 755 010b ED A2 7A                		mov.L	488[r10], r2
+ 756 010e ED A1 08                		mov.L	32[r10], r1
+ 757 0111 05 00 00 00             		bsr	_wc_PBKDF2
+ 758 0115 E7 A1 02                		mov.L	r1, 8[r10]
+ 500:../src/wolfcrypt/src/wc_encrypt.c ****                         salt, saltSz, iterations, derivedLen, typeH);
+ 501:../src/wolfcrypt/src/wc_encrypt.c ****         break;
+ 759                             		.loc 2 501 9
+ 760 0118 38 4C 01                		bra	.L61
+ 761                             	.L59:
+ 502:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 503:../src/wolfcrypt/src/wc_encrypt.c **** #ifndef NO_SHA
+ 504:../src/wolfcrypt/src/wc_encrypt.c ****     case PKCS5:
+ 505:../src/wolfcrypt/src/wc_encrypt.c ****         ret = wc_PBKDF1(key, (byte*)password, passwordSz,
+ 762                             		.loc 2 505 15
+ 763 011b EC A5                   		mov.L	[r10], r5
+ 764 011d A0 8D                   		mov.L	r5, 12[r0]
+ 765 011f ED A5 01                		mov.L	4[r10], r5
+ 766 0122 A0 85                   		mov.L	r5, 8[r0]
+ 767 0124 EC 65                   		mov.L	[r6], r5
+ 768 0126 A0 0D                   		mov.L	r5, 4[r0]
+ 769 0128 ED A5 7D                		mov.L	500[r10], r5
+ 770 012b E3 05                   		mov.L	r5, [r0]
+ 771 012d ED A4 7C                		mov.L	496[r10], r4
+ 772 0130 ED A3 7B                		mov.L	492[r10], r3
+ 773 0133 ED A2 7A                		mov.L	488[r10], r2
+ 774 0136 ED A1 08                		mov.L	32[r10], r1
+ 775 0139 05 00 00 00             		bsr	_wc_PBKDF1
+ 776 013d E7 A1 02                		mov.L	r1, 8[r10]
+ 506:../src/wolfcrypt/src/wc_encrypt.c ****                         salt, saltSz, iterations, derivedLen, typeH);
+ 507:../src/wolfcrypt/src/wc_encrypt.c ****         break;
+ 777                             		.loc 2 507 9
+ 778 0140 38 24 01                		bra	.L61
+ 779                             	.L58:
+ 780                             	.LBB8:
+ 508:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 509:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef HAVE_PKCS12
+ 510:../src/wolfcrypt/src/wc_encrypt.c ****     case PKCS12v1:
+ 511:../src/wolfcrypt/src/wc_encrypt.c ****     {
+ 512:../src/wolfcrypt/src/wc_encrypt.c ****         int  i, idx = 0;
+ 781                             		.loc 2 512 17
+ 782 0143 F9 A6 04 00             		mov.L	#0, 16[r10]
+ 513:../src/wolfcrypt/src/wc_encrypt.c ****         byte unicodePasswd[MAX_UNICODE_SZ];
+ 514:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 515:../src/wolfcrypt/src/wc_encrypt.c ****         if ( (passwordSz * 2 + 2) > (int)sizeof(unicodePasswd)) {
+ 783                             		.loc 2 515 30
+ 784 0147 ED A5 7B                		mov.L	492[r10], r5
+ 785 014a 62 15                   		add	#1, r5
+ 786 014c 4B 55                   		add	r5, r5
+ 787                             		.loc 2 515 12
+ 788 014e 76 05 00 01             		cmp	#0x100, r5
+ 789 0152 2B 26                   		ble	.L62
+ 516:../src/wolfcrypt/src/wc_encrypt.c ****             ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 790                             		.loc 2 516 13
+ 791 0154 75 42 40                		mov.L	#0x40, r2
+ 792 0157 ED A1 08                		mov.L	32[r10], r1
+ 793 015a 05 00 00 00             		bsr	_ForceZero
+ 794                             	.LBB9:
+ 517:../src/wolfcrypt/src/wc_encrypt.c ****         #ifdef WOLFSSL_SMALL_STACK
+ 518:../src/wolfcrypt/src/wc_encrypt.c ****             XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 795                             		.loc 2 518 13
+ 796 015e ED A5 08                		mov.L	32[r10], r5
+ 797 0161 E7 A5 09                		mov.L	r5, 36[r10]
+ 798 0164 ED A5 09                		mov.L	36[r10], r5
+ 799 0167 61 05                   		cmp	#0, r5
+ 800 0169 10                      		beq	.L63
+ 801                             		.loc 2 518 13 is_stmt 0 discriminator 1
+ 802 016a ED A1 09                		mov.L	36[r10], r1
+ 803 016d 05 00 00 00             		bsr	_wolfSSL_Free
+ 804                             	.L63:
+ 805                             	.LBE9:
+ 519:../src/wolfcrypt/src/wc_encrypt.c ****         #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 520:../src/wolfcrypt/src/wc_encrypt.c ****             wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 521:../src/wolfcrypt/src/wc_encrypt.c ****         #endif
+ 522:../src/wolfcrypt/src/wc_encrypt.c ****             return UNICODE_SIZE_E;
+ 806                             		.loc 2 522 20 is_stmt 1
+ 807 0171 FB 5A 51 FF             		mov.L	#-175, r5
+ 808 0175 38 35 04                		bra	.L55
+ 809                             	.L62:
+ 523:../src/wolfcrypt/src/wc_encrypt.c ****         }
+ 524:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 525:../src/wolfcrypt/src/wc_encrypt.c ****         for (i = 0; i < passwordSz; i++) {
+ 810                             		.loc 2 525 16
+ 811 0178 F9 A6 03 00             		mov.L	#0, 12[r10]
+ 812                             		.loc 2 525 9
+ 813 017c 2E 31                   		bra	.L64
+ 814                             	.L65:
+ 526:../src/wolfcrypt/src/wc_encrypt.c ****             unicodePasswd[idx++] = 0x00;
+ 815                             		.loc 2 526 30 discriminator 3
+ 816 017e ED A5 04                		mov.L	16[r10], r5
+ 817 0181 71 54 01                		add	#1, r5, r4
+ 818 0184 E7 A4 04                		mov.L	r4, 16[r10]
+ 819                             		.loc 2 526 34 discriminator 3
+ 820 0187 4B A5                   		add	r10, r5
+ 821 0189 F9 54 54 00             		mov.B	#0, 84[r5]
+ 527:../src/wolfcrypt/src/wc_encrypt.c ****             unicodePasswd[idx++] = (byte)password[i];
+ 822                             		.loc 2 527 50 discriminator 3
+ 823 018d ED A5 03                		mov.L	12[r10], r5
+ 824 0190 ED A4 7A                		mov.L	488[r10], r4
+ 825 0193 4B 54                   		add	r5, r4
+ 826                             		.loc 2 527 30 discriminator 3
+ 827 0195 ED A5 04                		mov.L	16[r10], r5
+ 828 0198 71 53 01                		add	#1, r5, r3
+ 829 019b E7 A3 04                		mov.L	r3, 16[r10]
+ 830                             		.loc 2 527 36 discriminator 3
+ 831 019e CC 44                   		mov.B	[r4], r4
+ 832                             		.loc 2 527 34 discriminator 3
+ 833 01a0 4B A5                   		add	r10, r5
+ 834 01a2 C7 54 54                		mov.B	r4, 84[r5]
+ 525:../src/wolfcrypt/src/wc_encrypt.c ****             unicodePasswd[idx++] = 0x00;
+ 835                             		.loc 2 525 38 discriminator 3
+ 836 01a5 ED A5 03                		mov.L	12[r10], r5
+ 837 01a8 62 15                   		add	#1, r5
+ 838 01aa E7 A5 03                		mov.L	r5, 12[r10]
+ 839                             	.L64:
+ 525:../src/wolfcrypt/src/wc_encrypt.c ****             unicodePasswd[idx++] = 0x00;
+ 840                             		.loc 2 525 9 discriminator 1
+ 841 01ad ED A4 03                		mov.L	12[r10], r4
+ 842 01b0 ED A5 7B                		mov.L	492[r10], r5
+ 843 01b3 47 54                   		cmp	r5, r4
+ 844 01b5 29 C9                   		blt	.L65
+ 528:../src/wolfcrypt/src/wc_encrypt.c ****         }
+ 529:../src/wolfcrypt/src/wc_encrypt.c ****         /* add trailing NULL */
+ 530:../src/wolfcrypt/src/wc_encrypt.c ****         unicodePasswd[idx++] = 0x00;
+ 845                             		.loc 2 530 26
+ 846 01b7 ED A5 04                		mov.L	16[r10], r5
+ 847 01ba 71 54 01                		add	#1, r5, r4
+ 848 01bd E7 A4 04                		mov.L	r4, 16[r10]
+ 849                             		.loc 2 530 30
+ 850 01c0 4B A5                   		add	r10, r5
+ 851 01c2 F9 54 54 00             		mov.B	#0, 84[r5]
+ 531:../src/wolfcrypt/src/wc_encrypt.c ****         unicodePasswd[idx++] = 0x00;
+ 852                             		.loc 2 531 26
+ 853 01c6 ED A5 04                		mov.L	16[r10], r5
+ 854 01c9 71 54 01                		add	#1, r5, r4
+ 855 01cc E7 A4 04                		mov.L	r4, 16[r10]
+ 856                             		.loc 2 531 30
+ 857 01cf 4B A5                   		add	r10, r5
+ 858 01d1 F9 54 54 00             		mov.B	#0, 84[r5]
+ 532:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 533:../src/wolfcrypt/src/wc_encrypt.c ****         ret =  wc_PKCS12_PBKDF(key, unicodePasswd, idx, salt, saltSz,
+ 859                             		.loc 2 533 16
+ 860 01d5 71 A5 54                		add	#0x54, r10, r5
+ 861 01d8 3E 04 01                		mov.L	#1, 16[r0]
+ 862 01db EC A4                   		mov.L	[r10], r4
+ 863 01dd A0 8C                   		mov.L	r4, 12[r0]
+ 864 01df ED A4 01                		mov.L	4[r10], r4
+ 865 01e2 A0 84                   		mov.L	r4, 8[r0]
+ 866 01e4 EC 64                   		mov.L	[r6], r4
+ 867 01e6 A0 0C                   		mov.L	r4, 4[r0]
+ 868 01e8 ED A4 7D                		mov.L	500[r10], r4
+ 869 01eb E3 04                   		mov.L	r4, [r0]
+ 870 01ed ED A4 7C                		mov.L	496[r10], r4
+ 871 01f0 ED A3 04                		mov.L	16[r10], r3
+ 872 01f3 EF 52                   		mov.L	r5, r2
+ 873 01f5 ED A1 08                		mov.L	32[r10], r1
+ 874 01f8 05 00 00 00             		bsr	_wc_PKCS12_PBKDF
+ 875 01fc E7 A1 02                		mov.L	r1, 8[r10]
+ 534:../src/wolfcrypt/src/wc_encrypt.c ****                             iterations, derivedLen, typeH, 1);
+ 535:../src/wolfcrypt/src/wc_encrypt.c ****         if (id != PBE_SHA1_RC4_128) {
+ 876                             		.loc 2 535 12
+ 877 01ff A8 6D                   		mov.L	4[r6], r5
+ 878 0201 61 15                   		cmp	#1, r5
+ 879 0203 20 60                   		beq	.L110
+ 536:../src/wolfcrypt/src/wc_encrypt.c ****             ret += wc_PKCS12_PBKDF(cbcIv, unicodePasswd, idx, salt, saltSz,
+ 880                             		.loc 2 536 20
+ 881 0205 71 A5 54                		add	#0x54, r10, r5
+ 882 0208 3E 04 02                		mov.L	#2, 16[r0]
+ 883 020b EC A4                   		mov.L	[r10], r4
+ 884 020d A0 8C                   		mov.L	r4, 12[r0]
+ 885 020f 3E 02 08                		mov.L	#8, 8[r0]
+ 886 0212 EC 64                   		mov.L	[r6], r4
+ 887 0214 A0 0C                   		mov.L	r4, 4[r0]
+ 888 0216 ED A4 7D                		mov.L	500[r10], r4
+ 889 0219 E3 04                   		mov.L	r4, [r0]
+ 890 021b ED A4 7C                		mov.L	496[r10], r4
+ 891 021e ED A3 04                		mov.L	16[r10], r3
+ 892 0221 EF 52                   		mov.L	r5, r2
+ 893 0223 A9 69                   		mov.L	20[r6], r1
+ 894 0225 05 00 00 00             		bsr	_wc_PKCS12_PBKDF
+ 895 0229 EF 15                   		mov.L	r1, r5
+ 896                             		.loc 2 536 17
+ 897 022b ED A4 02                		mov.L	8[r10], r4
+ 898 022e 4B 45                   		add	r4, r5
+ 899 0230 E7 A5 02                		mov.L	r5, 8[r10]
+ 900 0233 2E 31                   		bra	.L61
+ 901                             	.L108:
+ 902                             	.LBE8:
+ 537:../src/wolfcrypt/src/wc_encrypt.c ****                                 iterations, 8, typeH, 2);
+ 538:../src/wolfcrypt/src/wc_encrypt.c ****         }
+ 539:../src/wolfcrypt/src/wc_encrypt.c ****         break;
+ 540:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 541:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* HAVE_PKCS12 */
+ 542:../src/wolfcrypt/src/wc_encrypt.c ****     default:
+ 543:../src/wolfcrypt/src/wc_encrypt.c ****         ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 903                             		.loc 2 543 9
+ 904 0235 75 42 40                		mov.L	#0x40, r2
+ 905 0238 ED A1 08                		mov.L	32[r10], r1
+ 906 023b 05 00 00 00             		bsr	_ForceZero
+ 907                             	.LBB10:
+ 544:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 545:../src/wolfcrypt/src/wc_encrypt.c ****         XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 908                             		.loc 2 545 9
+ 909 023f ED A5 08                		mov.L	32[r10], r5
+ 910 0242 E7 A5 0A                		mov.L	r5, 40[r10]
+ 911 0245 ED A5 0A                		mov.L	40[r10], r5
+ 912 0248 61 05                   		cmp	#0, r5
+ 913 024a 10                      		beq	.L67
+ 914                             		.loc 2 545 9 is_stmt 0 discriminator 1
+ 915 024b ED A1 0A                		mov.L	40[r10], r1
+ 916 024e 05 00 00 00             		bsr	_wolfSSL_Free
+ 917                             	.L67:
+ 918                             	.LBE10:
+ 546:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 547:../src/wolfcrypt/src/wc_encrypt.c ****         wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 548:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 549:../src/wolfcrypt/src/wc_encrypt.c ****         WOLFSSL_MSG("Unknown/Unsupported PKCS version");
+ 919                             		.loc 2 549 9 is_stmt 1
+ 920 0252 FB 12 33 00 00 00       		mov.L	#.LC2, r1
+ 921 0258 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 550:../src/wolfcrypt/src/wc_encrypt.c ****         return ALGO_ID_E;
+ 922                             		.loc 2 550 16
+ 923 025c FB 5A 7B FF             		mov.L	#-133, r5
+ 924 0260 38 4A 03                		bra	.L55
+ 925                             	.L110:
+ 926                             	.LBB11:
+ 539:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 927                             		.loc 2 539 9
+ 928 0263 03                      		nop
+ 929                             		.balign 8,3,1
+ 930                             	.L61:
+ 931                             	.LBE11:
+ 551:../src/wolfcrypt/src/wc_encrypt.c ****     } /* switch (version) */
+ 552:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 553:../src/wolfcrypt/src/wc_encrypt.c ****     if (ret != 0) {
+ 932                             		.loc 2 553 8
+ 933 0264 ED A5 02                		mov.L	8[r10], r5
+ 934 0267 61 05                   		cmp	#0, r5
+ 935 0269 20 25                   		beq	.L68
+ 554:../src/wolfcrypt/src/wc_encrypt.c ****         ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 936                             		.loc 2 554 9
+ 937 026b 75 42 40                		mov.L	#0x40, r2
+ 938 026e ED A1 08                		mov.L	32[r10], r1
+ 939 0271 05 00 00 00             		bsr	_ForceZero
+ 940                             	.LBB12:
+ 555:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 556:../src/wolfcrypt/src/wc_encrypt.c ****         XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 941                             		.loc 2 556 9
+ 942 0275 ED A5 08                		mov.L	32[r10], r5
+ 943 0278 E7 A5 0B                		mov.L	r5, 44[r10]
+ 944 027b ED A5 0B                		mov.L	44[r10], r5
+ 945 027e 61 05                   		cmp	#0, r5
+ 946 0280 10                      		beq	.L69
+ 947                             		.loc 2 556 9 is_stmt 0 discriminator 1
+ 948 0281 ED A1 0B                		mov.L	44[r10], r1
+ 949 0284 05 00 00 00             		bsr	_wolfSSL_Free
+ 950                             	.L69:
+ 951                             	.LBE12:
+ 557:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 558:../src/wolfcrypt/src/wc_encrypt.c ****         wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 559:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 560:../src/wolfcrypt/src/wc_encrypt.c ****         return ret;
+ 952                             		.loc 2 560 16 is_stmt 1
+ 953 0288 ED A5 02                		mov.L	8[r10], r5
+ 954 028b 38 1F 03                		bra	.L55
+ 955                             	.L68:
+ 561:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 562:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 563:../src/wolfcrypt/src/wc_encrypt.c ****     switch (id) {
+ 956                             		.loc 2 563 5
+ 957 028e A8 6D                   		mov.L	4[r6], r5
+ 958 0290 61 35                   		cmp	#3, r5
+ 959 0292 3A BF 00                		beq	.L70
+ 960 0295 A8 6D                   		mov.L	4[r6], r5
+ 961 0297 61 35                   		cmp	#3, r5
+ 962 0299 2A 11                   		bgt	.L71
+ 963 029b A8 6D                   		mov.L	4[r6], r5
+ 964 029d 61 05                   		cmp	#0, r5
+ 965 029f 20 17                   		beq	.L72
+ 966 02a1 A8 6D                   		mov.L	4[r6], r5
+ 967 02a3 61 25                   		cmp	#2, r5
+ 968 02a5 20 11                   		beq	.L72
+ 969 02a7 38 B2 02                		bra	.L73
+ 970                             	.L71:
+ 971 02aa A8 6D                   		mov.L	4[r6], r5
+ 972 02ac 61 55                   		cmp	#5, r5
+ 973 02ae 2B 05 38 A9 02          		bgt	.L73
+ 974 02b3 38 B4 01                		bra	.L109
+ 975                             	.L72:
+ 976                             	.LBB13:
+ 564:../src/wolfcrypt/src/wc_encrypt.c **** #ifndef NO_DES3
+ 565:../src/wolfcrypt/src/wc_encrypt.c ****     #if !defined(NO_SHA) || !defined(NO_MD5)
+ 566:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_MD5_DES:
+ 567:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_SHA1_DES:
+ 568:../src/wolfcrypt/src/wc_encrypt.c ****         {
+ 569:../src/wolfcrypt/src/wc_encrypt.c ****             Des    des;
+ 570:../src/wolfcrypt/src/wc_encrypt.c ****             byte*  desIv = key + 8;
+ 977                             		.loc 2 570 20
+ 978 02b6 ED A5 08                		mov.L	32[r10], r5
+ 979 02b9 62 85                   		add	#8, r5
+ 980 02bb E7 A5 05                		mov.L	r5, 20[r10]
+ 571:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 572:../src/wolfcrypt/src/wc_encrypt.c ****             if (version == PKCS5v2 || version == PKCS12v1)
+ 981                             		.loc 2 572 16
+ 982 02be A9 65                   		mov.L	16[r6], r5
+ 983 02c0 61 65                   		cmp	#6, r5
+ 984 02c2 16                      		beq	.L75
+ 985                             		.loc 2 572 36 discriminator 1
+ 986 02c3 A9 65                   		mov.L	16[r6], r5
+ 987 02c5 61 C5                   		cmp	#12, r5
+ 988 02c7 1E                      		bne	.L76
+ 989                             	.L75:
+ 573:../src/wolfcrypt/src/wc_encrypt.c ****                 desIv = cbcIv;
+ 990                             		.loc 2 573 23
+ 991 02c8 A9 6D                   		mov.L	20[r6], r5
+ 992 02ca E7 A5 05                		mov.L	r5, 20[r10]
+ 993                             	.L76:
+ 574:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 575:../src/wolfcrypt/src/wc_encrypt.c ****             if (enc) {
+ 994                             		.loc 2 575 16
+ 995 02cd A9 E5                   		mov.L	24[r6], r5
+ 996 02cf 61 05                   		cmp	#0, r5
+ 997 02d1 20 18                   		beq	.L77
+ 576:../src/wolfcrypt/src/wc_encrypt.c ****                 ret = wc_Des_SetKey(&des, key, desIv, DES_ENCRYPTION);
+ 998                             		.loc 2 576 23
+ 999 02d3 71 A5 54                		add	#0x54, r10, r5
+ 1000 02d6 66 04                   		mov.L	#0, r4
+ 1001 02d8 ED A3 05                		mov.L	20[r10], r3
+ 1002 02db ED A2 08                		mov.L	32[r10], r2
+ 1003 02de EF 51                   		mov.L	r5, r1
+ 1004 02e0 05 00 00 00             		bsr	_wc_Des_SetKey
+ 1005 02e4 E7 A1 02                		mov.L	r1, 8[r10]
+ 1006 02e7 2E 16                   		bra	.L78
+ 1007                             	.L77:
+ 577:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 578:../src/wolfcrypt/src/wc_encrypt.c ****             else {
+ 579:../src/wolfcrypt/src/wc_encrypt.c ****                 ret = wc_Des_SetKey(&des, key, desIv, DES_DECRYPTION);
+ 1008                             		.loc 2 579 23
+ 1009 02e9 71 A5 54                		add	#0x54, r10, r5
+ 1010 02ec 66 14                   		mov.L	#1, r4
+ 1011 02ee ED A3 05                		mov.L	20[r10], r3
+ 1012 02f1 ED A2 08                		mov.L	32[r10], r2
+ 1013 02f4 EF 51                   		mov.L	r5, r1
+ 1014 02f6 05 00 00 00             		bsr	_wc_Des_SetKey
+ 1015 02fa E7 A1 02                		mov.L	r1, 8[r10]
+ 1016                             	.L78:
+ 580:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 581:../src/wolfcrypt/src/wc_encrypt.c ****             if (ret != 0) {
+ 1017                             		.loc 2 581 16
+ 1018 02fd ED A5 02                		mov.L	8[r10], r5
+ 1019 0300 61 05                   		cmp	#0, r5
+ 1020 0302 20 25                   		beq	.L79
+ 582:../src/wolfcrypt/src/wc_encrypt.c ****                 ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 1021                             		.loc 2 582 17
+ 1022 0304 75 42 40                		mov.L	#0x40, r2
+ 1023 0307 ED A1 08                		mov.L	32[r10], r1
+ 1024 030a 05 00 00 00             		bsr	_ForceZero
+ 1025                             	.LBB14:
+ 583:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 584:../src/wolfcrypt/src/wc_encrypt.c ****                 XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 1026                             		.loc 2 584 17
+ 1027 030e ED A5 08                		mov.L	32[r10], r5
+ 1028 0311 E7 A5 0C                		mov.L	r5, 48[r10]
+ 1029 0314 ED A5 0C                		mov.L	48[r10], r5
+ 1030 0317 61 05                   		cmp	#0, r5
+ 1031 0319 10                      		beq	.L80
+ 1032                             		.loc 2 584 17 is_stmt 0 discriminator 1
+ 1033 031a ED A1 0C                		mov.L	48[r10], r1
+ 1034 031d 05 00 00 00             		bsr	_wolfSSL_Free
+ 1035                             	.L80:
+ 1036                             	.LBE14:
+ 585:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 586:../src/wolfcrypt/src/wc_encrypt.c ****                 wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 587:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 588:../src/wolfcrypt/src/wc_encrypt.c ****                 return ret;
+ 1037                             		.loc 2 588 24 is_stmt 1
+ 1038 0321 ED A5 02                		mov.L	8[r10], r5
+ 1039 0324 38 86 02                		bra	.L55
+ 1040                             	.L79:
+ 589:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 590:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 591:../src/wolfcrypt/src/wc_encrypt.c ****             if (enc) {
+ 1041                             		.loc 2 591 16
+ 1042 0327 A9 E5                   		mov.L	24[r6], r5
+ 1043 0329 61 05                   		cmp	#0, r5
+ 1044 032b 20 14                   		beq	.L81
+ 592:../src/wolfcrypt/src/wc_encrypt.c ****                 wc_Des_CbcEncrypt(&des, input, input, length);
+ 1045                             		.loc 2 592 17
+ 1046 032d A8 EC                   		mov.L	12[r6], r4
+ 1047 032f 71 A5 54                		add	#0x54, r10, r5
+ 1048 0332 A8 E3                   		mov.L	8[r6], r3
+ 1049 0334 A8 E2                   		mov.L	8[r6], r2
+ 1050 0336 EF 51                   		mov.L	r5, r1
+ 1051 0338 05 00 00 00             		bsr	_wc_Des_CbcEncrypt
+ 593:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 594:../src/wolfcrypt/src/wc_encrypt.c ****             else {
+ 595:../src/wolfcrypt/src/wc_encrypt.c ****                 wc_Des_CbcDecrypt(&des, input, input, length);
+ 596:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 597:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 1052                             		.loc 2 597 13
+ 1053 033c 38 4E 02                		bra	.L83
+ 1054                             	.L81:
+ 595:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 1055                             		.loc 2 595 17
+ 1056 033f A8 EC                   		mov.L	12[r6], r4
+ 1057 0341 71 A5 54                		add	#0x54, r10, r5
+ 1058 0344 A8 E3                   		mov.L	8[r6], r3
+ 1059 0346 A8 E2                   		mov.L	8[r6], r2
+ 1060 0348 EF 51                   		mov.L	r5, r1
+ 1061 034a 05 00 00 00             		bsr	_wc_Des_CbcDecrypt
+ 1062 034e 38 3C 02                		bra	.L83
+ 1063                             	.L70:
+ 1064                             	.LBE13:
+ 1065                             	.LBB15:
+ 598:../src/wolfcrypt/src/wc_encrypt.c ****         }
+ 599:../src/wolfcrypt/src/wc_encrypt.c ****     #endif /* !NO_SHA || !NO_MD5 */
+ 600:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 601:../src/wolfcrypt/src/wc_encrypt.c ****     #ifndef NO_SHA
+ 602:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_SHA1_DES3:
+ 603:../src/wolfcrypt/src/wc_encrypt.c ****         {
+ 604:../src/wolfcrypt/src/wc_encrypt.c ****             Des3   des;
+ 605:../src/wolfcrypt/src/wc_encrypt.c ****             byte*  desIv = key + 24;
+ 1066                             		.loc 2 605 20
+ 1067 0351 ED A5 08                		mov.L	32[r10], r5
+ 1068 0354 71 55 18                		add	#24, r5
+ 1069 0357 E7 A5 06                		mov.L	r5, 24[r10]
+ 606:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 607:../src/wolfcrypt/src/wc_encrypt.c ****             if (version == PKCS5v2 || version == PKCS12v1)
+ 1070                             		.loc 2 607 16
+ 1071 035a A9 65                   		mov.L	16[r6], r5
+ 1072 035c 61 65                   		cmp	#6, r5
+ 1073 035e 16                      		beq	.L84
+ 1074                             		.loc 2 607 36 discriminator 1
+ 1075 035f A9 65                   		mov.L	16[r6], r5
+ 1076 0361 61 C5                   		cmp	#12, r5
+ 1077 0363 1E                      		bne	.L85
+ 1078                             	.L84:
+ 608:../src/wolfcrypt/src/wc_encrypt.c ****                 desIv = cbcIv;
+ 1079                             		.loc 2 608 23
+ 1080 0364 A9 6D                   		mov.L	20[r6], r5
+ 1081 0366 E7 A5 06                		mov.L	r5, 24[r10]
+ 1082                             	.L85:
+ 609:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 610:../src/wolfcrypt/src/wc_encrypt.c ****             ret = wc_Des3Init(&des, NULL, INVALID_DEVID);
+ 1083                             		.loc 2 610 19
+ 1084 0369 71 A5 54                		add	#0x54, r10, r5
+ 1085 036c FB 36 FE                		mov.L	#-2, r3
+ 1086 036f 66 02                   		mov.L	#0, r2
+ 1087 0371 EF 51                   		mov.L	r5, r1
+ 1088 0373 05 00 00 00             		bsr	_wc_Des3Init
+ 1089 0377 E7 A1 02                		mov.L	r1, 8[r10]
+ 611:../src/wolfcrypt/src/wc_encrypt.c ****             if (ret != 0) {
+ 1090                             		.loc 2 611 16
+ 1091 037a ED A5 02                		mov.L	8[r10], r5
+ 1092 037d 61 05                   		cmp	#0, r5
+ 1093 037f 20 25                   		beq	.L86
+ 612:../src/wolfcrypt/src/wc_encrypt.c ****                 ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 1094                             		.loc 2 612 17
+ 1095 0381 75 42 40                		mov.L	#0x40, r2
+ 1096 0384 ED A1 08                		mov.L	32[r10], r1
+ 1097 0387 05 00 00 00             		bsr	_ForceZero
+ 1098                             	.LBB16:
+ 613:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 614:../src/wolfcrypt/src/wc_encrypt.c ****                 XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 1099                             		.loc 2 614 17
+ 1100 038b ED A5 08                		mov.L	32[r10], r5
+ 1101 038e E7 A5 0D                		mov.L	r5, 52[r10]
+ 1102 0391 ED A5 0D                		mov.L	52[r10], r5
+ 1103 0394 61 05                   		cmp	#0, r5
+ 1104 0396 10                      		beq	.L87
+ 1105                             		.loc 2 614 17 is_stmt 0 discriminator 1
+ 1106 0397 ED A1 0D                		mov.L	52[r10], r1
+ 1107 039a 05 00 00 00             		bsr	_wolfSSL_Free
+ 1108                             	.L87:
+ 1109                             	.LBE16:
+ 615:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 616:../src/wolfcrypt/src/wc_encrypt.c ****                 wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 617:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 618:../src/wolfcrypt/src/wc_encrypt.c ****                 return ret;
+ 1110                             		.loc 2 618 24 is_stmt 1
+ 1111 039e ED A5 02                		mov.L	8[r10], r5
+ 1112 03a1 38 09 02                		bra	.L55
+ 1113                             	.L86:
+ 619:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 620:../src/wolfcrypt/src/wc_encrypt.c ****             if (enc) {
+ 1114                             		.loc 2 620 16
+ 1115 03a4 A9 E5                   		mov.L	24[r6], r5
+ 1116 03a6 61 05                   		cmp	#0, r5
+ 1117 03a8 20 18                   		beq	.L89
+ 621:../src/wolfcrypt/src/wc_encrypt.c ****                 ret = wc_Des3_SetKey(&des, key, desIv, DES_ENCRYPTION);
+ 1118                             		.loc 2 621 23
+ 1119 03aa 71 A5 54                		add	#0x54, r10, r5
+ 1120 03ad 66 04                   		mov.L	#0, r4
+ 1121 03af ED A3 06                		mov.L	24[r10], r3
+ 1122 03b2 ED A2 08                		mov.L	32[r10], r2
+ 1123 03b5 EF 51                   		mov.L	r5, r1
+ 1124 03b7 05 00 00 00             		bsr	_wc_Des3_SetKey
+ 1125 03bb E7 A1 02                		mov.L	r1, 8[r10]
+ 1126 03be 2E 16                   		bra	.L90
+ 1127                             	.L89:
+ 622:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 623:../src/wolfcrypt/src/wc_encrypt.c ****             else {
+ 624:../src/wolfcrypt/src/wc_encrypt.c ****                 ret = wc_Des3_SetKey(&des, key, desIv, DES_DECRYPTION);
+ 1128                             		.loc 2 624 23
+ 1129 03c0 71 A5 54                		add	#0x54, r10, r5
+ 1130 03c3 66 14                   		mov.L	#1, r4
+ 1131 03c5 ED A3 06                		mov.L	24[r10], r3
+ 1132 03c8 ED A2 08                		mov.L	32[r10], r2
+ 1133 03cb EF 51                   		mov.L	r5, r1
+ 1134 03cd 05 00 00 00             		bsr	_wc_Des3_SetKey
+ 1135 03d1 E7 A1 02                		mov.L	r1, 8[r10]
+ 1136                             	.L90:
+ 625:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 626:../src/wolfcrypt/src/wc_encrypt.c ****             if (ret != 0) {
+ 1137                             		.loc 2 626 16
+ 1138 03d4 ED A5 02                		mov.L	8[r10], r5
+ 1139 03d7 61 05                   		cmp	#0, r5
+ 1140 03d9 20 2E                   		beq	.L91
+ 627:../src/wolfcrypt/src/wc_encrypt.c ****                 ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 1141                             		.loc 2 627 17
+ 1142 03db 75 42 40                		mov.L	#0x40, r2
+ 1143 03de ED A1 08                		mov.L	32[r10], r1
+ 1144 03e1 05 00 00 00             		bsr	_ForceZero
+ 1145                             	.LBB17:
+ 628:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 629:../src/wolfcrypt/src/wc_encrypt.c ****                 XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 1146                             		.loc 2 629 17
+ 1147 03e5 ED A5 08                		mov.L	32[r10], r5
+ 1148 03e8 E7 A5 0E                		mov.L	r5, 56[r10]
+ 1149 03eb ED A5 0E                		mov.L	56[r10], r5
+ 1150 03ee 61 05                   		cmp	#0, r5
+ 1151 03f0 10                      		beq	.L92
+ 1152                             		.loc 2 629 17 is_stmt 0 discriminator 1
+ 1153 03f1 ED A1 0E                		mov.L	56[r10], r1
+ 1154 03f4 05 00 00 00             		bsr	_wolfSSL_Free
+ 1155                             	.L92:
+ 1156                             	.LBE17:
+ 630:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 631:../src/wolfcrypt/src/wc_encrypt.c ****                 wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 632:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 633:../src/wolfcrypt/src/wc_encrypt.c ****                 wc_Des3Free(&des);
+ 1157                             		.loc 2 633 17 is_stmt 1
+ 1158 03f8 71 A5 54                		add	#0x54, r10, r5
+ 1159 03fb EF 51                   		mov.L	r5, r1
+ 1160 03fd 05 00 00 00             		bsr	_wc_Des3Free
+ 634:../src/wolfcrypt/src/wc_encrypt.c ****                 return ret;
+ 1161                             		.loc 2 634 24
+ 1162 0401 ED A5 02                		mov.L	8[r10], r5
+ 1163 0404 38 A6 01                		bra	.L55
+ 1164                             	.L91:
+ 635:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 636:../src/wolfcrypt/src/wc_encrypt.c ****             if (enc) {
+ 1165                             		.loc 2 636 16
+ 1166 0407 A9 E5                   		mov.L	24[r6], r5
+ 1167 0409 61 05                   		cmp	#0, r5
+ 1168 040b 20 16                   		beq	.L93
+ 637:../src/wolfcrypt/src/wc_encrypt.c ****                 ret = wc_Des3_CbcEncrypt(&des, input, input, length);
+ 1169                             		.loc 2 637 23
+ 1170 040d A8 EC                   		mov.L	12[r6], r4
+ 1171 040f 71 A5 54                		add	#0x54, r10, r5
+ 1172 0412 A8 E3                   		mov.L	8[r6], r3
+ 1173 0414 A8 E2                   		mov.L	8[r6], r2
+ 1174 0416 EF 51                   		mov.L	r5, r1
+ 1175 0418 05 00 00 00             		bsr	_wc_Des3_CbcEncrypt
+ 1176 041c E7 A1 02                		mov.L	r1, 8[r10]
+ 1177 041f 2E 14                   		bra	.L94
+ 1178                             	.L93:
+ 638:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 639:../src/wolfcrypt/src/wc_encrypt.c ****             else {
+ 640:../src/wolfcrypt/src/wc_encrypt.c ****                 ret = wc_Des3_CbcDecrypt(&des, input, input, length);
+ 1179                             		.loc 2 640 23
+ 1180 0421 A8 EC                   		mov.L	12[r6], r4
+ 1181 0423 71 A5 54                		add	#0x54, r10, r5
+ 1182 0426 A8 E3                   		mov.L	8[r6], r3
+ 1183 0428 A8 E2                   		mov.L	8[r6], r2
+ 1184 042a EF 51                   		mov.L	r5, r1
+ 1185 042c 05 00 00 00             		bsr	_wc_Des3_CbcDecrypt
+ 1186 0430 E7 A1 02                		mov.L	r1, 8[r10]
+ 1187                             	.L94:
+ 641:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 642:../src/wolfcrypt/src/wc_encrypt.c ****             wc_Des3Free(&des);
+ 1188                             		.loc 2 642 13
+ 1189 0433 71 A5 54                		add	#0x54, r10, r5
+ 1190 0436 EF 51                   		mov.L	r5, r1
+ 1191 0438 05 00 00 00             		bsr	_wc_Des3Free
+ 643:../src/wolfcrypt/src/wc_encrypt.c ****             if (ret != 0) {
+ 1192                             		.loc 2 643 16
+ 1193 043c ED A5 02                		mov.L	8[r10], r5
+ 1194 043f 61 05                   		cmp	#0, r5
+ 1195 0441 3A 45 01                		beq	.L111
+ 644:../src/wolfcrypt/src/wc_encrypt.c ****                 ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 1196                             		.loc 2 644 17
+ 1197 0444 75 42 40                		mov.L	#0x40, r2
+ 1198 0447 ED A1 08                		mov.L	32[r10], r1
+ 1199 044a 05 00 00 00             		bsr	_ForceZero
+ 1200                             	.LBB18:
+ 645:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 646:../src/wolfcrypt/src/wc_encrypt.c ****                 XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 1201                             		.loc 2 646 17
+ 1202 044e ED A5 08                		mov.L	32[r10], r5
+ 1203 0451 E7 A5 0F                		mov.L	r5, 60[r10]
+ 1204 0454 ED A5 0F                		mov.L	60[r10], r5
+ 1205 0457 61 05                   		cmp	#0, r5
+ 1206 0459 10                      		beq	.L96
+ 1207                             		.loc 2 646 17 is_stmt 0 discriminator 1
+ 1208 045a ED A1 0F                		mov.L	60[r10], r1
+ 1209 045d 05 00 00 00             		bsr	_wolfSSL_Free
+ 1210                             	.L96:
+ 1211                             	.LBE18:
+ 647:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 648:../src/wolfcrypt/src/wc_encrypt.c ****                 wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 649:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 650:../src/wolfcrypt/src/wc_encrypt.c ****                 return ret;
+ 1212                             		.loc 2 650 24 is_stmt 1
+ 1213 0461 ED A5 02                		mov.L	8[r10], r5
+ 1214 0464 38 46 01                		bra	.L55
+ 1215                             	.L109:
+ 1216                             	.LBE15:
+ 1217                             	.LBB19:
+ 651:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 652:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 653:../src/wolfcrypt/src/wc_encrypt.c ****         }
+ 654:../src/wolfcrypt/src/wc_encrypt.c ****     #endif /* !NO_SHA */
+ 655:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 656:../src/wolfcrypt/src/wc_encrypt.c **** #if !defined(NO_RC4) && !defined(NO_SHA)
+ 657:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_SHA1_RC4_128:
+ 658:../src/wolfcrypt/src/wc_encrypt.c ****         {
+ 659:../src/wolfcrypt/src/wc_encrypt.c ****             Arc4    dec;
+ 660:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 661:../src/wolfcrypt/src/wc_encrypt.c ****             wc_Arc4SetKey(&dec, key, derivedLen);
+ 662:../src/wolfcrypt/src/wc_encrypt.c ****             wc_Arc4Process(&dec, input, input, length);
+ 663:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 664:../src/wolfcrypt/src/wc_encrypt.c ****         }
+ 665:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 666:../src/wolfcrypt/src/wc_encrypt.c **** #if !defined(NO_AES) && defined(HAVE_AES_CBC)
+ 667:../src/wolfcrypt/src/wc_encrypt.c ****     #ifdef WOLFSSL_AES_256
+ 668:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_AES256_CBC:
+ 669:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_AES128_CBC:
+ 670:../src/wolfcrypt/src/wc_encrypt.c ****         {
+ 671:../src/wolfcrypt/src/wc_encrypt.c ****             int free_aes;
+ 672:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 673:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 674:../src/wolfcrypt/src/wc_encrypt.c ****             Aes *aes;
+ 675:../src/wolfcrypt/src/wc_encrypt.c ****             aes = (Aes *)XMALLOC(sizeof *aes, NULL, DYNAMIC_TYPE_AES);
+ 1218                             		.loc 2 675 26
+ 1219 0467 FB 1A 38 01             		mov.L	#0x138, r1
+ 1220 046b 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1221 046f E7 A1 10                		mov.L	r1, 64[r10]
+ 676:../src/wolfcrypt/src/wc_encrypt.c ****             if (aes == NULL)
+ 1222                             		.loc 2 676 16
+ 1223 0472 ED A5 10                		mov.L	64[r10], r5
+ 1224 0475 61 05                   		cmp	#0, r5
+ 1225 0477 1F                      		bne	.L97
+ 677:../src/wolfcrypt/src/wc_encrypt.c ****                 return MEMORY_E;
+ 1226                             		.loc 2 677 24
+ 1227 0478 FB 56 83                		mov.L	#-125, r5
+ 1228 047b 38 2F 01                		bra	.L55
+ 1229                             	.L97:
+ 678:../src/wolfcrypt/src/wc_encrypt.c **** #else
+ 679:../src/wolfcrypt/src/wc_encrypt.c ****             Aes aes[1];
+ 680:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 681:../src/wolfcrypt/src/wc_encrypt.c ****             free_aes = 0;
+ 1230                             		.loc 2 681 22
+ 1231 047e F9 A6 07 00             		mov.L	#0, 28[r10]
+ 682:../src/wolfcrypt/src/wc_encrypt.c ****             ret = wc_AesInit(aes, NULL, INVALID_DEVID);
+ 1232                             		.loc 2 682 19
+ 1233 0482 FB 36 FE                		mov.L	#-2, r3
+ 1234 0485 66 02                   		mov.L	#0, r2
+ 1235 0487 ED A1 10                		mov.L	64[r10], r1
+ 1236 048a 05 00 00 00             		bsr	_wc_AesInit
+ 1237 048e E7 A1 02                		mov.L	r1, 8[r10]
+ 683:../src/wolfcrypt/src/wc_encrypt.c ****             if (ret == 0) {
+ 1238                             		.loc 2 683 16
+ 1239 0491 ED A5 02                		mov.L	8[r10], r5
+ 1240 0494 61 05                   		cmp	#0, r5
+ 1241 0496 21 3C                   		bne	.L98
+ 684:../src/wolfcrypt/src/wc_encrypt.c ****                 free_aes = 1;
+ 1242                             		.loc 2 684 26
+ 1243 0498 F9 A6 07 01             		mov.L	#1, 28[r10]
+ 685:../src/wolfcrypt/src/wc_encrypt.c ****                 if (enc) {
+ 1244                             		.loc 2 685 20
+ 1245 049c A9 E5                   		mov.L	24[r6], r5
+ 1246 049e 61 05                   		cmp	#0, r5
+ 1247 04a0 20 1B                   		beq	.L99
+ 686:../src/wolfcrypt/src/wc_encrypt.c ****                     ret = wc_AesSetKey(aes, key, derivedLen, cbcIv,
+ 1248                             		.loc 2 686 27
+ 1249 04a2 ED A5 01                		mov.L	4[r10], r5
+ 1250 04a5 F8 06 00                		mov.L	#0, [r0]
+ 1251 04a8 A9 6C                   		mov.L	20[r6], r4
+ 1252 04aa EF 53                   		mov.L	r5, r3
+ 1253 04ac ED A2 08                		mov.L	32[r10], r2
+ 1254 04af ED A1 10                		mov.L	64[r10], r1
+ 1255 04b2 05 00 00 00             		bsr	_wc_AesSetKey
+ 1256 04b6 E7 A1 02                		mov.L	r1, 8[r10]
+ 1257 04b9 2E 19                   		bra	.L98
+ 1258                             	.L99:
+ 687:../src/wolfcrypt/src/wc_encrypt.c ****                                                                 AES_ENCRYPTION);
+ 688:../src/wolfcrypt/src/wc_encrypt.c ****                 }
+ 689:../src/wolfcrypt/src/wc_encrypt.c ****                 else {
+ 690:../src/wolfcrypt/src/wc_encrypt.c ****                     ret = wc_AesSetKey(aes, key, derivedLen, cbcIv,
+ 1259                             		.loc 2 690 27
+ 1260 04bb ED A5 01                		mov.L	4[r10], r5
+ 1261 04be F8 06 01                		mov.L	#1, [r0]
+ 1262 04c1 A9 6C                   		mov.L	20[r6], r4
+ 1263 04c3 EF 53                   		mov.L	r5, r3
+ 1264 04c5 ED A2 08                		mov.L	32[r10], r2
+ 1265 04c8 ED A1 10                		mov.L	64[r10], r1
+ 1266 04cb 05 00 00 00             		bsr	_wc_AesSetKey
+ 1267 04cf E7 A1 02                		mov.L	r1, 8[r10]
+ 1268                             	.L98:
+ 691:../src/wolfcrypt/src/wc_encrypt.c ****                                                                 AES_DECRYPTION);
+ 692:../src/wolfcrypt/src/wc_encrypt.c ****                 }
+ 693:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 694:../src/wolfcrypt/src/wc_encrypt.c ****             if (ret == 0) {
+ 1269                             		.loc 2 694 16
+ 1270 04d2 ED A5 02                		mov.L	8[r10], r5
+ 1271 04d5 61 05                   		cmp	#0, r5
+ 1272 04d7 21 2E                   		bne	.L100
+ 695:../src/wolfcrypt/src/wc_encrypt.c ****                 if (enc)
+ 1273                             		.loc 2 695 20
+ 1274 04d9 A9 E5                   		mov.L	24[r6], r5
+ 1275 04db 61 05                   		cmp	#0, r5
+ 1276 04dd 20 16                   		beq	.L101
+ 696:../src/wolfcrypt/src/wc_encrypt.c ****                     ret = wc_AesCbcEncrypt(aes, input, input, length);
+ 1277                             		.loc 2 696 27
+ 1278 04df A8 ED                   		mov.L	12[r6], r5
+ 1279 04e1 EF 54                   		mov.L	r5, r4
+ 1280 04e3 A8 E3                   		mov.L	8[r6], r3
+ 1281 04e5 A8 E2                   		mov.L	8[r6], r2
+ 1282 04e7 ED A1 10                		mov.L	64[r10], r1
+ 1283 04ea 05 00 00 00             		bsr	_wc_AesCbcEncrypt
+ 1284 04ee E7 A1 02                		mov.L	r1, 8[r10]
+ 1285 04f1 2E 14                   		bra	.L100
+ 1286                             	.L101:
+ 697:../src/wolfcrypt/src/wc_encrypt.c ****                 else
+ 698:../src/wolfcrypt/src/wc_encrypt.c ****                     ret = wc_AesCbcDecrypt(aes, input, input, length);
+ 1287                             		.loc 2 698 27
+ 1288 04f3 A8 ED                   		mov.L	12[r6], r5
+ 1289 04f5 EF 54                   		mov.L	r5, r4
+ 1290 04f7 A8 E3                   		mov.L	8[r6], r3
+ 1291 04f9 A8 E2                   		mov.L	8[r6], r2
+ 1292 04fb ED A1 10                		mov.L	64[r10], r1
+ 1293 04fe 05 00 00 00             		bsr	_wc_AesCbcDecrypt
+ 1294 0502 E7 A1 02                		mov.L	r1, 8[r10]
+ 1295                             	.L100:
+ 699:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 700:../src/wolfcrypt/src/wc_encrypt.c ****             if (free_aes)
+ 1296                             		.loc 2 700 16
+ 1297 0505 ED A5 07                		mov.L	28[r10], r5
+ 1298 0508 61 05                   		cmp	#0, r5
+ 1299 050a 10                      		beq	.L102
+ 701:../src/wolfcrypt/src/wc_encrypt.c ****                 wc_AesFree(aes);
+ 1300                             		.loc 2 701 17
+ 1301 050b ED A1 10                		mov.L	64[r10], r1
+ 1302 050e 05 00 00 00             		bsr	_wc_AesFree
+ 1303                             	.L102:
+ 702:../src/wolfcrypt/src/wc_encrypt.c ****             ForceZero(aes, sizeof(Aes));
+ 1304                             		.loc 2 702 13
+ 1305 0512 FB 2A 38 01             		mov.L	#0x138, r2
+ 1306 0516 ED A1 10                		mov.L	64[r10], r1
+ 1307 0519 05 00 00 00             		bsr	_ForceZero
+ 1308                             	.LBB20:
+ 703:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 704:../src/wolfcrypt/src/wc_encrypt.c ****             XFREE(aes, NULL, DYNAMIC_TYPE_AES);
+ 1309                             		.loc 2 704 13
+ 1310 051d ED A5 10                		mov.L	64[r10], r5
+ 1311 0520 E7 A5 11                		mov.L	r5, 68[r10]
+ 1312 0523 ED A5 11                		mov.L	68[r10], r5
+ 1313 0526 61 05                   		cmp	#0, r5
+ 1314 0528 10                      		beq	.L103
+ 1315                             		.loc 2 704 13 is_stmt 0 discriminator 1
+ 1316 0529 ED A1 11                		mov.L	68[r10], r1
+ 1317 052c 05 00 00 00             		bsr	_wolfSSL_Free
+ 1318                             	.L103:
+ 1319                             	.LBE20:
+ 705:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 706:../src/wolfcrypt/src/wc_encrypt.c ****             if (ret != 0) {
+ 1320                             		.loc 2 706 16 is_stmt 1
+ 1321 0530 ED A5 02                		mov.L	8[r10], r5
+ 1322 0533 61 05                   		cmp	#0, r5
+ 1323 0535 20 54                   		beq	.L112
+ 707:../src/wolfcrypt/src/wc_encrypt.c ****                 ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 1324                             		.loc 2 707 17
+ 1325 0537 75 42 40                		mov.L	#0x40, r2
+ 1326 053a ED A1 08                		mov.L	32[r10], r1
+ 1327 053d 05 00 00 00             		bsr	_ForceZero
+ 1328                             	.LBB21:
+ 708:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 709:../src/wolfcrypt/src/wc_encrypt.c ****                 XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 1329                             		.loc 2 709 17
+ 1330 0541 ED A5 08                		mov.L	32[r10], r5
+ 1331 0544 E7 A5 12                		mov.L	r5, 72[r10]
+ 1332 0547 ED A5 12                		mov.L	72[r10], r5
+ 1333 054a 61 05                   		cmp	#0, r5
+ 1334 054c 10                      		beq	.L105
+ 1335                             		.loc 2 709 17 is_stmt 0 discriminator 1
+ 1336 054d ED A1 12                		mov.L	72[r10], r1
+ 1337 0550 05 00 00 00             		bsr	_wolfSSL_Free
+ 1338                             	.L105:
+ 1339                             	.LBE21:
+ 710:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 711:../src/wolfcrypt/src/wc_encrypt.c ****                 wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 712:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 713:../src/wolfcrypt/src/wc_encrypt.c ****                 return ret;
+ 1340                             		.loc 2 713 24 is_stmt 1
+ 1341 0554 ED A5 02                		mov.L	8[r10], r5
+ 1342 0557 2E 53                   		bra	.L55
+ 1343                             	.L73:
+ 1344                             	.LBE19:
+ 714:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 715:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 716:../src/wolfcrypt/src/wc_encrypt.c ****         }
+ 717:../src/wolfcrypt/src/wc_encrypt.c ****     #endif /* WOLFSSL_AES_256 */
+ 718:../src/wolfcrypt/src/wc_encrypt.c **** #endif /* !NO_AES && HAVE_AES_CBC */
+ 719:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WC_RC2
+ 720:../src/wolfcrypt/src/wc_encrypt.c ****         case PBE_SHA1_40RC2_CBC:
+ 721:../src/wolfcrypt/src/wc_encrypt.c ****         {
+ 722:../src/wolfcrypt/src/wc_encrypt.c ****             Rc2 rc2;
+ 723:../src/wolfcrypt/src/wc_encrypt.c ****             /* effective key size for RC2-40-CBC is 40 bits */
+ 724:../src/wolfcrypt/src/wc_encrypt.c ****             ret = wc_Rc2SetKey(&rc2, key, derivedLen, cbcIv, 40);
+ 725:../src/wolfcrypt/src/wc_encrypt.c ****             if (ret == 0) {
+ 726:../src/wolfcrypt/src/wc_encrypt.c ****                 if (enc)
+ 727:../src/wolfcrypt/src/wc_encrypt.c ****                     ret = wc_Rc2CbcEncrypt(&rc2, input, input, length);
+ 728:../src/wolfcrypt/src/wc_encrypt.c ****                 else
+ 729:../src/wolfcrypt/src/wc_encrypt.c ****                     ret = wc_Rc2CbcDecrypt(&rc2, input, input, length);
+ 730:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 731:../src/wolfcrypt/src/wc_encrypt.c ****             if (ret != 0) {
+ 732:../src/wolfcrypt/src/wc_encrypt.c ****                 ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 733:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 734:../src/wolfcrypt/src/wc_encrypt.c ****                 XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 735:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 736:../src/wolfcrypt/src/wc_encrypt.c ****                 wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 737:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 738:../src/wolfcrypt/src/wc_encrypt.c ****                 return ret;
+ 739:../src/wolfcrypt/src/wc_encrypt.c ****             }
+ 740:../src/wolfcrypt/src/wc_encrypt.c ****             ForceZero(&rc2, sizeof(Rc2));
+ 741:../src/wolfcrypt/src/wc_encrypt.c ****             break;
+ 742:../src/wolfcrypt/src/wc_encrypt.c ****         }
+ 743:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 744:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 745:../src/wolfcrypt/src/wc_encrypt.c ****         default:
+ 746:../src/wolfcrypt/src/wc_encrypt.c ****             ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 1345                             		.loc 2 746 13
+ 1346 0559 75 42 40                		mov.L	#0x40, r2
+ 1347 055c ED A1 08                		mov.L	32[r10], r1
+ 1348 055f 05 00 00 00             		bsr	_ForceZero
+ 1349                             	.LBB22:
+ 747:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 748:../src/wolfcrypt/src/wc_encrypt.c ****             XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 1350                             		.loc 2 748 13
+ 1351 0563 ED A5 08                		mov.L	32[r10], r5
+ 1352 0566 E7 A5 13                		mov.L	r5, 76[r10]
+ 1353 0569 ED A5 13                		mov.L	76[r10], r5
+ 1354 056c 61 05                   		cmp	#0, r5
+ 1355 056e 10                      		beq	.L106
+ 1356                             		.loc 2 748 13 is_stmt 0 discriminator 1
+ 1357 056f ED A1 13                		mov.L	76[r10], r1
+ 1358 0572 05 00 00 00             		bsr	_wolfSSL_Free
+ 1359                             	.L106:
+ 1360                             	.LBE22:
+ 749:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 750:../src/wolfcrypt/src/wc_encrypt.c ****             wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 751:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 752:../src/wolfcrypt/src/wc_encrypt.c ****             WOLFSSL_MSG("Unknown/Unsupported encrypt/decryption algorithm");
+ 1361                             		.loc 2 752 13 is_stmt 1
+ 1362 0576 FB 12 54 00 00 00       		mov.L	#.LC3, r1
+ 1363 057c 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 753:../src/wolfcrypt/src/wc_encrypt.c ****             return ALGO_ID_E;
+ 1364                             		.loc 2 753 20
+ 1365 0580 FB 5A 7B FF             		mov.L	#-133, r5
+ 1366 0584 2E 26                   		bra	.L55
+ 1367                             	.L111:
+ 1368                             	.LBB23:
+ 652:../src/wolfcrypt/src/wc_encrypt.c ****         }
+ 1369                             		.loc 2 652 13
+ 1370 0586 03                      		nop
+ 1371 0587 2E 03                   		bra	.L83
+ 1372                             	.L112:
+ 1373                             	.LBE23:
+ 1374                             	.LBB24:
+ 715:../src/wolfcrypt/src/wc_encrypt.c ****         }
+ 1375                             		.loc 2 715 13
+ 1376 0589 03                      		nop
+ 1377                             		.balign 8,3,2
+ 1378                             	.L83:
+ 1379                             	.LBE24:
+ 754:../src/wolfcrypt/src/wc_encrypt.c ****     }
+ 755:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 756:../src/wolfcrypt/src/wc_encrypt.c ****     ForceZero(key, PKCS_MAX_KEY_SIZE);
+ 1380                             		.loc 2 756 5
+ 1381 058a 75 42 40                		mov.L	#0x40, r2
+ 1382 058d ED A1 08                		mov.L	32[r10], r1
+ 1383 0590 05 00 00 00             		bsr	_ForceZero
+ 1384                             	.LBB25:
+ 757:../src/wolfcrypt/src/wc_encrypt.c **** #ifdef WOLFSSL_SMALL_STACK
+ 758:../src/wolfcrypt/src/wc_encrypt.c ****     XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 1385                             		.loc 2 758 5
+ 1386 0594 ED A5 08                		mov.L	32[r10], r5
+ 1387 0597 E7 A5 14                		mov.L	r5, 80[r10]
+ 1388 059a ED A5 14                		mov.L	80[r10], r5
+ 1389 059d 61 05                   		cmp	#0, r5
+ 1390 059f 10                      		beq	.L107
+ 1391                             		.loc 2 758 5 is_stmt 0 discriminator 1
+ 1392 05a0 ED A1 14                		mov.L	80[r10], r1
+ 1393 05a3 05 00 00 00             		bsr	_wolfSSL_Free
+ 1394                             	.L107:
+ 1395                             	.LBE25:
+ 759:../src/wolfcrypt/src/wc_encrypt.c **** #elif defined(WOLFSSL_CHECK_MEM_ZERO)
+ 760:../src/wolfcrypt/src/wc_encrypt.c ****     wc_MemZero_Check(key, PKCS_MAX_KEY_SIZE);
+ 761:../src/wolfcrypt/src/wc_encrypt.c **** #endif
+ 762:../src/wolfcrypt/src/wc_encrypt.c **** 
+ 763:../src/wolfcrypt/src/wc_encrypt.c ****     return ret;
+ 1396                             		.loc 2 763 12 is_stmt 1
+ 1397 05a7 ED A5 02                		mov.L	8[r10], r5
+ 1398                             		.balign 8,3,1
+ 1399                             	.L55:
+ 764:../src/wolfcrypt/src/wc_encrypt.c **** }
+ 1400                             		.loc 2 764 1
+ 1401 05aa EF 51                   		mov.L	r5, r1
+ 1402 05ac 72 00 2C 02             		add	#0x22c, r0
+ 1403 05b0 7E B6                   		pop	r6
+ 1404 05b2 7E BA                   		pop	r10
+ 1405 05b4 02                      		rts
+ 1406                             	.LFE49:
+ 1635                             	.Letext0:
+ 1636                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 1637                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1638                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1639                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1640                             		.file 7 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1641                             		.file 8 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/types.h"
+ 1642                             		.file 9 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1643                             		.file 10 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\incl
+ 1644                             		.file 11 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha256.h"
+ 1645                             		.file 12 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/aes.h"
+ 1646                             		.file 13 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/des3.h"
+ 1647                             		.file 14 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md5.h"
+ 1648                             		.file 15 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha.h"
+ 1649                             		.file 16 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/error-crypt.h"
+ 1650                             		.file 17 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/wolfmath.h"
+ 1651                             		.file 18 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/asn.h"

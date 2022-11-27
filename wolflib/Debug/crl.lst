@@ -1,0 +1,3002 @@
+   1                             		.file	"crl.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.rodata.c25519_base_x,"a"
+   7                             	_c25519_base_x:
+   8 0000 09                      		.byte	9
+   9 0001 00 00 00 00 00 00 00 00 		.zero	31
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 
+  10                             		.section	.rodata.f25519_zero,"a"
+  13                             	_f25519_zero:
+  14 0000 00 00 00 00 00 00 00 00 		.zero	32
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  15                             		.section	.rodata.f25519_one,"a"
+  18                             	_f25519_one:
+  19 0000 01                      		.byte	1
+  20 0001 00 00 00 00 00 00 00 00 		.zero	31
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 
+  21                             		.section	.rodata.fprime_zero,"a"
+  24                             	_fprime_zero:
+  25 0000 00 00 00 00 00 00 00 00 		.zero	32
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  26                             		.section	.rodata.fprime_one,"a"
+  29                             	_fprime_one:
+  30 0000 01                      		.byte	1
+  31 0001 00 00 00 00 00 00 00 00 		.zero	31
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 
+  32                             		.section	.rodata.client,"a"
+  35                             	_client:
+  36 0000 43                      		.byte	0x43
+  37 0001 4C                      		.byte	0x4c
+  38 0002 4E                      		.byte	0x4e
+  39 0003 54                      		.byte	0x54
+  40 0004 00                      		.byte	0
+  41                             		.section	.rodata.server,"a"
+  44                             	_server:
+  45 0000 53                      		.byte	0x53
+  46 0001 52                      		.byte	0x52
+  47 0002 56                      		.byte	0x56
+  48 0003 52                      		.byte	0x52
+  49 0004 00                      		.byte	0
+  50                             		.section	.rodata.tls_client,"a"
+  53                             	_tls_client:
+  54 0000 63 6C 69 65 6E 74 20 66 		.string	"client finished"
+  54      69 6E 69 73 68 65 64 00 
+  55                             		.section	.rodata.tls_server,"a"
+  58                             	_tls_server:
+  59 0000 73 65 72 76 65 72 20 66 		.string	"server finished"
+  59      69 6E 69 73 68 65 64 00 
+  60                             		.section C,"a",@progbits
+  61                             		.p2align 2
+  62                             	.LC0:
+  63 0000 49 6E 69 74 43 52 4C 00 		.string	"InitCRL"
+  64                             	.LC1:
+  65 0008 49 6E 69 74 20 4D 75 74 		.string	"Init Mutex failed"
+  65      65 78 20 66 61 69 6C 65 
+  65      64 00 
+  66                             		.section	.text.InitCRL,"ax",@progbits
+  67                             		.global	_InitCRL
+  69                             	_InitCRL:
+  70                             	.LFB1:
+  71                             		.file 1 "../src/src/crl.c"
+   1:../src/src/crl.c **** /* crl.c
+   2:../src/src/crl.c ****  *
+   3:../src/src/crl.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/src/crl.c ****  *
+   5:../src/src/crl.c ****  * This file is part of wolfSSL.
+   6:../src/src/crl.c ****  *
+   7:../src/src/crl.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/src/crl.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/src/crl.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/src/crl.c ****  * (at your option) any later version.
+  11:../src/src/crl.c ****  *
+  12:../src/src/crl.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/src/crl.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/src/crl.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/src/crl.c ****  * GNU General Public License for more details.
+  16:../src/src/crl.c ****  *
+  17:../src/src/crl.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/src/crl.c ****  * along with this program; if not, write to the Free Software
+  19:../src/src/crl.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/src/crl.c ****  */
+  21:../src/src/crl.c **** 
+  22:../src/src/crl.c **** 
+  23:../src/src/crl.c ****   /* Name change compatibility layer no longer needs included here */
+  24:../src/src/crl.c **** 
+  25:../src/src/crl.c **** #ifdef HAVE_CONFIG_H
+  26:../src/src/crl.c ****     #include <config.h>
+  27:../src/src/crl.c **** #endif
+  28:../src/src/crl.c **** 
+  29:../src/src/crl.c **** #include <wolfssl/wolfcrypt/settings.h>
+  30:../src/src/crl.c **** 
+  31:../src/src/crl.c **** #ifndef WOLFCRYPT_ONLY
+  32:../src/src/crl.c **** #ifdef HAVE_CRL
+  33:../src/src/crl.c **** 
+  34:../src/src/crl.c **** #include <wolfssl/internal.h>
+  35:../src/src/crl.c **** #include <wolfssl/error-ssl.h>
+  36:../src/src/crl.c **** 
+  37:../src/src/crl.c **** #ifndef WOLFSSL_LINUXKM
+  38:../src/src/crl.c ****     #include <string.h>
+  39:../src/src/crl.c **** #endif
+  40:../src/src/crl.c **** 
+  41:../src/src/crl.c **** #ifdef HAVE_CRL_MONITOR
+  42:../src/src/crl.c ****     #if (defined(__MACH__) || defined(__FreeBSD__) || defined(__linux__))
+  43:../src/src/crl.c ****         static int StopMonitor(int mfd);
+  44:../src/src/crl.c ****     #else
+  45:../src/src/crl.c ****         #error "CRL monitor only currently supported on linux or mach"
+  46:../src/src/crl.c ****     #endif
+  47:../src/src/crl.c **** #endif /* HAVE_CRL_MONITOR */
+  48:../src/src/crl.c **** 
+  49:../src/src/crl.c **** 
+  50:../src/src/crl.c **** /* Initialize CRL members */
+  51:../src/src/crl.c **** int InitCRL(WOLFSSL_CRL* crl, WOLFSSL_CERT_MANAGER* cm)
+  52:../src/src/crl.c **** {
+  72                             		.loc 1 52 1
+  73 0000 7E AA                   		push.l	r10
+  74                             	.LCFI0:
+  75 0002 71 0A F8                		add	#-8, r0, r10
+  76                             	.LCFI1:
+  77 0005 EF A0                   		mov.L	r10, r0
+  78 0007 E3 A1                   		mov.L	r1, [r10]
+  79 0009 E7 A2 01                		mov.L	r2, 4[r10]
+  53:../src/src/crl.c ****     WOLFSSL_ENTER("InitCRL");
+  80                             		.loc 1 53 5
+  81 000c FB 12 00 00 00 00       		mov.L	#.LC0, r1
+  82 0012 05 00 00 00             		bsr	_WOLFSSL_ENTER
+  54:../src/src/crl.c ****     if(cm != NULL)
+  83                             		.loc 1 54 7
+  84 0016 ED A5 01                		mov.L	4[r10], r5
+  85 0019 61 05                   		cmp	#0, r5
+  86 001b 20 0C                   		beq	.L2
+  55:../src/src/crl.c ****         crl->heap = cm->heap;
+  87                             		.loc 1 55 23
+  88 001d ED A5 01                		mov.L	4[r10], r5
+  89 0020 AA DC                   		mov.L	44[r5], r4
+  90                             		.loc 1 55 19
+  91 0022 EC A5                   		mov.L	[r10], r5
+  92 0024 A1 DC                   		mov.L	r4, 28[r5]
+  93 0026 0E                      		bra	.L3
+  94                             	.L2:
+  56:../src/src/crl.c ****     else
+  57:../src/src/crl.c ****         crl->heap = NULL;
+  95                             		.loc 1 57 19
+  96 0027 EC A5                   		mov.L	[r10], r5
+  97 0029 3E 57 00                		mov.L	#0, 28[r5]
+  98                             	.L3:
+  58:../src/src/crl.c ****     crl->cm = cm;
+  99                             		.loc 1 58 13
+ 100 002c EC A5                   		mov.L	[r10], r5
+ 101 002e ED A4 01                		mov.L	4[r10], r4
+ 102 0031 E3 54                   		mov.L	r4, [r5]
+  59:../src/src/crl.c ****     crl->crlList = NULL;
+ 103                             		.loc 1 59 18
+ 104 0033 EC A5                   		mov.L	[r10], r5
+ 105 0035 3E 51 00                		mov.L	#0, 4[r5]
+  60:../src/src/crl.c ****     crl->monitors[0].path = NULL;
+ 106                             		.loc 1 60 27
+ 107 0038 EC A5                   		mov.L	[r10], r5
+ 108 003a 3E 53 00                		mov.L	#0, 12[r5]
+  61:../src/src/crl.c ****     crl->monitors[1].path = NULL;
+ 109                             		.loc 1 61 27
+ 110 003d EC A5                   		mov.L	[r10], r5
+ 111 003f 3E 55 00                		mov.L	#0, 20[r5]
+  62:../src/src/crl.c **** #ifdef HAVE_CRL_MONITOR
+  63:../src/src/crl.c ****     crl->tid   =  0;
+  64:../src/src/crl.c ****     crl->mfd   = -1;    /* mfd for bsd is kqueue fd, eventfd for linux */
+  65:../src/src/crl.c ****     crl->setup = 0;     /* thread setup done predicate */
+  66:../src/src/crl.c ****     if (pthread_cond_init(&crl->cond, 0) != 0) {
+  67:../src/src/crl.c ****         WOLFSSL_MSG("Pthread condition init failed");
+  68:../src/src/crl.c ****         return BAD_COND_E;
+  69:../src/src/crl.c ****     }
+  70:../src/src/crl.c **** #endif
+  71:../src/src/crl.c ****     if (wc_InitMutex(&crl->crlLock) != 0) {
+ 112                             		.loc 1 71 9
+ 113 0042 EC A5                   		mov.L	[r10], r5
+ 114 0044 62 85                   		add	#8, r5
+ 115 0046 EF 51                   		mov.L	r5, r1
+ 116 0048 05 00 00 00             		bsr	_wc_InitMutex
+ 117 004c EF 15                   		mov.L	r1, r5
+ 118                             		.loc 1 71 8
+ 119 004e 61 05                   		cmp	#0, r5
+ 120 0050 20 10                   		beq	.L4
+  72:../src/src/crl.c ****         WOLFSSL_MSG("Init Mutex failed");
+ 121                             		.loc 1 72 9
+ 122 0052 FB 12 08 00 00 00       		mov.L	#.LC1, r1
+ 123 0058 05 00 00 00             		bsr	_WOLFSSL_MSG
+  73:../src/src/crl.c ****         return BAD_MUTEX_E;
+ 124                             		.loc 1 73 16
+ 125 005c FB 56 96                		mov.L	#-106, r5
+ 126 005f 0B                      		bra	.L5
+ 127                             	.L4:
+  74:../src/src/crl.c ****     }
+  75:../src/src/crl.c **** 
+  76:../src/src/crl.c ****     return 0;
+ 128                             		.loc 1 76 12
+ 129 0060 66 05                   		mov.L	#0, r5
+ 130                             	.L5:
+  77:../src/src/crl.c **** }
+ 131                             		.loc 1 77 1
+ 132 0062 EF 51                   		mov.L	r5, r1
+ 133 0064 3F AA 03                		rtsd	#12, r10-r10
+ 134                             	.LFE1:
+ 136                             		.section C,"a",@progbits
+ 137 001a 00 00                   		.p2align 2
+ 138                             	.LC2:
+ 139 001c 49 6E 69 74 43 52 4C 5F 		.string	"InitCRL_Entry"
+ 139      45 6E 74 72 79 00 
+ 140                             		.section	.text.InitCRL_Entry,"ax",@progbits
+ 142                             	_InitCRL_Entry:
+ 143                             	.LFB2:
+  78:../src/src/crl.c **** 
+  79:../src/src/crl.c **** 
+  80:../src/src/crl.c **** /* Initialize CRL Entry */
+  81:../src/src/crl.c **** static int InitCRL_Entry(CRL_Entry* crle, DecodedCRL* dcrl, const byte* buff,
+  82:../src/src/crl.c ****                          int verified, void* heap)
+  83:../src/src/crl.c **** {
+ 144                             		.loc 1 83 1
+ 145 0000 7E AA                   		push.l	r10
+ 146                             	.LCFI2:
+ 147 0002 71 0A E8                		add	#-24, r0, r10
+ 148                             	.LCFI3:
+ 149 0005 EF A0                   		mov.L	r10, r0
+ 150 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 151 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 152 000d E7 A3 03                		mov.L	r3, 12[r10]
+ 153 0010 E7 A4 04                		mov.L	r4, 16[r10]
+  84:../src/src/crl.c ****     WOLFSSL_ENTER("InitCRL_Entry");
+ 154                             		.loc 1 84 5
+ 155 0013 FB 12 1C 00 00 00       		mov.L	#.LC2, r1
+ 156 0019 05 00 00 00             		bsr	_WOLFSSL_ENTER
+  85:../src/src/crl.c **** 
+  86:../src/src/crl.c ****     XMEMCPY(crle->issuerHash, dcrl->issuerHash, CRL_DIGEST_SIZE);
+ 157                             		.loc 1 86 5
+ 158 001d ED A5 01                		mov.L	4[r10], r5
+ 159 0020 71 54 04                		add	#4, r5, r4
+ 160 0023 ED A5 02                		mov.L	8[r10], r5
+ 161 0026 71 55 14                		add	#20, r5
+ 162 0029 75 43 14                		mov.L	#20, r3
+ 163 002c EF 52                   		mov.L	r5, r2
+ 164 002e EF 41                   		mov.L	r4, r1
+ 165 0030 05 00 00 00             		bsr	_memcpy
+  87:../src/src/crl.c ****     /* XMEMCPY(crle->crlHash, dcrl->crlHash, CRL_DIGEST_SIZE);
+  88:../src/src/crl.c ****      * copy the hash here if needed for optimized comparisons */
+  89:../src/src/crl.c ****     XMEMCPY(crle->lastDate, dcrl->lastDate, MAX_DATE_SIZE);
+ 166                             		.loc 1 89 5
+ 167 0034 ED A5 01                		mov.L	4[r10], r5
+ 168 0037 71 54 18                		add	#24, r5, r4
+ 169 003a ED A5 02                		mov.L	8[r10], r5
+ 170 003d 71 55 3C                		add	#60, r5
+ 171 0040 75 43 20                		mov.L	#32, r3
+ 172 0043 EF 52                   		mov.L	r5, r2
+ 173 0045 EF 41                   		mov.L	r4, r1
+ 174 0047 05 00 00 00             		bsr	_memcpy
+  90:../src/src/crl.c ****     XMEMCPY(crle->nextDate, dcrl->nextDate, MAX_DATE_SIZE);
+ 175                             		.loc 1 90 5
+ 176 004b ED A5 01                		mov.L	4[r10], r5
+ 177 004e 71 54 38                		add	#56, r5, r4
+ 178 0051 ED A5 02                		mov.L	8[r10], r5
+ 179 0054 71 55 5C                		add	#0x5c, r5
+ 180 0057 75 43 20                		mov.L	#32, r3
+ 181 005a EF 52                   		mov.L	r5, r2
+ 182 005c EF 41                   		mov.L	r4, r1
+ 183 005e 05 00 00 00             		bsr	_memcpy
+  91:../src/src/crl.c ****     crle->lastDateFormat = dcrl->lastDateFormat;
+ 184                             		.loc 1 91 32
+ 185 0062 ED A5 02                		mov.L	8[r10], r5
+ 186 0065 CD 54 7C                		mov.B	124[r5], r4
+ 187                             		.loc 1 91 26
+ 188 0068 ED A5 01                		mov.L	4[r10], r5
+ 189 006b C7 54 58                		mov.B	r4, 88[r5]
+  92:../src/src/crl.c ****     crle->nextDateFormat = dcrl->nextDateFormat;
+ 190                             		.loc 1 92 32
+ 191 006e ED A5 02                		mov.L	8[r10], r5
+ 192 0071 CD 54 7D                		mov.B	125[r5], r4
+ 193                             		.loc 1 92 26
+ 194 0074 ED A5 01                		mov.L	4[r10], r5
+ 195 0077 C7 54 59                		mov.B	r4, 89[r5]
+  93:../src/src/crl.c **** 
+  94:../src/src/crl.c ****     crle->certs = dcrl->certs;   /* take ownsership */
+ 196                             		.loc 1 94 23
+ 197 007a ED A5 02                		mov.L	8[r10], r5
+ 198 007d ED 54 20                		mov.L	128[r5], r4
+ 199                             		.loc 1 94 17
+ 200 0080 ED A5 01                		mov.L	4[r10], r5
+ 201 0083 A5 DC                   		mov.L	r4, 92[r5]
+  95:../src/src/crl.c ****     dcrl->certs = NULL;
+ 202                             		.loc 1 95 17
+ 203 0085 ED A5 02                		mov.L	8[r10], r5
+ 204 0088 F9 56 20 00             		mov.L	#0, 128[r5]
+  96:../src/src/crl.c ****     crle->totalCerts = dcrl->totalCerts;
+ 205                             		.loc 1 96 28
+ 206 008c ED A5 02                		mov.L	8[r10], r5
+ 207 008f ED 54 21                		mov.L	132[r5], r4
+ 208                             		.loc 1 96 22
+ 209 0092 ED A5 01                		mov.L	4[r10], r5
+ 210 0095 A6 54                   		mov.L	r4, 96[r5]
+  97:../src/src/crl.c ****     crle->verified = verified;
+ 211                             		.loc 1 97 20
+ 212 0097 ED A5 01                		mov.L	4[r10], r5
+ 213 009a ED A4 04                		mov.L	16[r10], r4
+ 214 009d A6 5C                   		mov.L	r4, 100[r5]
+  98:../src/src/crl.c ****     if (!verified) {
+ 215                             		.loc 1 98 8
+ 216 009f ED A5 04                		mov.L	16[r10], r5
+ 217 00a2 61 05                   		cmp	#0, r5
+ 218 00a4 3B DF 00                		bne	.L7
+  99:../src/src/crl.c ****         crle->tbsSz = dcrl->sigIndex - dcrl->certBegin;
+ 219                             		.loc 1 99 27
+ 220 00a7 ED A5 02                		mov.L	8[r10], r5
+ 221 00aa A8 5C                   		mov.L	4[r5], r4
+ 222                             		.loc 1 99 44
+ 223 00ac ED A5 02                		mov.L	8[r10], r5
+ 224 00af EC 55                   		mov.L	[r5], r5
+ 225                             		.loc 1 99 38
+ 226 00b1 43 54                   		sub	r5, r4
+ 227                             		.loc 1 99 21
+ 228 00b3 ED A5 01                		mov.L	4[r10], r5
+ 229 00b6 A6 DC                   		mov.L	r4, 108[r5]
+ 100:../src/src/crl.c ****         crle->signatureSz = dcrl->sigLength;
+ 230                             		.loc 1 100 33
+ 231 00b8 ED A5 02                		mov.L	8[r10], r5
+ 232 00bb A8 D4                   		mov.L	8[r5], r4
+ 233                             		.loc 1 100 27
+ 234 00bd ED A5 01                		mov.L	4[r10], r5
+ 235 00c0 A7 5C                   		mov.L	r4, 116[r5]
+ 101:../src/src/crl.c ****         crle->signatureOID = dcrl->signatureOID;
+ 236                             		.loc 1 101 34
+ 237 00c2 ED A5 02                		mov.L	8[r10], r5
+ 238 00c5 A8 DC                   		mov.L	12[r5], r4
+ 239                             		.loc 1 101 28
+ 240 00c7 ED A5 01                		mov.L	4[r10], r5
+ 241 00ca A7 D4                   		mov.L	r4, 120[r5]
+ 102:../src/src/crl.c ****         crle->toBeSigned = (byte*)XMALLOC(crle->tbsSz, heap,
+ 242                             		.loc 1 102 35
+ 243 00cc ED A5 01                		mov.L	4[r10], r5
+ 244 00cf AE DD                   		mov.L	108[r5], r5
+ 245 00d1 EF 51                   		mov.L	r5, r1
+ 246 00d3 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 247 00d7 EF 14                   		mov.L	r1, r4
+ 248                             		.loc 1 102 26
+ 249 00d9 ED A5 01                		mov.L	4[r10], r5
+ 250 00dc A6 D4                   		mov.L	r4, 104[r5]
+ 103:../src/src/crl.c ****                                           DYNAMIC_TYPE_CRL_ENTRY);
+ 104:../src/src/crl.c ****         if (crle->toBeSigned == NULL)
+ 251                             		.loc 1 104 17
+ 252 00de ED A5 01                		mov.L	4[r10], r5
+ 253 00e1 AE D5                   		mov.L	104[r5], r5
+ 254                             		.loc 1 104 12
+ 255 00e3 61 05                   		cmp	#0, r5
+ 256 00e5 1F                      		bne	.L8
+ 105:../src/src/crl.c ****             return -1;
+ 257                             		.loc 1 105 20
+ 258 00e6 FB 56 FF                		mov.L	#-1, r5
+ 259 00e9 38 A8 00                		bra	.L9
+ 260                             	.L8:
+ 106:../src/src/crl.c ****         crle->signature = (byte*)XMALLOC(crle->signatureSz, heap,
+ 261                             		.loc 1 106 34
+ 262 00ec ED A5 01                		mov.L	4[r10], r5
+ 263 00ef AF 5D                   		mov.L	116[r5], r5
+ 264 00f1 EF 51                   		mov.L	r5, r1
+ 265 00f3 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 266 00f7 EF 14                   		mov.L	r1, r4
+ 267                             		.loc 1 106 25
+ 268 00f9 ED A5 01                		mov.L	4[r10], r5
+ 269 00fc A7 54                   		mov.L	r4, 112[r5]
+ 107:../src/src/crl.c ****                                          DYNAMIC_TYPE_CRL_ENTRY);
+ 108:../src/src/crl.c ****         if (crle->signature == NULL) {
+ 270                             		.loc 1 108 17
+ 271 00fe ED A5 01                		mov.L	4[r10], r5
+ 272 0101 AF 55                   		mov.L	112[r5], r5
+ 273                             		.loc 1 108 12
+ 274 0103 61 05                   		cmp	#0, r5
+ 275 0105 21 19                   		bne	.L10
+ 276                             	.LBB2:
+ 109:../src/src/crl.c ****             XFREE(crle->toBeSigned, heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 277                             		.loc 1 109 13
+ 278 0107 ED A5 01                		mov.L	4[r10], r5
+ 279 010a AE D5                   		mov.L	104[r5], r5
+ 280 010c E3 A5                   		mov.L	r5, [r10]
+ 281 010e EC A5                   		mov.L	[r10], r5
+ 282 0110 61 05                   		cmp	#0, r5
+ 283 0112 17                      		beq	.L11
+ 284                             		.loc 1 109 13 is_stmt 0 discriminator 1
+ 285 0113 EC A1                   		mov.L	[r10], r1
+ 286 0115 05 00 00 00             		bsr	_wolfSSL_Free
+ 287                             	.L11:
+ 288                             	.LBE2:
+ 110:../src/src/crl.c ****             return -1;
+ 289                             		.loc 1 110 20 is_stmt 1
+ 290 0119 FB 56 FF                		mov.L	#-1, r5
+ 291 011c 2E 75                   		bra	.L9
+ 292                             	.L10:
+ 111:../src/src/crl.c ****         }
+ 112:../src/src/crl.c ****         XMEMCPY(crle->toBeSigned, buff + dcrl->certBegin, crle->tbsSz);
+ 293                             		.loc 1 112 9
+ 294 011e ED A5 01                		mov.L	4[r10], r5
+ 295 0121 AE D1                   		mov.L	104[r5], r1
+ 296 0123 ED A5 02                		mov.L	8[r10], r5
+ 297 0126 EC 55                   		mov.L	[r5], r5
+ 298 0128 ED A4 03                		mov.L	12[r10], r4
+ 299 012b 4B 54                   		add	r5, r4
+ 300 012d ED A5 01                		mov.L	4[r10], r5
+ 301 0130 AE DD                   		mov.L	108[r5], r5
+ 302 0132 EF 53                   		mov.L	r5, r3
+ 303 0134 EF 42                   		mov.L	r4, r2
+ 304 0136 05 00 00 00             		bsr	_memcpy
+ 113:../src/src/crl.c ****         XMEMCPY(crle->signature, dcrl->signature, crle->signatureSz);
+ 305                             		.loc 1 113 9
+ 306 013a ED A5 01                		mov.L	4[r10], r5
+ 307 013d AF 54                   		mov.L	112[r5], r4
+ 308 013f ED A5 02                		mov.L	8[r10], r5
+ 309 0142 A9 52                   		mov.L	16[r5], r2
+ 310 0144 ED A5 01                		mov.L	4[r10], r5
+ 311 0147 AF 5D                   		mov.L	116[r5], r5
+ 312 0149 EF 53                   		mov.L	r5, r3
+ 313 014b EF 41                   		mov.L	r4, r1
+ 314 014d 05 00 00 00             		bsr	_memcpy
+ 114:../src/src/crl.c ****     #ifndef NO_SKID
+ 115:../src/src/crl.c ****         crle->extAuthKeyIdSet = dcrl->extAuthKeyIdSet;
+ 315                             		.loc 1 115 37
+ 316 0151 ED A5 02                		mov.L	8[r10], r5
+ 317 0154 CD 54 8C                		mov.B	140[r5], r4
+ 318                             		.loc 1 115 31
+ 319 0157 ED A5 01                		mov.L	4[r10], r5
+ 320 015a C7 54 7C                		mov.B	r4, 124[r5]
+ 116:../src/src/crl.c ****         if (crle->extAuthKeyIdSet)
+ 321                             		.loc 1 116 17
+ 322 015d ED A5 01                		mov.L	4[r10], r5
+ 323 0160 CD 55 7C                		mov.B	124[r5], r5
+ 324                             		.loc 1 116 12
+ 325 0163 5B 55                   		movu.B	r5, r5
+ 326 0165 61 05                   		cmp	#0, r5
+ 327 0167 20 28                   		beq	.L13
+ 117:../src/src/crl.c ****             XMEMCPY(crle->extAuthKeyId, dcrl->extAuthKeyId, KEYID_SIZE);
+ 328                             		.loc 1 117 13
+ 329 0169 ED A5 01                		mov.L	4[r10], r5
+ 330 016c 71 54 7D                		add	#0x7d, r5, r4
+ 331 016f ED A5 02                		mov.L	8[r10], r5
+ 332 0172 72 55 8D 00             		add	#0x8d, r5
+ 333 0176 75 43 14                		mov.L	#20, r3
+ 334 0179 EF 52                   		mov.L	r5, r2
+ 335 017b EF 41                   		mov.L	r4, r1
+ 336 017d 05 00 00 00             		bsr	_memcpy
+ 337 0181 2E 0E                   		bra	.L13
+ 338                             	.L7:
+ 118:../src/src/crl.c ****     #endif
+ 119:../src/src/crl.c ****     }
+ 120:../src/src/crl.c ****     else {
+ 121:../src/src/crl.c ****         crle->toBeSigned = NULL;
+ 339                             		.loc 1 121 26
+ 340 0183 ED A5 01                		mov.L	4[r10], r5
+ 341 0186 3E DA 00                		mov.L	#0, 104[r5]
+ 122:../src/src/crl.c ****         crle->signature = NULL;
+ 342                             		.loc 1 122 25
+ 343 0189 ED A5 01                		mov.L	4[r10], r5
+ 344 018c 3E DC 00                		mov.L	#0, 112[r5]
+ 345                             	.L13:
+ 123:../src/src/crl.c ****     }
+ 124:../src/src/crl.c **** 
+ 125:../src/src/crl.c ****     (void)verified;
+ 126:../src/src/crl.c ****     (void)heap;
+ 127:../src/src/crl.c **** 
+ 128:../src/src/crl.c ****     return 0;
+ 346                             		.loc 1 128 12
+ 347 018f 66 05                   		mov.L	#0, r5
+ 348                             	.L9:
+ 129:../src/src/crl.c **** }
+ 349                             		.loc 1 129 1
+ 350 0191 EF 51                   		mov.L	r5, r1
+ 351 0193 3F AA 07                		rtsd	#28, r10-r10
+ 352                             	.LFE2:
+ 354                             		.section C,"a",@progbits
+ 355 002a 00 00                   		.p2align 2
+ 356                             	.LC3:
+ 357 002c 46 72 65 65 43 52 4C 5F 		.string	"FreeCRL_Entry"
+ 357      45 6E 74 72 79 00 
+ 358                             		.section	.text.FreeCRL_Entry,"ax",@progbits
+ 360                             	_FreeCRL_Entry:
+ 361                             	.LFB3:
+ 130:../src/src/crl.c **** 
+ 131:../src/src/crl.c **** 
+ 132:../src/src/crl.c **** /* Free all CRL Entry resources */
+ 133:../src/src/crl.c **** static void FreeCRL_Entry(CRL_Entry* crle, void* heap)
+ 134:../src/src/crl.c **** {
+ 362                             		.loc 1 134 1
+ 363 0000 7E AA                   		push.l	r10
+ 364                             	.LCFI4:
+ 365 0002 71 0A E4                		add	#-28, r0, r10
+ 366                             	.LCFI5:
+ 367 0005 EF A0                   		mov.L	r10, r0
+ 368 0007 E7 A1 05                		mov.L	r1, 20[r10]
+ 369 000a E7 A2 06                		mov.L	r2, 24[r10]
+ 135:../src/src/crl.c ****     RevokedCert* tmp = crle->certs;
+ 370                             		.loc 1 135 18
+ 371 000d ED A5 05                		mov.L	20[r10], r5
+ 372 0010 AD DD                   		mov.L	92[r5], r5
+ 373 0012 E3 A5                   		mov.L	r5, [r10]
+ 136:../src/src/crl.c ****     RevokedCert* next;
+ 137:../src/src/crl.c **** 
+ 138:../src/src/crl.c ****     WOLFSSL_ENTER("FreeCRL_Entry");
+ 374                             		.loc 1 138 5
+ 375 0014 FB 12 2C 00 00 00       		mov.L	#.LC3, r1
+ 376 001a 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 139:../src/src/crl.c **** 
+ 140:../src/src/crl.c ****     while (tmp) {
+ 377                             		.loc 1 140 11
+ 378 001e 2E 20                   		bra	.L15
+ 379                             	.L17:
+ 141:../src/src/crl.c ****         next = tmp->next;
+ 380                             		.loc 1 141 14
+ 381 0020 EC A5                   		mov.L	[r10], r5
+ 382 0022 AA 5D                   		mov.L	36[r5], r5
+ 383 0024 E7 A5 01                		mov.L	r5, 4[r10]
+ 384                             	.LBB3:
+ 142:../src/src/crl.c ****         XFREE(tmp, heap, DYNAMIC_TYPE_REVOKED);
+ 385                             		.loc 1 142 9
+ 386 0027 EC A5                   		mov.L	[r10], r5
+ 387 0029 E7 A5 02                		mov.L	r5, 8[r10]
+ 388 002c ED A5 02                		mov.L	8[r10], r5
+ 389 002f 61 05                   		cmp	#0, r5
+ 390 0031 10                      		beq	.L16
+ 391                             		.loc 1 142 9 is_stmt 0 discriminator 1
+ 392 0032 ED A1 02                		mov.L	8[r10], r1
+ 393 0035 05 00 00 00             		bsr	_wolfSSL_Free
+ 394                             	.L16:
+ 395                             	.LBE3:
+ 143:../src/src/crl.c ****         tmp = next;
+ 396                             		.loc 1 143 13 is_stmt 1
+ 397 0039 ED A5 01                		mov.L	4[r10], r5
+ 398 003c E3 A5                   		mov.L	r5, [r10]
+ 399                             	.L15:
+ 140:../src/src/crl.c ****         next = tmp->next;
+ 400                             		.loc 1 140 11
+ 401 003e EC A5                   		mov.L	[r10], r5
+ 402 0040 61 05                   		cmp	#0, r5
+ 403 0042 21 DE                   		bne	.L17
+ 144:../src/src/crl.c ****     }
+ 145:../src/src/crl.c ****     if (crle->signature != NULL)
+ 404                             		.loc 1 145 13
+ 405 0044 ED A5 05                		mov.L	20[r10], r5
+ 406 0047 AF 55                   		mov.L	112[r5], r5
+ 407                             		.loc 1 145 8
+ 408 0049 61 05                   		cmp	#0, r5
+ 409 004b 20 17                   		beq	.L18
+ 410                             	.LBB4:
+ 146:../src/src/crl.c ****         XFREE(crle->signature, heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 411                             		.loc 1 146 9
+ 412 004d ED A5 05                		mov.L	20[r10], r5
+ 413 0050 AF 55                   		mov.L	112[r5], r5
+ 414 0052 E7 A5 03                		mov.L	r5, 12[r10]
+ 415 0055 ED A5 03                		mov.L	12[r10], r5
+ 416 0058 61 05                   		cmp	#0, r5
+ 417 005a 10                      		beq	.L18
+ 418                             		.loc 1 146 9 is_stmt 0 discriminator 1
+ 419 005b ED A1 03                		mov.L	12[r10], r1
+ 420 005e 05 00 00 00             		bsr	_wolfSSL_Free
+ 421                             	.L18:
+ 422                             	.LBE4:
+ 147:../src/src/crl.c ****     if (crle->toBeSigned != NULL)
+ 423                             		.loc 1 147 13 is_stmt 1
+ 424 0062 ED A5 05                		mov.L	20[r10], r5
+ 425 0065 AE D5                   		mov.L	104[r5], r5
+ 426                             		.loc 1 147 8
+ 427 0067 61 05                   		cmp	#0, r5
+ 428 0069 20 17                   		beq	.L20
+ 429                             	.LBB5:
+ 148:../src/src/crl.c ****         XFREE(crle->toBeSigned, heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 430                             		.loc 1 148 9
+ 431 006b ED A5 05                		mov.L	20[r10], r5
+ 432 006e AE D5                   		mov.L	104[r5], r5
+ 433 0070 E7 A5 04                		mov.L	r5, 16[r10]
+ 434 0073 ED A5 04                		mov.L	16[r10], r5
+ 435 0076 61 05                   		cmp	#0, r5
+ 436 0078 10                      		beq	.L20
+ 437                             		.loc 1 148 9 is_stmt 0 discriminator 1
+ 438 0079 ED A1 04                		mov.L	16[r10], r1
+ 439 007c 05 00 00 00             		bsr	_wolfSSL_Free
+ 440                             	.L20:
+ 441                             	.LBE5:
+ 149:../src/src/crl.c **** 
+ 150:../src/src/crl.c ****     (void)heap;
+ 151:../src/src/crl.c **** }
+ 442                             		.loc 1 151 1 is_stmt 1
+ 443 0080 03                      		nop
+ 444 0081 3F AA 08                		rtsd	#32, r10-r10
+ 445                             	.LFE3:
+ 447                             		.section C,"a",@progbits
+ 448 003a 00 00                   		.p2align 2
+ 449                             	.LC4:
+ 450 003c 46 72 65 65 43 52 4C 00 		.string	"FreeCRL"
+ 451                             		.section	.text.FreeCRL,"ax",@progbits
+ 452                             		.global	_FreeCRL
+ 454                             	_FreeCRL:
+ 455                             	.LFB4:
+ 152:../src/src/crl.c **** 
+ 153:../src/src/crl.c **** 
+ 154:../src/src/crl.c **** 
+ 155:../src/src/crl.c **** /* Free all CRL resources */
+ 156:../src/src/crl.c **** void FreeCRL(WOLFSSL_CRL* crl, int dynamic)
+ 157:../src/src/crl.c **** {
+ 456                             		.loc 1 157 1
+ 457 0000 7E AA                   		push.l	r10
+ 458                             	.LCFI6:
+ 459 0002 71 0A E0                		add	#-32, r0, r10
+ 460                             	.LCFI7:
+ 461 0005 EF A0                   		mov.L	r10, r0
+ 462 0007 E7 A1 06                		mov.L	r1, 24[r10]
+ 463 000a E7 A2 07                		mov.L	r2, 28[r10]
+ 158:../src/src/crl.c ****     CRL_Entry* tmp = crl->crlList;
+ 464                             		.loc 1 158 16
+ 465 000d ED A5 06                		mov.L	24[r10], r5
+ 466 0010 A8 5D                   		mov.L	4[r5], r5
+ 467 0012 E3 A5                   		mov.L	r5, [r10]
+ 159:../src/src/crl.c **** 
+ 160:../src/src/crl.c ****     WOLFSSL_ENTER("FreeCRL");
+ 468                             		.loc 1 160 5
+ 469 0014 FB 12 3C 00 00 00       		mov.L	#.LC4, r1
+ 470 001a 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 161:../src/src/crl.c ****     if (crl->monitors[0].path)
+ 471                             		.loc 1 161 25
+ 472 001e ED A5 06                		mov.L	24[r10], r5
+ 473 0021 A8 DD                   		mov.L	12[r5], r5
+ 474                             		.loc 1 161 8
+ 475 0023 61 05                   		cmp	#0, r5
+ 476 0025 20 17                   		beq	.L22
+ 477                             	.LBB6:
+ 162:../src/src/crl.c ****         XFREE(crl->monitors[0].path, crl->heap, DYNAMIC_TYPE_CRL_MONITOR);
+ 478                             		.loc 1 162 9
+ 479 0027 ED A5 06                		mov.L	24[r10], r5
+ 480 002a A8 DD                   		mov.L	12[r5], r5
+ 481 002c E7 A5 01                		mov.L	r5, 4[r10]
+ 482 002f ED A5 01                		mov.L	4[r10], r5
+ 483 0032 61 05                   		cmp	#0, r5
+ 484 0034 10                      		beq	.L22
+ 485                             		.loc 1 162 9 is_stmt 0 discriminator 1
+ 486 0035 ED A1 01                		mov.L	4[r10], r1
+ 487 0038 05 00 00 00             		bsr	_wolfSSL_Free
+ 488                             	.L22:
+ 489                             	.LBE6:
+ 163:../src/src/crl.c **** 
+ 164:../src/src/crl.c ****     if (crl->monitors[1].path)
+ 490                             		.loc 1 164 25 is_stmt 1
+ 491 003c ED A5 06                		mov.L	24[r10], r5
+ 492 003f A9 5D                   		mov.L	20[r5], r5
+ 493                             		.loc 1 164 8
+ 494 0041 61 05                   		cmp	#0, r5
+ 495 0043 20 45                   		beq	.L24
+ 496                             	.LBB7:
+ 165:../src/src/crl.c ****         XFREE(crl->monitors[1].path, crl->heap, DYNAMIC_TYPE_CRL_MONITOR);
+ 497                             		.loc 1 165 9
+ 498 0045 ED A5 06                		mov.L	24[r10], r5
+ 499 0048 A9 5D                   		mov.L	20[r5], r5
+ 500 004a E7 A5 02                		mov.L	r5, 8[r10]
+ 501 004d ED A5 02                		mov.L	8[r10], r5
+ 502 0050 61 05                   		cmp	#0, r5
+ 503 0052 20 36                   		beq	.L24
+ 504                             		.loc 1 165 9 is_stmt 0 discriminator 1
+ 505 0054 ED A1 02                		mov.L	8[r10], r1
+ 506 0057 05 00 00 00             		bsr	_wolfSSL_Free
+ 507                             	.LBE7:
+ 166:../src/src/crl.c **** 
+ 167:../src/src/crl.c ****     while(tmp) {
+ 508                             		.loc 1 167 10 is_stmt 1 discriminator 1
+ 509 005b 2E 2D                   		bra	.L24
+ 510                             	.L26:
+ 511                             	.LBB8:
+ 168:../src/src/crl.c ****         CRL_Entry* next = tmp->next;
+ 512                             		.loc 1 168 20
+ 513 005d EC A5                   		mov.L	[r10], r5
+ 514 005f EC 55                   		mov.L	[r5], r5
+ 515 0061 E7 A5 03                		mov.L	r5, 12[r10]
+ 169:../src/src/crl.c ****         FreeCRL_Entry(tmp, crl->heap);
+ 516                             		.loc 1 169 9
+ 517 0064 ED A5 06                		mov.L	24[r10], r5
+ 518 0067 A9 DD                   		mov.L	28[r5], r5
+ 519 0069 EF 52                   		mov.L	r5, r2
+ 520 006b EC A1                   		mov.L	[r10], r1
+ 521 006d 05 00 00 00             		bsr	_FreeCRL_Entry
+ 522                             	.LBB9:
+ 170:../src/src/crl.c ****         XFREE(tmp, crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 523                             		.loc 1 170 9
+ 524 0071 EC A5                   		mov.L	[r10], r5
+ 525 0073 E7 A5 04                		mov.L	r5, 16[r10]
+ 526 0076 ED A5 04                		mov.L	16[r10], r5
+ 527 0079 61 05                   		cmp	#0, r5
+ 528 007b 10                      		beq	.L25
+ 529                             		.loc 1 170 9 is_stmt 0 discriminator 1
+ 530 007c ED A1 04                		mov.L	16[r10], r1
+ 531 007f 05 00 00 00             		bsr	_wolfSSL_Free
+ 532                             	.L25:
+ 533                             	.LBE9:
+ 171:../src/src/crl.c ****         tmp = next;
+ 534                             		.loc 1 171 13 is_stmt 1
+ 535 0083 ED A5 03                		mov.L	12[r10], r5
+ 536 0086 E3 A5                   		mov.L	r5, [r10]
+ 537                             		.balign 8,3,1
+ 538                             	.L24:
+ 539                             	.LBE8:
+ 167:../src/src/crl.c ****         CRL_Entry* next = tmp->next;
+ 540                             		.loc 1 167 10
+ 541 0088 EC A5                   		mov.L	[r10], r5
+ 542 008a 61 05                   		cmp	#0, r5
+ 543 008c 21 D1                   		bne	.L26
+ 172:../src/src/crl.c ****     }
+ 173:../src/src/crl.c **** 
+ 174:../src/src/crl.c **** #ifdef HAVE_CRL_MONITOR
+ 175:../src/src/crl.c ****     if (crl->tid != 0) {
+ 176:../src/src/crl.c ****         WOLFSSL_MSG("stopping monitor thread");
+ 177:../src/src/crl.c ****         if (StopMonitor(crl->mfd) == 0)
+ 178:../src/src/crl.c ****             pthread_join(crl->tid, NULL);
+ 179:../src/src/crl.c ****         else {
+ 180:../src/src/crl.c ****             WOLFSSL_MSG("stop monitor failed");
+ 181:../src/src/crl.c ****         }
+ 182:../src/src/crl.c ****     }
+ 183:../src/src/crl.c ****     pthread_cond_destroy(&crl->cond);
+ 184:../src/src/crl.c **** #endif
+ 185:../src/src/crl.c ****     wc_FreeMutex(&crl->crlLock);
+ 544                             		.loc 1 185 5
+ 545 008e ED A5 06                		mov.L	24[r10], r5
+ 546 0091 62 85                   		add	#8, r5
+ 547 0093 EF 51                   		mov.L	r5, r1
+ 548 0095 05 00 00 00             		bsr	_wc_FreeMutex
+ 186:../src/src/crl.c ****     if (dynamic)   /* free self */
+ 549                             		.loc 1 186 8
+ 550 0099 ED A5 07                		mov.L	28[r10], r5
+ 551 009c 61 05                   		cmp	#0, r5
+ 552 009e 20 15                   		beq	.L28
+ 553                             	.LBB10:
+ 187:../src/src/crl.c ****         XFREE(crl, crl->heap, DYNAMIC_TYPE_CRL);
+ 554                             		.loc 1 187 9
+ 555 00a0 ED A5 06                		mov.L	24[r10], r5
+ 556 00a3 E7 A5 05                		mov.L	r5, 20[r10]
+ 557 00a6 ED A5 05                		mov.L	20[r10], r5
+ 558 00a9 61 05                   		cmp	#0, r5
+ 559 00ab 10                      		beq	.L28
+ 560                             		.loc 1 187 9 is_stmt 0 discriminator 1
+ 561 00ac ED A1 05                		mov.L	20[r10], r1
+ 562 00af 05 00 00 00             		bsr	_wolfSSL_Free
+ 563                             	.L28:
+ 564                             	.LBE10:
+ 188:../src/src/crl.c **** }
+ 565                             		.loc 1 188 1 is_stmt 1
+ 566 00b3 03                      		nop
+ 567 00b4 3F AA 09                		rtsd	#36, r10-r10
+ 568                             	.LFE4:
+ 570 00b7 03                      		.section C,"a",@progbits
+ 571                             		.p2align 2
+ 572                             	.LC5:
+ 573 0044 77 63 5F 4C 6F 63 6B 4D 		.string	"wc_LockMutex failed"
+ 573      75 74 65 78 20 66 61 69 
+ 573      6C 65 64 00 
+ 574                             	.LC6:
+ 575 0058 46 6F 75 6E 64 20 43 52 		.string	"Found CRL Entry on list"
+ 575      4C 20 45 6E 74 72 79 20 
+ 575      6F 6E 20 6C 69 73 74 00 
+ 576                             	.LC7:
+ 577 0070 44 69 64 20 4E 4F 54 20 		.string	"Did NOT find CRL issuer CA"
+ 577      66 69 6E 64 20 43 52 4C 
+ 577      20 69 73 73 75 65 72 20 
+ 577      43 41 00 
+ 578                             	.LC8:
+ 579 008b 43 61 6E 6E 6F 74 20 75 		.string	"Cannot use CRL as it didn't verify"
+ 579      73 65 20 43 52 4C 20 61 
+ 579      73 20 69 74 20 64 69 64 
+ 579      6E 27 74 20 76 65 72 69 
+ 579      66 79 00 
+ 580                             	.LC9:
+ 581 00ae 43 68 65 63 6B 69 6E 67 		.string	"Checking next date validity"
+ 581      20 6E 65 78 74 20 64 61 
+ 581      74 65 20 76 61 6C 69 64 
+ 581      69 74 79 00 
+ 582                             	.LC10:
+ 583 00ca 43 52 4C 20 6E 65 78 74 		.string	"CRL next date is no longer valid"
+ 583      20 64 61 74 65 20 69 73 
+ 583      20 6E 6F 20 6C 6F 6E 67 
+ 583      65 72 20 76 61 6C 69 64 
+ 583      00 
+ 584                             	.LC11:
+ 585 00eb 43 65 72 74 20 72 65 76 		.string	"Cert revoked"
+ 585      6F 6B 65 64 00 
+ 586                             		.section	.text.CheckCertCRLList,"ax",@progbits
+ 588                             	_CheckCertCRLList:
+ 589                             	.LFB5:
+ 189:../src/src/crl.c **** 
+ 190:../src/src/crl.c **** 
+ 191:../src/src/crl.c **** static int CheckCertCRLList(WOLFSSL_CRL* crl, DecodedCert* cert, int *pFoundEntry)
+ 192:../src/src/crl.c **** {
+ 590                             		.loc 1 192 1
+ 591 0000 7E AA                   		push.l	r10
+ 592                             	.LCFI8:
+ 593 0002 72 0A 5C FF             		add	#-164, r0, r10
+ 594                             	.LCFI9:
+ 595 0006 71 A0 F0                		add	#-16, r10, r0
+ 596                             	.LCFI10:
+ 597 0009 E7 A1 26                		mov.L	r1, 152[r10]
+ 598 000c E7 A2 27                		mov.L	r2, 156[r10]
+ 599 000f E7 A3 28                		mov.L	r3, 160[r10]
+ 193:../src/src/crl.c ****     CRL_Entry* crle;
+ 194:../src/src/crl.c ****     int        foundEntry = 0;
+ 600                             		.loc 1 194 16
+ 601 0012 F9 A6 01 00             		mov.L	#0, 4[r10]
+ 195:../src/src/crl.c ****     int        ret = 0;
+ 602                             		.loc 1 195 16
+ 603 0016 F9 A6 02 00             		mov.L	#0, 8[r10]
+ 196:../src/src/crl.c **** 
+ 197:../src/src/crl.c ****     if (wc_LockMutex(&crl->crlLock) != 0) {
+ 604                             		.loc 1 197 9
+ 605 001a ED A5 26                		mov.L	152[r10], r5
+ 606 001d 62 85                   		add	#8, r5
+ 607 001f EF 51                   		mov.L	r5, r1
+ 608 0021 05 00 00 00             		bsr	_wc_LockMutex
+ 609 0025 EF 15                   		mov.L	r1, r5
+ 610                             		.loc 1 197 8
+ 611 0027 61 05                   		cmp	#0, r5
+ 612 0029 20 12                   		beq	.L30
+ 198:../src/src/crl.c ****         WOLFSSL_MSG("wc_LockMutex failed");
+ 613                             		.loc 1 198 9
+ 614 002b FB 12 44 00 00 00       		mov.L	#.LC5, r1
+ 615 0031 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 199:../src/src/crl.c ****         return BAD_MUTEX_E;
+ 616                             		.loc 1 199 16
+ 617 0035 FB 56 96                		mov.L	#-106, r5
+ 618 0038 38 4A 03                		bra	.L31
+ 619                             	.L30:
+ 200:../src/src/crl.c ****     }
+ 201:../src/src/crl.c **** 
+ 202:../src/src/crl.c ****     crle = crl->crlList;
+ 620                             		.loc 1 202 10
+ 621 003b ED A5 26                		mov.L	152[r10], r5
+ 622 003e A8 5D                   		mov.L	4[r5], r5
+ 623 0040 E3 A5                   		mov.L	r5, [r10]
+ 203:../src/src/crl.c **** 
+ 204:../src/src/crl.c ****     while (crle) {
+ 624                             		.loc 1 204 11
+ 625 0042 38 C4 02                		bra	.L32
+ 626                             	.L60:
+ 205:../src/src/crl.c ****         if (XMEMCMP(crle->issuerHash, cert->issuerHash, CRL_DIGEST_SIZE) == 0) {
+ 627                             		.loc 1 205 13
+ 628 0045 EC A5                   		mov.L	[r10], r5
+ 629 0047 71 54 04                		add	#4, r5, r4
+ 630 004a ED A5 27                		mov.L	156[r10], r5
+ 631 004d 71 55 4C                		add	#0x4c, r5
+ 632 0050 75 43 14                		mov.L	#20, r3
+ 633 0053 EF 52                   		mov.L	r5, r2
+ 634 0055 EF 41                   		mov.L	r4, r1
+ 635 0057 05 00 00 00             		bsr	_memcmp
+ 636 005b EF 15                   		mov.L	r1, r5
+ 637                             		.loc 1 205 12
+ 638 005d 61 05                   		cmp	#0, r5
+ 639 005f 3B A1 02                		bne	.L33
+ 206:../src/src/crl.c ****             WOLFSSL_MSG("Found CRL Entry on list");
+ 640                             		.loc 1 206 13
+ 641 0062 FB 12 58 00 00 00       		mov.L	#.LC6, r1
+ 642 0068 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 207:../src/src/crl.c **** 
+ 208:../src/src/crl.c ****             if (crle->verified == 0) {
+ 643                             		.loc 1 208 21
+ 644 006c EC A5                   		mov.L	[r10], r5
+ 645 006e AE 5D                   		mov.L	100[r5], r5
+ 646                             		.loc 1 208 16
+ 647 0070 61 05                   		cmp	#0, r5
+ 648 0072 3B 33 02                		bne	.L34
+ 649                             	.LBB11:
+ 209:../src/src/crl.c ****                 Signer* ca = NULL;
+ 650                             		.loc 1 209 25
+ 651 0075 F9 A6 03 00             		mov.L	#0, 12[r10]
+ 210:../src/src/crl.c ****             #ifndef NO_SKID
+ 211:../src/src/crl.c ****                 byte extAuthKeyId[KEYID_SIZE];
+ 212:../src/src/crl.c ****             #endif
+ 213:../src/src/crl.c ****                 byte issuerHash[CRL_DIGEST_SIZE];
+ 214:../src/src/crl.c ****                 byte* tbs;
+ 215:../src/src/crl.c ****                 word32 tbsSz = crle->tbsSz;
+ 652                             		.loc 1 215 24
+ 653 0079 EC A5                   		mov.L	[r10], r5
+ 654 007b AE DD                   		mov.L	108[r5], r5
+ 655 007d E7 A5 05                		mov.L	r5, 20[r10]
+ 216:../src/src/crl.c ****                 byte* sig = NULL;
+ 656                             		.loc 1 216 23
+ 657 0080 F9 A6 06 00             		mov.L	#0, 24[r10]
+ 217:../src/src/crl.c ****                 word32 sigSz = crle->signatureSz;
+ 658                             		.loc 1 217 24
+ 659 0084 EC A5                   		mov.L	[r10], r5
+ 660 0086 AF 5D                   		mov.L	116[r5], r5
+ 661 0088 E7 A5 07                		mov.L	r5, 28[r10]
+ 218:../src/src/crl.c ****                 word32 sigOID = crle->signatureOID;
+ 662                             		.loc 1 218 24
+ 663 008b EC A5                   		mov.L	[r10], r5
+ 664 008d AF D5                   		mov.L	120[r5], r5
+ 665 008f E7 A5 08                		mov.L	r5, 32[r10]
+ 219:../src/src/crl.c ****                 SignatureCtx sigCtx;
+ 220:../src/src/crl.c **** 
+ 221:../src/src/crl.c ****                 tbs = (byte*)XMALLOC(tbsSz, crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 666                             		.loc 1 221 30
+ 667 0092 ED A1 05                		mov.L	20[r10], r1
+ 668 0095 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 669 0099 E7 A1 09                		mov.L	r1, 36[r10]
+ 222:../src/src/crl.c ****                 if (tbs == NULL) {
+ 670                             		.loc 1 222 20
+ 671 009c ED A5 09                		mov.L	36[r10], r5
+ 672 009f 61 05                   		cmp	#0, r5
+ 673 00a1 21 13                   		bne	.L35
+ 223:../src/src/crl.c ****                     wc_UnLockMutex(&crl->crlLock);
+ 674                             		.loc 1 223 21
+ 675 00a3 ED A5 26                		mov.L	152[r10], r5
+ 676 00a6 62 85                   		add	#8, r5
+ 677 00a8 EF 51                   		mov.L	r5, r1
+ 678 00aa 05 00 00 00             		bsr	_wc_UnLockMutex
+ 224:../src/src/crl.c ****                     return MEMORY_E;
+ 679                             		.loc 1 224 28
+ 680 00ae FB 56 83                		mov.L	#-125, r5
+ 681 00b1 38 D1 02                		bra	.L31
+ 682                             	.L35:
+ 225:../src/src/crl.c ****                 }
+ 226:../src/src/crl.c ****                 sig = (byte*)XMALLOC(sigSz, crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 683                             		.loc 1 226 30
+ 684 00b4 ED A1 07                		mov.L	28[r10], r1
+ 685 00b7 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 686 00bb E7 A1 06                		mov.L	r1, 24[r10]
+ 227:../src/src/crl.c ****                 if (sig == NULL) {
+ 687                             		.loc 1 227 20
+ 688 00be ED A5 06                		mov.L	24[r10], r5
+ 689 00c1 61 05                   		cmp	#0, r5
+ 690 00c3 21 26                   		bne	.L37
+ 691                             	.LBB12:
+ 228:../src/src/crl.c ****                     XFREE(tbs, crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 692                             		.loc 1 228 21
+ 693 00c5 ED A5 09                		mov.L	36[r10], r5
+ 694 00c8 E7 A5 0A                		mov.L	r5, 40[r10]
+ 695 00cb ED A5 0A                		mov.L	40[r10], r5
+ 696 00ce 61 05                   		cmp	#0, r5
+ 697 00d0 10                      		beq	.L38
+ 698                             		.loc 1 228 21 is_stmt 0 discriminator 1
+ 699 00d1 ED A1 0A                		mov.L	40[r10], r1
+ 700 00d4 05 00 00 00             		bsr	_wolfSSL_Free
+ 701                             	.L38:
+ 702                             	.LBE12:
+ 229:../src/src/crl.c ****                     wc_UnLockMutex(&crl->crlLock);
+ 703                             		.loc 1 229 21 is_stmt 1
+ 704 00d8 ED A5 26                		mov.L	152[r10], r5
+ 705 00db 62 85                   		add	#8, r5
+ 706 00dd EF 51                   		mov.L	r5, r1
+ 707 00df 05 00 00 00             		bsr	_wc_UnLockMutex
+ 230:../src/src/crl.c ****                     return MEMORY_E;
+ 708                             		.loc 1 230 28
+ 709 00e3 FB 56 83                		mov.L	#-125, r5
+ 710 00e6 38 9C 02                		bra	.L31
+ 711                             	.L37:
+ 231:../src/src/crl.c ****                 }
+ 232:../src/src/crl.c **** 
+ 233:../src/src/crl.c ****                 XMEMCPY(tbs, crle->toBeSigned, tbsSz);
+ 712                             		.loc 1 233 17
+ 713 00e9 EC A5                   		mov.L	[r10], r5
+ 714 00eb AE D5                   		mov.L	104[r5], r5
+ 715 00ed ED A3 05                		mov.L	20[r10], r3
+ 716 00f0 EF 52                   		mov.L	r5, r2
+ 717 00f2 ED A1 09                		mov.L	36[r10], r1
+ 718 00f5 05 00 00 00             		bsr	_memcpy
+ 234:../src/src/crl.c ****                 XMEMCPY(sig, crle->signature, sigSz);
+ 719                             		.loc 1 234 17
+ 720 00f9 EC A5                   		mov.L	[r10], r5
+ 721 00fb AF 55                   		mov.L	112[r5], r5
+ 722 00fd ED A3 07                		mov.L	28[r10], r3
+ 723 0100 EF 52                   		mov.L	r5, r2
+ 724 0102 ED A1 06                		mov.L	24[r10], r1
+ 725 0105 05 00 00 00             		bsr	_memcpy
+ 235:../src/src/crl.c ****             #ifndef NO_SKID
+ 236:../src/src/crl.c ****                 XMEMCPY(extAuthKeyId, crle->extAuthKeyId,
+ 726                             		.loc 1 236 17
+ 727 0109 EC A5                   		mov.L	[r10], r5
+ 728 010b 71 55 7D                		add	#0x7d, r5
+ 729 010e 75 43 14                		mov.L	#20, r3
+ 730 0111 71 A4 44                		add	#0x44, r10, r4
+ 731 0114 EF 41                   		mov.L	r4, r1
+ 732 0116 EF 52                   		mov.L	r5, r2
+ 733 0118 7F 8F                   		smovf
+ 237:../src/src/crl.c ****                                                           sizeof(extAuthKeyId));
+ 238:../src/src/crl.c ****             #endif
+ 239:../src/src/crl.c ****                 XMEMCPY(issuerHash, crle->issuerHash, sizeof(issuerHash));
+ 734                             		.loc 1 239 17
+ 735 011a EC A5                   		mov.L	[r10], r5
+ 736 011c 62 45                   		add	#4, r5
+ 737 011e 75 43 14                		mov.L	#20, r3
+ 738 0121 71 A4 58                		add	#0x58, r10, r4
+ 739 0124 EF 41                   		mov.L	r4, r1
+ 740 0126 EF 52                   		mov.L	r5, r2
+ 741 0128 7F 8F                   		smovf
+ 240:../src/src/crl.c **** 
+ 241:../src/src/crl.c ****                 wc_UnLockMutex(&crl->crlLock);
+ 742                             		.loc 1 241 17
+ 743 012a ED A5 26                		mov.L	152[r10], r5
+ 744 012d 62 85                   		add	#8, r5
+ 745 012f EF 51                   		mov.L	r5, r1
+ 746 0131 05 00 00 00             		bsr	_wc_UnLockMutex
+ 242:../src/src/crl.c **** 
+ 243:../src/src/crl.c ****             #ifndef NO_SKID
+ 244:../src/src/crl.c ****                 if (crle->extAuthKeyIdSet)
+ 747                             		.loc 1 244 25
+ 748 0135 EC A5                   		mov.L	[r10], r5
+ 749 0137 CD 55 7C                		mov.B	124[r5], r5
+ 750                             		.loc 1 244 20
+ 751 013a 5B 55                   		movu.B	r5, r5
+ 752 013c 61 05                   		cmp	#0, r5
+ 753 013e 20 15                   		beq	.L39
+ 245:../src/src/crl.c ****                     ca = GetCA(crl->cm, extAuthKeyId);
+ 754                             		.loc 1 245 35
+ 755 0140 ED A5 26                		mov.L	152[r10], r5
+ 756 0143 EC 54                   		mov.L	[r5], r4
+ 757                             		.loc 1 245 26
+ 758 0145 71 A5 44                		add	#0x44, r10, r5
+ 759 0148 EF 52                   		mov.L	r5, r2
+ 760 014a EF 41                   		mov.L	r4, r1
+ 761 014c 05 00 00 00             		bsr	_GetCA
+ 762 0150 E7 A1 03                		mov.L	r1, 12[r10]
+ 763                             	.L39:
+ 246:../src/src/crl.c ****                 if (ca == NULL)
+ 764                             		.loc 1 246 20
+ 765 0153 ED A5 03                		mov.L	12[r10], r5
+ 766 0156 61 05                   		cmp	#0, r5
+ 767 0158 21 15                   		bne	.L40
+ 247:../src/src/crl.c ****                     ca = GetCAByName(crl->cm, issuerHash);
+ 768                             		.loc 1 247 41
+ 769 015a ED A5 26                		mov.L	152[r10], r5
+ 770 015d EC 54                   		mov.L	[r5], r4
+ 771                             		.loc 1 247 26
+ 772 015f 71 A5 58                		add	#0x58, r10, r5
+ 773 0162 EF 52                   		mov.L	r5, r2
+ 774 0164 EF 41                   		mov.L	r4, r1
+ 775 0166 05 00 00 00             		bsr	_GetCAByName
+ 776 016a E7 A1 03                		mov.L	r1, 12[r10]
+ 777                             	.L40:
+ 248:../src/src/crl.c ****             #else /* NO_SKID */
+ 249:../src/src/crl.c ****                 ca = GetCA(crl->cm, issuerHash);
+ 250:../src/src/crl.c ****             #endif /* NO_SKID */
+ 251:../src/src/crl.c ****                 if (ca == NULL) {
+ 778                             		.loc 1 251 20
+ 779 016d ED A5 03                		mov.L	12[r10], r5
+ 780 0170 61 05                   		cmp	#0, r5
+ 781 0172 21 39                   		bne	.L41
+ 782                             	.LBB13:
+ 252:../src/src/crl.c ****                     XFREE(sig, crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 783                             		.loc 1 252 21
+ 784 0174 ED A5 06                		mov.L	24[r10], r5
+ 785 0177 E7 A5 0B                		mov.L	r5, 44[r10]
+ 786 017a ED A5 0B                		mov.L	44[r10], r5
+ 787 017d 61 05                   		cmp	#0, r5
+ 788 017f 10                      		beq	.L42
+ 789                             		.loc 1 252 21 is_stmt 0 discriminator 1
+ 790 0180 ED A1 0B                		mov.L	44[r10], r1
+ 791 0183 05 00 00 00             		bsr	_wolfSSL_Free
+ 792                             	.L42:
+ 793                             	.LBE13:
+ 794                             	.LBB14:
+ 253:../src/src/crl.c ****                     XFREE(tbs, crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 795                             		.loc 1 253 21 is_stmt 1
+ 796 0187 ED A5 09                		mov.L	36[r10], r5
+ 797 018a E7 A5 0C                		mov.L	r5, 48[r10]
+ 798 018d ED A5 0C                		mov.L	48[r10], r5
+ 799 0190 61 05                   		cmp	#0, r5
+ 800 0192 10                      		beq	.L43
+ 801                             		.loc 1 253 21 is_stmt 0 discriminator 1
+ 802 0193 ED A1 0C                		mov.L	48[r10], r1
+ 803 0196 05 00 00 00             		bsr	_wolfSSL_Free
+ 804                             	.L43:
+ 805                             	.LBE14:
+ 254:../src/src/crl.c ****                     WOLFSSL_MSG("Did NOT find CRL issuer CA");
+ 806                             		.loc 1 254 21 is_stmt 1
+ 807 019a FB 12 70 00 00 00       		mov.L	#.LC7, r1
+ 808 01a0 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 255:../src/src/crl.c ****                     return ASN_CRL_NO_SIGNER_E;
+ 809                             		.loc 1 255 28
+ 810 01a4 FB 5A 42 FF             		mov.L	#-190, r5
+ 811 01a8 38 DA 01                		bra	.L31
+ 812                             	.L41:
+ 256:../src/src/crl.c ****                 }
+ 257:../src/src/crl.c **** 
+ 258:../src/src/crl.c ****                 ret = VerifyCRL_Signature(&sigCtx, tbs, tbsSz, sig, sigSz,
+ 813                             		.loc 1 258 23
+ 814 01ab ED A5 26                		mov.L	152[r10], r5
+ 815 01ae A9 DC                   		mov.L	28[r5], r4
+ 816 01b0 71 A5 6C                		add	#0x6c, r10, r5
+ 817 01b3 A0 8C                   		mov.L	r4, 12[r0]
+ 818 01b5 ED A4 03                		mov.L	12[r10], r4
+ 819 01b8 A0 84                   		mov.L	r4, 8[r0]
+ 820 01ba ED A4 08                		mov.L	32[r10], r4
+ 821 01bd A0 0C                   		mov.L	r4, 4[r0]
+ 822 01bf ED A4 07                		mov.L	28[r10], r4
+ 823 01c2 E3 04                   		mov.L	r4, [r0]
+ 824 01c4 ED A4 06                		mov.L	24[r10], r4
+ 825 01c7 ED A3 05                		mov.L	20[r10], r3
+ 826 01ca ED A2 09                		mov.L	36[r10], r2
+ 827 01cd EF 51                   		mov.L	r5, r1
+ 828 01cf 05 00 00 00             		bsr	_VerifyCRL_Signature
+ 829 01d3 E7 A1 02                		mov.L	r1, 8[r10]
+ 830                             	.LBB15:
+ 259:../src/src/crl.c ****                                           sigOID, ca, crl->heap);
+ 260:../src/src/crl.c **** 
+ 261:../src/src/crl.c ****                 XFREE(sig, crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 831                             		.loc 1 261 17
+ 832 01d6 ED A5 06                		mov.L	24[r10], r5
+ 833 01d9 E7 A5 0D                		mov.L	r5, 52[r10]
+ 834 01dc ED A5 0D                		mov.L	52[r10], r5
+ 835 01df 61 05                   		cmp	#0, r5
+ 836 01e1 10                      		beq	.L44
+ 837                             		.loc 1 261 17 is_stmt 0 discriminator 1
+ 838 01e2 ED A1 0D                		mov.L	52[r10], r1
+ 839 01e5 05 00 00 00             		bsr	_wolfSSL_Free
+ 840                             	.L44:
+ 841                             	.LBE15:
+ 842                             	.LBB16:
+ 262:../src/src/crl.c ****                 XFREE(tbs, crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 843                             		.loc 1 262 17 is_stmt 1
+ 844 01e9 ED A5 09                		mov.L	36[r10], r5
+ 845 01ec E7 A5 0E                		mov.L	r5, 56[r10]
+ 846 01ef ED A5 0E                		mov.L	56[r10], r5
+ 847 01f2 61 05                   		cmp	#0, r5
+ 848 01f4 10                      		beq	.L45
+ 849                             		.loc 1 262 17 is_stmt 0 discriminator 1
+ 850 01f5 ED A1 0E                		mov.L	56[r10], r1
+ 851 01f8 05 00 00 00             		bsr	_wolfSSL_Free
+ 852                             	.L45:
+ 853                             	.LBE16:
+ 263:../src/src/crl.c **** 
+ 264:../src/src/crl.c ****                 if (wc_LockMutex(&crl->crlLock) != 0) {
+ 854                             		.loc 1 264 21 is_stmt 1
+ 855 01fc ED A5 26                		mov.L	152[r10], r5
+ 856 01ff 62 85                   		add	#8, r5
+ 857 0201 EF 51                   		mov.L	r5, r1
+ 858 0203 05 00 00 00             		bsr	_wc_LockMutex
+ 859 0207 EF 15                   		mov.L	r1, r5
+ 860                             		.loc 1 264 20
+ 861 0209 61 05                   		cmp	#0, r5
+ 862 020b 20 12                   		beq	.L46
+ 265:../src/src/crl.c ****                     WOLFSSL_MSG("wc_LockMutex failed");
+ 863                             		.loc 1 265 21
+ 864 020d FB 12 44 00 00 00       		mov.L	#.LC5, r1
+ 865 0213 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 266:../src/src/crl.c ****                     return BAD_MUTEX_E;
+ 866                             		.loc 1 266 28
+ 867 0217 FB 56 96                		mov.L	#-106, r5
+ 868 021a 38 68 01                		bra	.L31
+ 869                             	.L46:
+ 267:../src/src/crl.c ****                 }
+ 268:../src/src/crl.c **** 
+ 269:../src/src/crl.c ****                 crle = crl->crlList;
+ 870                             		.loc 1 269 22
+ 871 021d ED A5 26                		mov.L	152[r10], r5
+ 872 0220 A8 5D                   		mov.L	4[r5], r5
+ 873 0222 E3 A5                   		mov.L	r5, [r10]
+ 270:../src/src/crl.c ****                 while (crle) {
+ 874                             		.loc 1 270 23
+ 875 0224 2E 6B                   		bra	.L47
+ 876                             	.L54:
+ 271:../src/src/crl.c ****                     if (XMEMCMP(crle->issuerHash, cert->issuerHash,
+ 877                             		.loc 1 271 25
+ 878 0226 EC A5                   		mov.L	[r10], r5
+ 879 0228 71 54 04                		add	#4, r5, r4
+ 880 022b ED A5 27                		mov.L	156[r10], r5
+ 881 022e 71 55 4C                		add	#0x4c, r5
+ 882 0231 75 43 14                		mov.L	#20, r3
+ 883 0234 EF 52                   		mov.L	r5, r2
+ 884 0236 EF 41                   		mov.L	r4, r1
+ 885 0238 05 00 00 00             		bsr	_memcmp
+ 886 023c EF 15                   		mov.L	r1, r5
+ 887                             		.loc 1 271 24
+ 888 023e 61 05                   		cmp	#0, r5
+ 889 0240 21 49                   		bne	.L48
+ 272:../src/src/crl.c ****                         CRL_DIGEST_SIZE) == 0) {
+ 273:../src/src/crl.c **** 
+ 274:../src/src/crl.c ****                         if (ret == 0)
+ 890                             		.loc 1 274 28
+ 891 0242 ED A5 02                		mov.L	8[r10], r5
+ 892 0245 61 05                   		cmp	#0, r5
+ 893 0247 1F                      		bne	.L49
+ 275:../src/src/crl.c ****                             crle->verified = 1;
+ 894                             		.loc 1 275 44
+ 895 0248 EC A5                   		mov.L	[r10], r5
+ 896 024a 3E D9 01                		mov.L	#1, 100[r5]
+ 897 024d 08                      		bra	.L50
+ 898                             	.L49:
+ 276:../src/src/crl.c ****                         else
+ 277:../src/src/crl.c ****                             crle->verified = ret;
+ 899                             		.loc 1 277 44
+ 900 024e EC A5                   		mov.L	[r10], r5
+ 901 0250 ED A4 02                		mov.L	8[r10], r4
+ 902 0253 A6 5C                   		mov.L	r4, 100[r5]
+ 903                             	.L50:
+ 904                             	.LBB17:
+ 278:../src/src/crl.c **** 
+ 279:../src/src/crl.c ****                         XFREE(crle->toBeSigned, crl->heap,
+ 905                             		.loc 1 279 25
+ 906 0255 EC A5                   		mov.L	[r10], r5
+ 907 0257 AE D5                   		mov.L	104[r5], r5
+ 908 0259 E7 A5 0F                		mov.L	r5, 60[r10]
+ 909 025c ED A5 0F                		mov.L	60[r10], r5
+ 910 025f 61 05                   		cmp	#0, r5
+ 911 0261 10                      		beq	.L51
+ 912                             		.loc 1 279 25 is_stmt 0 discriminator 1
+ 913 0262 ED A1 0F                		mov.L	60[r10], r1
+ 914 0265 05 00 00 00             		bsr	_wolfSSL_Free
+ 915                             	.L51:
+ 916                             	.LBE17:
+ 280:../src/src/crl.c ****                                                         DYNAMIC_TYPE_CRL_ENTRY);
+ 281:../src/src/crl.c ****                         crle->toBeSigned = NULL;
+ 917                             		.loc 1 281 42 is_stmt 1
+ 918 0269 EC A5                   		mov.L	[r10], r5
+ 919 026b 3E DA 00                		mov.L	#0, 104[r5]
+ 920                             	.LBB18:
+ 282:../src/src/crl.c ****                         XFREE(crle->signature, crl->heap,
+ 921                             		.loc 1 282 25
+ 922 026e EC A5                   		mov.L	[r10], r5
+ 923 0270 AF 55                   		mov.L	112[r5], r5
+ 924 0272 E7 A5 10                		mov.L	r5, 64[r10]
+ 925 0275 ED A5 10                		mov.L	64[r10], r5
+ 926 0278 61 05                   		cmp	#0, r5
+ 927 027a 10                      		beq	.L52
+ 928                             		.loc 1 282 25 is_stmt 0 discriminator 1
+ 929 027b ED A1 10                		mov.L	64[r10], r1
+ 930 027e 05 00 00 00             		bsr	_wolfSSL_Free
+ 931                             	.L52:
+ 932                             	.LBE18:
+ 283:../src/src/crl.c ****                                                         DYNAMIC_TYPE_CRL_ENTRY);
+ 284:../src/src/crl.c ****                         crle->signature = NULL;
+ 933                             		.loc 1 284 41 is_stmt 1
+ 934 0282 EC A5                   		mov.L	[r10], r5
+ 935 0284 3E DC 00                		mov.L	#0, 112[r5]
+ 285:../src/src/crl.c ****                         break;
+ 936                             		.loc 1 285 25
+ 937 0287 2E 0E                   		bra	.L53
+ 938                             	.L48:
+ 286:../src/src/crl.c ****                     }
+ 287:../src/src/crl.c ****                     crle = crle->next;
+ 939                             		.loc 1 287 26
+ 940 0289 EC A5                   		mov.L	[r10], r5
+ 941 028b EC 55                   		mov.L	[r5], r5
+ 942 028d E3 A5                   		mov.L	r5, [r10]
+ 943                             	.L47:
+ 270:../src/src/crl.c ****                     if (XMEMCMP(crle->issuerHash, cert->issuerHash,
+ 944                             		.loc 1 270 23
+ 945 028f EC A5                   		mov.L	[r10], r5
+ 946 0291 61 05                   		cmp	#0, r5
+ 947 0293 21 93                   		bne	.L54
+ 948                             	.L53:
+ 288:../src/src/crl.c ****                 }
+ 289:../src/src/crl.c ****                 if (crle == NULL || crle->verified < 0)
+ 949                             		.loc 1 289 20
+ 950 0295 EC A5                   		mov.L	[r10], r5
+ 951 0297 61 05                   		cmp	#0, r5
+ 952 0299 20 77                   		beq	.L57
+ 953                             		.loc 1 289 41 discriminator 1
+ 954 029b EC A5                   		mov.L	[r10], r5
+ 955 029d AE 5D                   		mov.L	100[r5], r5
+ 956                             		.loc 1 289 34 discriminator 1
+ 957 029f 61 05                   		cmp	#0, r5
+ 958 02a1 29 6F                   		blt	.L57
+ 959 02a3 2E 1D                   		bra	.L56
+ 960                             	.L34:
+ 961                             	.LBE11:
+ 290:../src/src/crl.c ****                     break;
+ 291:../src/src/crl.c ****             }
+ 292:../src/src/crl.c ****             else if (crle->verified < 0) {
+ 962                             		.loc 1 292 26
+ 963 02a5 EC A5                   		mov.L	[r10], r5
+ 964 02a7 AE 5D                   		mov.L	100[r5], r5
+ 965                             		.loc 1 292 21
+ 966 02a9 61 05                   		cmp	#0, r5
+ 967 02ab 28 15                   		bge	.L56
+ 293:../src/src/crl.c ****                 WOLFSSL_MSG("Cannot use CRL as it didn't verify");
+ 968                             		.loc 1 293 17
+ 969 02ad FB 12 8B 00 00 00       		mov.L	#.LC8, r1
+ 970 02b3 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 294:../src/src/crl.c ****                 ret = crle->verified;
+ 971                             		.loc 1 294 21
+ 972 02b7 EC A5                   		mov.L	[r10], r5
+ 973 02b9 AE 5D                   		mov.L	100[r5], r5
+ 974 02bb E7 A5 02                		mov.L	r5, 8[r10]
+ 295:../src/src/crl.c ****                 break;
+ 975                             		.loc 1 295 17
+ 976 02be 2E 52                   		bra	.L57
+ 977                             	.L56:
+ 296:../src/src/crl.c ****             }
+ 297:../src/src/crl.c **** 
+ 298:../src/src/crl.c ****             WOLFSSL_MSG("Checking next date validity");
+ 978                             		.loc 1 298 13
+ 979 02c0 FB 12 AE 00 00 00       		mov.L	#.LC9, r1
+ 980 02c6 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 299:../src/src/crl.c **** 
+ 300:../src/src/crl.c ****         #ifdef WOLFSSL_NO_CRL_NEXT_DATE
+ 301:../src/src/crl.c ****             if (crle->nextDateFormat != ASN_OTHER_TYPE)
+ 302:../src/src/crl.c ****         #endif
+ 303:../src/src/crl.c ****             {
+ 304:../src/src/crl.c ****             #ifndef NO_ASN_TIME
+ 305:../src/src/crl.c ****                 if (!XVALIDATE_DATE(crle->nextDate,crle->nextDateFormat, AFTER)) {
+ 981                             		.loc 1 305 22
+ 982 02ca EC A5                   		mov.L	[r10], r5
+ 983 02cc 71 54 38                		add	#56, r5, r4
+ 984 02cf EC A5                   		mov.L	[r10], r5
+ 985 02d1 CD 55 59                		mov.B	89[r5], r5
+ 986 02d4 66 13                   		mov.L	#1, r3
+ 987 02d6 CF 52                   		mov.B	r5, r2
+ 988 02d8 EF 41                   		mov.L	r4, r1
+ 989 02da 05 00 00 00             		bsr	_wc_ValidateDate
+ 990 02de EF 15                   		mov.L	r1, r5
+ 991                             		.loc 1 305 20
+ 992 02e0 61 05                   		cmp	#0, r5
+ 993 02e2 21 11                   		bne	.L58
+ 306:../src/src/crl.c ****                     WOLFSSL_MSG("CRL next date is no longer valid");
+ 994                             		.loc 1 306 21
+ 995 02e4 FB 12 CA 00 00 00       		mov.L	#.LC10, r1
+ 996 02ea 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 307:../src/src/crl.c ****                     ret = ASN_AFTER_DATE_E;
+ 997                             		.loc 1 307 25
+ 998 02ee F9 AA 02 69 FF          		mov.L	#-151, 8[r10]
+ 999                             	.L58:
+ 308:../src/src/crl.c ****                 }
+ 309:../src/src/crl.c ****             #endif
+ 310:../src/src/crl.c ****             }
+ 311:../src/src/crl.c ****             if (ret == 0) {
+ 1000                             		.loc 1 311 16
+ 1001 02f3 ED A5 02                		mov.L	8[r10], r5
+ 1002 02f6 61 05                   		cmp	#0, r5
+ 1003 02f8 21 17                   		bne	.L65
+ 312:../src/src/crl.c ****                 foundEntry = 1;
+ 1004                             		.loc 1 312 28
+ 1005 02fa F9 A6 01 01             		mov.L	#1, 4[r10]
+ 313:../src/src/crl.c ****             }
+ 314:../src/src/crl.c ****             break;
+ 1006                             		.loc 1 314 13
+ 1007 02fe 2E 11                   		bra	.L65
+ 1008                             	.L33:
+ 315:../src/src/crl.c ****         }
+ 316:../src/src/crl.c ****         crle = crle->next;
+ 1009                             		.loc 1 316 14
+ 1010 0300 EC A5                   		mov.L	[r10], r5
+ 1011 0302 EC 55                   		mov.L	[r5], r5
+ 1012 0304 E3 A5                   		mov.L	r5, [r10]
+ 1013                             	.L32:
+ 204:../src/src/crl.c ****         if (XMEMCMP(crle->issuerHash, cert->issuerHash, CRL_DIGEST_SIZE) == 0) {
+ 1014                             		.loc 1 204 11
+ 1015 0306 EC A5                   		mov.L	[r10], r5
+ 1016 0308 61 05                   		cmp	#0, r5
+ 1017 030a 3B 3B FD                		bne	.L60
+ 1018 030d 2E 03                   		bra	.L57
+ 1019                             	.L65:
+ 314:../src/src/crl.c ****         }
+ 1020                             		.loc 1 314 13
+ 1021 030f 03                      		nop
+ 1022                             		.balign 8,3,1
+ 1023                             	.L57:
+ 317:../src/src/crl.c ****     }
+ 318:../src/src/crl.c **** 
+ 319:../src/src/crl.c ****     if (foundEntry) {
+ 1024                             		.loc 1 319 8
+ 1025 0310 ED A5 01                		mov.L	4[r10], r5
+ 1026 0313 61 05                   		cmp	#0, r5
+ 1027 0315 20 57                   		beq	.L61
+ 1028                             	.LBB19:
+ 320:../src/src/crl.c ****         RevokedCert* rc = crle->certs;
+ 1029                             		.loc 1 320 22
+ 1030 0317 EC A5                   		mov.L	[r10], r5
+ 1031 0319 AD DD                   		mov.L	92[r5], r5
+ 1032 031b E7 A5 04                		mov.L	r5, 16[r10]
+ 321:../src/src/crl.c **** 
+ 322:../src/src/crl.c ****         while (rc) {
+ 1033                             		.loc 1 322 15
+ 1034 031e 2E 47                   		bra	.L62
+ 1035                             	.L64:
+ 323:../src/src/crl.c ****             if (rc->serialSz == cert->serialSz &&
+ 1036                             		.loc 1 323 19
+ 1037 0320 ED A5 04                		mov.L	16[r10], r5
+ 1038 0323 AA 54                   		mov.L	32[r5], r4
+ 1039                             		.loc 1 323 37
+ 1040 0325 ED A5 27                		mov.L	156[r10], r5
+ 1041 0328 ED 55 B3                		mov.L	716[r5], r5
+ 1042                             		.loc 1 323 16
+ 1043 032b 47 54                   		cmp	r5, r4
+ 1044 032d 21 30                   		bne	.L63
+ 324:../src/src/crl.c ****                    XMEMCMP(rc->serialNumber, cert->serial, rc->serialSz) == 0) {
+ 1045                             		.loc 1 324 20 discriminator 1
+ 1046 032f ED A1 04                		mov.L	16[r10], r1
+ 1047 0332 ED A5 27                		mov.L	156[r10], r5
+ 1048 0335 72 54 AC 02             		add	#0x2ac, r5, r4
+ 1049 0339 ED A5 04                		mov.L	16[r10], r5
+ 1050 033c AA 55                   		mov.L	32[r5], r5
+ 1051 033e EF 53                   		mov.L	r5, r3
+ 1052 0340 EF 42                   		mov.L	r4, r2
+ 1053 0342 05 00 00 00             		bsr	_memcmp
+ 1054 0346 EF 15                   		mov.L	r1, r5
+ 323:../src/src/crl.c ****             if (rc->serialSz == cert->serialSz &&
+ 1055                             		.loc 1 323 48 discriminator 1
+ 1056 0348 61 05                   		cmp	#0, r5
+ 1057 034a 21 13                   		bne	.L63
+ 325:../src/src/crl.c ****                 WOLFSSL_MSG("Cert revoked");
+ 1058                             		.loc 1 325 17
+ 1059 034c FB 12 EB 00 00 00       		mov.L	#.LC11, r1
+ 1060 0352 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 326:../src/src/crl.c ****                 ret = CRL_CERT_REVOKED;
+ 1061                             		.loc 1 326 21
+ 1062 0356 F9 AA 02 97 FE          		mov.L	#-361, 8[r10]
+ 327:../src/src/crl.c ****                 break;
+ 1063                             		.loc 1 327 17
+ 1064 035b 2E 11                   		bra	.L61
+ 1065                             	.L63:
+ 328:../src/src/crl.c ****             }
+ 329:../src/src/crl.c ****             rc = rc->next;
+ 1066                             		.loc 1 329 16
+ 1067 035d ED A5 04                		mov.L	16[r10], r5
+ 1068 0360 AA 5D                   		mov.L	36[r5], r5
+ 1069 0362 E7 A5 04                		mov.L	r5, 16[r10]
+ 1070                             	.L62:
+ 322:../src/src/crl.c ****             if (rc->serialSz == cert->serialSz &&
+ 1071                             		.loc 1 322 15
+ 1072 0365 ED A5 04                		mov.L	16[r10], r5
+ 1073 0368 61 05                   		cmp	#0, r5
+ 1074 036a 21 B6                   		bne	.L64
+ 1075                             	.L61:
+ 1076                             	.LBE19:
+ 330:../src/src/crl.c ****         }
+ 331:../src/src/crl.c ****     }
+ 332:../src/src/crl.c **** 
+ 333:../src/src/crl.c ****     wc_UnLockMutex(&crl->crlLock);
+ 1077                             		.loc 1 333 5
+ 1078 036c ED A5 26                		mov.L	152[r10], r5
+ 1079 036f 62 85                   		add	#8, r5
+ 1080 0371 EF 51                   		mov.L	r5, r1
+ 1081 0373 05 00 00 00             		bsr	_wc_UnLockMutex
+ 334:../src/src/crl.c **** 
+ 335:../src/src/crl.c ****     *pFoundEntry = foundEntry;
+ 1082                             		.loc 1 335 18
+ 1083 0377 ED A5 28                		mov.L	160[r10], r5
+ 1084 037a ED A4 01                		mov.L	4[r10], r4
+ 1085 037d E3 54                   		mov.L	r4, [r5]
+ 336:../src/src/crl.c **** 
+ 337:../src/src/crl.c ****     return ret;
+ 1086                             		.loc 1 337 12
+ 1087 037f ED A5 02                		mov.L	8[r10], r5
+ 1088                             		.balign 8,3,1
+ 1089                             	.L31:
+ 338:../src/src/crl.c **** }
+ 1090                             		.loc 1 338 1
+ 1091 0382 EF 51                   		mov.L	r5, r1
+ 1092 0384 3F AA 2E                		rtsd	#184, r10-r10
+ 1093                             	.LFE5:
+ 1095 0387 03                      		.section C,"a",@progbits
+ 1096                             		.p2align 2
+ 1097                             	.LC12:
+ 1098 00f8 43 68 65 63 6B 43 65 72 		.string	"CheckCertCRL"
+ 1098      74 43 52 4C 00 
+ 1099                             	.LC13:
+ 1100 0105 43 6F 75 6C 64 6E 27 74 		.string	"Couldn't find CRL for status check"
+ 1100      20 66 69 6E 64 20 43 52 
+ 1100      4C 20 66 6F 72 20 73 74 
+ 1100      61 74 75 73 20 63 68 65 
+ 1100      63 6B 00 
+ 1101                             	.LC14:
+ 1102 0128 49 73 73 75 69 6E 67 20 		.string	"Issuing missing CRL callback"
+ 1102      6D 69 73 73 69 6E 67 20 
+ 1102      43 52 4C 20 63 61 6C 6C 
+ 1102      62 61 63 6B 00 
+ 1103                             	.LC15:
+ 1104 0145 43 52 4C 20 75 72 6C 20 		.string	"CRL url too long"
+ 1104      74 6F 6F 20 6C 6F 6E 67 
+ 1104      00 
+ 1105                             		.section	.text.CheckCertCRL,"ax",@progbits
+ 1106                             		.global	_CheckCertCRL
+ 1108                             	_CheckCertCRL:
+ 1109                             	.LFB6:
+ 339:../src/src/crl.c **** 
+ 340:../src/src/crl.c **** /* Is the cert ok with CRL, return 0 on success */
+ 341:../src/src/crl.c **** int CheckCertCRL(WOLFSSL_CRL* crl, DecodedCert* cert)
+ 342:../src/src/crl.c **** {
+ 1110                             		.loc 1 342 1
+ 1111 0000 7E AA                   		push.l	r10
+ 1112                             	.LCFI11:
+ 1113 0002 72 0A F0 FE             		add	#-272, r0, r10
+ 1114                             	.LCFI12:
+ 1115 0006 EF A0                   		mov.L	r10, r0
+ 1116 0008 E7 A1 42                		mov.L	r1, 264[r10]
+ 1117 000b E7 A2 43                		mov.L	r2, 268[r10]
+ 343:../src/src/crl.c ****     int        foundEntry = 0;
+ 1118                             		.loc 1 343 16
+ 1119 000e F9 A6 01 00             		mov.L	#0, 4[r10]
+ 344:../src/src/crl.c ****     int        ret = 0;
+ 1120                             		.loc 1 344 16
+ 1121 0012 F8 A6 00                		mov.L	#0, [r10]
+ 345:../src/src/crl.c **** 
+ 346:../src/src/crl.c ****     WOLFSSL_ENTER("CheckCertCRL");
+ 1122                             		.loc 1 346 5
+ 1123 0015 FB 12 F8 00 00 00       		mov.L	#.LC12, r1
+ 1124 001b 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 347:../src/src/crl.c **** 
+ 348:../src/src/crl.c **** #ifdef WOLFSSL_CRL_ALLOW_MISSING_CDP
+ 349:../src/src/crl.c ****     /* Skip CRL verification in case no CDP in peer cert */
+ 350:../src/src/crl.c ****     if (!cert->extCrlInfo) {
+ 351:../src/src/crl.c ****         return ret;
+ 352:../src/src/crl.c ****     }
+ 353:../src/src/crl.c **** #endif
+ 354:../src/src/crl.c **** 
+ 355:../src/src/crl.c ****     ret = CheckCertCRLList(crl, cert, &foundEntry);
+ 1125                             		.loc 1 355 11
+ 1126 001f 71 A5 04                		add	#4, r10, r5
+ 1127 0022 EF 53                   		mov.L	r5, r3
+ 1128 0024 ED A2 43                		mov.L	268[r10], r2
+ 1129 0027 ED A1 42                		mov.L	264[r10], r1
+ 1130 002a 05 00 00 00             		bsr	_CheckCertCRLList
+ 1131 002e E3 A1                   		mov.L	r1, [r10]
+ 356:../src/src/crl.c **** 
+ 357:../src/src/crl.c **** #ifdef HAVE_CRL_IO
+ 358:../src/src/crl.c ****     if (foundEntry == 0) {
+ 359:../src/src/crl.c ****         /* perform embedded lookup */
+ 360:../src/src/crl.c ****         if (crl->crlIOCb) {
+ 361:../src/src/crl.c ****             ret = crl->crlIOCb(crl, (const char*)cert->extCrlInfo,
+ 362:../src/src/crl.c ****                                                         cert->extCrlInfoSz);
+ 363:../src/src/crl.c ****             if (ret == WOLFSSL_CBIO_ERR_WANT_READ) {
+ 364:../src/src/crl.c ****                 ret = OCSP_WANT_READ;
+ 365:../src/src/crl.c ****             }
+ 366:../src/src/crl.c ****             else if (ret >= 0) {
+ 367:../src/src/crl.c ****                 /* try again */
+ 368:../src/src/crl.c ****                 ret = CheckCertCRLList(crl, cert, &foundEntry);
+ 369:../src/src/crl.c ****             }
+ 370:../src/src/crl.c ****         }
+ 371:../src/src/crl.c ****     }
+ 372:../src/src/crl.c **** #endif
+ 373:../src/src/crl.c **** 
+ 374:../src/src/crl.c **** #if defined(OPENSSL_ALL) && defined(WOLFSSL_CERT_GEN) && \
+ 375:../src/src/crl.c ****     (defined(WOLFSSL_CERT_REQ) || defined(WOLFSSL_CERT_EXT)) && \
+ 376:../src/src/crl.c ****     !defined(NO_FILESYSTEM) && !defined(NO_WOLFSSL_DIR)
+ 377:../src/src/crl.c ****     /* if not find entry in the CRL list, it looks at the folder that sets  */
+ 378:../src/src/crl.c ****     /* by LOOKUP_ctrl because user would want to use hash_dir.              */
+ 379:../src/src/crl.c ****     /* Loading <issuer-hash>.rN form CRL file if find at the folder,        */
+ 380:../src/src/crl.c ****     /* and try again checking Cert in the CRL list.                         */
+ 381:../src/src/crl.c ****     /* When not set the folder or not use hash_dir, do nothing.             */
+ 382:../src/src/crl.c ****     if ((foundEntry == 0) && (ret != OCSP_WANT_READ)) {
+ 383:../src/src/crl.c ****         if (crl->cm->x509_store_p != NULL) {
+ 384:../src/src/crl.c ****             ret = LoadCertByIssuer(crl->cm->x509_store_p,
+ 385:../src/src/crl.c ****                           (WOLFSSL_X509_NAME*)cert->issuerName, X509_LU_CRL);
+ 386:../src/src/crl.c ****             if (ret == WOLFSSL_SUCCESS) {
+ 387:../src/src/crl.c ****                 /* try again */
+ 388:../src/src/crl.c ****                 ret = CheckCertCRLList(crl, cert, &foundEntry);
+ 389:../src/src/crl.c ****             }
+ 390:../src/src/crl.c ****         }
+ 391:../src/src/crl.c ****     }
+ 392:../src/src/crl.c **** #endif
+ 393:../src/src/crl.c ****     if (foundEntry == 0) {
+ 1132                             		.loc 1 393 20
+ 1133 0030 ED A5 01                		mov.L	4[r10], r5
+ 1134                             		.loc 1 393 8
+ 1135 0033 61 05                   		cmp	#0, r5
+ 1136 0035 3B 84 00                		bne	.L67
+ 394:../src/src/crl.c ****         WOLFSSL_MSG("Couldn't find CRL for status check");
+ 1137                             		.loc 1 394 9
+ 1138 0038 FB 12 05 01 00 00       		mov.L	#.LC13, r1
+ 1139 003e 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 395:../src/src/crl.c ****         if (ret != CRL_CERT_DATE_ERR) {
+ 1140                             		.loc 1 395 12
+ 1141 0042 EC A5                   		mov.L	[r10], r5
+ 1142 0044 76 05 4D FF             		cmp	#-179, r5
+ 1143 0048 15                      		beq	.L68
+ 396:../src/src/crl.c ****             ret = CRL_MISSING;
+ 1144                             		.loc 1 396 17
+ 1145 0049 F8 AA 96 FE             		mov.L	#-362, [r10]
+ 1146                             	.L68:
+ 397:../src/src/crl.c ****         }
+ 398:../src/src/crl.c **** 
+ 399:../src/src/crl.c ****         if (crl->cm->cbMissingCRL) {
+ 1147                             		.loc 1 399 16
+ 1148 004d ED A5 42                		mov.L	264[r10], r5
+ 1149 0050 EC 55                   		mov.L	[r5], r5
+ 1150                             		.loc 1 399 20
+ 1151 0052 AC DD                   		mov.L	76[r5], r5
+ 1152                             		.loc 1 399 12
+ 1153 0054 61 05                   		cmp	#0, r5
+ 1154 0056 20 63                   		beq	.L67
+ 1155                             	.LBB20:
+ 400:../src/src/crl.c ****             char url[256];
+ 401:../src/src/crl.c **** 
+ 402:../src/src/crl.c ****             WOLFSSL_MSG("Issuing missing CRL callback");
+ 1156                             		.loc 1 402 13
+ 1157 0058 FB 12 28 01 00 00       		mov.L	#.LC14, r1
+ 1158 005e 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 403:../src/src/crl.c ****             url[0] = '\0';
+ 1159                             		.loc 1 403 20
+ 1160 0062 F9 A4 08 00             		mov.B	#0, 8[r10]
+ 404:../src/src/crl.c ****             if (cert->extCrlInfo) {
+ 1161                             		.loc 1 404 21
+ 1162 0066 ED A5 43                		mov.L	268[r10], r5
+ 1163 0069 ED 55 BB                		mov.L	748[r5], r5
+ 1164                             		.loc 1 404 16
+ 1165 006c 61 05                   		cmp	#0, r5
+ 1166 006e 20 3D                   		beq	.L69
+ 405:../src/src/crl.c ****                 if (cert->extCrlInfoSz < (int)sizeof(url) -1 ) {
+ 1167                             		.loc 1 405 25
+ 1168 0070 ED A5 43                		mov.L	268[r10], r5
+ 1169 0073 ED 55 BC                		mov.L	752[r5], r5
+ 1170                             		.loc 1 405 20
+ 1171 0076 75 55 FE                		cmp	#0xfe, r5
+ 1172 0079 2A 28                   		bgt	.L70
+ 406:../src/src/crl.c ****                     XMEMCPY(url, cert->extCrlInfo, cert->extCrlInfoSz);
+ 1173                             		.loc 1 406 21
+ 1174 007b ED A5 43                		mov.L	268[r10], r5
+ 1175 007e ED 54 BB                		mov.L	748[r5], r4
+ 1176 0081 ED A5 43                		mov.L	268[r10], r5
+ 1177 0084 ED 55 BC                		mov.L	752[r5], r5
+ 1178 0087 EF 53                   		mov.L	r5, r3
+ 1179 0089 71 A5 08                		add	#8, r10, r5
+ 1180 008c EF 42                   		mov.L	r4, r2
+ 1181 008e EF 51                   		mov.L	r5, r1
+ 1182 0090 05 00 00 00             		bsr	_memcpy
+ 407:../src/src/crl.c ****                     url[cert->extCrlInfoSz] = '\0';
+ 1183                             		.loc 1 407 29
+ 1184 0094 ED A5 43                		mov.L	268[r10], r5
+ 1185 0097 ED 55 BC                		mov.L	752[r5], r5
+ 1186                             		.loc 1 407 45
+ 1187 009a 4B A5                   		add	r10, r5
+ 1188 009c 3C 58 00                		mov.B	#0, 8[r5]
+ 1189 009f 2E 0C                   		bra	.L69
+ 1190                             	.L70:
+ 408:../src/src/crl.c ****                 }
+ 409:../src/src/crl.c ****                 else  {
+ 410:../src/src/crl.c ****                     WOLFSSL_MSG("CRL url too long");
+ 1191                             		.loc 1 410 21
+ 1192 00a1 FB 12 45 01 00 00       		mov.L	#.LC15, r1
+ 1193 00a7 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 1194                             	.L69:
+ 411:../src/src/crl.c ****                 }
+ 412:../src/src/crl.c ****             }
+ 413:../src/src/crl.c **** 
+ 414:../src/src/crl.c ****             crl->cm->cbMissingCRL(url);
+ 1195                             		.loc 1 414 16
+ 1196 00ab ED A5 42                		mov.L	264[r10], r5
+ 1197 00ae EC 55                   		mov.L	[r5], r5
+ 1198                             		.loc 1 414 20
+ 1199 00b0 AC DD                   		mov.L	76[r5], r5
+ 1200                             		.loc 1 414 13
+ 1201 00b2 71 A4 08                		add	#8, r10, r4
+ 1202 00b5 EF 41                   		mov.L	r4, r1
+ 1203 00b7 7F 15                   		jsr	r5
+ 1204                             	.LVL0:
+ 1205                             	.L67:
+ 1206                             	.LBE20:
+ 415:../src/src/crl.c ****         }
+ 416:../src/src/crl.c ****     }
+ 417:../src/src/crl.c **** 
+ 418:../src/src/crl.c ****     return ret;
+ 1207                             		.loc 1 418 12
+ 1208 00b9 EC A5                   		mov.L	[r10], r5
+ 419:../src/src/crl.c **** }
+ 1209                             		.loc 1 419 1
+ 1210 00bb EF 51                   		mov.L	r5, r1
+ 1211 00bd 3F AA 45                		rtsd	#276, r10-r10
+ 1212                             	.LFE6:
+ 1214                             		.section C,"a",@progbits
+ 1215 0156 00 00                   		.p2align 2
+ 1216                             	.LC16:
+ 1217 0158 41 64 64 43 52 4C 00    		.string	"AddCRL"
+ 1218                             	.LC17:
+ 1219 015f 61 6C 6C 6F 63 20 43 52 		.string	"alloc CRL Entry failed"
+ 1219      4C 20 45 6E 74 72 79 20 
+ 1219      66 61 69 6C 65 64 00 
+ 1220                             	.LC18:
+ 1221 0176 49 6E 69 74 20 43 52 4C 		.string	"Init CRL Entry failed"
+ 1221      20 45 6E 74 72 79 20 66 
+ 1221      61 69 6C 65 64 00 
+ 1222                             		.section	.text.AddCRL,"ax",@progbits
+ 1224                             	_AddCRL:
+ 1225                             	.LFB7:
+ 420:../src/src/crl.c **** 
+ 421:../src/src/crl.c **** 
+ 422:../src/src/crl.c **** /* Add Decoded CRL, 0 on success */
+ 423:../src/src/crl.c **** static int AddCRL(WOLFSSL_CRL* crl, DecodedCRL* dcrl, const byte* buff,
+ 424:../src/src/crl.c ****                   int verified)
+ 425:../src/src/crl.c **** {
+ 1226                             		.loc 1 425 1
+ 1227 0000 7E AA                   		push.l	r10
+ 1228                             	.LCFI13:
+ 1229 0002 71 0A E4                		add	#-28, r0, r10
+ 1230                             	.LCFI14:
+ 1231 0005 71 A0 FC                		add	#-4, r10, r0
+ 1232                             	.LCFI15:
+ 1233 0008 E7 A1 03                		mov.L	r1, 12[r10]
+ 1234 000b E7 A2 04                		mov.L	r2, 16[r10]
+ 1235 000e E7 A3 05                		mov.L	r3, 20[r10]
+ 1236 0011 E7 A4 06                		mov.L	r4, 24[r10]
+ 426:../src/src/crl.c ****     CRL_Entry* crle;
+ 427:../src/src/crl.c **** 
+ 428:../src/src/crl.c ****     WOLFSSL_ENTER("AddCRL");
+ 1237                             		.loc 1 428 5
+ 1238 0014 FB 12 58 01 00 00       		mov.L	#.LC16, r1
+ 1239 001a 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 429:../src/src/crl.c **** 
+ 430:../src/src/crl.c ****     crle = (CRL_Entry*)XMALLOC(sizeof(CRL_Entry), crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 1240                             		.loc 1 430 24
+ 1241 001e 75 41 94                		mov.L	#0x94, r1
+ 1242 0021 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1243 0025 E3 A1                   		mov.L	r1, [r10]
+ 431:../src/src/crl.c ****     if (crle == NULL) {
+ 1244                             		.loc 1 431 8
+ 1245 0027 EC A5                   		mov.L	[r10], r5
+ 1246 0029 61 05                   		cmp	#0, r5
+ 1247 002b 21 12                   		bne	.L73
+ 432:../src/src/crl.c ****         WOLFSSL_MSG("alloc CRL Entry failed");
+ 1248                             		.loc 1 432 9
+ 1249 002d FB 12 5F 01 00 00       		mov.L	#.LC17, r1
+ 1250 0033 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 433:../src/src/crl.c ****         return -1;
+ 1251                             		.loc 1 433 16
+ 1252 0037 FB 56 FF                		mov.L	#-1, r5
+ 1253 003a 38 9C 00                		bra	.L74
+ 1254                             	.L73:
+ 434:../src/src/crl.c ****     }
+ 435:../src/src/crl.c **** 
+ 436:../src/src/crl.c ****     if (InitCRL_Entry(crle, dcrl, buff, verified, crl->heap) < 0) {
+ 1255                             		.loc 1 436 9
+ 1256 003d ED A5 03                		mov.L	12[r10], r5
+ 1257 0040 A9 DD                   		mov.L	28[r5], r5
+ 1258 0042 E3 05                   		mov.L	r5, [r0]
+ 1259 0044 ED A4 06                		mov.L	24[r10], r4
+ 1260 0047 ED A3 05                		mov.L	20[r10], r3
+ 1261 004a ED A2 04                		mov.L	16[r10], r2
+ 1262 004d EC A1                   		mov.L	[r10], r1
+ 1263 004f 05 00 00 00             		bsr	_InitCRL_Entry
+ 1264 0053 EF 15                   		mov.L	r1, r5
+ 1265                             		.loc 1 436 8
+ 1266 0055 61 05                   		cmp	#0, r5
+ 1267 0057 28 23                   		bge	.L75
+ 437:../src/src/crl.c ****         WOLFSSL_MSG("Init CRL Entry failed");
+ 1268                             		.loc 1 437 9
+ 1269 0059 FB 12 76 01 00 00       		mov.L	#.LC18, r1
+ 1270 005f 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 1271                             	.LBB21:
+ 438:../src/src/crl.c ****         XFREE(crle, crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 1272                             		.loc 1 438 9
+ 1273 0063 EC A5                   		mov.L	[r10], r5
+ 1274 0065 E7 A5 01                		mov.L	r5, 4[r10]
+ 1275 0068 ED A5 01                		mov.L	4[r10], r5
+ 1276 006b 61 05                   		cmp	#0, r5
+ 1277 006d 10                      		beq	.L76
+ 1278                             		.loc 1 438 9 is_stmt 0 discriminator 1
+ 1279 006e ED A1 01                		mov.L	4[r10], r1
+ 1280 0071 05 00 00 00             		bsr	_wolfSSL_Free
+ 1281                             	.L76:
+ 1282                             	.LBE21:
+ 439:../src/src/crl.c ****         return -1;
+ 1283                             		.loc 1 439 16 is_stmt 1
+ 1284 0075 FB 56 FF                		mov.L	#-1, r5
+ 1285 0078 2E 5E                   		bra	.L74
+ 1286                             	.L75:
+ 440:../src/src/crl.c ****     }
+ 441:../src/src/crl.c **** 
+ 442:../src/src/crl.c ****     if (wc_LockMutex(&crl->crlLock) != 0) {
+ 1287                             		.loc 1 442 9
+ 1288 007a ED A5 03                		mov.L	12[r10], r5
+ 1289 007d 62 85                   		add	#8, r5
+ 1290 007f EF 51                   		mov.L	r5, r1
+ 1291 0081 05 00 00 00             		bsr	_wc_LockMutex
+ 1292 0085 EF 15                   		mov.L	r1, r5
+ 1293                             		.loc 1 442 8
+ 1294 0087 61 05                   		cmp	#0, r5
+ 1295 0089 20 30                   		beq	.L77
+ 443:../src/src/crl.c ****         WOLFSSL_MSG("wc_LockMutex failed");
+ 1296                             		.loc 1 443 9
+ 1297 008b FB 12 44 00 00 00       		mov.L	#.LC5, r1
+ 1298 0091 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 444:../src/src/crl.c ****         FreeCRL_Entry(crle, crl->heap);
+ 1299                             		.loc 1 444 9
+ 1300 0095 ED A5 03                		mov.L	12[r10], r5
+ 1301 0098 A9 DD                   		mov.L	28[r5], r5
+ 1302 009a EF 52                   		mov.L	r5, r2
+ 1303 009c EC A1                   		mov.L	[r10], r1
+ 1304 009e 05 00 00 00             		bsr	_FreeCRL_Entry
+ 1305                             	.LBB22:
+ 445:../src/src/crl.c ****         XFREE(crle, crl->heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 1306                             		.loc 1 445 9
+ 1307 00a2 EC A5                   		mov.L	[r10], r5
+ 1308 00a4 E7 A5 02                		mov.L	r5, 8[r10]
+ 1309 00a7 ED A5 02                		mov.L	8[r10], r5
+ 1310 00aa 61 05                   		cmp	#0, r5
+ 1311 00ac 10                      		beq	.L78
+ 1312                             		.loc 1 445 9 is_stmt 0 discriminator 1
+ 1313 00ad ED A1 02                		mov.L	8[r10], r1
+ 1314 00b0 05 00 00 00             		bsr	_wolfSSL_Free
+ 1315                             	.L78:
+ 1316                             	.LBE22:
+ 446:../src/src/crl.c ****         return BAD_MUTEX_E;
+ 1317                             		.loc 1 446 16 is_stmt 1
+ 1318 00b4 FB 56 96                		mov.L	#-106, r5
+ 1319 00b7 2E 1F                   		bra	.L74
+ 1320                             	.L77:
+ 447:../src/src/crl.c ****     }
+ 448:../src/src/crl.c ****     crle->next = crl->crlList;
+ 1321                             		.loc 1 448 21
+ 1322 00b9 ED A5 03                		mov.L	12[r10], r5
+ 1323 00bc A8 5C                   		mov.L	4[r5], r4
+ 1324                             		.loc 1 448 16
+ 1325 00be EC A5                   		mov.L	[r10], r5
+ 1326 00c0 E3 54                   		mov.L	r4, [r5]
+ 449:../src/src/crl.c ****     crl->crlList = crle;
+ 1327                             		.loc 1 449 18
+ 1328 00c2 ED A5 03                		mov.L	12[r10], r5
+ 1329 00c5 EC A4                   		mov.L	[r10], r4
+ 1330 00c7 A0 5C                   		mov.L	r4, 4[r5]
+ 450:../src/src/crl.c ****     wc_UnLockMutex(&crl->crlLock);
+ 1331                             		.loc 1 450 5
+ 1332 00c9 ED A5 03                		mov.L	12[r10], r5
+ 1333 00cc 62 85                   		add	#8, r5
+ 1334 00ce EF 51                   		mov.L	r5, r1
+ 1335 00d0 05 00 00 00             		bsr	_wc_UnLockMutex
+ 451:../src/src/crl.c **** 
+ 452:../src/src/crl.c ****     return 0;
+ 1336                             		.loc 1 452 12
+ 1337 00d4 66 05                   		mov.L	#0, r5
+ 1338                             		.balign 8,3,1
+ 1339                             	.L74:
+ 453:../src/src/crl.c **** }
+ 1340                             		.loc 1 453 1
+ 1341 00d6 EF 51                   		mov.L	r5, r1
+ 1342 00d8 3F AA 09                		rtsd	#36, r10-r10
+ 1343                             	.LFE7:
+ 1345 00db 77 10 01 00 00          		.section C,"a",@progbits
+ 1346                             		.p2align 2
+ 1347                             	.LC19:
+ 1348 018c 42 75 66 66 65 72 4C 6F 		.string	"BufferLoadCRL"
+ 1348      61 64 43 52 4C 00 
+ 1349                             	.LC20:
+ 1350 019a 50 65 6D 20 74 6F 20 44 		.string	"Pem to Der failed"
+ 1350      65 72 20 66 61 69 6C 65 
+ 1350      64 00 
+ 1351                             	.LC21:
+ 1352 01ac 50 61 72 73 65 43 52 4C 		.string	"ParseCRL error"
+ 1352      20 65 72 72 6F 72 00 
+ 1353                             	.LC22:
+ 1354 01bb 41 64 64 43 52 4C 20 65 		.string	"AddCRL error"
+ 1354      72 72 6F 72 00 
+ 1355                             		.section	.text.BufferLoadCRL,"ax",@progbits
+ 1356                             		.global	_BufferLoadCRL
+ 1358                             	_BufferLoadCRL:
+ 1359                             	.LFB8:
+ 454:../src/src/crl.c **** 
+ 455:../src/src/crl.c **** 
+ 456:../src/src/crl.c **** /* Load CRL File of type, WOLFSSL_SUCCESS on ok */
+ 457:../src/src/crl.c **** int BufferLoadCRL(WOLFSSL_CRL* crl, const byte* buff, long sz, int type,
+ 458:../src/src/crl.c ****                   int verify)
+ 459:../src/src/crl.c **** {
+ 1360                             		.loc 1 459 1
+ 1361 0000 7E AA                   		push.l	r10
+ 1362                             	.LCFI16:
+ 1363 0002 7E A6                   		push.l	r6
+ 1364                             	.LCFI17:
+ 1365 0004 71 0A D8                		add	#-40, r0, r10
+ 1366                             	.LCFI18:
+ 1367 0007 71 A0 F4                		add	#-12, r10, r0
+ 1368                             	.LCFI19:
+ 1369 000a 75 46 34                		mov.L	#52, r6
+ 1370 000d 4B A6                   		add	r10, r6
+ 1371 000f E7 A1 05                		mov.L	r1, 20[r10]
+ 1372 0012 E7 A2 06                		mov.L	r2, 24[r10]
+ 1373 0015 E7 A3 07                		mov.L	r3, 28[r10]
+ 1374 0018 E7 A4 08                		mov.L	r4, 32[r10]
+ 460:../src/src/crl.c ****     int          ret = WOLFSSL_SUCCESS;
+ 1375                             		.loc 1 460 18
+ 1376 001b F8 A6 01                		mov.L	#1, [r10]
+ 461:../src/src/crl.c ****     const byte*  myBuffer = buff;    /* if DER ok, otherwise switch */
+ 1377                             		.loc 1 461 18
+ 1378 001e ED A5 06                		mov.L	24[r10], r5
+ 1379 0021 E7 A5 01                		mov.L	r5, 4[r10]
+ 462:../src/src/crl.c ****     DerBuffer*   der = NULL;
+ 1380                             		.loc 1 462 18
+ 1381 0024 F9 A6 04 00             		mov.L	#0, 16[r10]
+ 463:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+ 464:../src/src/crl.c ****     DecodedCRL*  dcrl;
+ 465:../src/src/crl.c **** #else
+ 466:../src/src/crl.c ****     DecodedCRL   dcrl[1];
+ 467:../src/src/crl.c **** #endif
+ 468:../src/src/crl.c **** 
+ 469:../src/src/crl.c ****     WOLFSSL_ENTER("BufferLoadCRL");
+ 1382                             		.loc 1 469 5
+ 1383 0028 FB 12 8C 01 00 00       		mov.L	#.LC19, r1
+ 1384 002e 05 00 00 00             		bsr	_WOLFSSL_ENTER
+ 470:../src/src/crl.c **** 
+ 471:../src/src/crl.c ****     if (crl == NULL || buff == NULL || sz == 0)
+ 1385                             		.loc 1 471 8
+ 1386 0032 ED A5 05                		mov.L	20[r10], r5
+ 1387 0035 61 05                   		cmp	#0, r5
+ 1388 0037 20 0E                   		beq	.L80
+ 1389                             		.loc 1 471 21 discriminator 1
+ 1390 0039 ED A5 06                		mov.L	24[r10], r5
+ 1391 003c 61 05                   		cmp	#0, r5
+ 1392 003e 17                      		beq	.L80
+ 1393                             		.loc 1 471 37 discriminator 2
+ 1394 003f ED A5 07                		mov.L	28[r10], r5
+ 1395 0042 61 05                   		cmp	#0, r5
+ 1396 0044 18                      		bne	.L81
+ 1397                             	.L80:
+ 472:../src/src/crl.c ****         return BAD_FUNC_ARG;
+ 1398                             		.loc 1 472 16
+ 1399 0045 FB 5A 53 FF             		mov.L	#-173, r5
+ 1400 0049 38 15 01                		bra	.L92
+ 1401                             	.L81:
+ 473:../src/src/crl.c **** 
+ 474:../src/src/crl.c ****     if (type == WOLFSSL_FILETYPE_PEM) {
+ 1402                             		.loc 1 474 8
+ 1403 004c ED A5 08                		mov.L	32[r10], r5
+ 1404 004f 61 15                   		cmp	#1, r5
+ 1405 0051 21 4F                   		bne	.L83
+ 475:../src/src/crl.c ****     #ifdef WOLFSSL_PEM_TO_DER
+ 476:../src/src/crl.c ****         ret = PemToDer(buff, sz, CRL_TYPE, &der, NULL, NULL, NULL);
+ 1406                             		.loc 1 476 15
+ 1407 0053 71 A5 10                		add	#16, r10, r5
+ 1408 0056 3E 02 00                		mov.L	#0, 8[r0]
+ 1409 0059 3E 01 00                		mov.L	#0, 4[r0]
+ 1410 005c F8 06 00                		mov.L	#0, [r0]
+ 1411 005f EF 54                   		mov.L	r5, r4
+ 1412 0061 66 43                   		mov.L	#4, r3
+ 1413 0063 ED A2 07                		mov.L	28[r10], r2
+ 1414 0066 ED A1 06                		mov.L	24[r10], r1
+ 1415 0069 05 00 00 00             		bsr	_PemToDer
+ 1416 006d E3 A1                   		mov.L	r1, [r10]
+ 477:../src/src/crl.c ****         if (ret == 0) {
+ 1417                             		.loc 1 477 12
+ 1418 006f EC A5                   		mov.L	[r10], r5
+ 1419 0071 61 05                   		cmp	#0, r5
+ 1420 0073 21 14                   		bne	.L84
+ 478:../src/src/crl.c ****             myBuffer = der->buffer;
+ 1421                             		.loc 1 478 27
+ 1422 0075 ED A5 04                		mov.L	16[r10], r5
+ 1423                             		.loc 1 478 22
+ 1424 0078 EC 55                   		mov.L	[r5], r5
+ 1425 007a E7 A5 01                		mov.L	r5, 4[r10]
+ 479:../src/src/crl.c ****             sz = der->length;
+ 1426                             		.loc 1 479 21
+ 1427 007d ED A5 04                		mov.L	16[r10], r5
+ 1428 0080 A8 D5                   		mov.L	8[r5], r5
+ 1429                             		.loc 1 479 16
+ 1430 0082 E7 A5 07                		mov.L	r5, 28[r10]
+ 1431 0085 2E 1B                   		bra	.L83
+ 1432                             	.L84:
+ 480:../src/src/crl.c ****         }
+ 481:../src/src/crl.c ****         else {
+ 482:../src/src/crl.c ****             WOLFSSL_MSG("Pem to Der failed");
+ 1433                             		.loc 1 482 13
+ 1434 0087 FB 12 9A 01 00 00       		mov.L	#.LC20, r1
+ 1435 008d 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 483:../src/src/crl.c ****             FreeDer(&der);
+ 1436                             		.loc 1 483 13
+ 1437 0091 71 A5 10                		add	#16, r10, r5
+ 1438 0094 EF 51                   		mov.L	r5, r1
+ 1439 0096 05 00 00 00             		bsr	_FreeDer
+ 484:../src/src/crl.c ****             return -1;
+ 1440                             		.loc 1 484 20
+ 1441 009a FB 56 FF                		mov.L	#-1, r5
+ 1442 009d 38 C1 00                		bra	.L92
+ 1443                             	.L83:
+ 485:../src/src/crl.c ****         }
+ 486:../src/src/crl.c ****     #else
+ 487:../src/src/crl.c ****         ret = NOT_COMPILED_IN;
+ 488:../src/src/crl.c ****     #endif
+ 489:../src/src/crl.c ****     }
+ 490:../src/src/crl.c **** 
+ 491:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+ 492:../src/src/crl.c ****     dcrl = (DecodedCRL*)XMALLOC(sizeof(DecodedCRL), NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 1444                             		.loc 1 492 25
+ 1445 00a0 75 41 A4                		mov.L	#0xa4, r1
+ 1446 00a3 05 00 00 00             		bsr	_wolfSSL_Malloc
+ 1447 00a7 E7 A1 02                		mov.L	r1, 8[r10]
+ 493:../src/src/crl.c ****     if (dcrl == NULL) {
+ 1448                             		.loc 1 493 8
+ 1449 00aa ED A5 02                		mov.L	8[r10], r5
+ 1450 00ad 61 05                   		cmp	#0, r5
+ 1451 00af 21 11                   		bne	.L85
+ 494:../src/src/crl.c ****         FreeDer(&der);
+ 1452                             		.loc 1 494 9
+ 1453 00b1 71 A5 10                		add	#16, r10, r5
+ 1454 00b4 EF 51                   		mov.L	r5, r1
+ 1455 00b6 05 00 00 00             		bsr	_FreeDer
+ 495:../src/src/crl.c ****         return MEMORY_E;
+ 1456                             		.loc 1 495 16
+ 1457 00ba FB 56 83                		mov.L	#-125, r5
+ 1458 00bd 38 A1 00                		bra	.L92
+ 1459                             	.L85:
+ 496:../src/src/crl.c ****     }
+ 497:../src/src/crl.c **** #endif
+ 498:../src/src/crl.c **** 
+ 499:../src/src/crl.c ****     InitDecodedCRL(dcrl, crl->heap);
+ 1460                             		.loc 1 499 5
+ 1461 00c0 ED A5 05                		mov.L	20[r10], r5
+ 1462 00c3 A9 DD                   		mov.L	28[r5], r5
+ 1463 00c5 EF 52                   		mov.L	r5, r2
+ 1464 00c7 ED A1 02                		mov.L	8[r10], r1
+ 1465 00ca 05 00 00 00             		bsr	_InitDecodedCRL
+ 500:../src/src/crl.c ****     ret = ParseCRL(dcrl, myBuffer, (word32)sz, verify, crl->cm);
+ 1466                             		.loc 1 500 11
+ 1467 00ce ED A3 07                		mov.L	28[r10], r3
+ 1468                             		.loc 1 500 59
+ 1469 00d1 ED A5 05                		mov.L	20[r10], r5
+ 1470 00d4 EC 55                   		mov.L	[r5], r5
+ 1471                             		.loc 1 500 11
+ 1472 00d6 E3 05                   		mov.L	r5, [r0]
+ 1473 00d8 EC 64                   		mov.L	[r6], r4
+ 1474 00da ED A2 01                		mov.L	4[r10], r2
+ 1475 00dd ED A1 02                		mov.L	8[r10], r1
+ 1476 00e0 05 00 00 00             		bsr	_ParseCRL
+ 1477 00e4 E3 A1                   		mov.L	r1, [r10]
+ 501:../src/src/crl.c ****     if (ret != 0 && !(ret == ASN_CRL_NO_SIGNER_E && verify == NO_VERIFY)) {
+ 1478                             		.loc 1 501 8
+ 1479 00e6 EC A5                   		mov.L	[r10], r5
+ 1480 00e8 61 05                   		cmp	#0, r5
+ 1481 00ea 20 1B                   		beq	.L86
+ 1482                             		.loc 1 501 18 discriminator 1
+ 1483 00ec EC A5                   		mov.L	[r10], r5
+ 1484 00ee 76 05 42 FF             		cmp	#-190, r5
+ 1485 00f2 1F                      		bne	.L87
+ 1486                             		.loc 1 501 21 discriminator 2
+ 1487 00f3 EC 65                   		mov.L	[r6], r5
+ 1488 00f5 61 05                   		cmp	#0, r5
+ 1489 00f7 20 0E                   		beq	.L86
+ 1490                             	.L87:
+ 502:../src/src/crl.c ****         WOLFSSL_MSG("ParseCRL error");
+ 1491                             		.loc 1 502 9
+ 1492 00f9 FB 12 AC 01 00 00       		mov.L	#.LC21, r1
+ 1493 00ff 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 1494 0103 2E 2E                   		bra	.L88
+ 1495                             	.L86:
+ 503:../src/src/crl.c ****     }
+ 504:../src/src/crl.c ****     else {
+ 505:../src/src/crl.c ****         ret = AddCRL(crl, dcrl, myBuffer, ret != ASN_CRL_NO_SIGNER_E);
+ 1496                             		.loc 1 505 15
+ 1497 0105 EC A5                   		mov.L	[r10], r5
+ 1498 0107 76 05 42 FF             		cmp	#-190, r5
+ 1499 010b FC DB 51                		scne.L	r5
+ 1500 010e 5B 55                   		movu.B	r5, r5
+ 1501 0110 EF 54                   		mov.L	r5, r4
+ 1502 0112 ED A3 01                		mov.L	4[r10], r3
+ 1503 0115 ED A2 02                		mov.L	8[r10], r2
+ 1504 0118 ED A1 05                		mov.L	20[r10], r1
+ 1505 011b 05 00 00 00             		bsr	_AddCRL
+ 1506 011f E3 A1                   		mov.L	r1, [r10]
+ 506:../src/src/crl.c ****         if (ret != 0) {
+ 1507                             		.loc 1 506 12
+ 1508 0121 EC A5                   		mov.L	[r10], r5
+ 1509 0123 61 05                   		cmp	#0, r5
+ 1510 0125 20 0C                   		beq	.L88
+ 507:../src/src/crl.c ****             WOLFSSL_MSG("AddCRL error");
+ 1511                             		.loc 1 507 13
+ 1512 0127 FB 12 BB 01 00 00       		mov.L	#.LC22, r1
+ 1513 012d 05 00 00 00             		bsr	_WOLFSSL_MSG
+ 1514                             	.L88:
+ 508:../src/src/crl.c ****         }
+ 509:../src/src/crl.c ****     }
+ 510:../src/src/crl.c **** 
+ 511:../src/src/crl.c ****     FreeDecodedCRL(dcrl);
+ 1515                             		.loc 1 511 5
+ 1516 0131 ED A1 02                		mov.L	8[r10], r1
+ 1517 0134 05 00 00 00             		bsr	_FreeDecodedCRL
+ 1518                             	.LBB23:
+ 512:../src/src/crl.c **** 
+ 513:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+ 514:../src/src/crl.c ****     XFREE(dcrl, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 1519                             		.loc 1 514 5
+ 1520 0138 ED A5 02                		mov.L	8[r10], r5
+ 1521 013b E7 A5 03                		mov.L	r5, 12[r10]
+ 1522 013e ED A5 03                		mov.L	12[r10], r5
+ 1523 0141 61 05                   		cmp	#0, r5
+ 1524 0143 10                      		beq	.L89
+ 1525                             		.loc 1 514 5 is_stmt 0 discriminator 1
+ 1526 0144 ED A1 03                		mov.L	12[r10], r1
+ 1527 0147 05 00 00 00             		bsr	_wolfSSL_Free
+ 1528                             	.L89:
+ 1529                             	.LBE23:
+ 515:../src/src/crl.c **** #endif
+ 516:../src/src/crl.c **** 
+ 517:../src/src/crl.c ****     FreeDer(&der);
+ 1530                             		.loc 1 517 5 is_stmt 1
+ 1531 014b 71 A5 10                		add	#16, r10, r5
+ 1532 014e EF 51                   		mov.L	r5, r1
+ 1533 0150 05 00 00 00             		bsr	_FreeDer
+ 518:../src/src/crl.c **** 
+ 519:../src/src/crl.c ****     return ret ? ret : WOLFSSL_SUCCESS; /* convert 0 to WOLFSSL_SUCCESS */
+ 1534                             		.loc 1 519 22
+ 1535 0154 EC A5                   		mov.L	[r10], r5
+ 1536 0156 61 05                   		cmp	#0, r5
+ 1537 0158 14                      		beq	.L90
+ 1538                             		.loc 1 519 22 is_stmt 0 discriminator 1
+ 1539 0159 EC A5                   		mov.L	[r10], r5
+ 1540 015b 0B                      		bra	.L92
+ 1541                             	.L90:
+ 1542                             		.loc 1 519 22 discriminator 2
+ 1543 015c 66 15                   		mov.L	#1, r5
+ 1544                             		.balign 8,3,1
+ 1545                             	.L92:
+ 520:../src/src/crl.c **** }
+ 1546                             		.loc 1 520 1 is_stmt 1 discriminator 1
+ 1547 015e EF 51                   		mov.L	r5, r1
+ 1548 0160 71 00 34                		add	#52, r0
+ 1549 0163 7E B6                   		pop	r6
+ 1550 0165 7E BA                   		pop	r10
+ 1551 0167 02                      		rts
+ 1552                             	.LFE8:
+ 1554                             		.section	.text.LoadCRL,"ax",@progbits
+ 1555                             		.global	_LoadCRL
+ 1557                             	_LoadCRL:
+ 1558                             	.LFB9:
+ 521:../src/src/crl.c **** 
+ 522:../src/src/crl.c **** #if defined(OPENSSL_EXTRA) && defined(HAVE_CRL)
+ 523:../src/src/crl.c **** /* helper function to create a new dynamic WOLFSSL_X509_CRL structure */
+ 524:../src/src/crl.c **** static WOLFSSL_X509_CRL* wolfSSL_X509_crl_new(WOLFSSL_CERT_MANAGER* cm)
+ 525:../src/src/crl.c **** {
+ 526:../src/src/crl.c ****     WOLFSSL_X509_CRL* ret;
+ 527:../src/src/crl.c **** 
+ 528:../src/src/crl.c ****     ret = (WOLFSSL_X509_CRL*)XMALLOC(sizeof(WOLFSSL_X509_CRL), cm->heap,
+ 529:../src/src/crl.c ****                 DYNAMIC_TYPE_CRL);
+ 530:../src/src/crl.c ****     if (ret != NULL) {
+ 531:../src/src/crl.c ****         if (InitCRL(ret, cm) < 0) {
+ 532:../src/src/crl.c ****             WOLFSSL_MSG("Unable to initialize new CRL structure");
+ 533:../src/src/crl.c ****             XFREE(ret, cm->heap, DYNAMIC_TYPE_CRL);
+ 534:../src/src/crl.c ****             ret = NULL;
+ 535:../src/src/crl.c ****         }
+ 536:../src/src/crl.c ****     }
+ 537:../src/src/crl.c ****     return ret;
+ 538:../src/src/crl.c **** }
+ 539:../src/src/crl.c **** 
+ 540:../src/src/crl.c **** 
+ 541:../src/src/crl.c **** /* returns head of copied list that was alloc'd */
+ 542:../src/src/crl.c **** static RevokedCert *DupRevokedCertList(RevokedCert* in, void* heap)
+ 543:../src/src/crl.c **** {
+ 544:../src/src/crl.c ****     RevokedCert* head = NULL;
+ 545:../src/src/crl.c ****     RevokedCert* current = in;
+ 546:../src/src/crl.c ****     RevokedCert* prev = NULL;
+ 547:../src/src/crl.c ****     while (current) {
+ 548:../src/src/crl.c ****         RevokedCert* tmp = (RevokedCert*)XMALLOC(sizeof(RevokedCert), heap,
+ 549:../src/src/crl.c ****                 DYNAMIC_TYPE_REVOKED);
+ 550:../src/src/crl.c ****         if (tmp != NULL) {
+ 551:../src/src/crl.c ****             XMEMCPY(tmp->serialNumber, current->serialNumber,
+ 552:../src/src/crl.c ****                     EXTERNAL_SERIAL_SIZE);
+ 553:../src/src/crl.c ****             tmp->serialSz = current->serialSz;
+ 554:../src/src/crl.c ****             tmp->next = NULL;
+ 555:../src/src/crl.c ****             if (prev != NULL)
+ 556:../src/src/crl.c ****                 prev->next = tmp;
+ 557:../src/src/crl.c ****             if (head == NULL)
+ 558:../src/src/crl.c ****                 head = tmp;
+ 559:../src/src/crl.c ****             prev = tmp;
+ 560:../src/src/crl.c ****         }
+ 561:../src/src/crl.c ****         else {
+ 562:../src/src/crl.c ****             WOLFSSL_MSG("Failed to allocate new RevokedCert structure");
+ 563:../src/src/crl.c ****             /* free up any existing list */
+ 564:../src/src/crl.c ****             while (head != NULL) {
+ 565:../src/src/crl.c ****                 current = head;
+ 566:../src/src/crl.c ****                 head = head->next;
+ 567:../src/src/crl.c ****                 XFREE(current, heap, DYNAMIC_TYPE_REVOKED);
+ 568:../src/src/crl.c ****             }
+ 569:../src/src/crl.c ****             return NULL;
+ 570:../src/src/crl.c ****         }
+ 571:../src/src/crl.c ****         current = current->next;
+ 572:../src/src/crl.c ****     }
+ 573:../src/src/crl.c **** 
+ 574:../src/src/crl.c ****     (void)heap;
+ 575:../src/src/crl.c ****     return head;
+ 576:../src/src/crl.c **** }
+ 577:../src/src/crl.c **** 
+ 578:../src/src/crl.c **** 
+ 579:../src/src/crl.c **** /* returns a deep copy of ent on success and null on fail */
+ 580:../src/src/crl.c **** static CRL_Entry* DupCRL_Entry(const CRL_Entry* ent, void* heap)
+ 581:../src/src/crl.c **** {
+ 582:../src/src/crl.c ****     CRL_Entry *dupl;
+ 583:../src/src/crl.c **** 
+ 584:../src/src/crl.c ****     dupl = (CRL_Entry*)XMALLOC(sizeof(CRL_Entry), heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 585:../src/src/crl.c ****     if (dupl == NULL) {
+ 586:../src/src/crl.c ****         WOLFSSL_MSG("alloc CRL Entry failed");
+ 587:../src/src/crl.c ****         return NULL;
+ 588:../src/src/crl.c ****     }
+ 589:../src/src/crl.c ****     XMEMSET(dupl, 0, sizeof(CRL_Entry));
+ 590:../src/src/crl.c **** 
+ 591:../src/src/crl.c ****     XMEMCPY(dupl->issuerHash, ent->issuerHash, CRL_DIGEST_SIZE);
+ 592:../src/src/crl.c ****     XMEMCPY(dupl->lastDate, ent->lastDate, MAX_DATE_SIZE);
+ 593:../src/src/crl.c ****     XMEMCPY(dupl->nextDate, ent->nextDate, MAX_DATE_SIZE);
+ 594:../src/src/crl.c ****     dupl->lastDateFormat = ent->lastDateFormat;
+ 595:../src/src/crl.c ****     dupl->nextDateFormat = ent->nextDateFormat;
+ 596:../src/src/crl.c ****     dupl->certs = DupRevokedCertList(ent->certs, heap);
+ 597:../src/src/crl.c **** 
+ 598:../src/src/crl.c ****     dupl->totalCerts = ent->totalCerts;
+ 599:../src/src/crl.c ****     dupl->verified = ent->verified;
+ 600:../src/src/crl.c **** 
+ 601:../src/src/crl.c ****     if (!ent->verified) {
+ 602:../src/src/crl.c ****         dupl->tbsSz = ent->tbsSz;
+ 603:../src/src/crl.c ****         dupl->signatureSz = ent->signatureSz;
+ 604:../src/src/crl.c ****         dupl->signatureOID = ent->signatureOID;
+ 605:../src/src/crl.c ****         dupl->toBeSigned = (byte*)XMALLOC(dupl->tbsSz, heap,
+ 606:../src/src/crl.c ****                                           DYNAMIC_TYPE_CRL_ENTRY);
+ 607:../src/src/crl.c ****         if (dupl->toBeSigned == NULL) {
+ 608:../src/src/crl.c ****             FreeCRL_Entry(dupl, heap);
+ 609:../src/src/crl.c ****             XFREE(dupl, heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 610:../src/src/crl.c ****             return NULL;
+ 611:../src/src/crl.c ****         }
+ 612:../src/src/crl.c **** 
+ 613:../src/src/crl.c ****         dupl->signature = (byte*)XMALLOC(dupl->signatureSz, heap,
+ 614:../src/src/crl.c ****                                          DYNAMIC_TYPE_CRL_ENTRY);
+ 615:../src/src/crl.c ****         if (dupl->signature == NULL) {
+ 616:../src/src/crl.c ****             FreeCRL_Entry(dupl, heap);
+ 617:../src/src/crl.c ****             XFREE(dupl, heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 618:../src/src/crl.c ****             return NULL;
+ 619:../src/src/crl.c ****         }
+ 620:../src/src/crl.c ****         XMEMCPY(dupl->toBeSigned, ent->toBeSigned, dupl->tbsSz);
+ 621:../src/src/crl.c ****         XMEMCPY(dupl->signature, ent->signature, dupl->signatureSz);
+ 622:../src/src/crl.c ****     #ifndef NO_SKID
+ 623:../src/src/crl.c ****         dupl->extAuthKeyIdSet = ent->extAuthKeyIdSet;
+ 624:../src/src/crl.c ****         if (dupl->extAuthKeyIdSet)
+ 625:../src/src/crl.c ****             XMEMCPY(dupl->extAuthKeyId, ent->extAuthKeyId, KEYID_SIZE);
+ 626:../src/src/crl.c ****     #endif
+ 627:../src/src/crl.c ****     }
+ 628:../src/src/crl.c ****     else {
+ 629:../src/src/crl.c ****         dupl->toBeSigned = NULL;
+ 630:../src/src/crl.c ****         dupl->tbsSz = 0;
+ 631:../src/src/crl.c ****         dupl->signature = NULL;
+ 632:../src/src/crl.c ****         dupl->signatureSz = 0;
+ 633:../src/src/crl.c ****     }
+ 634:../src/src/crl.c **** 
+ 635:../src/src/crl.c ****     return dupl;
+ 636:../src/src/crl.c **** }
+ 637:../src/src/crl.c **** 
+ 638:../src/src/crl.c **** 
+ 639:../src/src/crl.c **** /* returns the head of a deep copy of the list on success and null on fail */
+ 640:../src/src/crl.c **** static CRL_Entry* DupCRL_list(CRL_Entry* crl, void* heap)
+ 641:../src/src/crl.c **** {
+ 642:../src/src/crl.c ****     CRL_Entry* current;
+ 643:../src/src/crl.c ****     CRL_Entry* head = NULL;
+ 644:../src/src/crl.c ****     CRL_Entry* prev = NULL;
+ 645:../src/src/crl.c **** 
+ 646:../src/src/crl.c ****     current = crl;
+ 647:../src/src/crl.c ****     while (current != NULL) {
+ 648:../src/src/crl.c ****         CRL_Entry* tmp = DupCRL_Entry(current, heap);
+ 649:../src/src/crl.c ****         if (tmp != NULL) {
+ 650:../src/src/crl.c ****             tmp->next = NULL;
+ 651:../src/src/crl.c ****             if (head == NULL)
+ 652:../src/src/crl.c ****                 head = tmp;
+ 653:../src/src/crl.c ****             if (prev != NULL)
+ 654:../src/src/crl.c ****                 prev->next = tmp;
+ 655:../src/src/crl.c ****             prev = tmp;
+ 656:../src/src/crl.c ****         }
+ 657:../src/src/crl.c ****         else {
+ 658:../src/src/crl.c ****             WOLFSSL_MSG("Failed to allocate new CRL_Entry structure");
+ 659:../src/src/crl.c ****             /* free up any existing list */
+ 660:../src/src/crl.c ****             while (head != NULL) {
+ 661:../src/src/crl.c ****                 current = head;
+ 662:../src/src/crl.c ****                 head = head->next;
+ 663:../src/src/crl.c ****                 FreeCRL_Entry(current, heap);
+ 664:../src/src/crl.c ****                 XFREE(current, heap, DYNAMIC_TYPE_CRL_ENTRY);
+ 665:../src/src/crl.c ****             }
+ 666:../src/src/crl.c **** 
+ 667:../src/src/crl.c ****             return NULL;
+ 668:../src/src/crl.c ****         }
+ 669:../src/src/crl.c ****         current = current->next;
+ 670:../src/src/crl.c ****     }
+ 671:../src/src/crl.c ****     return head;
+ 672:../src/src/crl.c **** }
+ 673:../src/src/crl.c **** 
+ 674:../src/src/crl.c **** 
+ 675:../src/src/crl.c **** /* Duplicates everything except the parent cm pointed to.
+ 676:../src/src/crl.c ****  * Expects that Init has already been done to 'dupl'
+ 677:../src/src/crl.c ****  * return 0 on success */
+ 678:../src/src/crl.c **** static int DupX509_CRL(WOLFSSL_X509_CRL *dupl, const WOLFSSL_X509_CRL* crl)
+ 679:../src/src/crl.c **** {
+ 680:../src/src/crl.c ****     if (dupl == NULL || crl == NULL) {
+ 681:../src/src/crl.c ****         return BAD_FUNC_ARG;
+ 682:../src/src/crl.c ****     }
+ 683:../src/src/crl.c **** 
+ 684:../src/src/crl.c ****     if (crl->monitors[0].path) {
+ 685:../src/src/crl.c ****         int pathSz = (int)XSTRLEN(crl->monitors[0].path) + 1;
+ 686:../src/src/crl.c ****         dupl->monitors[0].path = (char*)XMALLOC(pathSz, dupl->heap,
+ 687:../src/src/crl.c ****                 DYNAMIC_TYPE_CRL_MONITOR);
+ 688:../src/src/crl.c ****         if (dupl->monitors[0].path != NULL) {
+ 689:../src/src/crl.c ****             XSTRNCPY(dupl->monitors[0].path, crl->monitors[0].path, pathSz);
+ 690:../src/src/crl.c ****         }
+ 691:../src/src/crl.c ****         else {
+ 692:../src/src/crl.c ****             return MEMORY_E;
+ 693:../src/src/crl.c ****         }
+ 694:../src/src/crl.c ****     }
+ 695:../src/src/crl.c **** 
+ 696:../src/src/crl.c ****     if (crl->monitors[1].path) {
+ 697:../src/src/crl.c ****         int pathSz = (int)XSTRLEN(crl->monitors[1].path) + 1;
+ 698:../src/src/crl.c ****         dupl->monitors[1].path = (char*)XMALLOC(pathSz, dupl->heap,
+ 699:../src/src/crl.c ****                 DYNAMIC_TYPE_CRL_MONITOR);
+ 700:../src/src/crl.c ****         if (dupl->monitors[1].path != NULL) {
+ 701:../src/src/crl.c ****             XSTRNCPY(dupl->monitors[1].path, crl->monitors[1].path, pathSz);
+ 702:../src/src/crl.c ****         }
+ 703:../src/src/crl.c ****         else {
+ 704:../src/src/crl.c ****             if (dupl->monitors[0].path != NULL) {
+ 705:../src/src/crl.c ****                 XFREE(dupl->monitors[0].path, dupl->heap,
+ 706:../src/src/crl.c ****                         DYNAMIC_TYPE_CRL_MONITOR);
+ 707:../src/src/crl.c ****             }
+ 708:../src/src/crl.c ****             return MEMORY_E;
+ 709:../src/src/crl.c ****         }
+ 710:../src/src/crl.c ****     }
+ 711:../src/src/crl.c **** 
+ 712:../src/src/crl.c ****     dupl->crlList = DupCRL_list(crl->crlList, dupl->heap);
+ 713:../src/src/crl.c **** #ifdef HAVE_CRL_IO
+ 714:../src/src/crl.c ****     dupl->crlIOCb = crl->crlIOCb;
+ 715:../src/src/crl.c **** #endif
+ 716:../src/src/crl.c **** 
+ 717:../src/src/crl.c ****     return 0;
+ 718:../src/src/crl.c **** }
+ 719:../src/src/crl.c **** 
+ 720:../src/src/crl.c **** /* returns WOLFSSL_SUCCESS on success. Does not take ownership of newcrl */
+ 721:../src/src/crl.c **** int wolfSSL_X509_STORE_add_crl(WOLFSSL_X509_STORE *store, WOLFSSL_X509_CRL *newcrl)
+ 722:../src/src/crl.c **** {
+ 723:../src/src/crl.c ****     CRL_Entry   *crle;
+ 724:../src/src/crl.c ****     WOLFSSL_X509_CRL *crl;
+ 725:../src/src/crl.c **** 
+ 726:../src/src/crl.c ****     WOLFSSL_ENTER("wolfSSL_X509_STORE_add_crl");
+ 727:../src/src/crl.c ****     if (store == NULL || newcrl == NULL || store->cm == NULL)
+ 728:../src/src/crl.c ****         return BAD_FUNC_ARG;
+ 729:../src/src/crl.c **** 
+ 730:../src/src/crl.c ****     if (store->cm->crl == NULL) {
+ 731:../src/src/crl.c ****         crl = wolfSSL_X509_crl_new(store->cm);
+ 732:../src/src/crl.c ****         if (DupX509_CRL(crl, newcrl) != 0) {
+ 733:../src/src/crl.c ****             if (crl != NULL)
+ 734:../src/src/crl.c ****                 FreeCRL(crl, 1);
+ 735:../src/src/crl.c ****             return WOLFSSL_FAILURE;
+ 736:../src/src/crl.c ****         }
+ 737:../src/src/crl.c ****         store->crl = store->cm->crl = crl;
+ 738:../src/src/crl.c ****         if (wolfSSL_CertManagerEnableCRL(store->cm, WOLFSSL_CRL_CHECKALL)
+ 739:../src/src/crl.c ****                 != WOLFSSL_SUCCESS) {
+ 740:../src/src/crl.c ****             WOLFSSL_MSG("wolfSSL_CertManagerEnableCRL error");
+ 741:../src/src/crl.c ****             return WOLFSSL_FAILURE;
+ 742:../src/src/crl.c ****         }
+ 743:../src/src/crl.c ****         return WOLFSSL_SUCCESS;
+ 744:../src/src/crl.c ****     }
+ 745:../src/src/crl.c **** 
+ 746:../src/src/crl.c ****     /* find tail of current list and add new list */
+ 747:../src/src/crl.c ****     crl  = store->cm->crl;
+ 748:../src/src/crl.c ****     crle = crl->crlList;
+ 749:../src/src/crl.c ****     if (newcrl->crlList != NULL) {
+ 750:../src/src/crl.c ****         CRL_Entry *tail = crle;
+ 751:../src/src/crl.c ****         CRL_Entry *toAdd;
+ 752:../src/src/crl.c **** 
+ 753:../src/src/crl.c ****         if (wc_LockMutex(&crl->crlLock) != 0)
+ 754:../src/src/crl.c ****         {
+ 755:../src/src/crl.c ****             WOLFSSL_MSG("wc_LockMutex failed");
+ 756:../src/src/crl.c ****             return BAD_MUTEX_E;
+ 757:../src/src/crl.c ****         }
+ 758:../src/src/crl.c **** 
+ 759:../src/src/crl.c ****         toAdd = DupCRL_list(newcrl->crlList, crl->heap);
+ 760:../src/src/crl.c ****         if (tail == NULL) {
+ 761:../src/src/crl.c ****             crl->crlList = toAdd;
+ 762:../src/src/crl.c ****         }
+ 763:../src/src/crl.c ****         else {
+ 764:../src/src/crl.c ****             while (tail->next != NULL) tail = tail->next;
+ 765:../src/src/crl.c ****             tail->next = toAdd;
+ 766:../src/src/crl.c ****         }
+ 767:../src/src/crl.c ****         wc_UnLockMutex(&crl->crlLock);
+ 768:../src/src/crl.c ****     }
+ 769:../src/src/crl.c **** 
+ 770:../src/src/crl.c ****     if (wolfSSL_CertManagerEnableCRL(store->cm, WOLFSSL_CRL_CHECKALL)
+ 771:../src/src/crl.c ****             != WOLFSSL_SUCCESS) {
+ 772:../src/src/crl.c ****         WOLFSSL_MSG("wolfSSL_CertManagerEnableCRL error");
+ 773:../src/src/crl.c ****         return WOLFSSL_FAILURE;
+ 774:../src/src/crl.c ****     }
+ 775:../src/src/crl.c **** 
+ 776:../src/src/crl.c ****     WOLFSSL_LEAVE("wolfSSL_X509_STORE_add_crl", WOLFSSL_SUCCESS);
+ 777:../src/src/crl.c **** 
+ 778:../src/src/crl.c ****     return WOLFSSL_SUCCESS;
+ 779:../src/src/crl.c **** }
+ 780:../src/src/crl.c **** #endif
+ 781:../src/src/crl.c **** 
+ 782:../src/src/crl.c **** #ifdef HAVE_CRL_MONITOR
+ 783:../src/src/crl.c **** 
+ 784:../src/src/crl.c **** 
+ 785:../src/src/crl.c **** /* Signal Monitor thread is setup, save status to setup flag, 0 on success */
+ 786:../src/src/crl.c **** static int SignalSetup(WOLFSSL_CRL* crl, int status)
+ 787:../src/src/crl.c **** {
+ 788:../src/src/crl.c ****     int ret;
+ 789:../src/src/crl.c **** 
+ 790:../src/src/crl.c ****     /* signal to calling thread we're setup */
+ 791:../src/src/crl.c ****     if (wc_LockMutex(&crl->crlLock) != 0) {
+ 792:../src/src/crl.c ****         WOLFSSL_MSG("wc_LockMutex crlLock failed");
+ 793:../src/src/crl.c ****         return BAD_MUTEX_E;
+ 794:../src/src/crl.c ****     }
+ 795:../src/src/crl.c **** 
+ 796:../src/src/crl.c ****         crl->setup = status;
+ 797:../src/src/crl.c ****         ret = pthread_cond_signal(&crl->cond);
+ 798:../src/src/crl.c **** 
+ 799:../src/src/crl.c ****     wc_UnLockMutex(&crl->crlLock);
+ 800:../src/src/crl.c **** 
+ 801:../src/src/crl.c ****     if (ret != 0)
+ 802:../src/src/crl.c ****         return BAD_COND_E;
+ 803:../src/src/crl.c **** 
+ 804:../src/src/crl.c ****     return 0;
+ 805:../src/src/crl.c **** }
+ 806:../src/src/crl.c **** 
+ 807:../src/src/crl.c **** 
+ 808:../src/src/crl.c **** /* read in new CRL entries and save new list */
+ 809:../src/src/crl.c **** static int SwapLists(WOLFSSL_CRL* crl)
+ 810:../src/src/crl.c **** {
+ 811:../src/src/crl.c ****     int        ret;
+ 812:../src/src/crl.c ****     CRL_Entry* newList;
+ 813:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+ 814:../src/src/crl.c ****     WOLFSSL_CRL* tmp;
+ 815:../src/src/crl.c **** #else
+ 816:../src/src/crl.c ****     WOLFSSL_CRL tmp[1];
+ 817:../src/src/crl.c **** #endif
+ 818:../src/src/crl.c **** 
+ 819:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+ 820:../src/src/crl.c ****     tmp = (WOLFSSL_CRL*)XMALLOC(sizeof(WOLFSSL_CRL), NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 821:../src/src/crl.c ****     if (tmp == NULL)
+ 822:../src/src/crl.c ****         return MEMORY_E;
+ 823:../src/src/crl.c **** #endif
+ 824:../src/src/crl.c **** 
+ 825:../src/src/crl.c ****     if (InitCRL(tmp, crl->cm) < 0) {
+ 826:../src/src/crl.c ****         WOLFSSL_MSG("Init tmp CRL failed");
+ 827:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+ 828:../src/src/crl.c ****         XFREE(tmp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 829:../src/src/crl.c **** #endif
+ 830:../src/src/crl.c ****         return -1;
+ 831:../src/src/crl.c ****     }
+ 832:../src/src/crl.c **** 
+ 833:../src/src/crl.c ****     if (crl->monitors[0].path) {
+ 834:../src/src/crl.c ****         ret = LoadCRL(tmp, crl->monitors[0].path, WOLFSSL_FILETYPE_PEM, 0);
+ 835:../src/src/crl.c ****         if (ret != WOLFSSL_SUCCESS) {
+ 836:../src/src/crl.c ****             WOLFSSL_MSG("PEM LoadCRL on dir change failed");
+ 837:../src/src/crl.c ****             FreeCRL(tmp, 0);
+ 838:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+ 839:../src/src/crl.c ****             XFREE(tmp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 840:../src/src/crl.c **** #endif
+ 841:../src/src/crl.c ****             return -1;
+ 842:../src/src/crl.c ****         }
+ 843:../src/src/crl.c ****     }
+ 844:../src/src/crl.c **** 
+ 845:../src/src/crl.c ****     if (crl->monitors[1].path) {
+ 846:../src/src/crl.c ****         ret = LoadCRL(tmp, crl->monitors[1].path, WOLFSSL_FILETYPE_ASN1, 0);
+ 847:../src/src/crl.c ****         if (ret != WOLFSSL_SUCCESS) {
+ 848:../src/src/crl.c ****             WOLFSSL_MSG("DER LoadCRL on dir change failed");
+ 849:../src/src/crl.c ****             FreeCRL(tmp, 0);
+ 850:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+ 851:../src/src/crl.c ****             XFREE(tmp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 852:../src/src/crl.c **** #endif
+ 853:../src/src/crl.c ****             return -1;
+ 854:../src/src/crl.c ****         }
+ 855:../src/src/crl.c ****     }
+ 856:../src/src/crl.c **** 
+ 857:../src/src/crl.c ****     if (wc_LockMutex(&crl->crlLock) != 0) {
+ 858:../src/src/crl.c ****         WOLFSSL_MSG("wc_LockMutex failed");
+ 859:../src/src/crl.c ****         FreeCRL(tmp, 0);
+ 860:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+ 861:../src/src/crl.c ****         XFREE(tmp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 862:../src/src/crl.c **** #endif
+ 863:../src/src/crl.c ****         return -1;
+ 864:../src/src/crl.c ****     }
+ 865:../src/src/crl.c **** 
+ 866:../src/src/crl.c ****     newList = tmp->crlList;
+ 867:../src/src/crl.c **** 
+ 868:../src/src/crl.c ****     /* swap lists */
+ 869:../src/src/crl.c ****     tmp->crlList  = crl->crlList;
+ 870:../src/src/crl.c ****     crl->crlList = newList;
+ 871:../src/src/crl.c **** 
+ 872:../src/src/crl.c ****     wc_UnLockMutex(&crl->crlLock);
+ 873:../src/src/crl.c **** 
+ 874:../src/src/crl.c ****     FreeCRL(tmp, 0);
+ 875:../src/src/crl.c **** 
+ 876:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+ 877:../src/src/crl.c ****     XFREE(tmp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+ 878:../src/src/crl.c **** #endif
+ 879:../src/src/crl.c **** 
+ 880:../src/src/crl.c ****     return 0;
+ 881:../src/src/crl.c **** }
+ 882:../src/src/crl.c **** 
+ 883:../src/src/crl.c **** 
+ 884:../src/src/crl.c **** #if (defined(__MACH__) || defined(__FreeBSD__))
+ 885:../src/src/crl.c **** 
+ 886:../src/src/crl.c **** #include <sys/types.h>
+ 887:../src/src/crl.c **** #include <sys/event.h>
+ 888:../src/src/crl.c **** #include <sys/time.h>
+ 889:../src/src/crl.c **** #include <fcntl.h>
+ 890:../src/src/crl.c **** #include <unistd.h>
+ 891:../src/src/crl.c **** 
+ 892:../src/src/crl.c **** #ifdef __MACH__
+ 893:../src/src/crl.c ****     #define XEVENT_MODE O_EVTONLY
+ 894:../src/src/crl.c **** #elif defined(__FreeBSD__)
+ 895:../src/src/crl.c ****     #define XEVENT_MODE EVFILT_VNODE
+ 896:../src/src/crl.c **** #endif
+ 897:../src/src/crl.c **** 
+ 898:../src/src/crl.c **** 
+ 899:../src/src/crl.c **** /* we need a unique kqueue user filter fd for crl in case user is doing custom
+ 900:../src/src/crl.c ****  * events too */
+ 901:../src/src/crl.c **** #ifndef CRL_CUSTOM_FD
+ 902:../src/src/crl.c ****     #define CRL_CUSTOM_FD 123456
+ 903:../src/src/crl.c **** #endif
+ 904:../src/src/crl.c **** 
+ 905:../src/src/crl.c **** 
+ 906:../src/src/crl.c **** /* shutdown monitor thread, 0 on success */
+ 907:../src/src/crl.c **** static int StopMonitor(int mfd)
+ 908:../src/src/crl.c **** {
+ 909:../src/src/crl.c ****     struct kevent change;
+ 910:../src/src/crl.c **** 
+ 911:../src/src/crl.c ****     /* trigger custom shutdown */
+ 912:../src/src/crl.c ****     EV_SET(&change, CRL_CUSTOM_FD, EVFILT_USER, 0, NOTE_TRIGGER, 0, NULL);
+ 913:../src/src/crl.c ****     if (kevent(mfd, &change, 1, NULL, 0, NULL) < 0) {
+ 914:../src/src/crl.c ****         WOLFSSL_MSG("kevent trigger customer event failed");
+ 915:../src/src/crl.c ****         return -1;
+ 916:../src/src/crl.c ****     }
+ 917:../src/src/crl.c **** 
+ 918:../src/src/crl.c ****     return 0;
+ 919:../src/src/crl.c **** }
+ 920:../src/src/crl.c **** 
+ 921:../src/src/crl.c **** 
+ 922:../src/src/crl.c **** /* OS X  monitoring */
+ 923:../src/src/crl.c **** static void* DoMonitor(void* arg)
+ 924:../src/src/crl.c **** {
+ 925:../src/src/crl.c ****     int fPEM, fDER;
+ 926:../src/src/crl.c ****     struct kevent change;
+ 927:../src/src/crl.c **** 
+ 928:../src/src/crl.c ****     WOLFSSL_CRL* crl = (WOLFSSL_CRL*)arg;
+ 929:../src/src/crl.c **** 
+ 930:../src/src/crl.c ****     WOLFSSL_ENTER("DoMonitor");
+ 931:../src/src/crl.c **** 
+ 932:../src/src/crl.c ****     crl->mfd = kqueue();
+ 933:../src/src/crl.c ****     if (crl->mfd == -1) {
+ 934:../src/src/crl.c ****         WOLFSSL_MSG("kqueue failed");
+ 935:../src/src/crl.c ****         SignalSetup(crl, MONITOR_SETUP_E);
+ 936:../src/src/crl.c ****         return NULL;
+ 937:../src/src/crl.c ****     }
+ 938:../src/src/crl.c **** 
+ 939:../src/src/crl.c ****     /* listen for custom shutdown event */
+ 940:../src/src/crl.c ****     EV_SET(&change, CRL_CUSTOM_FD, EVFILT_USER, EV_ADD, 0, 0, NULL);
+ 941:../src/src/crl.c ****     if (kevent(crl->mfd, &change, 1, NULL, 0, NULL) < 0) {
+ 942:../src/src/crl.c ****         WOLFSSL_MSG("kevent monitor customer event failed");
+ 943:../src/src/crl.c ****         SignalSetup(crl, MONITOR_SETUP_E);
+ 944:../src/src/crl.c ****         (void)close(crl->mfd);
+ 945:../src/src/crl.c ****         return NULL;
+ 946:../src/src/crl.c ****     }
+ 947:../src/src/crl.c **** 
+ 948:../src/src/crl.c ****     fPEM = -1;
+ 949:../src/src/crl.c ****     fDER = -1;
+ 950:../src/src/crl.c **** 
+ 951:../src/src/crl.c ****     if (crl->monitors[0].path) {
+ 952:../src/src/crl.c ****         fPEM = open(crl->monitors[0].path, XEVENT_MODE);
+ 953:../src/src/crl.c ****         if (fPEM == -1) {
+ 954:../src/src/crl.c ****             WOLFSSL_MSG("PEM event dir open failed");
+ 955:../src/src/crl.c ****             SignalSetup(crl, MONITOR_SETUP_E);
+ 956:../src/src/crl.c ****             (void)close(crl->mfd);
+ 957:../src/src/crl.c ****             return NULL;
+ 958:../src/src/crl.c ****         }
+ 959:../src/src/crl.c ****     }
+ 960:../src/src/crl.c **** 
+ 961:../src/src/crl.c ****     if (crl->monitors[1].path) {
+ 962:../src/src/crl.c ****         fDER = open(crl->monitors[1].path, XEVENT_MODE);
+ 963:../src/src/crl.c ****         if (fDER == -1) {
+ 964:../src/src/crl.c ****             WOLFSSL_MSG("DER event dir open failed");
+ 965:../src/src/crl.c ****             if (fPEM != -1)
+ 966:../src/src/crl.c ****                 (void)close(fPEM);
+ 967:../src/src/crl.c ****             (void)close(crl->mfd);
+ 968:../src/src/crl.c ****             SignalSetup(crl, MONITOR_SETUP_E);
+ 969:../src/src/crl.c ****             return NULL;
+ 970:../src/src/crl.c ****         }
+ 971:../src/src/crl.c ****     }
+ 972:../src/src/crl.c **** 
+ 973:../src/src/crl.c ****     if (fPEM != -1)
+ 974:../src/src/crl.c ****         EV_SET(&change, fPEM, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_ONESHOT,
+ 975:../src/src/crl.c ****                 NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB, 0, 0);
+ 976:../src/src/crl.c **** 
+ 977:../src/src/crl.c ****     if (fDER != -1)
+ 978:../src/src/crl.c ****         EV_SET(&change, fDER, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_ONESHOT,
+ 979:../src/src/crl.c ****                 NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB, 0, 0);
+ 980:../src/src/crl.c **** 
+ 981:../src/src/crl.c ****     /* signal to calling thread we're setup */
+ 982:../src/src/crl.c ****     if (SignalSetup(crl, 1) != 0) {
+ 983:../src/src/crl.c ****         if (fPEM != -1)
+ 984:../src/src/crl.c ****             (void)close(fPEM);
+ 985:../src/src/crl.c ****         if (fDER != -1)
+ 986:../src/src/crl.c ****             (void)close(fDER);
+ 987:../src/src/crl.c ****         (void)close(crl->mfd);
+ 988:../src/src/crl.c ****         return NULL;
+ 989:../src/src/crl.c ****     }
+ 990:../src/src/crl.c **** 
+ 991:../src/src/crl.c ****     for (;;) {
+ 992:../src/src/crl.c ****         struct kevent event;
+ 993:../src/src/crl.c ****         int           numEvents = kevent(crl->mfd, &change, 1, &event, 1, NULL);
+ 994:../src/src/crl.c **** 
+ 995:../src/src/crl.c ****         WOLFSSL_MSG("Got kevent");
+ 996:../src/src/crl.c **** 
+ 997:../src/src/crl.c ****         if (numEvents == -1) {
+ 998:../src/src/crl.c ****             WOLFSSL_MSG("kevent problem, continue");
+ 999:../src/src/crl.c ****             continue;
+1000:../src/src/crl.c ****         }
+1001:../src/src/crl.c **** 
+1002:../src/src/crl.c ****         if (event.filter == EVFILT_USER) {
+1003:../src/src/crl.c ****             WOLFSSL_MSG("Got user shutdown event, breaking out");
+1004:../src/src/crl.c ****             break;
+1005:../src/src/crl.c ****         }
+1006:../src/src/crl.c **** 
+1007:../src/src/crl.c ****         if (SwapLists(crl) < 0) {
+1008:../src/src/crl.c ****             WOLFSSL_MSG("SwapLists problem, continue");
+1009:../src/src/crl.c ****         }
+1010:../src/src/crl.c ****     }
+1011:../src/src/crl.c **** 
+1012:../src/src/crl.c ****     if (fPEM != -1)
+1013:../src/src/crl.c ****         (void)close(fPEM);
+1014:../src/src/crl.c ****     if (fDER != -1)
+1015:../src/src/crl.c ****         (void)close(fDER);
+1016:../src/src/crl.c **** 
+1017:../src/src/crl.c ****     (void)close(crl->mfd);
+1018:../src/src/crl.c **** 
+1019:../src/src/crl.c ****     return NULL;
+1020:../src/src/crl.c **** }
+1021:../src/src/crl.c **** 
+1022:../src/src/crl.c **** 
+1023:../src/src/crl.c **** #elif defined(__linux__)
+1024:../src/src/crl.c **** 
+1025:../src/src/crl.c **** #include <sys/types.h>
+1026:../src/src/crl.c **** #include <sys/inotify.h>
+1027:../src/src/crl.c **** #include <sys/eventfd.h>
+1028:../src/src/crl.c **** #include <unistd.h>
+1029:../src/src/crl.c **** 
+1030:../src/src/crl.c **** 
+1031:../src/src/crl.c **** #ifndef max
+1032:../src/src/crl.c ****     static WC_INLINE int max(int a, int b)
+1033:../src/src/crl.c ****     {
+1034:../src/src/crl.c ****         return a > b ? a : b;
+1035:../src/src/crl.c ****     }
+1036:../src/src/crl.c **** #endif /* max */
+1037:../src/src/crl.c **** 
+1038:../src/src/crl.c **** 
+1039:../src/src/crl.c **** /* shutdown monitor thread, 0 on success */
+1040:../src/src/crl.c **** static int StopMonitor(int mfd)
+1041:../src/src/crl.c **** {
+1042:../src/src/crl.c ****     word64 w64 = 1;
+1043:../src/src/crl.c **** 
+1044:../src/src/crl.c ****     /* write to our custom event */
+1045:../src/src/crl.c ****     if (write(mfd, &w64, sizeof(w64)) < 0) {
+1046:../src/src/crl.c ****         WOLFSSL_MSG("StopMonitor write failed");
+1047:../src/src/crl.c ****         return -1;
+1048:../src/src/crl.c ****     }
+1049:../src/src/crl.c **** 
+1050:../src/src/crl.c ****     return 0;
+1051:../src/src/crl.c **** }
+1052:../src/src/crl.c **** 
+1053:../src/src/crl.c **** 
+1054:../src/src/crl.c **** /* linux monitoring */
+1055:../src/src/crl.c **** static void* DoMonitor(void* arg)
+1056:../src/src/crl.c **** {
+1057:../src/src/crl.c ****     int         notifyFd;
+1058:../src/src/crl.c ****     int         wd  = -1;
+1059:../src/src/crl.c ****     WOLFSSL_CRL* crl = (WOLFSSL_CRL*)arg;
+1060:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+1061:../src/src/crl.c ****     char*       buff;
+1062:../src/src/crl.c **** #else
+1063:../src/src/crl.c ****     char        buff[8192];
+1064:../src/src/crl.c **** #endif
+1065:../src/src/crl.c **** 
+1066:../src/src/crl.c ****     WOLFSSL_ENTER("DoMonitor");
+1067:../src/src/crl.c **** 
+1068:../src/src/crl.c ****     crl->mfd = eventfd(0, 0);  /* our custom shutdown event */
+1069:../src/src/crl.c ****     if (crl->mfd < 0) {
+1070:../src/src/crl.c ****         WOLFSSL_MSG("eventfd failed");
+1071:../src/src/crl.c ****         SignalSetup(crl, MONITOR_SETUP_E);
+1072:../src/src/crl.c ****         return NULL;
+1073:../src/src/crl.c ****     }
+1074:../src/src/crl.c **** 
+1075:../src/src/crl.c ****     notifyFd = inotify_init();
+1076:../src/src/crl.c ****     if (notifyFd < 0) {
+1077:../src/src/crl.c ****         WOLFSSL_MSG("inotify failed");
+1078:../src/src/crl.c ****         (void)close(crl->mfd);
+1079:../src/src/crl.c ****         SignalSetup(crl, MONITOR_SETUP_E);
+1080:../src/src/crl.c ****         return NULL;
+1081:../src/src/crl.c ****     }
+1082:../src/src/crl.c **** 
+1083:../src/src/crl.c ****     if (crl->monitors[0].path) {
+1084:../src/src/crl.c ****         wd = inotify_add_watch(notifyFd, crl->monitors[0].path, IN_CLOSE_WRITE |
+1085:../src/src/crl.c ****                                                                 IN_DELETE);
+1086:../src/src/crl.c ****         if (wd < 0) {
+1087:../src/src/crl.c ****             WOLFSSL_MSG("PEM notify add watch failed");
+1088:../src/src/crl.c ****             (void)close(crl->mfd);
+1089:../src/src/crl.c ****             (void)close(notifyFd);
+1090:../src/src/crl.c ****             SignalSetup(crl, MONITOR_SETUP_E);
+1091:../src/src/crl.c ****             return NULL;
+1092:../src/src/crl.c ****         }
+1093:../src/src/crl.c ****     }
+1094:../src/src/crl.c **** 
+1095:../src/src/crl.c ****     if (crl->monitors[1].path) {
+1096:../src/src/crl.c ****         wd = inotify_add_watch(notifyFd, crl->monitors[1].path, IN_CLOSE_WRITE |
+1097:../src/src/crl.c ****                                                                 IN_DELETE);
+1098:../src/src/crl.c ****         if (wd < 0) {
+1099:../src/src/crl.c ****             WOLFSSL_MSG("DER notify add watch failed");
+1100:../src/src/crl.c ****             (void)close(crl->mfd);
+1101:../src/src/crl.c ****             (void)close(notifyFd);
+1102:../src/src/crl.c ****             SignalSetup(crl, MONITOR_SETUP_E);
+1103:../src/src/crl.c ****             return NULL;
+1104:../src/src/crl.c ****         }
+1105:../src/src/crl.c ****     }
+1106:../src/src/crl.c **** 
+1107:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+1108:../src/src/crl.c ****     buff = (char*)XMALLOC(8192, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+1109:../src/src/crl.c ****     if (buff == NULL)
+1110:../src/src/crl.c ****         return NULL;
+1111:../src/src/crl.c **** #endif
+1112:../src/src/crl.c **** 
+1113:../src/src/crl.c ****     /* signal to calling thread we're setup */
+1114:../src/src/crl.c ****     if (SignalSetup(crl, 1) != 0) {
+1115:../src/src/crl.c ****         #ifdef WOLFSSL_SMALL_STACK
+1116:../src/src/crl.c ****             XFREE(buff, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+1117:../src/src/crl.c ****         #endif
+1118:../src/src/crl.c **** 
+1119:../src/src/crl.c ****         if (wd > 0)
+1120:../src/src/crl.c ****             inotify_rm_watch(notifyFd, wd);
+1121:../src/src/crl.c ****         (void)close(crl->mfd);
+1122:../src/src/crl.c ****         (void)close(notifyFd);
+1123:../src/src/crl.c ****         return NULL;
+1124:../src/src/crl.c ****     }
+1125:../src/src/crl.c **** 
+1126:../src/src/crl.c ****     for (;;) {
+1127:../src/src/crl.c ****         fd_set readfds;
+1128:../src/src/crl.c ****         int    result;
+1129:../src/src/crl.c ****         int    length;
+1130:../src/src/crl.c **** 
+1131:../src/src/crl.c ****         FD_ZERO(&readfds);
+1132:../src/src/crl.c ****         FD_SET(notifyFd, &readfds);
+1133:../src/src/crl.c ****         FD_SET(crl->mfd, &readfds);
+1134:../src/src/crl.c **** 
+1135:../src/src/crl.c ****         result = select(max(notifyFd, crl->mfd) + 1, &readfds, NULL, NULL,NULL);
+1136:../src/src/crl.c **** 
+1137:../src/src/crl.c ****         WOLFSSL_MSG("Got notify event");
+1138:../src/src/crl.c **** 
+1139:../src/src/crl.c ****         if (result < 0) {
+1140:../src/src/crl.c ****             WOLFSSL_MSG("select problem, continue");
+1141:../src/src/crl.c ****             continue;
+1142:../src/src/crl.c ****         }
+1143:../src/src/crl.c **** 
+1144:../src/src/crl.c ****         if (FD_ISSET(crl->mfd, &readfds)) {
+1145:../src/src/crl.c ****             word64 r64;
+1146:../src/src/crl.c ****             int    rlen;
+1147:../src/src/crl.c **** 
+1148:../src/src/crl.c ****             WOLFSSL_MSG("got custom shutdown event, breaking out");
+1149:../src/src/crl.c **** 
+1150:../src/src/crl.c ****             /* read out the bytes written to the event to clean up */
+1151:../src/src/crl.c ****             rlen = (int) read(crl->mfd, &r64, sizeof(r64));
+1152:../src/src/crl.c ****             if (rlen < 0) {
+1153:../src/src/crl.c ****                 WOLFSSL_MSG("read custom event failure");
+1154:../src/src/crl.c ****             }
+1155:../src/src/crl.c **** 
+1156:../src/src/crl.c ****             break;
+1157:../src/src/crl.c ****         }
+1158:../src/src/crl.c **** 
+1159:../src/src/crl.c ****         length = (int) read(notifyFd, buff, 8192);
+1160:../src/src/crl.c ****         if (length < 0) {
+1161:../src/src/crl.c ****             WOLFSSL_MSG("notify read problem, continue");
+1162:../src/src/crl.c ****             continue;
+1163:../src/src/crl.c ****         }
+1164:../src/src/crl.c **** 
+1165:../src/src/crl.c ****         if (SwapLists(crl) < 0) {
+1166:../src/src/crl.c ****             WOLFSSL_MSG("SwapLists problem, continue");
+1167:../src/src/crl.c ****         }
+1168:../src/src/crl.c ****     }
+1169:../src/src/crl.c **** 
+1170:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+1171:../src/src/crl.c ****     XFREE(buff, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+1172:../src/src/crl.c **** #endif
+1173:../src/src/crl.c **** 
+1174:../src/src/crl.c ****     if (wd > 0)
+1175:../src/src/crl.c ****         inotify_rm_watch(notifyFd, wd);
+1176:../src/src/crl.c ****     (void)close(crl->mfd);
+1177:../src/src/crl.c ****     (void)close(notifyFd);
+1178:../src/src/crl.c **** 
+1179:../src/src/crl.c ****     return NULL;
+1180:../src/src/crl.c **** }
+1181:../src/src/crl.c **** 
+1182:../src/src/crl.c **** #endif /* MACH or linux */
+1183:../src/src/crl.c **** 
+1184:../src/src/crl.c **** 
+1185:../src/src/crl.c **** /* Start Monitoring the CRL path(s) in a thread */
+1186:../src/src/crl.c **** static int StartMonitorCRL(WOLFSSL_CRL* crl)
+1187:../src/src/crl.c **** {
+1188:../src/src/crl.c ****     int ret = WOLFSSL_SUCCESS;
+1189:../src/src/crl.c **** 
+1190:../src/src/crl.c ****     WOLFSSL_ENTER("StartMonitorCRL");
+1191:../src/src/crl.c **** 
+1192:../src/src/crl.c ****     if (crl == NULL)
+1193:../src/src/crl.c ****         return BAD_FUNC_ARG;
+1194:../src/src/crl.c **** 
+1195:../src/src/crl.c ****     if (crl->tid != 0) {
+1196:../src/src/crl.c ****         WOLFSSL_MSG("Monitor thread already running");
+1197:../src/src/crl.c ****         return ret;  /* that's ok, someone already started */
+1198:../src/src/crl.c ****     }
+1199:../src/src/crl.c **** 
+1200:../src/src/crl.c ****     if (pthread_create(&crl->tid, NULL, DoMonitor, crl) != 0) {
+1201:../src/src/crl.c ****         WOLFSSL_MSG("Thread creation error");
+1202:../src/src/crl.c ****         return THREAD_CREATE_E;
+1203:../src/src/crl.c ****     }
+1204:../src/src/crl.c **** 
+1205:../src/src/crl.c ****     /* wait for setup to complete */
+1206:../src/src/crl.c ****     if (wc_LockMutex(&crl->crlLock) != 0) {
+1207:../src/src/crl.c ****         WOLFSSL_MSG("wc_LockMutex crlLock error");
+1208:../src/src/crl.c ****         return BAD_MUTEX_E;
+1209:../src/src/crl.c ****     }
+1210:../src/src/crl.c **** 
+1211:../src/src/crl.c ****         while (crl->setup == 0) {
+1212:../src/src/crl.c ****             if (pthread_cond_wait(&crl->cond, &crl->crlLock) != 0) {
+1213:../src/src/crl.c ****                 ret = BAD_COND_E;
+1214:../src/src/crl.c ****                 break;
+1215:../src/src/crl.c ****             }
+1216:../src/src/crl.c ****         }
+1217:../src/src/crl.c **** 
+1218:../src/src/crl.c ****         if (crl->setup < 0)
+1219:../src/src/crl.c ****             ret = crl->setup;  /* store setup error */
+1220:../src/src/crl.c **** 
+1221:../src/src/crl.c ****     wc_UnLockMutex(&crl->crlLock);
+1222:../src/src/crl.c **** 
+1223:../src/src/crl.c ****     if (ret < 0) {
+1224:../src/src/crl.c ****         WOLFSSL_MSG("DoMonitor setup failure");
+1225:../src/src/crl.c ****         crl->tid = 0;  /* thread already done */
+1226:../src/src/crl.c ****     }
+1227:../src/src/crl.c **** 
+1228:../src/src/crl.c ****     return ret;
+1229:../src/src/crl.c **** }
+1230:../src/src/crl.c **** 
+1231:../src/src/crl.c **** 
+1232:../src/src/crl.c **** #else /* HAVE_CRL_MONITOR */
+1233:../src/src/crl.c **** 
+1234:../src/src/crl.c **** #if !defined(NO_FILESYSTEM) && !defined(NO_WOLFSSL_DIR)
+1235:../src/src/crl.c **** 
+1236:../src/src/crl.c **** static int StartMonitorCRL(WOLFSSL_CRL* crl)
+1237:../src/src/crl.c **** {
+1238:../src/src/crl.c ****     (void)crl;
+1239:../src/src/crl.c **** 
+1240:../src/src/crl.c ****     WOLFSSL_ENTER("StartMonitorCRL");
+1241:../src/src/crl.c ****     WOLFSSL_MSG("Not compiled in");
+1242:../src/src/crl.c **** 
+1243:../src/src/crl.c ****     return NOT_COMPILED_IN;
+1244:../src/src/crl.c **** }
+1245:../src/src/crl.c **** 
+1246:../src/src/crl.c **** #endif /* !NO_FILESYSTEM && !NO_WOLFSSL_DIR */
+1247:../src/src/crl.c **** 
+1248:../src/src/crl.c **** #endif  /* HAVE_CRL_MONITOR */
+1249:../src/src/crl.c **** 
+1250:../src/src/crl.c **** #if !defined(NO_FILESYSTEM) && !defined(NO_WOLFSSL_DIR)
+1251:../src/src/crl.c **** 
+1252:../src/src/crl.c **** /* Load CRL path files of type, WOLFSSL_SUCCESS on ok */
+1253:../src/src/crl.c **** int LoadCRL(WOLFSSL_CRL* crl, const char* path, int type, int monitor)
+1254:../src/src/crl.c **** {
+1255:../src/src/crl.c ****     int         ret = WOLFSSL_SUCCESS;
+1256:../src/src/crl.c ****     char*       name = NULL;
+1257:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+1258:../src/src/crl.c ****     ReadDirCtx* readCtx = NULL;
+1259:../src/src/crl.c **** #else
+1260:../src/src/crl.c ****     ReadDirCtx  readCtx[1];
+1261:../src/src/crl.c **** #endif
+1262:../src/src/crl.c **** 
+1263:../src/src/crl.c ****     WOLFSSL_ENTER("LoadCRL");
+1264:../src/src/crl.c ****     if (crl == NULL)
+1265:../src/src/crl.c ****         return BAD_FUNC_ARG;
+1266:../src/src/crl.c **** 
+1267:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+1268:../src/src/crl.c ****     readCtx = (ReadDirCtx*)XMALLOC(sizeof(ReadDirCtx), crl->heap,
+1269:../src/src/crl.c ****                                                        DYNAMIC_TYPE_TMP_BUFFER);
+1270:../src/src/crl.c ****     if (readCtx == NULL)
+1271:../src/src/crl.c ****         return MEMORY_E;
+1272:../src/src/crl.c **** #endif
+1273:../src/src/crl.c **** 
+1274:../src/src/crl.c ****     /* try to load each regular file in path */
+1275:../src/src/crl.c ****     ret = wc_ReadDirFirst(readCtx, path, &name);
+1276:../src/src/crl.c ****     while (ret == 0 && name) {
+1277:../src/src/crl.c ****         int skip = 0;
+1278:../src/src/crl.c ****         if (type == WOLFSSL_FILETYPE_PEM) {
+1279:../src/src/crl.c ****             if (XSTRSTR(name, ".pem") == NULL) {
+1280:../src/src/crl.c ****                 WOLFSSL_MSG("not .pem file, skipping");
+1281:../src/src/crl.c ****                 skip = 1;
+1282:../src/src/crl.c ****             }
+1283:../src/src/crl.c ****         }
+1284:../src/src/crl.c ****         else {
+1285:../src/src/crl.c ****             if (XSTRSTR(name, ".der") == NULL &&
+1286:../src/src/crl.c ****                 XSTRSTR(name, ".crl") == NULL)
+1287:../src/src/crl.c ****             {
+1288:../src/src/crl.c ****                 WOLFSSL_MSG("not .der or .crl file, skipping");
+1289:../src/src/crl.c ****                 skip = 1;
+1290:../src/src/crl.c ****             }
+1291:../src/src/crl.c ****         }
+1292:../src/src/crl.c **** 
+1293:../src/src/crl.c ****         if (!skip && ProcessFile(NULL, name, type, CRL_TYPE, NULL, 0, crl,
+1294:../src/src/crl.c ****                                  VERIFY) != WOLFSSL_SUCCESS) {
+1295:../src/src/crl.c ****             WOLFSSL_MSG("CRL file load failed, continuing");
+1296:../src/src/crl.c ****         }
+1297:../src/src/crl.c **** 
+1298:../src/src/crl.c ****         ret = wc_ReadDirNext(readCtx, path, &name);
+1299:../src/src/crl.c ****     }
+1300:../src/src/crl.c ****     wc_ReadDirClose(readCtx);
+1301:../src/src/crl.c ****     ret = WOLFSSL_SUCCESS; /* load failures not reported, for backwards compat */
+1302:../src/src/crl.c **** 
+1303:../src/src/crl.c **** #ifdef WOLFSSL_SMALL_STACK
+1304:../src/src/crl.c ****     XFREE(readCtx, crl->heap, DYNAMIC_TYPE_TMP_BUFFER);
+1305:../src/src/crl.c **** #endif
+1306:../src/src/crl.c **** 
+1307:../src/src/crl.c ****     if (monitor & WOLFSSL_CRL_MONITOR) {
+1308:../src/src/crl.c ****         word32 pathLen;
+1309:../src/src/crl.c ****         char* pathBuf;
+1310:../src/src/crl.c **** 
+1311:../src/src/crl.c ****         WOLFSSL_MSG("monitor path requested");
+1312:../src/src/crl.c **** 
+1313:../src/src/crl.c ****         pathLen = (word32)XSTRLEN(path);
+1314:../src/src/crl.c ****         pathBuf = (char*)XMALLOC(pathLen+1, crl->heap,DYNAMIC_TYPE_CRL_MONITOR);
+1315:../src/src/crl.c ****         if (pathBuf) {
+1316:../src/src/crl.c ****             XSTRNCPY(pathBuf, path, pathLen+1);
+1317:../src/src/crl.c **** 
+1318:../src/src/crl.c ****             if (type == WOLFSSL_FILETYPE_PEM) {
+1319:../src/src/crl.c ****                 /* free old path before setting a new one */
+1320:../src/src/crl.c ****                 if (crl->monitors[0].path) {
+1321:../src/src/crl.c ****                     XFREE(crl->monitors[0].path, crl->heap,
+1322:../src/src/crl.c ****                             DYNAMIC_TYPE_CRL_MONITOR);
+1323:../src/src/crl.c ****                 }
+1324:../src/src/crl.c ****                 crl->monitors[0].path = pathBuf;
+1325:../src/src/crl.c ****                 crl->monitors[0].type = WOLFSSL_FILETYPE_PEM;
+1326:../src/src/crl.c ****             } else {
+1327:../src/src/crl.c ****                 /* free old path before setting a new one */
+1328:../src/src/crl.c ****                 if (crl->monitors[1].path) {
+1329:../src/src/crl.c ****                     XFREE(crl->monitors[1].path, crl->heap,
+1330:../src/src/crl.c ****                             DYNAMIC_TYPE_CRL_MONITOR);
+1331:../src/src/crl.c ****                 }
+1332:../src/src/crl.c ****                 crl->monitors[1].path = pathBuf;
+1333:../src/src/crl.c ****                 crl->monitors[1].type = WOLFSSL_FILETYPE_ASN1;
+1334:../src/src/crl.c ****             }
+1335:../src/src/crl.c **** 
+1336:../src/src/crl.c ****             if (monitor & WOLFSSL_CRL_START_MON) {
+1337:../src/src/crl.c ****                 WOLFSSL_MSG("start monitoring requested");
+1338:../src/src/crl.c **** 
+1339:../src/src/crl.c ****                 ret = StartMonitorCRL(crl);
+1340:../src/src/crl.c ****             }
+1341:../src/src/crl.c ****         }
+1342:../src/src/crl.c ****         else {
+1343:../src/src/crl.c ****             ret = MEMORY_E;
+1344:../src/src/crl.c ****         }
+1345:../src/src/crl.c ****     }
+1346:../src/src/crl.c **** 
+1347:../src/src/crl.c ****     return ret;
+1348:../src/src/crl.c **** }
+1349:../src/src/crl.c **** 
+1350:../src/src/crl.c **** #else
+1351:../src/src/crl.c **** int LoadCRL(WOLFSSL_CRL* crl, const char* path, int type, int monitor)
+1352:../src/src/crl.c **** {
+ 1559                             		.loc 1 1352 1
+ 1560 0000 7E AA                   		push.l	r10
+ 1561                             	.LCFI20:
+ 1562 0002 71 0A F0                		add	#-16, r0, r10
+ 1563                             	.LCFI21:
+ 1564 0005 EF A0                   		mov.L	r10, r0
+ 1565 0007 E3 A1                   		mov.L	r1, [r10]
+ 1566 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 1567 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 1568 000f E7 A4 03                		mov.L	r4, 12[r10]
+1353:../src/src/crl.c ****     (void)crl;
+1354:../src/src/crl.c ****     (void)path;
+1355:../src/src/crl.c ****     (void)type;
+1356:../src/src/crl.c ****     (void)monitor;
+1357:../src/src/crl.c **** 
+1358:../src/src/crl.c ****     /* stub for scenario where file system is not supported */
+1359:../src/src/crl.c ****     return NOT_COMPILED_IN;
+ 1569                             		.loc 1 1359 12
+ 1570 0012 FB 5A 52 FF             		mov.L	#-174, r5
+1360:../src/src/crl.c **** }
+ 1571                             		.loc 1 1360 1
+ 1572 0016 EF 51                   		mov.L	r5, r1
+ 1573 0018 3F AA 05                		rtsd	#20, r10-r10
+ 1574                             	.LFE9:
+ 1786                             	.Letext0:
+ 1787                             		.file 2 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/wc_port.h"
+ 1788                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 1789                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1790                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1791                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1792                             		.file 7 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1793                             		.file 8 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/types.h"
+ 1794                             		.file 9 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 1795                             		.file 10 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\incl
+ 1796                             		.file 11 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sp_int.h"
+ 1797                             		.file 12 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha256.h"
+ 1798                             		.file 13 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/random.h"
+ 1799                             		.file 14 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/wolfmath.h"
+ 1800                             		.file 15 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/dsa.h"
+ 1801                             		.file 16 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/asn_public.h"
+ 1802                             		.file 17 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/ecc.h"
+ 1803                             		.file 18 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/ed25519.h"
+ 1804                             		.file 19 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/curve25519.h"
+ 1805                             		.file 20 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/rsa.h"
+ 1806                             		.file 21 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/dh.h"
+ 1807                             		.file 22 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/error-crypt.h"
+ 1808                             		.file 23 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md5.h"
+ 1809                             		.file 24 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha.h"
+ 1810                             		.file 25 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha512.h"
+ 1811                             		.file 26 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md4.h"
+ 1812                             		.file 27 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/openssl/compat_types.h"
+ 1813                             		.file 28 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/ssl.h"
+ 1814                             		.file 29 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/callbacks.h"
+ 1815                             		.file 30 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/internal.h"
+ 1816                             		.file 31 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfio.h"
+ 1817                             		.file 32 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/asn.h"
+ 1818                             		.file 33 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/des3.h"
+ 1819                             		.file 34 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/aes.h"
+ 1820                             		.file 35 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/ocsp.h"
+ 1821                             		.file 36 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/fe_operations.h"
+ 1822                             		.file 37 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/error-ssl.h"

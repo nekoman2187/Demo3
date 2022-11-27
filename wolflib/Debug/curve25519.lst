@@ -1,0 +1,2674 @@
+   1                             		.file	"curve25519.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.rodata.c25519_base_x,"a"
+   7                             	_c25519_base_x:
+   8 0000 09                      		.byte	9
+   9 0001 00 00 00 00 00 00 00 00 		.zero	31
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 
+  10                             		.section	.rodata.f25519_zero,"a"
+  13                             	_f25519_zero:
+  14 0000 00 00 00 00 00 00 00 00 		.zero	32
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  15                             		.section	.rodata.f25519_one,"a"
+  18                             	_f25519_one:
+  19 0000 01                      		.byte	1
+  20 0001 00 00 00 00 00 00 00 00 		.zero	31
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 
+  21                             		.section	.rodata.fprime_zero,"a"
+  24                             	_fprime_zero:
+  25 0000 00 00 00 00 00 00 00 00 		.zero	32
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  26                             		.section	.rodata.fprime_one,"a"
+  29                             	_fprime_one:
+  30 0000 01                      		.byte	1
+  31 0001 00 00 00 00 00 00 00 00 		.zero	31
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 
+  32                             		.section	.text.ForceZero,"ax",@progbits
+  34                             	_ForceZero:
+  35                             	.LFB13:
+  36                             		.file 1 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfcrypt/src/misc.c"
+   1:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* misc.c
+   2:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   3:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   5:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * This file is part of wolfSSL.
+   6:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+   7:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * it under the terms of the GNU General Public License as published by
+   9:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * (at your option) any later version.
+  11:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+  12:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * GNU General Public License for more details.
+  16:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  *
+  17:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * You should have received a copy of the GNU General Public License
+  18:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * along with this program; if not, write to the Free Software
+  19:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  */
+  21:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /*
+  22:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  23:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** DESCRIPTION
+  24:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** This module implements the arithmetic-shift right, left, byte swapping, XOR,
+  25:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** masking and clearing memory logic.
+  26:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  27:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** */
+  28:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef HAVE_CONFIG_H
+  29:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <config.h>
+  30:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  31:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  32:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #include <wolfssl/wolfcrypt/settings.h>
+  33:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  34:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLF_CRYPT_MISC_C
+  35:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #define WOLF_CRYPT_MISC_C
+  36:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  37:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #include <wolfssl/wolfcrypt/misc.h>
+  38:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  39:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* inlining these functions is a huge speed increase and a small size decrease,
+  40:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    because the functions are smaller than function call setup/cleanup, e.g.,
+  41:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    md5 benchmark is twice as fast with inline.  If you don't want it, then
+  42:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    define NO_INLINE and compile this file into wolfssl, otherwise it's used as
+  43:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    a source header
+  44:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****  */
+  45:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  46:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef NO_INLINE
+  47:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WC_STATIC
+  48:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+  49:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define WC_STATIC static
+  50:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  51:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  52:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* Check for if compiling misc.c when not needed. */
+  53:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if !defined(WOLFSSL_MISC_INCLUDED) && !defined(NO_INLINE)
+  54:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #ifndef WOLFSSL_IGNORE_FILE_WARN
+  55:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         #warning misc.c does not need to be compiled when using inline (NO_INLINE not defined)
+  56:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+  57:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  58:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+  59:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  60:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  61:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(__ICCARM__)
+  62:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <intrinsics.h>
+  63:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+  64:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  65:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  66:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef INTEL_INTRINSICS
+  67:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  68:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <stdlib.h>      /* get intrinsic definitions */
+  69:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  70:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* for non visual studio probably need no long version, 32 bit only
+  71:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****      * i.e., _rotl and _rotr */
+  72:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #pragma intrinsic(_lrotl, _lrotr)
+  73:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  74:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+  75:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  76:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return y ? _lrotl(x, y) : x;
+  77:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  78:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  79:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+  80:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  81:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return y ? _lrotr(x, y) : x;
+  82:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+  83:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  84:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__CCRX__)
+  85:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  86:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #include <builtin.h>      /* get intrinsic definitions */
+  87:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  88:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #if !defined(NO_INLINE)
+  89:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  90:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define rotlFixed(x, y) _builtin_rotl(x, y)
+  91:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  92:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define rotrFixed(x, y) _builtin_rotr(x, y)
+  93:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  94:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #else /* create real function */
+  95:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+  96:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+  97:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+  98:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return _builtin_rotl(x, y);
+  99:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 100:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 101:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+ 102:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 103:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return _builtin_rotr(x, y);
+ 104:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 105:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 106:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 107:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 108:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else /* generic */
+ 109:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a left circular arithmetic shift of <x> by <y> value. */
+ 110:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 111:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotlFixed(word32 x, word32 y)
+ 112:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 113:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 114:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 115:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 116:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a right circular arithmetic shift of <x> by <y> value. */
+ 117:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     WC_STATIC WC_INLINE word32 rotrFixed(word32 x, word32 y)
+ 118:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     {
+ 119:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 120:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 121:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 122:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 123:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 124:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef WC_RC2
+ 125:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 126:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a left circular arithmetic shift of <x> by <y> value */
+ 127:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word16 rotlFixed16(word16 x, word16 y)
+ 128:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 129:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 130:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 131:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 132:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 133:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a right circular arithmetic shift of <x> by <y> value */
+ 134:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word16 rotrFixed16(word16 x, word16 y)
+ 135:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 136:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 137:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 138:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 139:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* WC_RC2 */
+ 140:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 141:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a byte swap of 32-bit word value. */
+ 142:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(__CCRX__) && !defined(NO_INLINE) /* shortest version for CC-RX */
+ 143:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #define ByteReverseWord32(value) _builtin_revl(value)
+ 144:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 145:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word32 ByteReverseWord32(word32 value)
+ 146:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 147:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifdef PPC_INTRINSICS
+ 148:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* PPC: load reverse indexed instruction */
+ 149:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__lwbrx(&value,0);
+ 150:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__ICCARM__)
+ 151:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__REV(value);
+ 152:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(KEIL_INTRINSICS)
+ 153:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__rev(value);
+ 154:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(__CCRX__)
+ 155:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)_builtin_revl(value);
+ 156:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLF_ALLOW_BUILTIN) && \
+ 157:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         defined(__GNUC_PREREQ) && __GNUC_PREREQ(4, 3)
+ 158:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word32)__builtin_bswap32(value);
+ 159:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFSSL_BYTESWAP32_ASM) && defined(__GNUC__) && \
+ 160:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****       defined(__aarch64__)
+ 161:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     __asm__ volatile (
+ 162:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         "REV32 %0, %0  \n"
+ 163:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         : "+r" (value)
+ 164:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         :
+ 165:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     );
+ 166:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return value;
+ 167:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFSSL_BYTESWAP32_ASM) && defined(__GNUC__) && \
+ 168:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****       (defined(__thumb__) || defined(__arm__))
+ 169:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     __asm__ volatile (
+ 170:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         "REV %0, %0  \n"
+ 171:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         : "+r" (value)
+ 172:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         :
+ 173:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     );
+ 174:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return value;
+ 175:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(FAST_ROTATE)
+ 176:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* 5 instructions with rotate instruction, 9 without */
+ 177:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (rotrFixed(value, 8U) & 0xff00ff00) |
+ 178:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****            (rotlFixed(value, 8U) & 0x00ff00ff);
+ 179:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 180:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     /* 6 instructions with rotate instruction, 8 without */
+ 181:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & 0xFF00FF00) >> 8) | ((value & 0x00FF00FF) << 8);
+ 182:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return rotlFixed(value, 16U);
+ 183:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 184:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 185:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* __CCRX__ */
+ 186:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a byte swap of words array of a given count. */
+ 187:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ByteReverseWords(word32* out, const word32* in,
+ 188:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                     word32 byteCount)
+ 189:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 190:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 count = byteCount/(word32)sizeof(word32), i;
+ 191:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 192:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < count; i++)
+ 193:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         out[i] = ByteReverseWord32(in[i]);
+ 194:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 195:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 196:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 197:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(WORD64_AVAILABLE) && !defined(WOLFSSL_NO_WORD64_OPS)
+ 198:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 199:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 200:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 rotlFixed64(word64 x, word64 y)
+ 201:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 202:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x << y) | (x >> (sizeof(y) * 8 - y));
+ 203:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 204:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 205:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 206:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 rotrFixed64(word64 x, word64 y)
+ 207:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 208:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (x >> y) | (x << (sizeof(y) * 8 - y));
+ 209:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 210:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 211:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 212:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE word64 ByteReverseWord64(word64 value)
+ 213:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 214:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if defined(WOLF_ALLOW_BUILTIN) && defined(__GNUC_PREREQ) && __GNUC_PREREQ(4, 3)
+ 215:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word64)__builtin_bswap64(value);
+ 216:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #elif defined(WOLFCRYPT_SLOW_WORD64)
+ 217:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return (word64)((word64)ByteReverseWord32((word32) value)) << 32 |
+ 218:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         (word64)ByteReverseWord32((word32)(value   >> 32));
+ 219:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #else
+ 220:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & W64LIT(0xFF00FF00FF00FF00)) >> 8) |
+ 221:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         ((value & W64LIT(0x00FF00FF00FF00FF)) << 8);
+ 222:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     value = ((value & W64LIT(0xFFFF0000FFFF0000)) >> 16) |
+ 223:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         ((value & W64LIT(0x0000FFFF0000FFFF)) << 16);
+ 224:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     return rotlFixed64(value, 32U);
+ 225:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 226:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 227:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 228:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 229:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ByteReverseWords64(word64* out, const word64* in,
+ 230:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                       word32 byteCount)
+ 231:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 232:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 count = byteCount/(word32)sizeof(word64), i;
+ 233:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 234:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < count; i++)
+ 235:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         out[i] = ByteReverseWord64(in[i]);
+ 236:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 237:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 238:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 239:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif /* WORD64_AVAILABLE && !WOLFSSL_NO_WORD64_OPS */
+ 240:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 241:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_XOR_OPS
+ 242:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*r> and <*a> for <n> number
+ 243:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** of wolfssl_words, placing the result in <*r>. */
+ 244:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void XorWordsOut(wolfssl_word* r, const wolfssl_word* a,
+ 245:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                      const wolfssl_word* b, word32 n)
+ 246:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 247:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 i;
+ 248:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 249:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < n; i++) r[i] = a[i] ^ b[i];
+ 250:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 251:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 252:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*buf> and <*mask> of n
+ 253:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** counts, placing the result in <*buf>. */
+ 254:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 255:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void xorbufout(void*out, const void* buf, const void* mask,
+ 256:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                    word32 count)
+ 257:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 258:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     if (((wc_ptr_t)out | (wc_ptr_t)buf | (wc_ptr_t)mask | count) %
+ 259:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                                          WOLFSSL_WORD_SIZE == 0)
+ 260:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         XorWordsOut( (wolfssl_word*)out, (wolfssl_word*)buf,
+ 261:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                      (const wolfssl_word*)mask, count / WOLFSSL_WORD_SIZE);
+ 262:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     else {
+ 263:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 i;
+ 264:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       o = (byte*)out;
+ 265:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       b = (byte*)buf;
+ 266:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+ 267:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 268:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         for (i = 0; i < count; i++) o[i] = b[i] ^ m[i];
+ 269:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 270:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 271:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 272:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*r> and <*a> for <n> number
+ 273:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** of wolfssl_words, placing the result in <*r>. */
+ 274:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void XorWords(wolfssl_word* r, const wolfssl_word* a, word32 n)
+ 275:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 276:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     word32 i;
+ 277:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 278:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (i = 0; i < n; i++) r[i] ^= a[i];
+ 279:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 280:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 281:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine performs a bitwise XOR operation of <*buf> and <*mask> of n
+ 282:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** counts, placing the result in <*buf>. */
+ 283:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 284:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void xorbuf(void* buf, const void* mask, word32 count)
+ 285:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+ 286:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     if (((wc_ptr_t)buf | (wc_ptr_t)mask | count) % WOLFSSL_WORD_SIZE == 0)
+ 287:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         XorWords( (wolfssl_word*)buf,
+ 288:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                   (const wolfssl_word*)mask, count / WOLFSSL_WORD_SIZE);
+ 289:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     else {
+ 290:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 i;
+ 291:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         byte*       b = (byte*)buf;
+ 292:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         const byte* m = (const byte*)mask;
+ 293:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 294:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         for (i = 0; i < count; i++) b[i] ^= m[i];
+ 295:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     }
+ 296:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+ 297:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 298:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 299:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #ifndef WOLFSSL_NO_FORCE_ZERO
+ 300:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** /* This routine fills the first len bytes of the memory area pointed by mem
+ 301:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****    with zeros. It ensures compiler optimizations doesn't skip it  */
+ 302:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** WC_STATIC WC_INLINE void ForceZero(void* mem, word32 len)
+ 303:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** {
+  37                             		.loc 1 303 1
+  38 0000 7E AA                   		push.l	r10
+  39                             	.LCFI0:
+  40 0002 71 0A F4                		add	#-12, r0, r10
+  41                             	.LCFI1:
+  42 0005 EF A0                   		mov.L	r10, r0
+  43 0007 E7 A1 01                		mov.L	r1, 4[r10]
+  44 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 304:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     volatile byte* z = (volatile byte*)mem;
+  45                             		.loc 1 304 20
+  46 000d ED A5 01                		mov.L	4[r10], r5
+  47 0010 E3 A5                   		mov.L	r5, [r10]
+ 305:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 306:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #if (defined(WOLFSSL_X86_64_BUILD) || defined(WOLFSSL_AARCH64_BUILD)) \
+ 307:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****             && defined(WORD64_AVAILABLE)
+ 308:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     volatile word64* w;
+ 309:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #ifndef WOLFSSL_UNALIGNED_64BIT_ACCESS
+ 310:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         word32 l = (sizeof(word64) - ((size_t)z & (sizeof(word64)-1))) &
+ 311:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****                                                              (sizeof(word64)-1);
+ 312:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 313:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         if (len < l) l = len;
+ 314:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         len -= l;
+ 315:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         while (l--) *z++ = 0;
+ 316:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     #endif
+ 317:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     for (w = (volatile word64*)z; len >= sizeof(*w); len -= sizeof(*w))
+ 318:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****         *w++ = 0;
+ 319:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     z = (volatile byte*)w;
+ 320:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** #endif
+ 321:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** 
+ 322:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c ****     while (len--) *z++ = 0;
+  48                             		.loc 1 322 11
+  49 0012 2E 0C                   		bra	.L2
+  50                             	.L3:
+  51                             		.loc 1 322 21 discriminator 2
+  52 0014 EC A5                   		mov.L	[r10], r5
+  53 0016 71 54 01                		add	#1, r5, r4
+  54 0019 E3 A4                   		mov.L	r4, [r10]
+  55                             		.loc 1 322 24 discriminator 2
+  56 001b F8 54 00                		mov.B	#0, [r5]
+  57                             	.L2:
+  58                             		.loc 1 322 15 discriminator 1
+  59 001e ED A5 02                		mov.L	8[r10], r5
+  60 0021 71 54 FF                		add	#-1, r5, r4
+  61 0024 E7 A4 02                		mov.L	r4, 8[r10]
+  62                             		.loc 1 322 11 discriminator 1
+  63 0027 61 05                   		cmp	#0, r5
+  64 0029 21 EB                   		bne	.L3
+ 323:C:\Users\nekom\e2_studio\e2sss_proj\wolflib\src/wolfcrypt/src\misc.c **** }
+  65                             		.loc 1 323 1
+  66 002b 03                      		nop
+  67 002c 3F AA 04                		rtsd	#16, r10-r10
+  68                             	.LFE13:
+  70                             		.global	_curve25519_sets
+  71                             		.section C,"a",@progbits
+  72                             		.p2align 2
+  73                             	.LC0:
+  74 0000 43 55 52 56 45 32 35 35 		.string	"CURVE25519"
+  74      31 39 00 
+  75 000b 00                      		.section	.rodata.curve25519_sets,"a"
+  76                             		.balign 4
+  79                             	_curve25519_sets:
+  80 0000 20 00 00 00             		.long	32
+  81 0004 00 00 00 00             		.long	.LC0
+  82                             		.section	.rodata.kCurve25519BasePoint,"a"
+  85                             	_kCurve25519BasePoint:
+  86 0000 09                      		.byte	9
+  87 0001 00 00 00 00 00 00 00 00 		.zero	31
+  87      00 00 00 00 00 00 00 00 
+  87      00 00 00 00 00 00 00 00 
+  87      00 00 00 00 00 00 00 
+  88                             		.section	.text.curve25519_priv_clamp,"ax",@progbits
+  90                             	_curve25519_priv_clamp:
+  91                             	.LFB43:
+  92                             		.file 2 "../src/wolfcrypt/src/curve25519.c"
+   1:../src/wolfcrypt/src/curve25519.c **** /* curve25519.c
+   2:../src/wolfcrypt/src/curve25519.c ****  *
+   3:../src/wolfcrypt/src/curve25519.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/wolfcrypt/src/curve25519.c ****  *
+   5:../src/wolfcrypt/src/curve25519.c ****  * This file is part of wolfSSL.
+   6:../src/wolfcrypt/src/curve25519.c ****  *
+   7:../src/wolfcrypt/src/curve25519.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/wolfcrypt/src/curve25519.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/wolfcrypt/src/curve25519.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/wolfcrypt/src/curve25519.c ****  * (at your option) any later version.
+  11:../src/wolfcrypt/src/curve25519.c ****  *
+  12:../src/wolfcrypt/src/curve25519.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/wolfcrypt/src/curve25519.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/wolfcrypt/src/curve25519.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/wolfcrypt/src/curve25519.c ****  * GNU General Public License for more details.
+  16:../src/wolfcrypt/src/curve25519.c ****  *
+  17:../src/wolfcrypt/src/curve25519.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/wolfcrypt/src/curve25519.c ****  * along with this program; if not, write to the Free Software
+  19:../src/wolfcrypt/src/curve25519.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/wolfcrypt/src/curve25519.c ****  */
+  21:../src/wolfcrypt/src/curve25519.c **** 
+  22:../src/wolfcrypt/src/curve25519.c **** 
+  23:../src/wolfcrypt/src/curve25519.c ****  /* Based On Daniel J Bernstein's curve25519 Public Domain ref10 work. */
+  24:../src/wolfcrypt/src/curve25519.c **** 
+  25:../src/wolfcrypt/src/curve25519.c **** 
+  26:../src/wolfcrypt/src/curve25519.c **** #ifdef HAVE_CONFIG_H
+  27:../src/wolfcrypt/src/curve25519.c ****     #include <config.h>
+  28:../src/wolfcrypt/src/curve25519.c **** #endif
+  29:../src/wolfcrypt/src/curve25519.c **** 
+  30:../src/wolfcrypt/src/curve25519.c **** #include <wolfssl/wolfcrypt/settings.h>
+  31:../src/wolfcrypt/src/curve25519.c **** 
+  32:../src/wolfcrypt/src/curve25519.c **** #ifdef HAVE_CURVE25519
+  33:../src/wolfcrypt/src/curve25519.c **** 
+  34:../src/wolfcrypt/src/curve25519.c **** #include <wolfssl/wolfcrypt/curve25519.h>
+  35:../src/wolfcrypt/src/curve25519.c **** #include <wolfssl/wolfcrypt/error-crypt.h>
+  36:../src/wolfcrypt/src/curve25519.c **** #ifdef NO_INLINE
+  37:../src/wolfcrypt/src/curve25519.c ****     #include <wolfssl/wolfcrypt/misc.h>
+  38:../src/wolfcrypt/src/curve25519.c **** #else
+  39:../src/wolfcrypt/src/curve25519.c ****     #define WOLFSSL_MISC_INCLUDED
+  40:../src/wolfcrypt/src/curve25519.c ****     #include <wolfcrypt/src/misc.c>
+  41:../src/wolfcrypt/src/curve25519.c **** #endif
+  42:../src/wolfcrypt/src/curve25519.c **** 
+  43:../src/wolfcrypt/src/curve25519.c **** #if defined(FREESCALE_LTC_ECC)
+  44:../src/wolfcrypt/src/curve25519.c ****     #include <wolfssl/wolfcrypt/port/nxp/ksdk_port.h>
+  45:../src/wolfcrypt/src/curve25519.c **** #endif
+  46:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLFSSL_SE050
+  47:../src/wolfcrypt/src/curve25519.c ****     #include <wolfssl/wolfcrypt/port/nxp/se050_port.h>
+  48:../src/wolfcrypt/src/curve25519.c **** #endif
+  49:../src/wolfcrypt/src/curve25519.c **** 
+  50:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLF_CRYPTO_CB
+  51:../src/wolfcrypt/src/curve25519.c ****     #include <wolfssl/wolfcrypt/cryptocb.h>
+  52:../src/wolfcrypt/src/curve25519.c **** #endif
+  53:../src/wolfcrypt/src/curve25519.c **** 
+  54:../src/wolfcrypt/src/curve25519.c **** const curve25519_set_type curve25519_sets[] = {
+  55:../src/wolfcrypt/src/curve25519.c ****     {
+  56:../src/wolfcrypt/src/curve25519.c ****         CURVE25519_KEYSIZE,
+  57:../src/wolfcrypt/src/curve25519.c ****         "CURVE25519",
+  58:../src/wolfcrypt/src/curve25519.c ****     }
+  59:../src/wolfcrypt/src/curve25519.c **** };
+  60:../src/wolfcrypt/src/curve25519.c **** 
+  61:../src/wolfcrypt/src/curve25519.c **** static const unsigned char kCurve25519BasePoint[CURVE25519_KEYSIZE] = {9};
+  62:../src/wolfcrypt/src/curve25519.c **** 
+  63:../src/wolfcrypt/src/curve25519.c **** /* Curve25519 private key must be less than order */
+  64:../src/wolfcrypt/src/curve25519.c **** /* These functions clamp private k and check it */
+  65:../src/wolfcrypt/src/curve25519.c **** static WC_INLINE int curve25519_priv_clamp(byte* priv)
+  66:../src/wolfcrypt/src/curve25519.c **** {
+  93                             		.loc 2 66 1
+  94 0000 7E AA                   		push.l	r10
+  95                             	.LCFI2:
+  96 0002 71 0A FC                		add	#-4, r0, r10
+  97                             	.LCFI3:
+  98 0005 EF A0                   		mov.L	r10, r0
+  99 0007 E3 A1                   		mov.L	r1, [r10]
+  67:../src/wolfcrypt/src/curve25519.c ****     priv[0]  &= 248;
+ 100                             		.loc 2 67 14
+ 101 0009 EC A5                   		mov.L	[r10], r5
+ 102 000b CC 55                   		mov.B	[r5], r5
+ 103 000d 75 25 F8                		and	#-8, r5
+ 104 0010 CF 54                   		mov.B	r5, r4
+ 105 0012 EC A5                   		mov.L	[r10], r5
+ 106 0014 C3 54                   		mov.B	r4, [r5]
+  68:../src/wolfcrypt/src/curve25519.c ****     priv[CURVE25519_KEYSIZE-1] &= 127;
+ 107                             		.loc 2 68 32
+ 108 0016 EC A5                   		mov.L	[r10], r5
+ 109 0018 71 55 1F                		add	#31, r5
+ 110 001b CC 54                   		mov.B	[r5], r4
+ 111 001d EC A5                   		mov.L	[r10], r5
+ 112 001f 71 55 1F                		add	#31, r5
+ 113 0022 75 24 7F                		and	#0x7f, r4
+ 114 0025 C3 54                   		mov.B	r4, [r5]
+  69:../src/wolfcrypt/src/curve25519.c ****     priv[CURVE25519_KEYSIZE-1] |= 64;
+ 115                             		.loc 2 69 32
+ 116 0027 EC A5                   		mov.L	[r10], r5
+ 117 0029 71 55 1F                		add	#31, r5
+ 118 002c CC 54                   		mov.B	[r5], r4
+ 119 002e EC A5                   		mov.L	[r10], r5
+ 120 0030 71 55 1F                		add	#31, r5
+ 121 0033 75 34 40                		or	#0x40, r4
+ 122 0036 C3 54                   		mov.B	r4, [r5]
+  70:../src/wolfcrypt/src/curve25519.c ****     return 0;
+ 123                             		.loc 2 70 12
+ 124 0038 66 05                   		mov.L	#0, r5
+  71:../src/wolfcrypt/src/curve25519.c **** }
+ 125                             		.loc 2 71 1
+ 126 003a EF 51                   		mov.L	r5, r1
+ 127 003c 3F AA 02                		rtsd	#8, r10-r10
+ 128                             	.LFE43:
+ 130                             		.section	.text.curve25519_priv_clamp_check,"ax",@progbits
+ 132                             	_curve25519_priv_clamp_check:
+ 133                             	.LFB44:
+  72:../src/wolfcrypt/src/curve25519.c **** static WC_INLINE int curve25519_priv_clamp_check(const byte* priv)
+  73:../src/wolfcrypt/src/curve25519.c **** {
+ 134                             		.loc 2 73 1
+ 135 0000 7E AA                   		push.l	r10
+ 136                             	.LCFI4:
+ 137 0002 71 0A F8                		add	#-8, r0, r10
+ 138                             	.LCFI5:
+ 139 0005 EF A0                   		mov.L	r10, r0
+ 140 0007 E7 A1 01                		mov.L	r1, 4[r10]
+  74:../src/wolfcrypt/src/curve25519.c ****     /* check that private part of key has been clamped */
+  75:../src/wolfcrypt/src/curve25519.c ****     int ret = 0;
+ 141                             		.loc 2 75 9
+ 142 000a F8 A6 00                		mov.L	#0, [r10]
+  76:../src/wolfcrypt/src/curve25519.c ****     if ((priv[0] & ~248) ||
+ 143                             		.loc 2 76 14
+ 144 000d ED A5 01                		mov.L	4[r10], r5
+ 145 0010 CC 55                   		mov.B	[r5], r5
+ 146 0012 5B 55                   		movu.B	r5, r5
+ 147                             		.loc 2 76 18
+ 148 0014 76 25 07 FF             		and	#-249, r5
+ 149                             		.loc 2 76 8
+ 150 0018 61 05                   		cmp	#0, r5
+ 151 001a 21 10                   		bne	.L7
+  77:../src/wolfcrypt/src/curve25519.c ****         (priv[CURVE25519_KEYSIZE-1] & 128)) {
+ 152                             		.loc 2 77 14 discriminator 1
+ 153 001c ED A5 01                		mov.L	4[r10], r5
+ 154 001f 71 55 1F                		add	#31, r5
+ 155 0022 CC 55                   		mov.B	[r5], r5
+  76:../src/wolfcrypt/src/curve25519.c ****     if ((priv[0] & ~248) ||
+ 156                             		.loc 2 76 26 discriminator 1
+ 157 0024 CF 55                   		mov.B	r5, r5
+ 158 0026 61 05                   		cmp	#0, r5
+ 159 0028 28 06                   		bge	.L8
+ 160                             	.L7:
+  78:../src/wolfcrypt/src/curve25519.c ****         ret = ECC_BAD_ARG_E;
+ 161                             		.loc 2 78 13
+ 162 002a F8 AA 56 FF             		mov.L	#-170, [r10]
+ 163                             	.L8:
+  79:../src/wolfcrypt/src/curve25519.c ****     }
+  80:../src/wolfcrypt/src/curve25519.c ****     return ret;
+ 164                             		.loc 2 80 12
+ 165 002e EC A5                   		mov.L	[r10], r5
+  81:../src/wolfcrypt/src/curve25519.c **** }
+ 166                             		.loc 2 81 1
+ 167 0030 EF 51                   		mov.L	r5, r1
+ 168 0032 3F AA 03                		rtsd	#12, r10-r10
+ 169                             	.LFE44:
+ 171                             		.section	.text.curve25519_copy_point,"ax",@progbits
+ 173                             	_curve25519_copy_point:
+ 174                             	.LFB45:
+  82:../src/wolfcrypt/src/curve25519.c **** 
+  83:../src/wolfcrypt/src/curve25519.c **** static WC_INLINE void curve25519_copy_point(byte* out, const byte* point,
+  84:../src/wolfcrypt/src/curve25519.c ****     int endian)
+  85:../src/wolfcrypt/src/curve25519.c **** {
+ 175                             		.loc 2 85 1
+ 176 0000 7E AA                   		push.l	r10
+ 177                             	.LCFI6:
+ 178 0002 71 0A F0                		add	#-16, r0, r10
+ 179                             	.LCFI7:
+ 180 0005 EF A0                   		mov.L	r10, r0
+ 181 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 182 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 183 000d E7 A3 03                		mov.L	r3, 12[r10]
+  86:../src/wolfcrypt/src/curve25519.c ****     int i;
+  87:../src/wolfcrypt/src/curve25519.c ****     if (endian == EC25519_BIG_ENDIAN) {
+ 184                             		.loc 2 87 8
+ 185 0010 ED A5 03                		mov.L	12[r10], r5
+ 186 0013 61 15                   		cmp	#1, r5
+ 187 0015 21 2E                   		bne	.L11
+  88:../src/wolfcrypt/src/curve25519.c ****         /* put shared secret key in Big Endian format */
+  89:../src/wolfcrypt/src/curve25519.c ****         for (i = 0; i < CURVE25519_KEYSIZE; i++) {
+ 188                             		.loc 2 89 16
+ 189 0017 F8 A6 00                		mov.L	#0, [r10]
+ 190                             		.loc 2 89 9
+ 191 001a 2E 20                   		bra	.L12
+ 192                             	.L13:
+  90:../src/wolfcrypt/src/curve25519.c ****             out[i] = point[CURVE25519_KEYSIZE - i -1];
+ 193                             		.loc 2 90 27 discriminator 3
+ 194 001c EC A5                   		mov.L	[r10], r5
+ 195 001e 75 44 1F                		mov.L	#31, r4
+ 196 0021 FF 05 54                		sub	r5, r4, r5
+ 197 0024 ED A4 02                		mov.L	8[r10], r4
+ 198 0027 4B 54                   		add	r5, r4
+ 199                             		.loc 2 90 16 discriminator 3
+ 200 0029 EC A5                   		mov.L	[r10], r5
+ 201 002b ED A3 01                		mov.L	4[r10], r3
+ 202 002e 4B 35                   		add	r3, r5
+ 203                             		.loc 2 90 27 discriminator 3
+ 204 0030 CC 44                   		mov.B	[r4], r4
+ 205                             		.loc 2 90 20 discriminator 3
+ 206 0032 C3 54                   		mov.B	r4, [r5]
+  89:../src/wolfcrypt/src/curve25519.c ****             out[i] = point[CURVE25519_KEYSIZE - i -1];
+ 207                             		.loc 2 89 46 discriminator 3
+ 208 0034 EC A5                   		mov.L	[r10], r5
+ 209 0036 62 15                   		add	#1, r5
+ 210 0038 E3 A5                   		mov.L	r5, [r10]
+ 211                             	.L12:
+  89:../src/wolfcrypt/src/curve25519.c ****             out[i] = point[CURVE25519_KEYSIZE - i -1];
+ 212                             		.loc 2 89 9 discriminator 1
+ 213 003a EC A5                   		mov.L	[r10], r5
+ 214 003c 75 55 1F                		cmp	#31, r5
+ 215 003f 2B DD                   		ble	.L13
+  91:../src/wolfcrypt/src/curve25519.c ****         }
+  92:../src/wolfcrypt/src/curve25519.c ****     }
+  93:../src/wolfcrypt/src/curve25519.c ****     else { /* put shared secret key in Little Endian format */
+  94:../src/wolfcrypt/src/curve25519.c ****         XMEMCPY(out, point, CURVE25519_KEYSIZE);
+  95:../src/wolfcrypt/src/curve25519.c ****     }
+  96:../src/wolfcrypt/src/curve25519.c **** }
+ 216                             		.loc 2 96 1
+ 217 0041 2E 0F                   		bra	.L15
+ 218                             	.L11:
+  94:../src/wolfcrypt/src/curve25519.c ****     }
+ 219                             		.loc 2 94 9
+ 220 0043 75 43 20                		mov.L	#32, r3
+ 221 0046 ED A2 02                		mov.L	8[r10], r2
+ 222 0049 ED A1 01                		mov.L	4[r10], r1
+ 223 004c 05 00 00 00             		bsr	_memcpy
+ 224                             	.L15:
+ 225                             		.loc 2 96 1
+ 226 0050 03                      		nop
+ 227 0051 3F AA 05                		rtsd	#20, r10-r10
+ 228                             	.LFE45:
+ 230                             		.section	.text.wc_curve25519_make_pub,"ax",@progbits
+ 231                             		.global	_wc_curve25519_make_pub
+ 233                             	_wc_curve25519_make_pub:
+ 234                             	.LFB46:
+  97:../src/wolfcrypt/src/curve25519.c **** 
+  98:../src/wolfcrypt/src/curve25519.c **** /* compute the public key from an existing private key, using bare vectors.
+  99:../src/wolfcrypt/src/curve25519.c ****  *
+ 100:../src/wolfcrypt/src/curve25519.c ****  * return value is propagated from curve25519() (0 on success), or
+ 101:../src/wolfcrypt/src/curve25519.c ****  * ECC_BAD_ARG_E, and the byte vectors are little endian.
+ 102:../src/wolfcrypt/src/curve25519.c ****  */
+ 103:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_make_pub(int public_size, byte* pub, int private_size,
+ 104:../src/wolfcrypt/src/curve25519.c ****                            const byte* priv)
+ 105:../src/wolfcrypt/src/curve25519.c **** {
+ 235                             		.loc 2 105 1
+ 236 0000 7E AA                   		push.l	r10
+ 237                             	.LCFI8:
+ 238 0002 71 0A EC                		add	#-20, r0, r10
+ 239                             	.LCFI9:
+ 240 0005 EF A0                   		mov.L	r10, r0
+ 241 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 242 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 243 000d E7 A3 03                		mov.L	r3, 12[r10]
+ 244 0010 E7 A4 04                		mov.L	r4, 16[r10]
+ 106:../src/wolfcrypt/src/curve25519.c ****     int ret;
+ 107:../src/wolfcrypt/src/curve25519.c **** #ifdef FREESCALE_LTC_ECC
+ 108:../src/wolfcrypt/src/curve25519.c ****     const ECPoint* basepoint = nxp_ltc_curve25519_GetBasePoint();
+ 109:../src/wolfcrypt/src/curve25519.c ****     ECPoint wc_pub;
+ 110:../src/wolfcrypt/src/curve25519.c **** #endif
+ 111:../src/wolfcrypt/src/curve25519.c **** 
+ 112:../src/wolfcrypt/src/curve25519.c ****     if ( (public_size != CURVE25519_KEYSIZE) ||
+ 245                             		.loc 2 112 8
+ 246 0013 ED A5 01                		mov.L	4[r10], r5
+ 247 0016 75 55 20                		cmp	#32, r5
+ 248 0019 18                      		bne	.L17
+ 249                             		.loc 2 112 46 discriminator 1
+ 250 001a ED A5 03                		mov.L	12[r10], r5
+ 251 001d 75 55 20                		cmp	#32, r5
+ 252 0020 17                      		beq	.L18
+ 253                             	.L17:
+ 113:../src/wolfcrypt/src/curve25519.c ****         (private_size != CURVE25519_KEYSIZE)) {
+ 114:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 254                             		.loc 2 114 16
+ 255 0021 FB 5A 56 FF             		mov.L	#-170, r5
+ 256 0025 2E 3E                   		bra	.L19
+ 257                             	.L18:
+ 115:../src/wolfcrypt/src/curve25519.c ****     }
+ 116:../src/wolfcrypt/src/curve25519.c ****     if ((pub == NULL) || (priv == NULL)) {
+ 258                             		.loc 2 116 8
+ 259 0027 ED A5 02                		mov.L	8[r10], r5
+ 260 002a 61 05                   		cmp	#0, r5
+ 261 002c 17                      		beq	.L20
+ 262                             		.loc 2 116 23 discriminator 1
+ 263 002d ED A5 04                		mov.L	16[r10], r5
+ 264 0030 61 05                   		cmp	#0, r5
+ 265 0032 1F                      		bne	.L21
+ 266                             	.L20:
+ 117:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 267                             		.loc 2 117 16
+ 268 0033 FB 5A 56 FF             		mov.L	#-170, r5
+ 269 0037 2E 2C                   		bra	.L19
+ 270                             	.L21:
+ 118:../src/wolfcrypt/src/curve25519.c ****     }
+ 119:../src/wolfcrypt/src/curve25519.c **** 
+ 120:../src/wolfcrypt/src/curve25519.c ****     /* check clamping */
+ 121:../src/wolfcrypt/src/curve25519.c ****     ret = curve25519_priv_clamp_check(priv);
+ 271                             		.loc 2 121 11
+ 272 0039 ED A1 04                		mov.L	16[r10], r1
+ 273 003c 05 00 00 00             		bsr	_curve25519_priv_clamp_check
+ 274 0040 E3 A1                   		mov.L	r1, [r10]
+ 122:../src/wolfcrypt/src/curve25519.c ****     if (ret != 0)
+ 275                             		.loc 2 122 8
+ 276 0042 EC A5                   		mov.L	[r10], r5
+ 277 0044 61 05                   		cmp	#0, r5
+ 278 0046 15                      		beq	.L22
+ 123:../src/wolfcrypt/src/curve25519.c ****         return ret;
+ 279                             		.loc 2 123 16
+ 280 0047 EC A5                   		mov.L	[r10], r5
+ 281 0049 2E 1A                   		bra	.L19
+ 282                             	.L22:
+ 124:../src/wolfcrypt/src/curve25519.c **** 
+ 125:../src/wolfcrypt/src/curve25519.c **** #ifdef FREESCALE_LTC_ECC
+ 126:../src/wolfcrypt/src/curve25519.c ****     /* input basepoint on Weierstrass curve */
+ 127:../src/wolfcrypt/src/curve25519.c ****     ret = nxp_ltc_curve25519(&wc_pub, priv, basepoint, kLTC_Weierstrass);
+ 128:../src/wolfcrypt/src/curve25519.c ****     if (ret == 0) {
+ 129:../src/wolfcrypt/src/curve25519.c ****         XMEMCPY(pub, wc_pub.point, CURVE25519_KEYSIZE);
+ 130:../src/wolfcrypt/src/curve25519.c ****     }
+ 131:../src/wolfcrypt/src/curve25519.c **** #else
+ 132:../src/wolfcrypt/src/curve25519.c ****     fe_init();
+ 283                             		.loc 2 132 5
+ 284 004b 05 00 00 00             		bsr	_fe_init
+ 133:../src/wolfcrypt/src/curve25519.c **** 
+ 134:../src/wolfcrypt/src/curve25519.c ****     SAVE_VECTOR_REGISTERS(return _svr_ret;);
+ 135:../src/wolfcrypt/src/curve25519.c **** 
+ 136:../src/wolfcrypt/src/curve25519.c ****     ret = curve25519(pub, priv, kCurve25519BasePoint);
+ 285                             		.loc 2 136 11
+ 286 004f FB 32 00 00 00 00       		mov.L	#_kCurve25519BasePoint, r3
+ 287 0055 ED A2 04                		mov.L	16[r10], r2
+ 288 0058 ED A1 02                		mov.L	8[r10], r1
+ 289 005b 05 00 00 00             		bsr	_curve25519
+ 290 005f E3 A1                   		mov.L	r1, [r10]
+ 137:../src/wolfcrypt/src/curve25519.c **** 
+ 138:../src/wolfcrypt/src/curve25519.c ****     RESTORE_VECTOR_REGISTERS();
+ 139:../src/wolfcrypt/src/curve25519.c **** #endif
+ 140:../src/wolfcrypt/src/curve25519.c **** 
+ 141:../src/wolfcrypt/src/curve25519.c ****     return ret;
+ 291                             		.loc 2 141 12
+ 292 0061 EC A5                   		mov.L	[r10], r5
+ 293                             		.balign 8,3,1
+ 294                             	.L19:
+ 142:../src/wolfcrypt/src/curve25519.c **** }
+ 295                             		.loc 2 142 1
+ 296 0063 EF 51                   		mov.L	r5, r1
+ 297 0065 3F AA 06                		rtsd	#24, r10-r10
+ 298                             	.LFE46:
+ 300                             		.section	.text.wc_curve25519_generic,"ax",@progbits
+ 301                             		.global	_wc_curve25519_generic
+ 303                             	_wc_curve25519_generic:
+ 304                             	.LFB47:
+ 143:../src/wolfcrypt/src/curve25519.c **** 
+ 144:../src/wolfcrypt/src/curve25519.c **** /* compute the public key from an existing private key, with supplied basepoint,
+ 145:../src/wolfcrypt/src/curve25519.c ****  * using bare vectors.
+ 146:../src/wolfcrypt/src/curve25519.c ****  *
+ 147:../src/wolfcrypt/src/curve25519.c ****  * return value is propagated from curve25519() (0 on success),
+ 148:../src/wolfcrypt/src/curve25519.c ****  * and the byte vectors are little endian.
+ 149:../src/wolfcrypt/src/curve25519.c ****  */
+ 150:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_generic(int public_size, byte* pub,
+ 151:../src/wolfcrypt/src/curve25519.c ****                           int private_size, const byte* priv,
+ 152:../src/wolfcrypt/src/curve25519.c ****                           int basepoint_size, const byte* basepoint)
+ 153:../src/wolfcrypt/src/curve25519.c **** {
+ 305                             		.loc 2 153 1
+ 306 0000 7E AA                   		push.l	r10
+ 307                             	.LCFI10:
+ 308 0002 7E A6                   		push.l	r6
+ 309                             	.LCFI11:
+ 310 0004 71 0A E4                		add	#-28, r0, r10
+ 311                             	.LCFI12:
+ 312 0007 EF A0                   		mov.L	r10, r0
+ 313 0009 75 46 28                		mov.L	#40, r6
+ 314 000c 4B A6                   		add	r10, r6
+ 315 000e E7 A1 01                		mov.L	r1, 4[r10]
+ 316 0011 E7 A2 02                		mov.L	r2, 8[r10]
+ 317 0014 E7 A3 03                		mov.L	r3, 12[r10]
+ 318 0017 E7 A4 04                		mov.L	r4, 16[r10]
+ 154:../src/wolfcrypt/src/curve25519.c **** #ifdef FREESCALE_LTC_ECC
+ 155:../src/wolfcrypt/src/curve25519.c ****     /* unsupported with NXP LTC, only supports single basepoint with
+ 156:../src/wolfcrypt/src/curve25519.c ****      * nxp_ltc_curve25519_GetBasePoint() */
+ 157:../src/wolfcrypt/src/curve25519.c ****     return WC_HW_E;
+ 158:../src/wolfcrypt/src/curve25519.c **** #else
+ 159:../src/wolfcrypt/src/curve25519.c ****     int ret;
+ 160:../src/wolfcrypt/src/curve25519.c **** 
+ 161:../src/wolfcrypt/src/curve25519.c ****     if ((public_size != CURVE25519_KEYSIZE) ||
+ 319                             		.loc 2 161 8
+ 320 001a ED A5 01                		mov.L	4[r10], r5
+ 321 001d 75 55 20                		cmp	#32, r5
+ 322 0020 21 0F                   		bne	.L24
+ 323                             		.loc 2 161 45 discriminator 1
+ 324 0022 ED A5 03                		mov.L	12[r10], r5
+ 325 0025 75 55 20                		cmp	#32, r5
+ 326 0028 1F                      		bne	.L24
+ 162:../src/wolfcrypt/src/curve25519.c ****         (private_size != CURVE25519_KEYSIZE) ||
+ 327                             		.loc 2 162 46
+ 328 0029 EC 65                   		mov.L	[r6], r5
+ 329 002b 75 55 20                		cmp	#32, r5
+ 330 002e 17                      		beq	.L25
+ 331                             	.L24:
+ 163:../src/wolfcrypt/src/curve25519.c ****         (basepoint_size != CURVE25519_KEYSIZE)) {
+ 164:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 332                             		.loc 2 164 16
+ 333 002f FB 5A 56 FF             		mov.L	#-170, r5
+ 334 0033 2E 40                   		bra	.L26
+ 335                             	.L25:
+ 165:../src/wolfcrypt/src/curve25519.c ****     }
+ 166:../src/wolfcrypt/src/curve25519.c ****     if ((pub == NULL) || (priv == NULL) || (basepoint == NULL))
+ 336                             		.loc 2 166 8
+ 337 0035 ED A5 02                		mov.L	8[r10], r5
+ 338 0038 61 05                   		cmp	#0, r5
+ 339 003a 20 0D                   		beq	.L27
+ 340                             		.loc 2 166 23 discriminator 1
+ 341 003c ED A5 04                		mov.L	16[r10], r5
+ 342 003f 61 05                   		cmp	#0, r5
+ 343 0041 16                      		beq	.L27
+ 344                             		.loc 2 166 41 discriminator 2
+ 345 0042 A8 6D                   		mov.L	4[r6], r5
+ 346 0044 61 05                   		cmp	#0, r5
+ 347 0046 1F                      		bne	.L28
+ 348                             	.L27:
+ 167:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 349                             		.loc 2 167 16
+ 350 0047 FB 5A 56 FF             		mov.L	#-170, r5
+ 351 004b 2E 28                   		bra	.L26
+ 352                             	.L28:
+ 168:../src/wolfcrypt/src/curve25519.c **** 
+ 169:../src/wolfcrypt/src/curve25519.c ****     /* check clamping */
+ 170:../src/wolfcrypt/src/curve25519.c ****     ret = curve25519_priv_clamp_check(priv);
+ 353                             		.loc 2 170 11
+ 354 004d ED A1 04                		mov.L	16[r10], r1
+ 355 0050 05 00 00 00             		bsr	_curve25519_priv_clamp_check
+ 356 0054 E3 A1                   		mov.L	r1, [r10]
+ 171:../src/wolfcrypt/src/curve25519.c ****     if (ret != 0)
+ 357                             		.loc 2 171 8
+ 358 0056 EC A5                   		mov.L	[r10], r5
+ 359 0058 61 05                   		cmp	#0, r5
+ 360 005a 15                      		beq	.L29
+ 172:../src/wolfcrypt/src/curve25519.c ****         return ret;
+ 361                             		.loc 2 172 16
+ 362 005b EC A5                   		mov.L	[r10], r5
+ 363 005d 2E 16                   		bra	.L26
+ 364                             	.L29:
+ 173:../src/wolfcrypt/src/curve25519.c **** 
+ 174:../src/wolfcrypt/src/curve25519.c ****     fe_init();
+ 365                             		.loc 2 174 5
+ 366 005f 05 00 00 00             		bsr	_fe_init
+ 175:../src/wolfcrypt/src/curve25519.c **** 
+ 176:../src/wolfcrypt/src/curve25519.c ****     SAVE_VECTOR_REGISTERS(return _svr_ret;);
+ 177:../src/wolfcrypt/src/curve25519.c **** 
+ 178:../src/wolfcrypt/src/curve25519.c ****     ret = curve25519(pub, priv, basepoint);
+ 367                             		.loc 2 178 11
+ 368 0063 A8 6B                   		mov.L	4[r6], r3
+ 369 0065 ED A2 04                		mov.L	16[r10], r2
+ 370 0068 ED A1 02                		mov.L	8[r10], r1
+ 371 006b 05 00 00 00             		bsr	_curve25519
+ 372 006f E3 A1                   		mov.L	r1, [r10]
+ 179:../src/wolfcrypt/src/curve25519.c **** 
+ 180:../src/wolfcrypt/src/curve25519.c ****     RESTORE_VECTOR_REGISTERS();
+ 181:../src/wolfcrypt/src/curve25519.c **** 
+ 182:../src/wolfcrypt/src/curve25519.c ****     return ret;
+ 373                             		.loc 2 182 12
+ 374 0071 EC A5                   		mov.L	[r10], r5
+ 375                             		.balign 8,3,1
+ 376                             	.L26:
+ 183:../src/wolfcrypt/src/curve25519.c **** #endif /* FREESCALE_LTC_ECC */
+ 184:../src/wolfcrypt/src/curve25519.c **** }
+ 377                             		.loc 2 184 1
+ 378 0073 EF 51                   		mov.L	r5, r1
+ 379 0075 71 00 1C                		add	#28, r0
+ 380 0078 7E B6                   		pop	r6
+ 381 007a 7E BA                   		pop	r10
+ 382 007c 02                      		rts
+ 383                             	.LFE47:
+ 385 007d FC 13 00                		.section	.text.wc_curve25519_make_priv,"ax",@progbits
+ 386                             		.global	_wc_curve25519_make_priv
+ 388                             	_wc_curve25519_make_priv:
+ 389                             	.LFB48:
+ 185:../src/wolfcrypt/src/curve25519.c **** 
+ 186:../src/wolfcrypt/src/curve25519.c **** /* generate a new private key, as a bare vector.
+ 187:../src/wolfcrypt/src/curve25519.c ****  *
+ 188:../src/wolfcrypt/src/curve25519.c ****  * return value is propagated from wc_RNG_GenerateBlock(() (0 on success),
+ 189:../src/wolfcrypt/src/curve25519.c ****  * or BAD_FUNC_ARG/ECC_BAD_ARG_E, and the byte vector is little endian.
+ 190:../src/wolfcrypt/src/curve25519.c ****  */
+ 191:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_make_priv(WC_RNG* rng, int keysize, byte* key)
+ 192:../src/wolfcrypt/src/curve25519.c **** {
+ 390                             		.loc 2 192 1
+ 391 0000 7E AA                   		push.l	r10
+ 392                             	.LCFI13:
+ 393 0002 71 0A F0                		add	#-16, r0, r10
+ 394                             	.LCFI14:
+ 395 0005 EF A0                   		mov.L	r10, r0
+ 396 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 397 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 398 000d E7 A3 03                		mov.L	r3, 12[r10]
+ 193:../src/wolfcrypt/src/curve25519.c ****     int ret;
+ 194:../src/wolfcrypt/src/curve25519.c **** 
+ 195:../src/wolfcrypt/src/curve25519.c ****     if (key == NULL || rng == NULL)
+ 399                             		.loc 2 195 8
+ 400 0010 ED A5 03                		mov.L	12[r10], r5
+ 401 0013 61 05                   		cmp	#0, r5
+ 402 0015 17                      		beq	.L31
+ 403                             		.loc 2 195 21 discriminator 1
+ 404 0016 ED A5 01                		mov.L	4[r10], r5
+ 405 0019 61 05                   		cmp	#0, r5
+ 406 001b 1F                      		bne	.L32
+ 407                             	.L31:
+ 196:../src/wolfcrypt/src/curve25519.c ****         return BAD_FUNC_ARG;
+ 408                             		.loc 2 196 16
+ 409 001c FB 5A 53 FF             		mov.L	#-173, r5
+ 410 0020 2E 30                   		bra	.L33
+ 411                             	.L32:
+ 197:../src/wolfcrypt/src/curve25519.c **** 
+ 198:../src/wolfcrypt/src/curve25519.c ****     /* currently only a key size of 32 bytes is used */
+ 199:../src/wolfcrypt/src/curve25519.c ****     if (keysize != CURVE25519_KEYSIZE)
+ 412                             		.loc 2 199 8
+ 413 0022 ED A5 02                		mov.L	8[r10], r5
+ 414 0025 75 55 20                		cmp	#32, r5
+ 415 0028 17                      		beq	.L34
+ 200:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 416                             		.loc 2 200 16
+ 417 0029 FB 5A 56 FF             		mov.L	#-170, r5
+ 418 002d 2E 23                   		bra	.L33
+ 419                             	.L34:
+ 201:../src/wolfcrypt/src/curve25519.c **** 
+ 202:../src/wolfcrypt/src/curve25519.c ****     /* random number for private key */
+ 203:../src/wolfcrypt/src/curve25519.c ****     ret = wc_RNG_GenerateBlock(rng, key, keysize);
+ 420                             		.loc 2 203 11
+ 421 002f ED A5 02                		mov.L	8[r10], r5
+ 422 0032 EF 53                   		mov.L	r5, r3
+ 423 0034 ED A2 03                		mov.L	12[r10], r2
+ 424 0037 ED A1 01                		mov.L	4[r10], r1
+ 425 003a 05 00 00 00             		bsr	_wc_RNG_GenerateBlock
+ 426 003e E3 A1                   		mov.L	r1, [r10]
+ 204:../src/wolfcrypt/src/curve25519.c ****     if (ret == 0) {
+ 427                             		.loc 2 204 8
+ 428 0040 EC A5                   		mov.L	[r10], r5
+ 429 0042 61 05                   		cmp	#0, r5
+ 430 0044 1A                      		bne	.L35
+ 205:../src/wolfcrypt/src/curve25519.c ****         /* Clamp the private key */
+ 206:../src/wolfcrypt/src/curve25519.c ****         ret = curve25519_priv_clamp(key);
+ 431                             		.loc 2 206 15
+ 432 0045 ED A1 03                		mov.L	12[r10], r1
+ 433 0048 05 00 00 00             		bsr	_curve25519_priv_clamp
+ 434 004c E3 A1                   		mov.L	r1, [r10]
+ 435                             	.L35:
+ 207:../src/wolfcrypt/src/curve25519.c ****     }
+ 208:../src/wolfcrypt/src/curve25519.c **** 
+ 209:../src/wolfcrypt/src/curve25519.c ****     return ret;
+ 436                             		.loc 2 209 12
+ 437 004e EC A5                   		mov.L	[r10], r5
+ 438                             	.L33:
+ 210:../src/wolfcrypt/src/curve25519.c **** }
+ 439                             		.loc 2 210 1
+ 440 0050 EF 51                   		mov.L	r5, r1
+ 441 0052 3F AA 05                		rtsd	#20, r10-r10
+ 442                             	.LFE48:
+ 444                             		.section	.text.wc_curve25519_make_key,"ax",@progbits
+ 445                             		.global	_wc_curve25519_make_key
+ 447                             	_wc_curve25519_make_key:
+ 448                             	.LFB49:
+ 211:../src/wolfcrypt/src/curve25519.c **** 
+ 212:../src/wolfcrypt/src/curve25519.c **** /* generate a new keypair.
+ 213:../src/wolfcrypt/src/curve25519.c ****  *
+ 214:../src/wolfcrypt/src/curve25519.c ****  * return value is propagated from wc_curve25519_make_private() or
+ 215:../src/wolfcrypt/src/curve25519.c ****  * wc_curve25519_make_pub() (0 on success).
+ 216:../src/wolfcrypt/src/curve25519.c ****  */
+ 217:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_make_key(WC_RNG* rng, int keysize, curve25519_key* key)
+ 218:../src/wolfcrypt/src/curve25519.c **** {
+ 449                             		.loc 2 218 1
+ 450 0000 7E AA                   		push.l	r10
+ 451                             	.LCFI15:
+ 452 0002 71 0A F0                		add	#-16, r0, r10
+ 453                             	.LCFI16:
+ 454 0005 EF A0                   		mov.L	r10, r0
+ 455 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 456 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 457 000d E7 A3 03                		mov.L	r3, 12[r10]
+ 219:../src/wolfcrypt/src/curve25519.c ****     int ret;
+ 220:../src/wolfcrypt/src/curve25519.c **** 
+ 221:../src/wolfcrypt/src/curve25519.c ****     if (key == NULL || rng == NULL)
+ 458                             		.loc 2 221 8
+ 459 0010 ED A5 03                		mov.L	12[r10], r5
+ 460 0013 61 05                   		cmp	#0, r5
+ 461 0015 17                      		beq	.L37
+ 462                             		.loc 2 221 21 discriminator 1
+ 463 0016 ED A5 01                		mov.L	4[r10], r5
+ 464 0019 61 05                   		cmp	#0, r5
+ 465 001b 1F                      		bne	.L38
+ 466                             	.L37:
+ 222:../src/wolfcrypt/src/curve25519.c ****         return BAD_FUNC_ARG;
+ 467                             		.loc 2 222 16
+ 468 001c FB 5A 53 FF             		mov.L	#-173, r5
+ 469 0020 2E 5C                   		bra	.L39
+ 470                             	.L38:
+ 223:../src/wolfcrypt/src/curve25519.c **** 
+ 224:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLF_CRYPTO_CB
+ 225:../src/wolfcrypt/src/curve25519.c ****     if (key->devId != INVALID_DEVID) {
+ 226:../src/wolfcrypt/src/curve25519.c ****         ret = wc_CryptoCb_Curve25519Gen(rng, keysize, key);
+ 227:../src/wolfcrypt/src/curve25519.c ****         if (ret != CRYPTOCB_UNAVAILABLE)
+ 228:../src/wolfcrypt/src/curve25519.c ****             return ret;
+ 229:../src/wolfcrypt/src/curve25519.c ****         /* fall-through when unavailable */
+ 230:../src/wolfcrypt/src/curve25519.c ****     }
+ 231:../src/wolfcrypt/src/curve25519.c **** #endif
+ 232:../src/wolfcrypt/src/curve25519.c **** 
+ 233:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLFSSL_SE050
+ 234:../src/wolfcrypt/src/curve25519.c ****     ret = se050_curve25519_create_key(key, keysize);
+ 235:../src/wolfcrypt/src/curve25519.c **** #else
+ 236:../src/wolfcrypt/src/curve25519.c ****     ret = wc_curve25519_make_priv(rng, keysize, key->k);
+ 471                             		.loc 2 236 52
+ 472 0022 ED A5 03                		mov.L	12[r10], r5
+ 473 0025 71 55 29                		add	#41, r5
+ 474                             		.loc 2 236 11
+ 475 0028 EF 53                   		mov.L	r5, r3
+ 476 002a ED A2 02                		mov.L	8[r10], r2
+ 477 002d ED A1 01                		mov.L	4[r10], r1
+ 478 0030 05 00 00 00             		bsr	_wc_curve25519_make_priv
+ 479 0034 E3 A1                   		mov.L	r1, [r10]
+ 237:../src/wolfcrypt/src/curve25519.c ****     if (ret == 0) {
+ 480                             		.loc 2 237 8
+ 481 0036 EC A5                   		mov.L	[r10], r5
+ 482 0038 61 05                   		cmp	#0, r5
+ 483 003a 21 40                   		bne	.L40
+ 238:../src/wolfcrypt/src/curve25519.c ****         key->privSet = 1;
+ 484                             		.loc 2 238 22
+ 485 003c ED A4 03                		mov.L	12[r10], r4
+ 486 003f CD 45 49                		mov.B	73[r4], r5
+ 487 0042 78 15                   		bset	#1, r5
+ 488 0044 C7 45 49                		mov.B	r5, 73[r4]
+ 239:../src/wolfcrypt/src/curve25519.c ****         ret = wc_curve25519_make_pub((int)sizeof(key->p.point), key->p.point,
+ 489                             		.loc 2 239 71
+ 490 0047 ED A5 03                		mov.L	12[r10], r5
+ 491 004a 71 52 08                		add	#8, r5, r2
+ 240:../src/wolfcrypt/src/curve25519.c ****                                      (int)sizeof(key->k), key->k);
+ 492                             		.loc 2 240 62
+ 493 004d ED A5 03                		mov.L	12[r10], r5
+ 494 0050 71 55 29                		add	#41, r5
+ 239:../src/wolfcrypt/src/curve25519.c ****         ret = wc_curve25519_make_pub((int)sizeof(key->p.point), key->p.point,
+ 495                             		.loc 2 239 15
+ 496 0053 EF 54                   		mov.L	r5, r4
+ 497 0055 75 43 20                		mov.L	#32, r3
+ 498 0058 75 41 20                		mov.L	#32, r1
+ 499 005b 05 00 00 00             		bsr	_wc_curve25519_make_pub
+ 500 005f E3 A1                   		mov.L	r1, [r10]
+ 241:../src/wolfcrypt/src/curve25519.c ****         key->pubSet = (ret == 0);
+ 501                             		.loc 2 241 28
+ 502 0061 EC A5                   		mov.L	[r10], r5
+ 503 0063 61 05                   		cmp	#0, r5
+ 504 0065 FC DB 50                		sceq.L	r5
+ 505 0068 CF 53                   		mov.B	r5, r3
+ 506                             		.loc 2 241 21
+ 507 006a ED A4 03                		mov.L	12[r10], r4
+ 508 006d CD 45 49                		mov.B	73[r4], r5
+ 509 0070 FD 74 C3 01             		tst	#1, r3
+ 510 0074 FD E0 15                		bmne	#0, r5
+ 511 0077 C7 45 49                		mov.B	r5, 73[r4]
+ 512                             	.L40:
+ 242:../src/wolfcrypt/src/curve25519.c ****     }
+ 243:../src/wolfcrypt/src/curve25519.c **** #endif
+ 244:../src/wolfcrypt/src/curve25519.c ****     return ret;
+ 513                             		.loc 2 244 12
+ 514 007a EC A5                   		mov.L	[r10], r5
+ 515                             	.L39:
+ 245:../src/wolfcrypt/src/curve25519.c **** }
+ 516                             		.loc 2 245 1
+ 517 007c EF 51                   		mov.L	r5, r1
+ 518 007e 3F AA 05                		rtsd	#20, r10-r10
+ 519                             	.LFE49:
+ 521                             		.section	.text.wc_curve25519_shared_secret,"ax",@progbits
+ 522                             		.global	_wc_curve25519_shared_secret
+ 524                             	_wc_curve25519_shared_secret:
+ 525                             	.LFB50:
+ 246:../src/wolfcrypt/src/curve25519.c **** 
+ 247:../src/wolfcrypt/src/curve25519.c **** #ifdef HAVE_CURVE25519_SHARED_SECRET
+ 248:../src/wolfcrypt/src/curve25519.c **** 
+ 249:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_shared_secret(curve25519_key* private_key,
+ 250:../src/wolfcrypt/src/curve25519.c ****                                 curve25519_key* public_key,
+ 251:../src/wolfcrypt/src/curve25519.c ****                                 byte* out, word32* outlen)
+ 252:../src/wolfcrypt/src/curve25519.c **** {
+ 526                             		.loc 2 252 1
+ 527 0000 7E AA                   		push.l	r10
+ 528                             	.LCFI17:
+ 529 0002 71 0A F0                		add	#-16, r0, r10
+ 530                             	.LCFI18:
+ 531 0005 71 A0 FC                		add	#-4, r10, r0
+ 532                             	.LCFI19:
+ 533 0008 E3 A1                   		mov.L	r1, [r10]
+ 534 000a E7 A2 01                		mov.L	r2, 4[r10]
+ 535 000d E7 A3 02                		mov.L	r3, 8[r10]
+ 536 0010 E7 A4 03                		mov.L	r4, 12[r10]
+ 253:../src/wolfcrypt/src/curve25519.c ****     return wc_curve25519_shared_secret_ex(private_key, public_key,
+ 537                             		.loc 2 253 12
+ 538 0013 F8 06 01                		mov.L	#1, [r0]
+ 539 0016 ED A4 03                		mov.L	12[r10], r4
+ 540 0019 ED A3 02                		mov.L	8[r10], r3
+ 541 001c ED A2 01                		mov.L	4[r10], r2
+ 542 001f EC A1                   		mov.L	[r10], r1
+ 543 0021 05 00 00 00             		bsr	_wc_curve25519_shared_secret_ex
+ 544 0025 EF 15                   		mov.L	r1, r5
+ 254:../src/wolfcrypt/src/curve25519.c ****                                           out, outlen, EC25519_BIG_ENDIAN);
+ 255:../src/wolfcrypt/src/curve25519.c **** }
+ 545                             		.loc 2 255 1
+ 546 0027 EF 51                   		mov.L	r5, r1
+ 547 0029 3F AA 06                		rtsd	#24, r10-r10
+ 548                             	.LFE50:
+ 550                             		.section	.text.wc_curve25519_shared_secret_ex,"ax",@progbits
+ 551                             		.global	_wc_curve25519_shared_secret_ex
+ 553                             	_wc_curve25519_shared_secret_ex:
+ 554                             	.LFB51:
+ 256:../src/wolfcrypt/src/curve25519.c **** 
+ 257:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_shared_secret_ex(curve25519_key* private_key,
+ 258:../src/wolfcrypt/src/curve25519.c ****                                    curve25519_key* public_key,
+ 259:../src/wolfcrypt/src/curve25519.c ****                                    byte* out, word32* outlen, int endian)
+ 260:../src/wolfcrypt/src/curve25519.c **** {
+ 555                             		.loc 2 260 1
+ 556 0000 7E AA                   		push.l	r10
+ 557                             	.LCFI20:
+ 558 0002 7E A6                   		push.l	r6
+ 559                             	.LCFI21:
+ 560 0004 71 0A C4                		add	#-60, r0, r10
+ 561                             	.LCFI22:
+ 562 0007 EF A0                   		mov.L	r10, r0
+ 563 0009 75 46 48                		mov.L	#0x48, r6
+ 564 000c 4B A6                   		add	r10, r6
+ 565 000e E7 A1 0A                		mov.L	r1, 40[r10]
+ 566 0011 E7 A2 0B                		mov.L	r2, 44[r10]
+ 567 0014 E7 A3 0C                		mov.L	r3, 48[r10]
+ 568 0017 E7 A4 0D                		mov.L	r4, 52[r10]
+ 261:../src/wolfcrypt/src/curve25519.c ****     int ret;
+ 262:../src/wolfcrypt/src/curve25519.c ****     ECPoint o;
+ 263:../src/wolfcrypt/src/curve25519.c **** 
+ 264:../src/wolfcrypt/src/curve25519.c ****     /* sanity check */
+ 265:../src/wolfcrypt/src/curve25519.c ****     if (private_key == NULL || public_key == NULL ||
+ 569                             		.loc 2 265 8
+ 570 001a ED A5 0A                		mov.L	40[r10], r5
+ 571 001d 61 05                   		cmp	#0, r5
+ 572 001f 20 21                   		beq	.L44
+ 573                             		.loc 2 265 29 discriminator 1
+ 574 0021 ED A5 0B                		mov.L	44[r10], r5
+ 575 0024 61 05                   		cmp	#0, r5
+ 576 0026 20 1A                   		beq	.L44
+ 577                             		.loc 2 265 51 discriminator 2
+ 578 0028 ED A5 0C                		mov.L	48[r10], r5
+ 579 002b 61 05                   		cmp	#0, r5
+ 580 002d 20 13                   		beq	.L44
+ 266:../src/wolfcrypt/src/curve25519.c ****         out == NULL || outlen == NULL || *outlen < CURVE25519_KEYSIZE) {
+ 581                             		.loc 2 266 21
+ 582 002f ED A5 0D                		mov.L	52[r10], r5
+ 583 0032 61 05                   		cmp	#0, r5
+ 584 0034 20 0C                   		beq	.L44
+ 585                             		.loc 2 266 42 discriminator 1
+ 586 0036 ED A5 0D                		mov.L	52[r10], r5
+ 587 0039 EC 55                   		mov.L	[r5], r5
+ 588                             		.loc 2 266 39 discriminator 1
+ 589 003b 75 55 1F                		cmp	#31, r5
+ 590 003e 24 09                   		bgtu	.L45
+ 591                             		.balign 8,3,2
+ 592                             	.L44:
+ 267:../src/wolfcrypt/src/curve25519.c ****         return BAD_FUNC_ARG;
+ 593                             		.loc 2 267 16
+ 594 0040 FB 5A 53 FF             		mov.L	#-173, r5
+ 595 0044 38 95 00                		bra	.L51
+ 596                             	.L45:
+ 268:../src/wolfcrypt/src/curve25519.c ****     }
+ 269:../src/wolfcrypt/src/curve25519.c **** 
+ 270:../src/wolfcrypt/src/curve25519.c ****     /* make sure we have a populated private and public key */
+ 271:../src/wolfcrypt/src/curve25519.c ****     if (!public_key->pubSet
+ 597                             		.loc 2 271 9
+ 598 0047 ED A5 0B                		mov.L	44[r10], r5
+ 599 004a CD 55 49                		mov.B	73[r5], r5
+ 600 004d 64 15                   		and	#1, r5
+ 601                             		.loc 2 271 8
+ 602 004f 5B 55                   		movu.B	r5, r5
+ 603 0051 61 05                   		cmp	#0, r5
+ 604 0053 20 0F                   		beq	.L47
+ 272:../src/wolfcrypt/src/curve25519.c ****     #ifndef WOLFSSL_SE050
+ 273:../src/wolfcrypt/src/curve25519.c ****         || !private_key->privSet
+ 605                             		.loc 2 273 12
+ 606 0055 ED A5 0A                		mov.L	40[r10], r5
+ 607 0058 CD 55 49                		mov.B	73[r5], r5
+ 608 005b 64 25                   		and	#2, r5
+ 609                             		.loc 2 273 9
+ 610 005d 5B 55                   		movu.B	r5, r5
+ 611 005f 61 05                   		cmp	#0, r5
+ 612 0061 1F                      		bne	.L48
+ 613                             	.L47:
+ 274:../src/wolfcrypt/src/curve25519.c ****     #endif
+ 275:../src/wolfcrypt/src/curve25519.c ****     ) {
+ 276:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 614                             		.loc 2 276 16
+ 615 0062 FB 5A 56 FF             		mov.L	#-170, r5
+ 616 0066 2E 73                   		bra	.L51
+ 617                             	.L48:
+ 277:../src/wolfcrypt/src/curve25519.c ****     }
+ 278:../src/wolfcrypt/src/curve25519.c **** 
+ 279:../src/wolfcrypt/src/curve25519.c ****     /* avoid implementation fingerprinting - make sure signed bit is not set */
+ 280:../src/wolfcrypt/src/curve25519.c ****     if (public_key->p.point[CURVE25519_KEYSIZE-1] & 0x80) {
+ 618                             		.loc 2 280 28
+ 619 0068 ED A5 0B                		mov.L	44[r10], r5
+ 620 006b CD 55 27                		mov.B	39[r5], r5
+ 621                             		.loc 2 280 8
+ 622 006e CF 55                   		mov.B	r5, r5
+ 623 0070 61 05                   		cmp	#0, r5
+ 624 0072 28 08                   		bge	.L49
+ 281:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 625                             		.loc 2 281 16
+ 626 0074 FB 5A 56 FF             		mov.L	#-170, r5
+ 627 0078 2E 61                   		bra	.L51
+ 628                             	.L49:
+ 282:../src/wolfcrypt/src/curve25519.c ****     }
+ 283:../src/wolfcrypt/src/curve25519.c **** 
+ 284:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLF_CRYPTO_CB
+ 285:../src/wolfcrypt/src/curve25519.c ****     if (private_key->devId != INVALID_DEVID) {
+ 286:../src/wolfcrypt/src/curve25519.c ****         ret = wc_CryptoCb_Curve25519(private_key, public_key, out, outlen,
+ 287:../src/wolfcrypt/src/curve25519.c ****             endian);
+ 288:../src/wolfcrypt/src/curve25519.c ****         if (ret != CRYPTOCB_UNAVAILABLE)
+ 289:../src/wolfcrypt/src/curve25519.c ****             return ret;
+ 290:../src/wolfcrypt/src/curve25519.c ****         /* fall-through when unavailable */
+ 291:../src/wolfcrypt/src/curve25519.c ****     }
+ 292:../src/wolfcrypt/src/curve25519.c **** #endif
+ 293:../src/wolfcrypt/src/curve25519.c **** 
+ 294:../src/wolfcrypt/src/curve25519.c ****     XMEMSET(&o, 0, sizeof(o));
+ 629                             		.loc 2 294 5
+ 630 007a 71 A5 04                		add	#4, r10, r5
+ 631 007d 75 43 21                		mov.L	#33, r3
+ 632 0080 66 02                   		mov.L	#0, r2
+ 633 0082 EF 51                   		mov.L	r5, r1
+ 634 0084 05 00 00 00             		bsr	_memset
+ 295:../src/wolfcrypt/src/curve25519.c **** 
+ 296:../src/wolfcrypt/src/curve25519.c **** #ifdef FREESCALE_LTC_ECC
+ 297:../src/wolfcrypt/src/curve25519.c ****     /* input point P on Curve25519 */
+ 298:../src/wolfcrypt/src/curve25519.c ****     ret = nxp_ltc_curve25519(&o, private_key->k, &public_key->p,
+ 299:../src/wolfcrypt/src/curve25519.c ****         kLTC_Curve25519);
+ 300:../src/wolfcrypt/src/curve25519.c **** #else
+ 301:../src/wolfcrypt/src/curve25519.c ****     #ifdef WOLFSSL_SE050
+ 302:../src/wolfcrypt/src/curve25519.c ****     if (!private_key->privSet) {
+ 303:../src/wolfcrypt/src/curve25519.c ****         /* use NXP SE050: "privSet" is not set */
+ 304:../src/wolfcrypt/src/curve25519.c ****         ret = se050_curve25519_shared_secret(private_key, public_key, &o);
+ 305:../src/wolfcrypt/src/curve25519.c ****     }
+ 306:../src/wolfcrypt/src/curve25519.c ****     else
+ 307:../src/wolfcrypt/src/curve25519.c ****     #endif
+ 308:../src/wolfcrypt/src/curve25519.c ****     {
+ 309:../src/wolfcrypt/src/curve25519.c ****     SAVE_VECTOR_REGISTERS(return _svr_ret;);
+ 310:../src/wolfcrypt/src/curve25519.c **** 
+ 311:../src/wolfcrypt/src/curve25519.c ****     ret = curve25519(o.point, private_key->k, public_key->p.point);
+ 635                             		.loc 2 311 42
+ 636 0088 ED A5 0A                		mov.L	40[r10], r5
+ 637 008b 71 54 29                		add	#41, r5, r4
+ 638                             		.loc 2 311 60
+ 639 008e ED A5 0B                		mov.L	44[r10], r5
+ 640 0091 71 53 08                		add	#8, r5, r3
+ 641                             		.loc 2 311 11
+ 642 0094 71 A5 04                		add	#4, r10, r5
+ 643 0097 EF 42                   		mov.L	r4, r2
+ 644 0099 EF 51                   		mov.L	r5, r1
+ 645 009b 05 00 00 00             		bsr	_curve25519
+ 646 009f E3 A1                   		mov.L	r1, [r10]
+ 312:../src/wolfcrypt/src/curve25519.c **** 
+ 313:../src/wolfcrypt/src/curve25519.c ****     RESTORE_VECTOR_REGISTERS();
+ 314:../src/wolfcrypt/src/curve25519.c ****     }
+ 315:../src/wolfcrypt/src/curve25519.c **** #endif
+ 316:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLFSSL_ECDHX_SHARED_NOT_ZERO
+ 317:../src/wolfcrypt/src/curve25519.c ****     if (ret == 0) {
+ 318:../src/wolfcrypt/src/curve25519.c ****         int i;
+ 319:../src/wolfcrypt/src/curve25519.c ****         byte t = 0;
+ 320:../src/wolfcrypt/src/curve25519.c ****         for (i = 0; i < CURVE25519_KEYSIZE; i++) {
+ 321:../src/wolfcrypt/src/curve25519.c ****             t |= o.point[i];
+ 322:../src/wolfcrypt/src/curve25519.c ****         }
+ 323:../src/wolfcrypt/src/curve25519.c ****         if (t == 0) {
+ 324:../src/wolfcrypt/src/curve25519.c ****             ret = ECC_OUT_OF_RANGE_E;
+ 325:../src/wolfcrypt/src/curve25519.c ****         }
+ 326:../src/wolfcrypt/src/curve25519.c ****     }
+ 327:../src/wolfcrypt/src/curve25519.c **** #endif
+ 328:../src/wolfcrypt/src/curve25519.c ****     if (ret != 0) {
+ 647                             		.loc 2 328 8
+ 648 00a1 EC A5                   		mov.L	[r10], r5
+ 649 00a3 61 05                   		cmp	#0, r5
+ 650 00a5 20 12                   		beq	.L50
+ 329:../src/wolfcrypt/src/curve25519.c ****         ForceZero(&o, sizeof(o));
+ 651                             		.loc 2 329 9
+ 652 00a7 71 A5 04                		add	#4, r10, r5
+ 653 00aa 75 42 21                		mov.L	#33, r2
+ 654 00ad EF 51                   		mov.L	r5, r1
+ 655 00af 05 00 00 00             		bsr	_ForceZero
+ 330:../src/wolfcrypt/src/curve25519.c ****         return ret;
+ 656                             		.loc 2 330 16
+ 657 00b3 EC A5                   		mov.L	[r10], r5
+ 658 00b5 2E 24                   		bra	.L51
+ 659                             	.L50:
+ 331:../src/wolfcrypt/src/curve25519.c ****     }
+ 332:../src/wolfcrypt/src/curve25519.c **** 
+ 333:../src/wolfcrypt/src/curve25519.c ****     curve25519_copy_point(out, o.point, endian);
+ 660                             		.loc 2 333 5
+ 661 00b7 71 A5 04                		add	#4, r10, r5
+ 662 00ba EC 63                   		mov.L	[r6], r3
+ 663 00bc EF 52                   		mov.L	r5, r2
+ 664 00be ED A1 0C                		mov.L	48[r10], r1
+ 665 00c1 05 00 00 00             		bsr	_curve25519_copy_point
+ 334:../src/wolfcrypt/src/curve25519.c ****     *outlen = CURVE25519_KEYSIZE;
+ 666                             		.loc 2 334 13
+ 667 00c5 ED A5 0D                		mov.L	52[r10], r5
+ 668 00c8 F8 56 20                		mov.L	#32, [r5]
+ 335:../src/wolfcrypt/src/curve25519.c **** 
+ 336:../src/wolfcrypt/src/curve25519.c ****     ForceZero(&o, sizeof(o));
+ 669                             		.loc 2 336 5
+ 670 00cb 71 A5 04                		add	#4, r10, r5
+ 671 00ce 75 42 21                		mov.L	#33, r2
+ 672 00d1 EF 51                   		mov.L	r5, r1
+ 673 00d3 05 00 00 00             		bsr	_ForceZero
+ 337:../src/wolfcrypt/src/curve25519.c **** 
+ 338:../src/wolfcrypt/src/curve25519.c ****     return ret;
+ 674                             		.loc 2 338 12
+ 675 00d7 EC A5                   		mov.L	[r10], r5
+ 676                             		.balign 8,3,1
+ 677                             	.L51:
+ 339:../src/wolfcrypt/src/curve25519.c **** }
+ 678                             		.loc 2 339 1 discriminator 1
+ 679 00d9 EF 51                   		mov.L	r5, r1
+ 680 00db 71 00 3C                		add	#60, r0
+ 681 00de 7E B6                   		pop	r6
+ 682 00e0 7E BA                   		pop	r10
+ 683 00e2 02                      		rts
+ 684                             	.LFE51:
+ 686 00e3 77 10 01 00 00          		.section	.text.wc_curve25519_export_public,"ax",@progbits
+ 687                             		.global	_wc_curve25519_export_public
+ 689                             	_wc_curve25519_export_public:
+ 690                             	.LFB52:
+ 340:../src/wolfcrypt/src/curve25519.c **** 
+ 341:../src/wolfcrypt/src/curve25519.c **** #endif /* HAVE_CURVE25519_SHARED_SECRET */
+ 342:../src/wolfcrypt/src/curve25519.c **** 
+ 343:../src/wolfcrypt/src/curve25519.c **** #ifdef HAVE_CURVE25519_KEY_EXPORT
+ 344:../src/wolfcrypt/src/curve25519.c **** 
+ 345:../src/wolfcrypt/src/curve25519.c **** /* export curve25519 public key (Big endian)
+ 346:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 347:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_export_public(curve25519_key* key, byte* out, word32* outLen)
+ 348:../src/wolfcrypt/src/curve25519.c **** {
+ 691                             		.loc 2 348 1
+ 692 0000 7E AA                   		push.l	r10
+ 693                             	.LCFI23:
+ 694 0002 71 0A F4                		add	#-12, r0, r10
+ 695                             	.LCFI24:
+ 696 0005 EF A0                   		mov.L	r10, r0
+ 697 0007 E3 A1                   		mov.L	r1, [r10]
+ 698 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 699 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 349:../src/wolfcrypt/src/curve25519.c ****     return wc_curve25519_export_public_ex(key, out, outLen, EC25519_BIG_ENDIAN);
+ 700                             		.loc 2 349 12
+ 701 000f 66 14                   		mov.L	#1, r4
+ 702 0011 ED A3 02                		mov.L	8[r10], r3
+ 703 0014 ED A2 01                		mov.L	4[r10], r2
+ 704 0017 EC A1                   		mov.L	[r10], r1
+ 705 0019 05 00 00 00             		bsr	_wc_curve25519_export_public_ex
+ 706 001d EF 15                   		mov.L	r1, r5
+ 350:../src/wolfcrypt/src/curve25519.c **** }
+ 707                             		.loc 2 350 1
+ 708 001f EF 51                   		mov.L	r5, r1
+ 709 0021 3F AA 04                		rtsd	#16, r10-r10
+ 710                             	.LFE52:
+ 712                             		.section	.text.wc_curve25519_export_public_ex,"ax",@progbits
+ 713                             		.global	_wc_curve25519_export_public_ex
+ 715                             	_wc_curve25519_export_public_ex:
+ 716                             	.LFB53:
+ 351:../src/wolfcrypt/src/curve25519.c **** 
+ 352:../src/wolfcrypt/src/curve25519.c **** /* export curve25519 public key (Big or Little endian)
+ 353:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 354:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_export_public_ex(curve25519_key* key, byte* out,
+ 355:../src/wolfcrypt/src/curve25519.c ****                                    word32* outLen, int endian)
+ 356:../src/wolfcrypt/src/curve25519.c **** {
+ 717                             		.loc 2 356 1
+ 718 0000 7E AA                   		push.l	r10
+ 719                             	.LCFI25:
+ 720 0002 71 0A EC                		add	#-20, r0, r10
+ 721                             	.LCFI26:
+ 722 0005 EF A0                   		mov.L	r10, r0
+ 723 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 724 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 725 000d E7 A3 03                		mov.L	r3, 12[r10]
+ 726 0010 E7 A4 04                		mov.L	r4, 16[r10]
+ 357:../src/wolfcrypt/src/curve25519.c ****     int ret = 0;
+ 727                             		.loc 2 357 9
+ 728 0013 F8 A6 00                		mov.L	#0, [r10]
+ 358:../src/wolfcrypt/src/curve25519.c **** 
+ 359:../src/wolfcrypt/src/curve25519.c ****     if (key == NULL || out == NULL || outLen == NULL) {
+ 729                             		.loc 2 359 8
+ 730 0016 ED A5 01                		mov.L	4[r10], r5
+ 731 0019 61 05                   		cmp	#0, r5
+ 732 001b 20 0E                   		beq	.L55
+ 733                             		.loc 2 359 21 discriminator 1
+ 734 001d ED A5 02                		mov.L	8[r10], r5
+ 735 0020 61 05                   		cmp	#0, r5
+ 736 0022 17                      		beq	.L55
+ 737                             		.loc 2 359 36 discriminator 2
+ 738 0023 ED A5 03                		mov.L	12[r10], r5
+ 739 0026 61 05                   		cmp	#0, r5
+ 740 0028 1F                      		bne	.L56
+ 741                             	.L55:
+ 360:../src/wolfcrypt/src/curve25519.c ****         return BAD_FUNC_ARG;
+ 742                             		.loc 2 360 16
+ 743 0029 FB 5A 53 FF             		mov.L	#-173, r5
+ 744 002d 2E 72                   		bra	.L57
+ 745                             	.L56:
+ 361:../src/wolfcrypt/src/curve25519.c ****     }
+ 362:../src/wolfcrypt/src/curve25519.c **** 
+ 363:../src/wolfcrypt/src/curve25519.c ****     /* check and set outgoing key size */
+ 364:../src/wolfcrypt/src/curve25519.c ****     if (*outLen < CURVE25519_KEYSIZE) {
+ 746                             		.loc 2 364 9
+ 747 002f ED A5 03                		mov.L	12[r10], r5
+ 748 0032 EC 55                   		mov.L	[r5], r5
+ 749                             		.loc 2 364 8
+ 750 0034 75 55 1F                		cmp	#31, r5
+ 751 0037 24 0E                   		bgtu	.L58
+ 365:../src/wolfcrypt/src/curve25519.c ****         *outLen = CURVE25519_KEYSIZE;
+ 752                             		.loc 2 365 17
+ 753 0039 ED A5 03                		mov.L	12[r10], r5
+ 754 003c F8 56 20                		mov.L	#32, [r5]
+ 366:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 755                             		.loc 2 366 16
+ 756 003f FB 5A 56 FF             		mov.L	#-170, r5
+ 757 0043 2E 5C                   		bra	.L57
+ 758                             	.L58:
+ 367:../src/wolfcrypt/src/curve25519.c ****     }
+ 368:../src/wolfcrypt/src/curve25519.c **** 
+ 369:../src/wolfcrypt/src/curve25519.c ****     /* calculate public if missing */
+ 370:../src/wolfcrypt/src/curve25519.c ****     if (!key->pubSet) {
+ 759                             		.loc 2 370 9
+ 760 0045 ED A5 01                		mov.L	4[r10], r5
+ 761 0048 CD 55 49                		mov.B	73[r5], r5
+ 762 004b 64 15                   		and	#1, r5
+ 763                             		.loc 2 370 8
+ 764 004d 5B 55                   		movu.B	r5, r5
+ 765 004f 61 05                   		cmp	#0, r5
+ 766 0051 21 35                   		bne	.L59
+ 371:../src/wolfcrypt/src/curve25519.c ****         ret = wc_curve25519_make_pub((int)sizeof(key->p.point), key->p.point,
+ 767                             		.loc 2 371 71
+ 768 0053 ED A5 01                		mov.L	4[r10], r5
+ 769 0056 71 52 08                		add	#8, r5, r2
+ 372:../src/wolfcrypt/src/curve25519.c ****                                      (int)sizeof(key->k), key->k);
+ 770                             		.loc 2 372 62
+ 771 0059 ED A5 01                		mov.L	4[r10], r5
+ 772 005c 71 55 29                		add	#41, r5
+ 371:../src/wolfcrypt/src/curve25519.c ****         ret = wc_curve25519_make_pub((int)sizeof(key->p.point), key->p.point,
+ 773                             		.loc 2 371 15
+ 774 005f EF 54                   		mov.L	r5, r4
+ 775 0061 75 43 20                		mov.L	#32, r3
+ 776 0064 75 41 20                		mov.L	#32, r1
+ 777 0067 05 00 00 00             		bsr	_wc_curve25519_make_pub
+ 778 006b E3 A1                   		mov.L	r1, [r10]
+ 373:../src/wolfcrypt/src/curve25519.c ****         key->pubSet = (ret == 0);
+ 779                             		.loc 2 373 28
+ 780 006d EC A5                   		mov.L	[r10], r5
+ 781 006f 61 05                   		cmp	#0, r5
+ 782 0071 FC DB 50                		sceq.L	r5
+ 783 0074 CF 53                   		mov.B	r5, r3
+ 784                             		.loc 2 373 21
+ 785 0076 ED A4 01                		mov.L	4[r10], r4
+ 786 0079 CD 45 49                		mov.B	73[r4], r5
+ 787 007c FD 74 C3 01             		tst	#1, r3
+ 788 0080 FD E0 15                		bmne	#0, r5
+ 789 0083 C7 45 49                		mov.B	r5, 73[r4]
+ 790                             	.L59:
+ 374:../src/wolfcrypt/src/curve25519.c ****     }
+ 375:../src/wolfcrypt/src/curve25519.c ****     /* export public point with endianess */
+ 376:../src/wolfcrypt/src/curve25519.c ****     curve25519_copy_point(out, key->p.point, endian);
+ 791                             		.loc 2 376 38
+ 792 0086 ED A5 01                		mov.L	4[r10], r5
+ 793 0089 62 85                   		add	#8, r5
+ 794                             		.loc 2 376 5
+ 795 008b ED A3 04                		mov.L	16[r10], r3
+ 796 008e EF 52                   		mov.L	r5, r2
+ 797 0090 ED A1 02                		mov.L	8[r10], r1
+ 798 0093 05 00 00 00             		bsr	_curve25519_copy_point
+ 377:../src/wolfcrypt/src/curve25519.c ****     *outLen = CURVE25519_KEYSIZE;
+ 799                             		.loc 2 377 13
+ 800 0097 ED A5 03                		mov.L	12[r10], r5
+ 801 009a F8 56 20                		mov.L	#32, [r5]
+ 378:../src/wolfcrypt/src/curve25519.c **** 
+ 379:../src/wolfcrypt/src/curve25519.c ****     return ret;
+ 802                             		.loc 2 379 12
+ 803 009d EC A5                   		mov.L	[r10], r5
+ 804                             	.L57:
+ 380:../src/wolfcrypt/src/curve25519.c **** }
+ 805                             		.loc 2 380 1
+ 806 009f EF 51                   		mov.L	r5, r1
+ 807 00a1 3F AA 06                		rtsd	#24, r10-r10
+ 808                             	.LFE53:
+ 810                             		.section	.text.wc_curve25519_import_public,"ax",@progbits
+ 811                             		.global	_wc_curve25519_import_public
+ 813                             	_wc_curve25519_import_public:
+ 814                             	.LFB54:
+ 381:../src/wolfcrypt/src/curve25519.c **** 
+ 382:../src/wolfcrypt/src/curve25519.c **** #endif /* HAVE_CURVE25519_KEY_EXPORT */
+ 383:../src/wolfcrypt/src/curve25519.c **** 
+ 384:../src/wolfcrypt/src/curve25519.c **** #ifdef HAVE_CURVE25519_KEY_IMPORT
+ 385:../src/wolfcrypt/src/curve25519.c **** 
+ 386:../src/wolfcrypt/src/curve25519.c **** /* import curve25519 public key (Big endian)
+ 387:../src/wolfcrypt/src/curve25519.c ****  *  return 0 on success */
+ 388:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_import_public(const byte* in, word32 inLen,
+ 389:../src/wolfcrypt/src/curve25519.c ****                                 curve25519_key* key)
+ 390:../src/wolfcrypt/src/curve25519.c **** {
+ 815                             		.loc 2 390 1
+ 816 0000 7E AA                   		push.l	r10
+ 817                             	.LCFI27:
+ 818 0002 71 0A F4                		add	#-12, r0, r10
+ 819                             	.LCFI28:
+ 820 0005 EF A0                   		mov.L	r10, r0
+ 821 0007 E3 A1                   		mov.L	r1, [r10]
+ 822 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 823 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 391:../src/wolfcrypt/src/curve25519.c ****     return wc_curve25519_import_public_ex(in, inLen, key, EC25519_BIG_ENDIAN);
+ 824                             		.loc 2 391 12
+ 825 000f 66 14                   		mov.L	#1, r4
+ 826 0011 ED A3 02                		mov.L	8[r10], r3
+ 827 0014 ED A2 01                		mov.L	4[r10], r2
+ 828 0017 EC A1                   		mov.L	[r10], r1
+ 829 0019 05 00 00 00             		bsr	_wc_curve25519_import_public_ex
+ 830 001d EF 15                   		mov.L	r1, r5
+ 392:../src/wolfcrypt/src/curve25519.c **** }
+ 831                             		.loc 2 392 1
+ 832 001f EF 51                   		mov.L	r5, r1
+ 833 0021 3F AA 04                		rtsd	#16, r10-r10
+ 834                             	.LFE54:
+ 836                             		.section	.text.wc_curve25519_import_public_ex,"ax",@progbits
+ 837                             		.global	_wc_curve25519_import_public_ex
+ 839                             	_wc_curve25519_import_public_ex:
+ 840                             	.LFB55:
+ 393:../src/wolfcrypt/src/curve25519.c **** 
+ 394:../src/wolfcrypt/src/curve25519.c **** /* import curve25519 public key (Big or Little endian)
+ 395:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 396:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_import_public_ex(const byte* in, word32 inLen,
+ 397:../src/wolfcrypt/src/curve25519.c ****                                 curve25519_key* key, int endian)
+ 398:../src/wolfcrypt/src/curve25519.c **** {
+ 841                             		.loc 2 398 1
+ 842 0000 7E AA                   		push.l	r10
+ 843                             	.LCFI29:
+ 844 0002 71 0A F0                		add	#-16, r0, r10
+ 845                             	.LCFI30:
+ 846 0005 EF A0                   		mov.L	r10, r0
+ 847 0007 E3 A1                   		mov.L	r1, [r10]
+ 848 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 849 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 850 000f E7 A4 03                		mov.L	r4, 12[r10]
+ 399:../src/wolfcrypt/src/curve25519.c **** #ifdef FREESCALE_LTC_ECC
+ 400:../src/wolfcrypt/src/curve25519.c ****     ltc_pkha_ecc_point_t ltcPoint;
+ 401:../src/wolfcrypt/src/curve25519.c **** #endif
+ 402:../src/wolfcrypt/src/curve25519.c **** 
+ 403:../src/wolfcrypt/src/curve25519.c ****     /* sanity check */
+ 404:../src/wolfcrypt/src/curve25519.c ****     if (key == NULL || in == NULL) {
+ 851                             		.loc 2 404 8
+ 852 0012 ED A5 02                		mov.L	8[r10], r5
+ 853 0015 61 05                   		cmp	#0, r5
+ 854 0017 16                      		beq	.L63
+ 855                             		.loc 2 404 21 discriminator 1
+ 856 0018 EC A5                   		mov.L	[r10], r5
+ 857 001a 61 05                   		cmp	#0, r5
+ 858 001c 1F                      		bne	.L64
+ 859                             	.L63:
+ 405:../src/wolfcrypt/src/curve25519.c ****         return BAD_FUNC_ARG;
+ 860                             		.loc 2 405 16
+ 861 001d FB 5A 53 FF             		mov.L	#-173, r5
+ 862 0021 2E 36                   		bra	.L65
+ 863                             	.L64:
+ 406:../src/wolfcrypt/src/curve25519.c ****     }
+ 407:../src/wolfcrypt/src/curve25519.c **** 
+ 408:../src/wolfcrypt/src/curve25519.c ****     /* check size of incoming keys */
+ 409:../src/wolfcrypt/src/curve25519.c ****     if (inLen != CURVE25519_KEYSIZE) {
+ 864                             		.loc 2 409 8
+ 865 0023 ED A5 01                		mov.L	4[r10], r5
+ 866 0026 75 55 20                		cmp	#32, r5
+ 867 0029 17                      		beq	.L66
+ 410:../src/wolfcrypt/src/curve25519.c ****        return ECC_BAD_ARG_E;
+ 868                             		.loc 2 410 15
+ 869 002a FB 5A 56 FF             		mov.L	#-170, r5
+ 870 002e 2E 29                   		bra	.L65
+ 871                             	.L66:
+ 411:../src/wolfcrypt/src/curve25519.c ****     }
+ 412:../src/wolfcrypt/src/curve25519.c **** 
+ 413:../src/wolfcrypt/src/curve25519.c ****     /* import public point with endianess */
+ 414:../src/wolfcrypt/src/curve25519.c ****     curve25519_copy_point(key->p.point, in, endian);
+ 872                             		.loc 2 414 33
+ 873 0030 ED A5 02                		mov.L	8[r10], r5
+ 874 0033 62 85                   		add	#8, r5
+ 875                             		.loc 2 414 5
+ 876 0035 ED A3 03                		mov.L	12[r10], r3
+ 877 0038 EC A2                   		mov.L	[r10], r2
+ 878 003a EF 51                   		mov.L	r5, r1
+ 879 003c 05 00 00 00             		bsr	_curve25519_copy_point
+ 415:../src/wolfcrypt/src/curve25519.c ****     key->pubSet = 1;
+ 880                             		.loc 2 415 17
+ 881 0040 ED A4 02                		mov.L	8[r10], r4
+ 882 0043 CD 45 49                		mov.B	73[r4], r5
+ 883 0046 78 05                   		bset	#0, r5
+ 884 0048 C7 45 49                		mov.B	r5, 73[r4]
+ 416:../src/wolfcrypt/src/curve25519.c **** 
+ 417:../src/wolfcrypt/src/curve25519.c ****     key->dp = &curve25519_sets[0];
+ 885                             		.loc 2 417 13
+ 886 004b ED A5 02                		mov.L	8[r10], r5
+ 887 004e F9 52 01 00 00 00 00    		mov.L	#_curve25519_sets, 4[r5]
+ 418:../src/wolfcrypt/src/curve25519.c **** 
+ 419:../src/wolfcrypt/src/curve25519.c ****     /* LTC needs also Y coordinate - let's compute it */
+ 420:../src/wolfcrypt/src/curve25519.c **** #ifdef FREESCALE_LTC_ECC
+ 421:../src/wolfcrypt/src/curve25519.c ****     ltcPoint.X = &key->p.point[0];
+ 422:../src/wolfcrypt/src/curve25519.c ****     ltcPoint.Y = &key->p.pointY[0];
+ 423:../src/wolfcrypt/src/curve25519.c ****     LTC_PKHA_Curve25519ComputeY(&ltcPoint);
+ 424:../src/wolfcrypt/src/curve25519.c **** #endif
+ 425:../src/wolfcrypt/src/curve25519.c **** 
+ 426:../src/wolfcrypt/src/curve25519.c ****     return 0;
+ 888                             		.loc 2 426 12
+ 889 0055 66 05                   		mov.L	#0, r5
+ 890                             	.L65:
+ 427:../src/wolfcrypt/src/curve25519.c **** }
+ 891                             		.loc 2 427 1
+ 892 0057 EF 51                   		mov.L	r5, r1
+ 893 0059 3F AA 05                		rtsd	#20, r10-r10
+ 894                             	.LFE55:
+ 896                             		.section	.text.wc_curve25519_check_public,"ax",@progbits
+ 897                             		.global	_wc_curve25519_check_public
+ 899                             	_wc_curve25519_check_public:
+ 900                             	.LFB56:
+ 428:../src/wolfcrypt/src/curve25519.c **** 
+ 429:../src/wolfcrypt/src/curve25519.c **** /* Check the public key value (big or little endian)
+ 430:../src/wolfcrypt/src/curve25519.c ****  *
+ 431:../src/wolfcrypt/src/curve25519.c ****  * pub     Public key bytes.
+ 432:../src/wolfcrypt/src/curve25519.c ****  * pubSz   Size of public key in bytes.
+ 433:../src/wolfcrypt/src/curve25519.c ****  * endian  Public key bytes passed in as big-endian or little-endian.
+ 434:../src/wolfcrypt/src/curve25519.c ****  * returns BAD_FUNC_ARGS when pub is NULL,
+ 435:../src/wolfcrypt/src/curve25519.c ****  *         BUFFER_E when size of public key is zero;
+ 436:../src/wolfcrypt/src/curve25519.c ****  *         ECC_OUT_OF_RANGE_E if the high bit is set;
+ 437:../src/wolfcrypt/src/curve25519.c ****  *         ECC_BAD_ARG_E if key length is not 32 bytes, public key value is
+ 438:../src/wolfcrypt/src/curve25519.c ****  *         zero or one; and
+ 439:../src/wolfcrypt/src/curve25519.c ****  *         0 otherwise.
+ 440:../src/wolfcrypt/src/curve25519.c ****  */
+ 441:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_check_public(const byte* pub, word32 pubSz, int endian)
+ 442:../src/wolfcrypt/src/curve25519.c **** {
+ 901                             		.loc 2 442 1
+ 902 0000 7E AA                   		push.l	r10
+ 903                             	.LCFI31:
+ 904 0002 71 0A F0                		add	#-16, r0, r10
+ 905                             	.LCFI32:
+ 906 0005 EF A0                   		mov.L	r10, r0
+ 907 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 908 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 909 000d E7 A3 03                		mov.L	r3, 12[r10]
+ 443:../src/wolfcrypt/src/curve25519.c ****     word32 i;
+ 444:../src/wolfcrypt/src/curve25519.c **** 
+ 445:../src/wolfcrypt/src/curve25519.c ****     if (pub == NULL)
+ 910                             		.loc 2 445 8
+ 911 0010 ED A5 01                		mov.L	4[r10], r5
+ 912 0013 61 05                   		cmp	#0, r5
+ 913 0015 18                      		bne	.L68
+ 446:../src/wolfcrypt/src/curve25519.c ****         return BAD_FUNC_ARG;
+ 914                             		.loc 2 446 16
+ 915 0016 FB 5A 53 FF             		mov.L	#-173, r5
+ 916 001a 38 77 01                		bra	.L69
+ 917                             	.L68:
+ 447:../src/wolfcrypt/src/curve25519.c **** 
+ 448:../src/wolfcrypt/src/curve25519.c ****     /* Check for empty key data */
+ 449:../src/wolfcrypt/src/curve25519.c ****     if (pubSz == 0)
+ 918                             		.loc 2 449 8
+ 919 001d ED A5 02                		mov.L	8[r10], r5
+ 920 0020 61 05                   		cmp	#0, r5
+ 921 0022 18                      		bne	.L70
+ 450:../src/wolfcrypt/src/curve25519.c ****         return BUFFER_E;
+ 922                             		.loc 2 450 16
+ 923 0023 FB 5A 7C FF             		mov.L	#-132, r5
+ 924 0027 38 6A 01                		bra	.L69
+ 925                             	.L70:
+ 451:../src/wolfcrypt/src/curve25519.c **** 
+ 452:../src/wolfcrypt/src/curve25519.c ****     /* Check key length */
+ 453:../src/wolfcrypt/src/curve25519.c ****     if (pubSz != CURVE25519_KEYSIZE)
+ 926                             		.loc 2 453 8
+ 927 002a ED A5 02                		mov.L	8[r10], r5
+ 928 002d 75 55 20                		cmp	#32, r5
+ 929 0030 10                      		beq	.L71
+ 454:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 930                             		.loc 2 454 16
+ 931 0031 FB 5A 56 FF             		mov.L	#-170, r5
+ 932 0035 38 5C 01                		bra	.L69
+ 933                             	.L71:
+ 455:../src/wolfcrypt/src/curve25519.c **** 
+ 456:../src/wolfcrypt/src/curve25519.c **** 
+ 457:../src/wolfcrypt/src/curve25519.c ****     if (endian == EC25519_LITTLE_ENDIAN) {
+ 934                             		.loc 2 457 8
+ 935 0038 ED A5 03                		mov.L	12[r10], r5
+ 936 003b 61 05                   		cmp	#0, r5
+ 937 003d 3B AC 00                		bne	.L72
+ 458:../src/wolfcrypt/src/curve25519.c ****         /* Check for value of zero or one */
+ 459:../src/wolfcrypt/src/curve25519.c ****         for (i = CURVE25519_KEYSIZE - 1; i > 0; i--) {
+ 938                             		.loc 2 459 16
+ 939 0040 F8 A6 1F                		mov.L	#31, [r10]
+ 940                             		.loc 2 459 9
+ 941 0043 2E 16                   		bra	.L73
+ 942                             	.L76:
+ 460:../src/wolfcrypt/src/curve25519.c ****             if (pub[i] != 0)
+ 943                             		.loc 2 460 20
+ 944 0045 ED A5 01                		mov.L	4[r10], r5
+ 945 0048 06 88 A5                		add	[r10].L, r5
+ 946 004b CC 55                   		mov.B	[r5], r5
+ 947                             		.loc 2 460 16
+ 948 004d 5B 55                   		movu.B	r5, r5
+ 949 004f 61 05                   		cmp	#0, r5
+ 950 0051 21 10                   		bne	.L96
+ 459:../src/wolfcrypt/src/curve25519.c ****             if (pub[i] != 0)
+ 951                             		.loc 2 459 50 discriminator 2
+ 952 0053 EC A5                   		mov.L	[r10], r5
+ 953 0055 60 15                   		sub	#1, r5
+ 954 0057 E3 A5                   		mov.L	r5, [r10]
+ 955                             	.L73:
+ 459:../src/wolfcrypt/src/curve25519.c ****             if (pub[i] != 0)
+ 956                             		.loc 2 459 9 discriminator 1
+ 957 0059 EC A5                   		mov.L	[r10], r5
+ 958 005b 61 05                   		cmp	#0, r5
+ 959 005d 21 E8                   		bne	.L76
+ 960 005f 2E 03                   		bra	.L75
+ 961                             	.L96:
+ 461:../src/wolfcrypt/src/curve25519.c ****                 break;
+ 962                             		.loc 2 461 17
+ 963 0061 03                      		nop
+ 964                             	.L75:
+ 462:../src/wolfcrypt/src/curve25519.c ****         }
+ 463:../src/wolfcrypt/src/curve25519.c ****         if (i == 0 && (pub[0] == 0 || pub[0] == 1))
+ 965                             		.loc 2 463 12
+ 966 0062 EC A5                   		mov.L	[r10], r5
+ 967 0064 61 05                   		cmp	#0, r5
+ 968 0066 21 1E                   		bne	.L77
+ 969                             		.loc 2 463 27 discriminator 1
+ 970 0068 ED A5 01                		mov.L	4[r10], r5
+ 971 006b CC 55                   		mov.B	[r5], r5
+ 972                             		.loc 2 463 20 discriminator 1
+ 973 006d 5B 55                   		movu.B	r5, r5
+ 974 006f 61 05                   		cmp	#0, r5
+ 975 0071 20 0C                   		beq	.L78
+ 976                             		.loc 2 463 42 discriminator 2
+ 977 0073 ED A5 01                		mov.L	4[r10], r5
+ 978 0076 CC 55                   		mov.B	[r5], r5
+ 979                             		.loc 2 463 36 discriminator 2
+ 980 0078 5B 55                   		movu.B	r5, r5
+ 981 007a 61 15                   		cmp	#1, r5
+ 982 007c 18                      		bne	.L77
+ 983                             	.L78:
+ 464:../src/wolfcrypt/src/curve25519.c ****             return ECC_BAD_ARG_E;
+ 984                             		.loc 2 464 20
+ 985 007d FB 5A 56 FF             		mov.L	#-170, r5
+ 986 0081 38 10 01                		bra	.L69
+ 987                             	.L77:
+ 465:../src/wolfcrypt/src/curve25519.c **** 
+ 466:../src/wolfcrypt/src/curve25519.c ****         /* Check high bit set */
+ 467:../src/wolfcrypt/src/curve25519.c ****         if (pub[CURVE25519_KEYSIZE - 1] & 0x80)
+ 988                             		.loc 2 467 16
+ 989 0084 ED A5 01                		mov.L	4[r10], r5
+ 990 0087 71 55 1F                		add	#31, r5
+ 991 008a CC 55                   		mov.B	[r5], r5
+ 992                             		.loc 2 467 12
+ 993 008c CF 55                   		mov.B	r5, r5
+ 994 008e 61 05                   		cmp	#0, r5
+ 995 0090 28 09                   		bge	.L79
+ 468:../src/wolfcrypt/src/curve25519.c ****             return ECC_OUT_OF_RANGE_E;
+ 996                             		.loc 2 468 20
+ 997 0092 FB 5A 27 FF             		mov.L	#-217, r5
+ 998 0096 38 FB 00                		bra	.L69
+ 999                             	.L79:
+ 469:../src/wolfcrypt/src/curve25519.c **** 
+ 470:../src/wolfcrypt/src/curve25519.c ****         /* Check for order-1 or higher. */
+ 471:../src/wolfcrypt/src/curve25519.c ****         if (pub[CURVE25519_KEYSIZE - 1] == 0x7f) {
+ 1000                             		.loc 2 471 16
+ 1001 0099 ED A5 01                		mov.L	4[r10], r5
+ 1002 009c 71 55 1F                		add	#31, r5
+ 1003 009f CC 55                   		mov.B	[r5], r5
+ 1004                             		.loc 2 471 12
+ 1005 00a1 5B 55                   		movu.B	r5, r5
+ 1006 00a3 75 55 7F                		cmp	#0x7f, r5
+ 1007 00a6 3B E9 00                		bne	.L80
+ 472:../src/wolfcrypt/src/curve25519.c ****             for (i = CURVE25519_KEYSIZE - 2; i > 0; i--) {
+ 1008                             		.loc 2 472 20
+ 1009 00a9 F8 A6 1E                		mov.L	#30, [r10]
+ 1010                             		.loc 2 472 13
+ 1011 00ac 2E 17                   		bra	.L81
+ 1012                             	.L84:
+ 473:../src/wolfcrypt/src/curve25519.c ****                 if (pub[i] != 0xff)
+ 1013                             		.loc 2 473 24
+ 1014 00ae ED A5 01                		mov.L	4[r10], r5
+ 1015 00b1 06 88 A5                		add	[r10].L, r5
+ 1016 00b4 CC 55                   		mov.B	[r5], r5
+ 1017                             		.loc 2 473 20
+ 1018 00b6 5B 55                   		movu.B	r5, r5
+ 1019 00b8 75 55 FF                		cmp	#0xff, r5
+ 1020 00bb 21 10                   		bne	.L97
+ 472:../src/wolfcrypt/src/curve25519.c ****             for (i = CURVE25519_KEYSIZE - 2; i > 0; i--) {
+ 1021                             		.loc 2 472 54 discriminator 2
+ 1022 00bd EC A5                   		mov.L	[r10], r5
+ 1023 00bf 60 15                   		sub	#1, r5
+ 1024 00c1 E3 A5                   		mov.L	r5, [r10]
+ 1025                             	.L81:
+ 472:../src/wolfcrypt/src/curve25519.c ****             for (i = CURVE25519_KEYSIZE - 2; i > 0; i--) {
+ 1026                             		.loc 2 472 13 discriminator 1
+ 1027 00c3 EC A5                   		mov.L	[r10], r5
+ 1028 00c5 61 05                   		cmp	#0, r5
+ 1029 00c7 21 E7                   		bne	.L84
+ 1030 00c9 2E 03                   		bra	.L83
+ 1031                             	.L97:
+ 474:../src/wolfcrypt/src/curve25519.c ****                     break;
+ 1032                             		.loc 2 474 21
+ 1033 00cb 03                      		nop
+ 1034                             	.L83:
+ 475:../src/wolfcrypt/src/curve25519.c ****             }
+ 476:../src/wolfcrypt/src/curve25519.c ****             if (i == 0 && (pub[0] >= 0xec))
+ 1035                             		.loc 2 476 16
+ 1036 00cc EC A5                   		mov.L	[r10], r5
+ 1037 00ce 61 05                   		cmp	#0, r5
+ 1038 00d0 3B BF 00                		bne	.L80
+ 1039                             		.loc 2 476 31 discriminator 1
+ 1040 00d3 ED A5 01                		mov.L	4[r10], r5
+ 1041 00d6 CC 55                   		mov.B	[r5], r5
+ 1042                             		.loc 2 476 24 discriminator 1
+ 1043 00d8 5B 55                   		movu.B	r5, r5
+ 1044 00da 75 55 EB                		cmp	#0xeb, r5
+ 1045 00dd 24 05 38 B0 00          		bleu	.L80
+ 477:../src/wolfcrypt/src/curve25519.c ****                 return ECC_BAD_ARG_E;
+ 1046                             		.loc 2 477 24
+ 1047 00e2 FB 5A 56 FF             		mov.L	#-170, r5
+ 1048 00e6 38 AB 00                		bra	.L69
+ 1049                             	.L72:
+ 478:../src/wolfcrypt/src/curve25519.c ****          }
+ 479:../src/wolfcrypt/src/curve25519.c ****     }
+ 480:../src/wolfcrypt/src/curve25519.c ****     else {
+ 481:../src/wolfcrypt/src/curve25519.c ****         /* Check for value of zero or one */
+ 482:../src/wolfcrypt/src/curve25519.c ****         for (i = 0; i < CURVE25519_KEYSIZE - 1; i++) {
+ 1050                             		.loc 2 482 16
+ 1051 00e9 F8 A6 00                		mov.L	#0, [r10]
+ 1052                             		.loc 2 482 9
+ 1053 00ec 2E 16                   		bra	.L85
+ 1054                             	.L88:
+ 483:../src/wolfcrypt/src/curve25519.c ****             if (pub[i] != 0)
+ 1055                             		.loc 2 483 20
+ 1056 00ee ED A5 01                		mov.L	4[r10], r5
+ 1057 00f1 06 88 A5                		add	[r10].L, r5
+ 1058 00f4 CC 55                   		mov.B	[r5], r5
+ 1059                             		.loc 2 483 16
+ 1060 00f6 5B 55                   		movu.B	r5, r5
+ 1061 00f8 61 05                   		cmp	#0, r5
+ 1062 00fa 21 11                   		bne	.L98
+ 482:../src/wolfcrypt/src/curve25519.c ****             if (pub[i] != 0)
+ 1063                             		.loc 2 482 50 discriminator 2
+ 1064 00fc EC A5                   		mov.L	[r10], r5
+ 1065 00fe 62 15                   		add	#1, r5
+ 1066 0100 E3 A5                   		mov.L	r5, [r10]
+ 1067                             	.L85:
+ 482:../src/wolfcrypt/src/curve25519.c ****             if (pub[i] != 0)
+ 1068                             		.loc 2 482 9 discriminator 1
+ 1069 0102 EC A5                   		mov.L	[r10], r5
+ 1070 0104 75 55 1E                		cmp	#30, r5
+ 1071 0107 25 E7                   		bleu	.L88
+ 1072 0109 2E 03                   		bra	.L87
+ 1073                             	.L98:
+ 484:../src/wolfcrypt/src/curve25519.c ****                 break;
+ 1074                             		.loc 2 484 17
+ 1075 010b 03                      		nop
+ 1076                             	.L87:
+ 485:../src/wolfcrypt/src/curve25519.c ****         }
+ 486:../src/wolfcrypt/src/curve25519.c ****         if (i == CURVE25519_KEYSIZE - 1 && (pub[i] == 0 || pub[i] == 1))
+ 1077                             		.loc 2 486 12
+ 1078 010c EC A5                   		mov.L	[r10], r5
+ 1079 010e 75 55 1F                		cmp	#31, r5
+ 1080 0111 21 23                   		bne	.L89
+ 1081                             		.loc 2 486 48 discriminator 1
+ 1082 0113 ED A5 01                		mov.L	4[r10], r5
+ 1083 0116 06 88 A5                		add	[r10].L, r5
+ 1084 0119 CC 55                   		mov.B	[r5], r5
+ 1085                             		.loc 2 486 41 discriminator 1
+ 1086 011b 5B 55                   		movu.B	r5, r5
+ 1087 011d 61 05                   		cmp	#0, r5
+ 1088 011f 20 0F                   		beq	.L90
+ 1089                             		.loc 2 486 63 discriminator 2
+ 1090 0121 ED A5 01                		mov.L	4[r10], r5
+ 1091 0124 06 88 A5                		add	[r10].L, r5
+ 1092 0127 CC 55                   		mov.B	[r5], r5
+ 1093                             		.loc 2 486 57 discriminator 2
+ 1094 0129 5B 55                   		movu.B	r5, r5
+ 1095 012b 61 15                   		cmp	#1, r5
+ 1096 012d 1F                      		bne	.L89
+ 1097                             	.L90:
+ 487:../src/wolfcrypt/src/curve25519.c ****             return ECC_BAD_ARG_E;
+ 1098                             		.loc 2 487 20
+ 1099 012e FB 5A 56 FF             		mov.L	#-170, r5
+ 1100 0132 2E 5F                   		bra	.L69
+ 1101                             	.L89:
+ 488:../src/wolfcrypt/src/curve25519.c **** 
+ 489:../src/wolfcrypt/src/curve25519.c ****         /* Check high bit set */
+ 490:../src/wolfcrypt/src/curve25519.c ****         if (pub[0] & 0x80)
+ 1102                             		.loc 2 490 16
+ 1103 0134 ED A5 01                		mov.L	4[r10], r5
+ 1104 0137 CC 55                   		mov.B	[r5], r5
+ 1105                             		.loc 2 490 12
+ 1106 0139 CF 55                   		mov.B	r5, r5
+ 1107 013b 61 05                   		cmp	#0, r5
+ 1108 013d 28 08                   		bge	.L91
+ 491:../src/wolfcrypt/src/curve25519.c ****             return ECC_OUT_OF_RANGE_E;
+ 1109                             		.loc 2 491 20
+ 1110 013f FB 5A 27 FF             		mov.L	#-217, r5
+ 1111 0143 2E 4E                   		bra	.L69
+ 1112                             	.L91:
+ 492:../src/wolfcrypt/src/curve25519.c **** 
+ 493:../src/wolfcrypt/src/curve25519.c ****         /* Check for order-1 or higher. */
+ 494:../src/wolfcrypt/src/curve25519.c ****         if (pub[0] == 0x7f) {
+ 1113                             		.loc 2 494 16
+ 1114 0145 ED A5 01                		mov.L	4[r10], r5
+ 1115 0148 CC 55                   		mov.B	[r5], r5
+ 1116                             		.loc 2 494 12
+ 1117 014a 5B 55                   		movu.B	r5, r5
+ 1118 014c 75 55 7F                		cmp	#0x7f, r5
+ 1119 014f 21 40                   		bne	.L80
+ 495:../src/wolfcrypt/src/curve25519.c ****             for (i = 1; i < CURVE25519_KEYSIZE - 1; i++) {
+ 1120                             		.loc 2 495 20
+ 1121 0151 F8 A6 01                		mov.L	#1, [r10]
+ 1122                             		.loc 2 495 13
+ 1123 0154 2E 16                   		bra	.L92
+ 1124                             	.L95:
+ 496:../src/wolfcrypt/src/curve25519.c ****                 if (pub[i] != 0)
+ 1125                             		.loc 2 496 24
+ 1126 0156 ED A5 01                		mov.L	4[r10], r5
+ 1127 0159 06 88 A5                		add	[r10].L, r5
+ 1128 015c CC 55                   		mov.B	[r5], r5
+ 1129                             		.loc 2 496 20
+ 1130 015e 5B 55                   		movu.B	r5, r5
+ 1131 0160 61 05                   		cmp	#0, r5
+ 1132 0162 21 11                   		bne	.L99
+ 495:../src/wolfcrypt/src/curve25519.c ****             for (i = 1; i < CURVE25519_KEYSIZE - 1; i++) {
+ 1133                             		.loc 2 495 54 discriminator 2
+ 1134 0164 EC A5                   		mov.L	[r10], r5
+ 1135 0166 62 15                   		add	#1, r5
+ 1136 0168 E3 A5                   		mov.L	r5, [r10]
+ 1137                             	.L92:
+ 495:../src/wolfcrypt/src/curve25519.c ****             for (i = 1; i < CURVE25519_KEYSIZE - 1; i++) {
+ 1138                             		.loc 2 495 13 discriminator 1
+ 1139 016a EC A5                   		mov.L	[r10], r5
+ 1140 016c 75 55 1E                		cmp	#30, r5
+ 1141 016f 25 E7                   		bleu	.L95
+ 1142 0171 2E 03                   		bra	.L94
+ 1143                             	.L99:
+ 497:../src/wolfcrypt/src/curve25519.c ****                     break;
+ 1144                             		.loc 2 497 21
+ 1145 0173 03                      		nop
+ 1146                             	.L94:
+ 498:../src/wolfcrypt/src/curve25519.c ****             }
+ 499:../src/wolfcrypt/src/curve25519.c ****             if (i == CURVE25519_KEYSIZE - 1 && (pub[i] >= 0xec))
+ 1147                             		.loc 2 499 16
+ 1148 0174 EC A5                   		mov.L	[r10], r5
+ 1149 0176 75 55 1F                		cmp	#31, r5
+ 1150 0179 21 16                   		bne	.L80
+ 1151                             		.loc 2 499 52 discriminator 1
+ 1152 017b ED A5 01                		mov.L	4[r10], r5
+ 1153 017e 06 88 A5                		add	[r10].L, r5
+ 1154 0181 CC 55                   		mov.B	[r5], r5
+ 1155                             		.loc 2 499 45 discriminator 1
+ 1156 0183 5B 55                   		movu.B	r5, r5
+ 1157 0185 75 55 EB                		cmp	#0xeb, r5
+ 1158 0188 25 07                   		bleu	.L80
+ 500:../src/wolfcrypt/src/curve25519.c ****                 return ECC_BAD_ARG_E;
+ 1159                             		.loc 2 500 24
+ 1160 018a FB 5A 56 FF             		mov.L	#-170, r5
+ 1161 018e 0B                      		bra	.L69
+ 1162                             	.L80:
+ 501:../src/wolfcrypt/src/curve25519.c ****          }
+ 502:../src/wolfcrypt/src/curve25519.c ****     }
+ 503:../src/wolfcrypt/src/curve25519.c **** 
+ 504:../src/wolfcrypt/src/curve25519.c ****     return 0;
+ 1163                             		.loc 2 504 12
+ 1164 018f 66 05                   		mov.L	#0, r5
+ 1165                             		.balign 8,3,1
+ 1166                             	.L69:
+ 505:../src/wolfcrypt/src/curve25519.c **** }
+ 1167                             		.loc 2 505 1
+ 1168 0191 EF 51                   		mov.L	r5, r1
+ 1169 0193 3F AA 05                		rtsd	#20, r10-r10
+ 1170                             	.LFE56:
+ 1172 0196 EF 00                   		.section	.text.wc_curve25519_export_private_raw,"ax",@progbits
+ 1173                             		.global	_wc_curve25519_export_private_raw
+ 1175                             	_wc_curve25519_export_private_raw:
+ 1176                             	.LFB57:
+ 506:../src/wolfcrypt/src/curve25519.c **** 
+ 507:../src/wolfcrypt/src/curve25519.c **** #endif /* HAVE_CURVE25519_KEY_IMPORT */
+ 508:../src/wolfcrypt/src/curve25519.c **** 
+ 509:../src/wolfcrypt/src/curve25519.c **** 
+ 510:../src/wolfcrypt/src/curve25519.c **** #ifdef HAVE_CURVE25519_KEY_EXPORT
+ 511:../src/wolfcrypt/src/curve25519.c **** 
+ 512:../src/wolfcrypt/src/curve25519.c **** /* export curve25519 private key only raw (Big endian)
+ 513:../src/wolfcrypt/src/curve25519.c ****  * outLen is in/out size
+ 514:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 515:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_export_private_raw(curve25519_key* key, byte* out,
+ 516:../src/wolfcrypt/src/curve25519.c ****                                      word32* outLen)
+ 517:../src/wolfcrypt/src/curve25519.c **** {
+ 1177                             		.loc 2 517 1
+ 1178 0000 7E AA                   		push.l	r10
+ 1179                             	.LCFI33:
+ 1180 0002 71 0A F4                		add	#-12, r0, r10
+ 1181                             	.LCFI34:
+ 1182 0005 EF A0                   		mov.L	r10, r0
+ 1183 0007 E3 A1                   		mov.L	r1, [r10]
+ 1184 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 1185 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 518:../src/wolfcrypt/src/curve25519.c ****     return wc_curve25519_export_private_raw_ex(key, out, outLen,
+ 1186                             		.loc 2 518 12
+ 1187 000f 66 14                   		mov.L	#1, r4
+ 1188 0011 ED A3 02                		mov.L	8[r10], r3
+ 1189 0014 ED A2 01                		mov.L	4[r10], r2
+ 1190 0017 EC A1                   		mov.L	[r10], r1
+ 1191 0019 05 00 00 00             		bsr	_wc_curve25519_export_private_raw_ex
+ 1192 001d EF 15                   		mov.L	r1, r5
+ 519:../src/wolfcrypt/src/curve25519.c ****                                                EC25519_BIG_ENDIAN);
+ 520:../src/wolfcrypt/src/curve25519.c **** }
+ 1193                             		.loc 2 520 1
+ 1194 001f EF 51                   		mov.L	r5, r1
+ 1195 0021 3F AA 04                		rtsd	#16, r10-r10
+ 1196                             	.LFE57:
+ 1198                             		.section	.text.wc_curve25519_export_private_raw_ex,"ax",@progbits
+ 1199                             		.global	_wc_curve25519_export_private_raw_ex
+ 1201                             	_wc_curve25519_export_private_raw_ex:
+ 1202                             	.LFB58:
+ 521:../src/wolfcrypt/src/curve25519.c **** 
+ 522:../src/wolfcrypt/src/curve25519.c **** /* export curve25519 private key only raw (Big or Little endian)
+ 523:../src/wolfcrypt/src/curve25519.c ****  * outLen is in/out size
+ 524:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 525:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_export_private_raw_ex(curve25519_key* key, byte* out,
+ 526:../src/wolfcrypt/src/curve25519.c ****                                         word32* outLen, int endian)
+ 527:../src/wolfcrypt/src/curve25519.c **** {
+ 1203                             		.loc 2 527 1
+ 1204 0000 7E AA                   		push.l	r10
+ 1205                             	.LCFI35:
+ 1206 0002 71 0A F0                		add	#-16, r0, r10
+ 1207                             	.LCFI36:
+ 1208 0005 EF A0                   		mov.L	r10, r0
+ 1209 0007 E3 A1                   		mov.L	r1, [r10]
+ 1210 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 1211 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 1212 000f E7 A4 03                		mov.L	r4, 12[r10]
+ 528:../src/wolfcrypt/src/curve25519.c ****     /* sanity check */
+ 529:../src/wolfcrypt/src/curve25519.c ****     if (key == NULL || out == NULL || outLen == NULL)
+ 1213                             		.loc 2 529 8
+ 1214 0012 EC A5                   		mov.L	[r10], r5
+ 1215 0014 61 05                   		cmp	#0, r5
+ 1216 0016 20 0E                   		beq	.L103
+ 1217                             		.loc 2 529 21 discriminator 1
+ 1218 0018 ED A5 01                		mov.L	4[r10], r5
+ 1219 001b 61 05                   		cmp	#0, r5
+ 1220 001d 17                      		beq	.L103
+ 1221                             		.loc 2 529 36 discriminator 2
+ 1222 001e ED A5 02                		mov.L	8[r10], r5
+ 1223 0021 61 05                   		cmp	#0, r5
+ 1224 0023 1F                      		bne	.L104
+ 1225                             	.L103:
+ 530:../src/wolfcrypt/src/curve25519.c ****         return BAD_FUNC_ARG;
+ 1226                             		.loc 2 530 16
+ 1227 0024 FB 5A 53 FF             		mov.L	#-173, r5
+ 1228 0028 2E 31                   		bra	.L105
+ 1229                             	.L104:
+ 531:../src/wolfcrypt/src/curve25519.c **** 
+ 532:../src/wolfcrypt/src/curve25519.c ****     /* check size of outgoing buffer */
+ 533:../src/wolfcrypt/src/curve25519.c ****     if (*outLen < CURVE25519_KEYSIZE) {
+ 1230                             		.loc 2 533 9
+ 1231 002a ED A5 02                		mov.L	8[r10], r5
+ 1232 002d EC 55                   		mov.L	[r5], r5
+ 1233                             		.loc 2 533 8
+ 1234 002f 75 55 1F                		cmp	#31, r5
+ 1235 0032 24 0E                   		bgtu	.L106
+ 534:../src/wolfcrypt/src/curve25519.c ****         *outLen = CURVE25519_KEYSIZE;
+ 1236                             		.loc 2 534 17
+ 1237 0034 ED A5 02                		mov.L	8[r10], r5
+ 1238 0037 F8 56 20                		mov.L	#32, [r5]
+ 535:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 1239                             		.loc 2 535 16
+ 1240 003a FB 5A 56 FF             		mov.L	#-170, r5
+ 1241 003e 2E 1B                   		bra	.L105
+ 1242                             	.L106:
+ 536:../src/wolfcrypt/src/curve25519.c ****     }
+ 537:../src/wolfcrypt/src/curve25519.c **** 
+ 538:../src/wolfcrypt/src/curve25519.c ****     /* export private scalar with endianess */
+ 539:../src/wolfcrypt/src/curve25519.c ****     curve25519_copy_point(out, key->k, endian);
+ 1243                             		.loc 2 539 35
+ 1244 0040 EC A5                   		mov.L	[r10], r5
+ 1245 0042 71 55 29                		add	#41, r5
+ 1246                             		.loc 2 539 5
+ 1247 0045 ED A3 03                		mov.L	12[r10], r3
+ 1248 0048 EF 52                   		mov.L	r5, r2
+ 1249 004a ED A1 01                		mov.L	4[r10], r1
+ 1250 004d 05 00 00 00             		bsr	_curve25519_copy_point
+ 540:../src/wolfcrypt/src/curve25519.c ****     *outLen = CURVE25519_KEYSIZE;
+ 1251                             		.loc 2 540 13
+ 1252 0051 ED A5 02                		mov.L	8[r10], r5
+ 1253 0054 F8 56 20                		mov.L	#32, [r5]
+ 541:../src/wolfcrypt/src/curve25519.c **** 
+ 542:../src/wolfcrypt/src/curve25519.c ****     return 0;
+ 1254                             		.loc 2 542 12
+ 1255 0057 66 05                   		mov.L	#0, r5
+ 1256                             	.L105:
+ 543:../src/wolfcrypt/src/curve25519.c **** }
+ 1257                             		.loc 2 543 1
+ 1258 0059 EF 51                   		mov.L	r5, r1
+ 1259 005b 3F AA 05                		rtsd	#20, r10-r10
+ 1260                             	.LFE58:
+ 1262                             		.section	.text.wc_curve25519_export_key_raw,"ax",@progbits
+ 1263                             		.global	_wc_curve25519_export_key_raw
+ 1265                             	_wc_curve25519_export_key_raw:
+ 1266                             	.LFB59:
+ 544:../src/wolfcrypt/src/curve25519.c **** 
+ 545:../src/wolfcrypt/src/curve25519.c **** /* curve25519 key pair export (Big or Little endian)
+ 546:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 547:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_export_key_raw(curve25519_key* key,
+ 548:../src/wolfcrypt/src/curve25519.c ****                                  byte* priv, word32 *privSz,
+ 549:../src/wolfcrypt/src/curve25519.c ****                                  byte* pub, word32 *pubSz)
+ 550:../src/wolfcrypt/src/curve25519.c **** {
+ 1267                             		.loc 2 550 1
+ 1268 0000 7E AA                   		push.l	r10
+ 1269                             	.LCFI37:
+ 1270 0002 71 0A EC                		add	#-20, r0, r10
+ 1271                             	.LCFI38:
+ 1272 0005 71 A0 F8                		add	#-8, r10, r0
+ 1273                             	.LCFI39:
+ 1274 0008 75 45 1C                		mov.L	#28, r5
+ 1275 000b 4B A5                   		add	r10, r5
+ 1276 000d E3 A1                   		mov.L	r1, [r10]
+ 1277 000f E7 A2 01                		mov.L	r2, 4[r10]
+ 1278 0012 E7 A3 02                		mov.L	r3, 8[r10]
+ 1279 0015 E7 A4 03                		mov.L	r4, 12[r10]
+ 551:../src/wolfcrypt/src/curve25519.c ****     return wc_curve25519_export_key_raw_ex(key, priv, privSz,
+ 1280                             		.loc 2 551 12
+ 1281 0018 3E 01 01                		mov.L	#1, 4[r0]
+ 1282 001b EC 55                   		mov.L	[r5], r5
+ 1283 001d E3 05                   		mov.L	r5, [r0]
+ 1284 001f ED A4 03                		mov.L	12[r10], r4
+ 1285 0022 ED A3 02                		mov.L	8[r10], r3
+ 1286 0025 ED A2 01                		mov.L	4[r10], r2
+ 1287 0028 EC A1                   		mov.L	[r10], r1
+ 1288 002a 05 00 00 00             		bsr	_wc_curve25519_export_key_raw_ex
+ 1289 002e EF 15                   		mov.L	r1, r5
+ 552:../src/wolfcrypt/src/curve25519.c ****                                            pub, pubSz, EC25519_BIG_ENDIAN);
+ 553:../src/wolfcrypt/src/curve25519.c **** }
+ 1290                             		.loc 2 553 1
+ 1291 0030 EF 51                   		mov.L	r5, r1
+ 1292 0032 3F AA 08                		rtsd	#32, r10-r10
+ 1293                             	.LFE59:
+ 1295                             		.section	.text.wc_curve25519_export_key_raw_ex,"ax",@progbits
+ 1296                             		.global	_wc_curve25519_export_key_raw_ex
+ 1298                             	_wc_curve25519_export_key_raw_ex:
+ 1299                             	.LFB60:
+ 554:../src/wolfcrypt/src/curve25519.c **** 
+ 555:../src/wolfcrypt/src/curve25519.c **** /* curve25519 key pair export (Big or Little endian)
+ 556:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 557:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_export_key_raw_ex(curve25519_key* key,
+ 558:../src/wolfcrypt/src/curve25519.c ****                                     byte* priv, word32 *privSz,
+ 559:../src/wolfcrypt/src/curve25519.c ****                                     byte* pub, word32 *pubSz,
+ 560:../src/wolfcrypt/src/curve25519.c ****                                     int endian)
+ 561:../src/wolfcrypt/src/curve25519.c **** {
+ 1300                             		.loc 2 561 1
+ 1301 0000 7E AA                   		push.l	r10
+ 1302                             	.LCFI40:
+ 1303 0002 7E A6                   		push.l	r6
+ 1304                             	.LCFI41:
+ 1305 0004 71 0A E4                		add	#-28, r0, r10
+ 1306                             	.LCFI42:
+ 1307 0007 EF A0                   		mov.L	r10, r0
+ 1308 0009 75 46 28                		mov.L	#40, r6
+ 1309 000c 4B A6                   		add	r10, r6
+ 1310 000e E7 A1 01                		mov.L	r1, 4[r10]
+ 1311 0011 E7 A2 02                		mov.L	r2, 8[r10]
+ 1312 0014 E7 A3 03                		mov.L	r3, 12[r10]
+ 1313 0017 E7 A4 04                		mov.L	r4, 16[r10]
+ 562:../src/wolfcrypt/src/curve25519.c ****     int ret;
+ 563:../src/wolfcrypt/src/curve25519.c **** 
+ 564:../src/wolfcrypt/src/curve25519.c ****     /* export private part */
+ 565:../src/wolfcrypt/src/curve25519.c ****     ret = wc_curve25519_export_private_raw_ex(key, priv, privSz, endian);
+ 1314                             		.loc 2 565 11
+ 1315 001a A8 6C                   		mov.L	4[r6], r4
+ 1316 001c ED A3 03                		mov.L	12[r10], r3
+ 1317 001f ED A2 02                		mov.L	8[r10], r2
+ 1318 0022 ED A1 01                		mov.L	4[r10], r1
+ 1319 0025 05 00 00 00             		bsr	_wc_curve25519_export_private_raw_ex
+ 1320 0029 E3 A1                   		mov.L	r1, [r10]
+ 566:../src/wolfcrypt/src/curve25519.c ****     if (ret != 0)
+ 1321                             		.loc 2 566 8
+ 1322 002b EC A5                   		mov.L	[r10], r5
+ 1323 002d 61 05                   		cmp	#0, r5
+ 1324 002f 15                      		beq	.L110
+ 567:../src/wolfcrypt/src/curve25519.c ****         return ret;
+ 1325                             		.loc 2 567 16
+ 1326 0030 EC A5                   		mov.L	[r10], r5
+ 1327 0032 2E 12                   		bra	.L111
+ 1328                             	.L110:
+ 568:../src/wolfcrypt/src/curve25519.c **** 
+ 569:../src/wolfcrypt/src/curve25519.c ****     /* export public part */
+ 570:../src/wolfcrypt/src/curve25519.c ****     return wc_curve25519_export_public_ex(key, pub, pubSz, endian);
+ 1329                             		.loc 2 570 12
+ 1330 0034 A8 6C                   		mov.L	4[r6], r4
+ 1331 0036 EC 63                   		mov.L	[r6], r3
+ 1332 0038 ED A2 04                		mov.L	16[r10], r2
+ 1333 003b ED A1 01                		mov.L	4[r10], r1
+ 1334 003e 05 00 00 00             		bsr	_wc_curve25519_export_public_ex
+ 1335 0042 EF 15                   		mov.L	r1, r5
+ 1336                             	.L111:
+ 571:../src/wolfcrypt/src/curve25519.c **** }
+ 1337                             		.loc 2 571 1
+ 1338 0044 EF 51                   		mov.L	r5, r1
+ 1339 0046 71 00 1C                		add	#28, r0
+ 1340 0049 7E B6                   		pop	r6
+ 1341 004b 7E BA                   		pop	r10
+ 1342 004d 02                      		rts
+ 1343                             	.LFE60:
+ 1345                             		.section	.text.wc_curve25519_import_private_raw,"ax",@progbits
+ 1346                             		.global	_wc_curve25519_import_private_raw
+ 1348                             	_wc_curve25519_import_private_raw:
+ 1349                             	.LFB61:
+ 572:../src/wolfcrypt/src/curve25519.c **** 
+ 573:../src/wolfcrypt/src/curve25519.c **** #endif /* HAVE_CURVE25519_KEY_EXPORT */
+ 574:../src/wolfcrypt/src/curve25519.c **** 
+ 575:../src/wolfcrypt/src/curve25519.c **** #ifdef HAVE_CURVE25519_KEY_IMPORT
+ 576:../src/wolfcrypt/src/curve25519.c **** 
+ 577:../src/wolfcrypt/src/curve25519.c **** /* curve25519 private key import (Big endian)
+ 578:../src/wolfcrypt/src/curve25519.c ****  * Public key to match private key needs to be imported too
+ 579:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 580:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_import_private_raw(const byte* priv, word32 privSz,
+ 581:../src/wolfcrypt/src/curve25519.c ****                                      const byte* pub, word32 pubSz,
+ 582:../src/wolfcrypt/src/curve25519.c ****                                      curve25519_key* key)
+ 583:../src/wolfcrypt/src/curve25519.c **** {
+ 1350                             		.loc 2 583 1
+ 1351 0000 7E AA                   		push.l	r10
+ 1352                             	.LCFI43:
+ 1353 0002 71 0A EC                		add	#-20, r0, r10
+ 1354                             	.LCFI44:
+ 1355 0005 71 A0 F8                		add	#-8, r10, r0
+ 1356                             	.LCFI45:
+ 1357 0008 75 45 1C                		mov.L	#28, r5
+ 1358 000b 4B A5                   		add	r10, r5
+ 1359 000d E3 A1                   		mov.L	r1, [r10]
+ 1360 000f E7 A2 01                		mov.L	r2, 4[r10]
+ 1361 0012 E7 A3 02                		mov.L	r3, 8[r10]
+ 1362 0015 E7 A4 03                		mov.L	r4, 12[r10]
+ 584:../src/wolfcrypt/src/curve25519.c ****     return wc_curve25519_import_private_raw_ex(priv, privSz, pub, pubSz,
+ 1363                             		.loc 2 584 12
+ 1364 0018 3E 01 01                		mov.L	#1, 4[r0]
+ 1365 001b EC 55                   		mov.L	[r5], r5
+ 1366 001d E3 05                   		mov.L	r5, [r0]
+ 1367 001f ED A4 03                		mov.L	12[r10], r4
+ 1368 0022 ED A3 02                		mov.L	8[r10], r3
+ 1369 0025 ED A2 01                		mov.L	4[r10], r2
+ 1370 0028 EC A1                   		mov.L	[r10], r1
+ 1371 002a 05 00 00 00             		bsr	_wc_curve25519_import_private_raw_ex
+ 1372 002e EF 15                   		mov.L	r1, r5
+ 585:../src/wolfcrypt/src/curve25519.c ****                                                key, EC25519_BIG_ENDIAN);
+ 586:../src/wolfcrypt/src/curve25519.c **** }
+ 1373                             		.loc 2 586 1
+ 1374 0030 EF 51                   		mov.L	r5, r1
+ 1375 0032 3F AA 08                		rtsd	#32, r10-r10
+ 1376                             	.LFE61:
+ 1378                             		.section	.text.wc_curve25519_import_private_raw_ex,"ax",@progbits
+ 1379                             		.global	_wc_curve25519_import_private_raw_ex
+ 1381                             	_wc_curve25519_import_private_raw_ex:
+ 1382                             	.LFB62:
+ 587:../src/wolfcrypt/src/curve25519.c **** 
+ 588:../src/wolfcrypt/src/curve25519.c **** /* curve25519 private key import (Big or Little endian)
+ 589:../src/wolfcrypt/src/curve25519.c ****  * Public key to match private key needs to be imported too
+ 590:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 591:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_import_private_raw_ex(const byte* priv, word32 privSz,
+ 592:../src/wolfcrypt/src/curve25519.c ****                                         const byte* pub, word32 pubSz,
+ 593:../src/wolfcrypt/src/curve25519.c ****                                         curve25519_key* key, int endian)
+ 594:../src/wolfcrypt/src/curve25519.c **** {
+ 1383                             		.loc 2 594 1
+ 1384 0000 7E AA                   		push.l	r10
+ 1385                             	.LCFI46:
+ 1386 0002 7E A6                   		push.l	r6
+ 1387                             	.LCFI47:
+ 1388 0004 71 0A E4                		add	#-28, r0, r10
+ 1389                             	.LCFI48:
+ 1390 0007 EF A0                   		mov.L	r10, r0
+ 1391 0009 75 46 28                		mov.L	#40, r6
+ 1392 000c 4B A6                   		add	r10, r6
+ 1393 000e E7 A1 01                		mov.L	r1, 4[r10]
+ 1394 0011 E7 A2 02                		mov.L	r2, 8[r10]
+ 1395 0014 E7 A3 03                		mov.L	r3, 12[r10]
+ 1396 0017 E7 A4 04                		mov.L	r4, 16[r10]
+ 595:../src/wolfcrypt/src/curve25519.c ****     int ret;
+ 596:../src/wolfcrypt/src/curve25519.c **** 
+ 597:../src/wolfcrypt/src/curve25519.c ****     /* import private part */
+ 598:../src/wolfcrypt/src/curve25519.c ****     ret = wc_curve25519_import_private_ex(priv, privSz, key, endian);
+ 1397                             		.loc 2 598 11
+ 1398 001a A8 6C                   		mov.L	4[r6], r4
+ 1399 001c EC 63                   		mov.L	[r6], r3
+ 1400 001e ED A2 02                		mov.L	8[r10], r2
+ 1401 0021 ED A1 01                		mov.L	4[r10], r1
+ 1402 0024 05 00 00 00             		bsr	_wc_curve25519_import_private_ex
+ 1403 0028 E3 A1                   		mov.L	r1, [r10]
+ 599:../src/wolfcrypt/src/curve25519.c ****     if (ret != 0)
+ 1404                             		.loc 2 599 8
+ 1405 002a EC A5                   		mov.L	[r10], r5
+ 1406 002c 61 05                   		cmp	#0, r5
+ 1407 002e 15                      		beq	.L115
+ 600:../src/wolfcrypt/src/curve25519.c ****         return ret;
+ 1408                             		.loc 2 600 16
+ 1409 002f EC A5                   		mov.L	[r10], r5
+ 1410 0031 2E 12                   		bra	.L116
+ 1411                             	.L115:
+ 601:../src/wolfcrypt/src/curve25519.c **** 
+ 602:../src/wolfcrypt/src/curve25519.c ****     /* import public part */
+ 603:../src/wolfcrypt/src/curve25519.c ****     return wc_curve25519_import_public_ex(pub, pubSz, key, endian);
+ 1412                             		.loc 2 603 12
+ 1413 0033 A8 6C                   		mov.L	4[r6], r4
+ 1414 0035 EC 63                   		mov.L	[r6], r3
+ 1415 0037 ED A2 04                		mov.L	16[r10], r2
+ 1416 003a ED A1 03                		mov.L	12[r10], r1
+ 1417 003d 05 00 00 00             		bsr	_wc_curve25519_import_public_ex
+ 1418 0041 EF 15                   		mov.L	r1, r5
+ 1419                             	.L116:
+ 604:../src/wolfcrypt/src/curve25519.c **** }
+ 1420                             		.loc 2 604 1
+ 1421 0043 EF 51                   		mov.L	r5, r1
+ 1422 0045 71 00 1C                		add	#28, r0
+ 1423 0048 7E B6                   		pop	r6
+ 1424 004a 7E BA                   		pop	r10
+ 1425 004c 02                      		rts
+ 1426                             	.LFE62:
+ 1428                             		.section	.text.wc_curve25519_import_private,"ax",@progbits
+ 1429                             		.global	_wc_curve25519_import_private
+ 1431                             	_wc_curve25519_import_private:
+ 1432                             	.LFB63:
+ 605:../src/wolfcrypt/src/curve25519.c **** 
+ 606:../src/wolfcrypt/src/curve25519.c **** /* curve25519 private key import only. (Big endian)
+ 607:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 608:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_import_private(const byte* priv, word32 privSz,
+ 609:../src/wolfcrypt/src/curve25519.c ****                                  curve25519_key* key)
+ 610:../src/wolfcrypt/src/curve25519.c **** {
+ 1433                             		.loc 2 610 1
+ 1434 0000 7E AA                   		push.l	r10
+ 1435                             	.LCFI49:
+ 1436 0002 71 0A F4                		add	#-12, r0, r10
+ 1437                             	.LCFI50:
+ 1438 0005 EF A0                   		mov.L	r10, r0
+ 1439 0007 E3 A1                   		mov.L	r1, [r10]
+ 1440 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 1441 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 611:../src/wolfcrypt/src/curve25519.c ****     return wc_curve25519_import_private_ex(priv, privSz,
+ 1442                             		.loc 2 611 12
+ 1443 000f 66 14                   		mov.L	#1, r4
+ 1444 0011 ED A3 02                		mov.L	8[r10], r3
+ 1445 0014 ED A2 01                		mov.L	4[r10], r2
+ 1446 0017 EC A1                   		mov.L	[r10], r1
+ 1447 0019 05 00 00 00             		bsr	_wc_curve25519_import_private_ex
+ 1448 001d EF 15                   		mov.L	r1, r5
+ 612:../src/wolfcrypt/src/curve25519.c ****                                            key, EC25519_BIG_ENDIAN);
+ 613:../src/wolfcrypt/src/curve25519.c **** }
+ 1449                             		.loc 2 613 1
+ 1450 001f EF 51                   		mov.L	r5, r1
+ 1451 0021 3F AA 04                		rtsd	#16, r10-r10
+ 1452                             	.LFE63:
+ 1454                             		.section	.text.wc_curve25519_import_private_ex,"ax",@progbits
+ 1455                             		.global	_wc_curve25519_import_private_ex
+ 1457                             	_wc_curve25519_import_private_ex:
+ 1458                             	.LFB64:
+ 614:../src/wolfcrypt/src/curve25519.c **** 
+ 615:../src/wolfcrypt/src/curve25519.c **** /* curve25519 private key import only. (Big or Little endian)
+ 616:../src/wolfcrypt/src/curve25519.c ****  * return 0 on success */
+ 617:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_import_private_ex(const byte* priv, word32 privSz,
+ 618:../src/wolfcrypt/src/curve25519.c ****                                     curve25519_key* key, int endian)
+ 619:../src/wolfcrypt/src/curve25519.c **** {
+ 1459                             		.loc 2 619 1
+ 1460 0000 7E AA                   		push.l	r10
+ 1461                             	.LCFI51:
+ 1462 0002 71 0A F0                		add	#-16, r0, r10
+ 1463                             	.LCFI52:
+ 1464 0005 EF A0                   		mov.L	r10, r0
+ 1465 0007 E3 A1                   		mov.L	r1, [r10]
+ 1466 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 1467 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 1468 000f E7 A4 03                		mov.L	r4, 12[r10]
+ 620:../src/wolfcrypt/src/curve25519.c ****     /* sanity check */
+ 621:../src/wolfcrypt/src/curve25519.c ****     if (key == NULL || priv == NULL) {
+ 1469                             		.loc 2 621 8
+ 1470 0012 ED A5 02                		mov.L	8[r10], r5
+ 1471 0015 61 05                   		cmp	#0, r5
+ 1472 0017 16                      		beq	.L120
+ 1473                             		.loc 2 621 21 discriminator 1
+ 1474 0018 EC A5                   		mov.L	[r10], r5
+ 1475 001a 61 05                   		cmp	#0, r5
+ 1476 001c 1F                      		bne	.L121
+ 1477                             	.L120:
+ 622:../src/wolfcrypt/src/curve25519.c ****         return BAD_FUNC_ARG;
+ 1478                             		.loc 2 622 16
+ 1479 001d FB 5A 53 FF             		mov.L	#-173, r5
+ 1480 0021 2E 43                   		bra	.L122
+ 1481                             	.L121:
+ 623:../src/wolfcrypt/src/curve25519.c ****     }
+ 624:../src/wolfcrypt/src/curve25519.c **** 
+ 625:../src/wolfcrypt/src/curve25519.c ****     /* check size of incoming keys */
+ 626:../src/wolfcrypt/src/curve25519.c ****     if ((int)privSz != CURVE25519_KEYSIZE) {
+ 1482                             		.loc 2 626 8
+ 1483 0023 ED A5 01                		mov.L	4[r10], r5
+ 1484 0026 75 55 20                		cmp	#32, r5
+ 1485 0029 17                      		beq	.L123
+ 627:../src/wolfcrypt/src/curve25519.c ****         return ECC_BAD_ARG_E;
+ 1486                             		.loc 2 627 16
+ 1487 002a FB 5A 56 FF             		mov.L	#-170, r5
+ 1488 002e 2E 36                   		bra	.L122
+ 1489                             	.L123:
+ 628:../src/wolfcrypt/src/curve25519.c ****     }
+ 629:../src/wolfcrypt/src/curve25519.c **** 
+ 630:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLFSSL_SE050
+ 631:../src/wolfcrypt/src/curve25519.c ****     /* release NXP resources if set */
+ 632:../src/wolfcrypt/src/curve25519.c ****     se050_curve25519_free_key(key);
+ 633:../src/wolfcrypt/src/curve25519.c **** #endif
+ 634:../src/wolfcrypt/src/curve25519.c **** 
+ 635:../src/wolfcrypt/src/curve25519.c ****     /* import private scalar with endianess */
+ 636:../src/wolfcrypt/src/curve25519.c ****     curve25519_copy_point(key->k, priv, endian);
+ 1490                             		.loc 2 636 30
+ 1491 0030 ED A5 02                		mov.L	8[r10], r5
+ 1492 0033 71 55 29                		add	#41, r5
+ 1493                             		.loc 2 636 5
+ 1494 0036 ED A3 03                		mov.L	12[r10], r3
+ 1495 0039 EC A2                   		mov.L	[r10], r2
+ 1496 003b EF 51                   		mov.L	r5, r1
+ 1497 003d 05 00 00 00             		bsr	_curve25519_copy_point
+ 637:../src/wolfcrypt/src/curve25519.c ****     key->privSet = 1;
+ 1498                             		.loc 2 637 18
+ 1499 0041 ED A4 02                		mov.L	8[r10], r4
+ 1500 0044 CD 45 49                		mov.B	73[r4], r5
+ 1501 0047 78 15                   		bset	#1, r5
+ 1502 0049 C7 45 49                		mov.B	r5, 73[r4]
+ 638:../src/wolfcrypt/src/curve25519.c **** 
+ 639:../src/wolfcrypt/src/curve25519.c ****     key->dp = &curve25519_sets[0];
+ 1503                             		.loc 2 639 13
+ 1504 004c ED A5 02                		mov.L	8[r10], r5
+ 1505 004f F9 52 01 00 00 00 00    		mov.L	#_curve25519_sets, 4[r5]
+ 640:../src/wolfcrypt/src/curve25519.c **** 
+ 641:../src/wolfcrypt/src/curve25519.c ****     /* Clamp the key */
+ 642:../src/wolfcrypt/src/curve25519.c ****     return curve25519_priv_clamp(key->k);
+ 1506                             		.loc 2 642 37
+ 1507 0056 ED A5 02                		mov.L	8[r10], r5
+ 1508 0059 71 55 29                		add	#41, r5
+ 1509                             		.loc 2 642 12
+ 1510 005c EF 51                   		mov.L	r5, r1
+ 1511 005e 05 00 00 00             		bsr	_curve25519_priv_clamp
+ 1512 0062 EF 15                   		mov.L	r1, r5
+ 1513                             	.L122:
+ 643:../src/wolfcrypt/src/curve25519.c **** }
+ 1514                             		.loc 2 643 1
+ 1515 0064 EF 51                   		mov.L	r5, r1
+ 1516 0066 3F AA 05                		rtsd	#20, r10-r10
+ 1517                             	.LFE64:
+ 1519                             		.section	.text.wc_curve25519_init_ex,"ax",@progbits
+ 1520                             		.global	_wc_curve25519_init_ex
+ 1522                             	_wc_curve25519_init_ex:
+ 1523                             	.LFB65:
+ 644:../src/wolfcrypt/src/curve25519.c **** 
+ 645:../src/wolfcrypt/src/curve25519.c **** #endif /* HAVE_CURVE25519_KEY_IMPORT */
+ 646:../src/wolfcrypt/src/curve25519.c **** 
+ 647:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_init_ex(curve25519_key* key, void* heap, int devId)
+ 648:../src/wolfcrypt/src/curve25519.c **** {
+ 1524                             		.loc 2 648 1
+ 1525 0000 7E AA                   		push.l	r10
+ 1526                             	.LCFI53:
+ 1527 0002 71 0A F4                		add	#-12, r0, r10
+ 1528                             	.LCFI54:
+ 1529 0005 EF A0                   		mov.L	r10, r0
+ 1530 0007 E3 A1                   		mov.L	r1, [r10]
+ 1531 0009 E7 A2 01                		mov.L	r2, 4[r10]
+ 1532 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 649:../src/wolfcrypt/src/curve25519.c ****     if (key == NULL)
+ 1533                             		.loc 2 649 8
+ 1534 000f EC A5                   		mov.L	[r10], r5
+ 1535 0011 61 05                   		cmp	#0, r5
+ 1536 0013 1F                      		bne	.L125
+ 650:../src/wolfcrypt/src/curve25519.c ****        return BAD_FUNC_ARG;
+ 1537                             		.loc 2 650 15
+ 1538 0014 FB 5A 53 FF             		mov.L	#-173, r5
+ 1539 0018 2E 1C                   		bra	.L126
+ 1540                             	.L125:
+ 651:../src/wolfcrypt/src/curve25519.c **** 
+ 652:../src/wolfcrypt/src/curve25519.c ****     XMEMSET(key, 0, sizeof(*key));
+ 1541                             		.loc 2 652 5
+ 1542 001a 75 43 4C                		mov.L	#0x4c, r3
+ 1543 001d 66 02                   		mov.L	#0, r2
+ 1544 001f EC A1                   		mov.L	[r10], r1
+ 1545 0021 05 00 00 00             		bsr	_memset
+ 653:../src/wolfcrypt/src/curve25519.c **** 
+ 654:../src/wolfcrypt/src/curve25519.c ****     /* currently the format for curve25519 */
+ 655:../src/wolfcrypt/src/curve25519.c ****     key->dp = &curve25519_sets[0];
+ 1546                             		.loc 2 655 13
+ 1547 0025 EC A5                   		mov.L	[r10], r5
+ 1548 0027 F9 52 01 00 00 00 00    		mov.L	#_curve25519_sets, 4[r5]
+ 656:../src/wolfcrypt/src/curve25519.c **** 
+ 657:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLF_CRYPTO_CB
+ 658:../src/wolfcrypt/src/curve25519.c ****     key->devId = devId;
+ 659:../src/wolfcrypt/src/curve25519.c **** #else
+ 660:../src/wolfcrypt/src/curve25519.c ****     (void)devId;
+ 661:../src/wolfcrypt/src/curve25519.c **** #endif
+ 662:../src/wolfcrypt/src/curve25519.c ****     (void)heap; /* if needed for XMALLOC/XFREE in future */
+ 663:../src/wolfcrypt/src/curve25519.c **** 
+ 664:../src/wolfcrypt/src/curve25519.c **** #ifndef FREESCALE_LTC_ECC
+ 665:../src/wolfcrypt/src/curve25519.c ****     fe_init();
+ 1549                             		.loc 2 665 5
+ 1550 002e 05 00 00 00             		bsr	_fe_init
+ 666:../src/wolfcrypt/src/curve25519.c **** #endif
+ 667:../src/wolfcrypt/src/curve25519.c **** 
+ 668:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLFSSL_CHECK_MEM_ZERO
+ 669:../src/wolfcrypt/src/curve25519.c ****     wc_MemZero_Add("wc_curve25519_init_ex key->k", key->k, CURVE25519_KEYSIZE);
+ 670:../src/wolfcrypt/src/curve25519.c **** #endif
+ 671:../src/wolfcrypt/src/curve25519.c **** 
+ 672:../src/wolfcrypt/src/curve25519.c ****     return 0;
+ 1551                             		.loc 2 672 12
+ 1552 0032 66 05                   		mov.L	#0, r5
+ 1553                             	.L126:
+ 673:../src/wolfcrypt/src/curve25519.c **** }
+ 1554                             		.loc 2 673 1
+ 1555 0034 EF 51                   		mov.L	r5, r1
+ 1556 0036 3F AA 04                		rtsd	#16, r10-r10
+ 1557                             	.LFE65:
+ 1559                             		.section	.text.wc_curve25519_init,"ax",@progbits
+ 1560                             		.global	_wc_curve25519_init
+ 1562                             	_wc_curve25519_init:
+ 1563                             	.LFB66:
+ 674:../src/wolfcrypt/src/curve25519.c **** 
+ 675:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_init(curve25519_key* key)
+ 676:../src/wolfcrypt/src/curve25519.c **** {
+ 1564                             		.loc 2 676 1
+ 1565 0000 7E AA                   		push.l	r10
+ 1566                             	.LCFI55:
+ 1567 0002 71 0A FC                		add	#-4, r0, r10
+ 1568                             	.LCFI56:
+ 1569 0005 EF A0                   		mov.L	r10, r0
+ 1570 0007 E3 A1                   		mov.L	r1, [r10]
+ 677:../src/wolfcrypt/src/curve25519.c ****     return wc_curve25519_init_ex(key, NULL, INVALID_DEVID);
+ 1571                             		.loc 2 677 12
+ 1572 0009 FB 36 FE                		mov.L	#-2, r3
+ 1573 000c 66 02                   		mov.L	#0, r2
+ 1574 000e EC A1                   		mov.L	[r10], r1
+ 1575 0010 05 00 00 00             		bsr	_wc_curve25519_init_ex
+ 1576 0014 EF 15                   		mov.L	r1, r5
+ 678:../src/wolfcrypt/src/curve25519.c **** }
+ 1577                             		.loc 2 678 1
+ 1578 0016 EF 51                   		mov.L	r5, r1
+ 1579 0018 3F AA 02                		rtsd	#8, r10-r10
+ 1580                             	.LFE66:
+ 1582                             		.section	.text.wc_curve25519_free,"ax",@progbits
+ 1583                             		.global	_wc_curve25519_free
+ 1585                             	_wc_curve25519_free:
+ 1586                             	.LFB67:
+ 679:../src/wolfcrypt/src/curve25519.c **** 
+ 680:../src/wolfcrypt/src/curve25519.c **** /* Clean the memory of a key */
+ 681:../src/wolfcrypt/src/curve25519.c **** void wc_curve25519_free(curve25519_key* key)
+ 682:../src/wolfcrypt/src/curve25519.c **** {
+ 1587                             		.loc 2 682 1
+ 1588 0000 7E AA                   		push.l	r10
+ 1589                             	.LCFI57:
+ 1590 0002 71 0A FC                		add	#-4, r0, r10
+ 1591                             	.LCFI58:
+ 1592 0005 EF A0                   		mov.L	r10, r0
+ 1593 0007 E3 A1                   		mov.L	r1, [r10]
+ 683:../src/wolfcrypt/src/curve25519.c ****     if (key == NULL)
+ 1594                             		.loc 2 683 8
+ 1595 0009 EC A5                   		mov.L	[r10], r5
+ 1596 000b 61 05                   		cmp	#0, r5
+ 1597 000d 20 3A                   		beq	.L132
+ 684:../src/wolfcrypt/src/curve25519.c ****        return;
+ 685:../src/wolfcrypt/src/curve25519.c **** 
+ 686:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLFSSL_SE050
+ 687:../src/wolfcrypt/src/curve25519.c ****     se050_curve25519_free_key(key);
+ 688:../src/wolfcrypt/src/curve25519.c **** #endif
+ 689:../src/wolfcrypt/src/curve25519.c **** 
+ 690:../src/wolfcrypt/src/curve25519.c ****     key->dp = NULL;
+ 1598                             		.loc 2 690 13
+ 1599 000f EC A5                   		mov.L	[r10], r5
+ 1600 0011 3E 51 00                		mov.L	#0, 4[r5]
+ 691:../src/wolfcrypt/src/curve25519.c ****     ForceZero(key->k, sizeof(key->k));
+ 1601                             		.loc 2 691 18
+ 1602 0014 EC A5                   		mov.L	[r10], r5
+ 1603 0016 71 55 29                		add	#41, r5
+ 1604                             		.loc 2 691 5
+ 1605 0019 75 42 20                		mov.L	#32, r2
+ 1606 001c EF 51                   		mov.L	r5, r1
+ 1607 001e 05 00 00 00             		bsr	_ForceZero
+ 692:../src/wolfcrypt/src/curve25519.c ****     XMEMSET(&key->p, 0, sizeof(key->p));
+ 1608                             		.loc 2 692 5
+ 1609 0022 EC A5                   		mov.L	[r10], r5
+ 1610 0024 62 85                   		add	#8, r5
+ 1611 0026 75 43 21                		mov.L	#33, r3
+ 1612 0029 66 02                   		mov.L	#0, r2
+ 1613 002b EF 51                   		mov.L	r5, r1
+ 1614 002d 05 00 00 00             		bsr	_memset
+ 693:../src/wolfcrypt/src/curve25519.c ****     key->pubSet = 0;
+ 1615                             		.loc 2 693 17
+ 1616 0031 EC A4                   		mov.L	[r10], r4
+ 1617 0033 CD 45 49                		mov.B	73[r4], r5
+ 1618 0036 7A 05                   		bclr	#0, r5
+ 1619 0038 C7 45 49                		mov.B	r5, 73[r4]
+ 694:../src/wolfcrypt/src/curve25519.c ****     key->privSet = 0;
+ 1620                             		.loc 2 694 18
+ 1621 003b EC A4                   		mov.L	[r10], r4
+ 1622 003d CD 45 49                		mov.B	73[r4], r5
+ 1623 0040 7A 15                   		bclr	#1, r5
+ 1624 0042 C7 45 49                		mov.B	r5, 73[r4]
+ 1625 0045 2E 03                   		bra	.L129
+ 1626                             	.L132:
+ 684:../src/wolfcrypt/src/curve25519.c **** 
+ 1627                             		.loc 2 684 8
+ 1628 0047 03                      		nop
+ 1629                             	.L129:
+ 695:../src/wolfcrypt/src/curve25519.c **** #ifdef WOLFSSL_CHECK_MEM_ZERO
+ 696:../src/wolfcrypt/src/curve25519.c ****     wc_MemZero_Check(key, sizeof(curve25519_key));
+ 697:../src/wolfcrypt/src/curve25519.c **** #endif
+ 698:../src/wolfcrypt/src/curve25519.c **** }
+ 1630                             		.loc 2 698 1
+ 1631 0048 3F AA 02                		rtsd	#8, r10-r10
+ 1632                             	.LFE67:
+ 1634                             		.section	.text.wc_curve25519_size,"ax",@progbits
+ 1635                             		.global	_wc_curve25519_size
+ 1637                             	_wc_curve25519_size:
+ 1638                             	.LFB68:
+ 699:../src/wolfcrypt/src/curve25519.c **** 
+ 700:../src/wolfcrypt/src/curve25519.c **** /* get key size */
+ 701:../src/wolfcrypt/src/curve25519.c **** int wc_curve25519_size(curve25519_key* key)
+ 702:../src/wolfcrypt/src/curve25519.c **** {
+ 1639                             		.loc 2 702 1
+ 1640 0000 7E AA                   		push.l	r10
+ 1641                             	.LCFI59:
+ 1642 0002 71 0A FC                		add	#-4, r0, r10
+ 1643                             	.LCFI60:
+ 1644 0005 EF A0                   		mov.L	r10, r0
+ 1645 0007 E3 A1                   		mov.L	r1, [r10]
+ 703:../src/wolfcrypt/src/curve25519.c ****     if (key == NULL)
+ 1646                             		.loc 2 703 8
+ 1647 0009 EC A5                   		mov.L	[r10], r5
+ 1648 000b 61 05                   		cmp	#0, r5
+ 1649 000d 1C                      		bne	.L134
+ 704:../src/wolfcrypt/src/curve25519.c ****         return 0;
+ 1650                             		.loc 2 704 16
+ 1651 000e 66 05                   		mov.L	#0, r5
+ 1652 0010 0F                      		bra	.L135
+ 1653                             	.L134:
+ 705:../src/wolfcrypt/src/curve25519.c **** 
+ 706:../src/wolfcrypt/src/curve25519.c ****     return key->dp->size;
+ 1654                             		.loc 2 706 15
+ 1655 0011 EC A5                   		mov.L	[r10], r5
+ 1656 0013 A8 5D                   		mov.L	4[r5], r5
+ 1657                             		.loc 2 706 19
+ 1658 0015 EC 55                   		mov.L	[r5], r5
+ 1659                             	.L135:
+ 707:../src/wolfcrypt/src/curve25519.c **** }
+ 1660                             		.loc 2 707 1
+ 1661 0017 EF 51                   		mov.L	r5, r1
+ 1662 0019 3F AA 02                		rtsd	#8, r10-r10
+ 1663                             	.LFE68:
+ 2235                             	.Letext0:
+ 2236                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 2237                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2238                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2239                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2240                             		.file 7 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2241                             		.file 8 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/types.h"
+ 2242                             		.file 9 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 2243                             		.file 10 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\incl
+ 2244                             		.file 11 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/fe_operations.h"
+ 2245                             		.file 12 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/random.h"
+ 2246                             		.file 13 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/curve25519.h"
+ 2247                             		.file 14 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha256.h"
+ 2248                             		.file 15 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/error-crypt.h"

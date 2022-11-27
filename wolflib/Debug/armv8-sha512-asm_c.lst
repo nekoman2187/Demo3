@@ -1,0 +1,4 @@
+   1                             		.file	"armv8-sha512-asm_c.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             	.Letext0:

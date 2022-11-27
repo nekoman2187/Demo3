@@ -1,0 +1,656 @@
+   1                             		.file	"memory.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.bss.malloc_function,"aw",@nobits
+   5                             		.balign 4
+   8                             	_malloc_function:
+   9 0000 00 00 00 00             		.zero	4
+  10                             		.section	.bss.free_function,"aw",@nobits
+  11                             		.balign 4
+  14                             	_free_function:
+  15 0000 00 00 00 00             		.zero	4
+  16                             		.section	.bss.realloc_function,"aw",@nobits
+  17                             		.balign 4
+  20                             	_realloc_function:
+  21 0000 00 00 00 00             		.zero	4
+  22                             		.section	.text.wolfSSL_SetAllocators,"ax",@progbits
+  23                             		.global	_wolfSSL_SetAllocators
+  25                             	_wolfSSL_SetAllocators:
+  26                             	.LFB1:
+  27                             		.file 1 "../src/wolfcrypt/src/memory.c"
+   1:../src/wolfcrypt/src/memory.c **** /* memory.c
+   2:../src/wolfcrypt/src/memory.c ****  *
+   3:../src/wolfcrypt/src/memory.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/wolfcrypt/src/memory.c ****  *
+   5:../src/wolfcrypt/src/memory.c ****  * This file is part of wolfSSL.
+   6:../src/wolfcrypt/src/memory.c ****  *
+   7:../src/wolfcrypt/src/memory.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/wolfcrypt/src/memory.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/wolfcrypt/src/memory.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/wolfcrypt/src/memory.c ****  * (at your option) any later version.
+  11:../src/wolfcrypt/src/memory.c ****  *
+  12:../src/wolfcrypt/src/memory.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/wolfcrypt/src/memory.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/wolfcrypt/src/memory.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/wolfcrypt/src/memory.c ****  * GNU General Public License for more details.
+  16:../src/wolfcrypt/src/memory.c ****  *
+  17:../src/wolfcrypt/src/memory.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/wolfcrypt/src/memory.c ****  * along with this program; if not, write to the Free Software
+  19:../src/wolfcrypt/src/memory.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/wolfcrypt/src/memory.c ****  */
+  21:../src/wolfcrypt/src/memory.c **** 
+  22:../src/wolfcrypt/src/memory.c **** 
+  23:../src/wolfcrypt/src/memory.c **** #ifdef HAVE_CONFIG_H
+  24:../src/wolfcrypt/src/memory.c ****     #include <config.h>
+  25:../src/wolfcrypt/src/memory.c **** #endif
+  26:../src/wolfcrypt/src/memory.c **** 
+  27:../src/wolfcrypt/src/memory.c **** #include <wolfssl/wolfcrypt/settings.h>
+  28:../src/wolfcrypt/src/memory.c **** 
+  29:../src/wolfcrypt/src/memory.c **** /* check old macros @wc_fips */
+  30:../src/wolfcrypt/src/memory.c **** #if defined(USE_CYASSL_MEMORY) && !defined(USE_WOLFSSL_MEMORY)
+  31:../src/wolfcrypt/src/memory.c ****     #define USE_WOLFSSL_MEMORY
+  32:../src/wolfcrypt/src/memory.c **** #endif
+  33:../src/wolfcrypt/src/memory.c **** #if defined(CYASSL_MALLOC_CHECK) && !defined(WOLFSSL_MALLOC_CHECK)
+  34:../src/wolfcrypt/src/memory.c ****     #define WOLFSSL_MALLOC_CHECK
+  35:../src/wolfcrypt/src/memory.c **** #endif
+  36:../src/wolfcrypt/src/memory.c **** 
+  37:../src/wolfcrypt/src/memory.c **** 
+  38:../src/wolfcrypt/src/memory.c **** /*
+  39:../src/wolfcrypt/src/memory.c **** Possible memory options:
+  40:../src/wolfcrypt/src/memory.c ****  * NO_WOLFSSL_MEMORY:               Disables wolf memory callback support. When not defined setting
+  41:../src/wolfcrypt/src/memory.c ****  * WOLFSSL_STATIC_MEMORY:           Turns on the use of static memory buffers and functions.
+  42:../src/wolfcrypt/src/memory.c ****                                         This allows for using static memory instead of dynamic.
+  43:../src/wolfcrypt/src/memory.c ****  * WOLFSSL_STATIC_ALIGN:            Define defaults to 16 to indicate static memory alignment.
+  44:../src/wolfcrypt/src/memory.c ****  * HAVE_IO_POOL:                    Enables use of static thread safe memory pool for input/output 
+  45:../src/wolfcrypt/src/memory.c ****  * XMALLOC_OVERRIDE:                Allows override of the XMALLOC, XFREE and XREALLOC macros.
+  46:../src/wolfcrypt/src/memory.c ****  * XMALLOC_USER:                    Allows custom XMALLOC, XFREE and XREALLOC functions to be defin
+  47:../src/wolfcrypt/src/memory.c ****  * WOLFSSL_NO_MALLOC:               Disables the fall-back case to use STDIO malloc/free when no ca
+  48:../src/wolfcrypt/src/memory.c ****  * WOLFSSL_TRACK_MEMORY:            Enables memory tracking for total stats and list of allocated m
+  49:../src/wolfcrypt/src/memory.c ****  * WOLFSSL_DEBUG_MEMORY:            Enables extra function and line number args for memory callback
+  50:../src/wolfcrypt/src/memory.c ****  * WOLFSSL_DEBUG_MEMORY_PRINT:      Enables printing of each malloc/free.
+  51:../src/wolfcrypt/src/memory.c ****  * WOLFSSL_MALLOC_CHECK:            Reports malloc or alignment failure using WOLFSSL_STATIC_ALIGN
+  52:../src/wolfcrypt/src/memory.c ****  * WOLFSSL_FORCE_MALLOC_FAIL_TEST:  Used for internal testing to induce random malloc failures.
+  53:../src/wolfcrypt/src/memory.c ****  * WOLFSSL_HEAP_TEST:               Used for internal testing of heap hint
+  54:../src/wolfcrypt/src/memory.c ****  */
+  55:../src/wolfcrypt/src/memory.c **** 
+  56:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_ZEPHYR
+  57:../src/wolfcrypt/src/memory.c **** #undef realloc
+  58:../src/wolfcrypt/src/memory.c **** void *z_realloc(void *ptr, size_t size)
+  59:../src/wolfcrypt/src/memory.c **** {
+  60:../src/wolfcrypt/src/memory.c ****     if (ptr == NULL)
+  61:../src/wolfcrypt/src/memory.c ****         ptr = malloc(size);
+  62:../src/wolfcrypt/src/memory.c ****     else
+  63:../src/wolfcrypt/src/memory.c ****         ptr = realloc(ptr, size);
+  64:../src/wolfcrypt/src/memory.c **** 
+  65:../src/wolfcrypt/src/memory.c ****     return ptr;
+  66:../src/wolfcrypt/src/memory.c **** }
+  67:../src/wolfcrypt/src/memory.c **** #define realloc z_realloc
+  68:../src/wolfcrypt/src/memory.c **** #endif
+  69:../src/wolfcrypt/src/memory.c **** 
+  70:../src/wolfcrypt/src/memory.c **** #ifdef USE_WOLFSSL_MEMORY
+  71:../src/wolfcrypt/src/memory.c **** 
+  72:../src/wolfcrypt/src/memory.c **** #include <wolfssl/wolfcrypt/memory.h>
+  73:../src/wolfcrypt/src/memory.c **** #include <wolfssl/wolfcrypt/error-crypt.h>
+  74:../src/wolfcrypt/src/memory.c **** #include <wolfssl/wolfcrypt/logging.h>
+  75:../src/wolfcrypt/src/memory.c **** 
+  76:../src/wolfcrypt/src/memory.c **** #if defined(WOLFSSL_DEBUG_MEMORY) && defined(WOLFSSL_DEBUG_MEMORY_PRINT)
+  77:../src/wolfcrypt/src/memory.c **** #include <stdio.h>
+  78:../src/wolfcrypt/src/memory.c **** #endif
+  79:../src/wolfcrypt/src/memory.c **** 
+  80:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_FORCE_MALLOC_FAIL_TEST
+  81:../src/wolfcrypt/src/memory.c ****     static int gMemFailCountSeed;
+  82:../src/wolfcrypt/src/memory.c ****     static int gMemFailCount;
+  83:../src/wolfcrypt/src/memory.c ****     void wolfSSL_SetMemFailCount(int memFailCount)
+  84:../src/wolfcrypt/src/memory.c ****     {
+  85:../src/wolfcrypt/src/memory.c ****         if (gMemFailCountSeed == 0) {
+  86:../src/wolfcrypt/src/memory.c ****             gMemFailCountSeed = memFailCount;
+  87:../src/wolfcrypt/src/memory.c ****             gMemFailCount = memFailCount;
+  88:../src/wolfcrypt/src/memory.c ****         }
+  89:../src/wolfcrypt/src/memory.c ****     }
+  90:../src/wolfcrypt/src/memory.c **** #endif
+  91:../src/wolfcrypt/src/memory.c **** #if defined(WOLFSSL_MALLOC_CHECK) || defined(WOLFSSL_TRACK_MEMORY_FULL) || \
+  92:../src/wolfcrypt/src/memory.c ****                                                      defined(WOLFSSL_MEMORY_LOG)
+  93:../src/wolfcrypt/src/memory.c ****     #include <stdio.h>
+  94:../src/wolfcrypt/src/memory.c **** #endif
+  95:../src/wolfcrypt/src/memory.c **** 
+  96:../src/wolfcrypt/src/memory.c **** 
+  97:../src/wolfcrypt/src/memory.c **** /* Set these to default values initially. */
+  98:../src/wolfcrypt/src/memory.c **** static wolfSSL_Malloc_cb  malloc_function = NULL;
+  99:../src/wolfcrypt/src/memory.c **** static wolfSSL_Free_cb    free_function = NULL;
+ 100:../src/wolfcrypt/src/memory.c **** static wolfSSL_Realloc_cb realloc_function = NULL;
+ 101:../src/wolfcrypt/src/memory.c **** 
+ 102:../src/wolfcrypt/src/memory.c **** int wolfSSL_SetAllocators(wolfSSL_Malloc_cb  mf,
+ 103:../src/wolfcrypt/src/memory.c ****                           wolfSSL_Free_cb    ff,
+ 104:../src/wolfcrypt/src/memory.c ****                           wolfSSL_Realloc_cb rf)
+ 105:../src/wolfcrypt/src/memory.c **** {
+  28                             		.loc 1 105 1
+  29 0000 7E AA                   		push.l	r10
+  30                             	.LCFI0:
+  31 0002 71 0A F4                		add	#-12, r0, r10
+  32                             	.LCFI1:
+  33 0005 EF A0                   		mov.L	r10, r0
+  34 0007 E3 A1                   		mov.L	r1, [r10]
+  35 0009 E7 A2 01                		mov.L	r2, 4[r10]
+  36 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 106:../src/wolfcrypt/src/memory.c ****     malloc_function = mf;
+  37                             		.loc 1 106 21
+  38 000f FB 52 00 00 00 00       		mov.L	#_malloc_function, r5
+  39 0015 EC A4                   		mov.L	[r10], r4
+  40 0017 E3 54                   		mov.L	r4, [r5]
+ 107:../src/wolfcrypt/src/memory.c ****     free_function = ff;
+  41                             		.loc 1 107 19
+  42 0019 FB 52 00 00 00 00       		mov.L	#_free_function, r5
+  43 001f ED A4 01                		mov.L	4[r10], r4
+  44 0022 E3 54                   		mov.L	r4, [r5]
+ 108:../src/wolfcrypt/src/memory.c ****     realloc_function = rf;
+  45                             		.loc 1 108 22
+  46 0024 FB 52 00 00 00 00       		mov.L	#_realloc_function, r5
+  47 002a ED A4 02                		mov.L	8[r10], r4
+  48 002d E3 54                   		mov.L	r4, [r5]
+ 109:../src/wolfcrypt/src/memory.c ****     return 0;
+  49                             		.loc 1 109 12
+  50 002f 66 05                   		mov.L	#0, r5
+ 110:../src/wolfcrypt/src/memory.c **** }
+  51                             		.loc 1 110 1
+  52 0031 EF 51                   		mov.L	r5, r1
+  53 0033 3F AA 04                		rtsd	#16, r10-r10
+  54                             	.LFE1:
+  56                             		.section	.text.wolfSSL_GetAllocators,"ax",@progbits
+  57                             		.global	_wolfSSL_GetAllocators
+  59                             	_wolfSSL_GetAllocators:
+  60                             	.LFB2:
+ 111:../src/wolfcrypt/src/memory.c **** 
+ 112:../src/wolfcrypt/src/memory.c **** int wolfSSL_GetAllocators(wolfSSL_Malloc_cb*  mf,
+ 113:../src/wolfcrypt/src/memory.c ****                           wolfSSL_Free_cb*    ff,
+ 114:../src/wolfcrypt/src/memory.c ****                           wolfSSL_Realloc_cb* rf)
+ 115:../src/wolfcrypt/src/memory.c **** {
+  61                             		.loc 1 115 1
+  62 0000 7E AA                   		push.l	r10
+  63                             	.LCFI2:
+  64 0002 71 0A F4                		add	#-12, r0, r10
+  65                             	.LCFI3:
+  66 0005 EF A0                   		mov.L	r10, r0
+  67 0007 E3 A1                   		mov.L	r1, [r10]
+  68 0009 E7 A2 01                		mov.L	r2, 4[r10]
+  69 000c E7 A3 02                		mov.L	r3, 8[r10]
+ 116:../src/wolfcrypt/src/memory.c ****     if (mf) *mf = malloc_function;
+  70                             		.loc 1 116 8
+  71 000f EC A5                   		mov.L	[r10], r5
+  72 0011 61 05                   		cmp	#0, r5
+  73 0013 20 0E                   		beq	.L4
+  74                             		.loc 1 116 17 discriminator 1
+  75 0015 FB 52 00 00 00 00       		mov.L	#_malloc_function, r5
+  76 001b EC 54                   		mov.L	[r5], r4
+  77 001d EC A5                   		mov.L	[r10], r5
+  78 001f E3 54                   		mov.L	r4, [r5]
+  79                             	.L4:
+ 117:../src/wolfcrypt/src/memory.c ****     if (ff) *ff = free_function;
+  80                             		.loc 1 117 8
+  81 0021 ED A5 01                		mov.L	4[r10], r5
+  82 0024 61 05                   		cmp	#0, r5
+  83 0026 20 0F                   		beq	.L5
+  84                             		.loc 1 117 17 discriminator 1
+  85 0028 FB 52 00 00 00 00       		mov.L	#_free_function, r5
+  86 002e EC 54                   		mov.L	[r5], r4
+  87 0030 ED A5 01                		mov.L	4[r10], r5
+  88 0033 E3 54                   		mov.L	r4, [r5]
+  89                             	.L5:
+ 118:../src/wolfcrypt/src/memory.c ****     if (rf) *rf = realloc_function;
+  90                             		.loc 1 118 8
+  91 0035 ED A5 02                		mov.L	8[r10], r5
+  92 0038 61 05                   		cmp	#0, r5
+  93 003a 20 0F                   		beq	.L6
+  94                             		.loc 1 118 17 discriminator 1
+  95 003c FB 52 00 00 00 00       		mov.L	#_realloc_function, r5
+  96 0042 EC 54                   		mov.L	[r5], r4
+  97 0044 ED A5 02                		mov.L	8[r10], r5
+  98 0047 E3 54                   		mov.L	r4, [r5]
+  99                             	.L6:
+ 119:../src/wolfcrypt/src/memory.c ****     return 0;
+ 100                             		.loc 1 119 12
+ 101 0049 66 05                   		mov.L	#0, r5
+ 120:../src/wolfcrypt/src/memory.c **** }
+ 102                             		.loc 1 120 1
+ 103 004b EF 51                   		mov.L	r5, r1
+ 104 004d 3F AA 04                		rtsd	#16, r10-r10
+ 105                             	.LFE2:
+ 107                             		.section	.text.wolfSSL_Malloc,"ax",@progbits
+ 108                             		.global	_wolfSSL_Malloc
+ 110                             	_wolfSSL_Malloc:
+ 111                             	.LFB3:
+ 121:../src/wolfcrypt/src/memory.c **** 
+ 122:../src/wolfcrypt/src/memory.c **** #ifndef WOLFSSL_STATIC_MEMORY
+ 123:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_CHECK_MEM_ZERO
+ 124:../src/wolfcrypt/src/memory.c **** 
+ 125:../src/wolfcrypt/src/memory.c **** #ifndef WOLFSSL_MEM_CHECK_ZERO_CACHE_LEN
+ 126:../src/wolfcrypt/src/memory.c **** /* Number of entries in table of addresses to check. */
+ 127:../src/wolfcrypt/src/memory.c **** #define WOLFSSL_MEM_CHECK_ZERO_CACHE_LEN    256
+ 128:../src/wolfcrypt/src/memory.c **** #endif
+ 129:../src/wolfcrypt/src/memory.c **** 
+ 130:../src/wolfcrypt/src/memory.c **** /* Alignment to maintain when adding length to allocated pointer.
+ 131:../src/wolfcrypt/src/memory.c ****  * Intel x64 wants to use aligned loads of XMM registers.
+ 132:../src/wolfcrypt/src/memory.c ****  */
+ 133:../src/wolfcrypt/src/memory.c **** #define MEM_ALIGN       16
+ 134:../src/wolfcrypt/src/memory.c **** 
+ 135:../src/wolfcrypt/src/memory.c **** /* An address that is meant to be all zeros for its length. */
+ 136:../src/wolfcrypt/src/memory.c **** typedef struct MemZero {
+ 137:../src/wolfcrypt/src/memory.c ****     /* Name of address to check. */
+ 138:../src/wolfcrypt/src/memory.c ****     const char* name;
+ 139:../src/wolfcrypt/src/memory.c ****     /* Address to check. */
+ 140:../src/wolfcrypt/src/memory.c ****     const void* addr;
+ 141:../src/wolfcrypt/src/memory.c ****     /* Length of data that must be zero. */
+ 142:../src/wolfcrypt/src/memory.c ****     size_t len;
+ 143:../src/wolfcrypt/src/memory.c **** } MemZero;
+ 144:../src/wolfcrypt/src/memory.c **** 
+ 145:../src/wolfcrypt/src/memory.c **** /* List of addresses to check. */
+ 146:../src/wolfcrypt/src/memory.c **** static MemZero memZero[WOLFSSL_MEM_CHECK_ZERO_CACHE_LEN];
+ 147:../src/wolfcrypt/src/memory.c **** /* Next index to place address at.
+ 148:../src/wolfcrypt/src/memory.c ****  * -1 indicates uninitialized.
+ 149:../src/wolfcrypt/src/memory.c ****  * If nextIdx is equal to WOLFSSL_MEM_CHECK_ZERO_CACHE_LEN then all entries
+ 150:../src/wolfcrypt/src/memory.c ****  * have been used.
+ 151:../src/wolfcrypt/src/memory.c ****  */
+ 152:../src/wolfcrypt/src/memory.c **** static int nextIdx = -1;
+ 153:../src/wolfcrypt/src/memory.c **** /* Mutex to protect modifying list of addresses to check. */
+ 154:../src/wolfcrypt/src/memory.c **** static wolfSSL_Mutex zeroMutex;
+ 155:../src/wolfcrypt/src/memory.c **** 
+ 156:../src/wolfcrypt/src/memory.c **** /* Initialize the table of addresses and the mutex.
+ 157:../src/wolfcrypt/src/memory.c ****  */
+ 158:../src/wolfcrypt/src/memory.c **** void wc_MemZero_Init()
+ 159:../src/wolfcrypt/src/memory.c **** {
+ 160:../src/wolfcrypt/src/memory.c ****     /* Clear the table to more easily see what is valid. */
+ 161:../src/wolfcrypt/src/memory.c ****     XMEMSET(memZero, 0, sizeof(memZero));
+ 162:../src/wolfcrypt/src/memory.c ****     /* Initialize mutex. */
+ 163:../src/wolfcrypt/src/memory.c ****     wc_InitMutex(&zeroMutex);
+ 164:../src/wolfcrypt/src/memory.c ****     /* Next index is first entry. */
+ 165:../src/wolfcrypt/src/memory.c ****     nextIdx = 0;
+ 166:../src/wolfcrypt/src/memory.c **** }
+ 167:../src/wolfcrypt/src/memory.c **** 
+ 168:../src/wolfcrypt/src/memory.c **** /* Free the mutex and check we have not any uncheck addresses.
+ 169:../src/wolfcrypt/src/memory.c ****  */
+ 170:../src/wolfcrypt/src/memory.c **** void wc_MemZero_Free()
+ 171:../src/wolfcrypt/src/memory.c **** {
+ 172:../src/wolfcrypt/src/memory.c ****     /* Free mutex. */
+ 173:../src/wolfcrypt/src/memory.c ****     wc_FreeMutex(&zeroMutex);
+ 174:../src/wolfcrypt/src/memory.c ****     /* Make sure we checked all addresses. */
+ 175:../src/wolfcrypt/src/memory.c ****     if (nextIdx > 0) {
+ 176:../src/wolfcrypt/src/memory.c ****         int i;
+ 177:../src/wolfcrypt/src/memory.c ****         fprintf(stderr, "[MEM_ZERO] Unseen: %d\n", nextIdx);
+ 178:../src/wolfcrypt/src/memory.c ****         for (i = 0; i < nextIdx; i++) {
+ 179:../src/wolfcrypt/src/memory.c ****             fprintf(stderr, "  %s - %p:%ld\n", memZero[i].name, memZero[i].addr,
+ 180:../src/wolfcrypt/src/memory.c ****                 memZero[i].len);
+ 181:../src/wolfcrypt/src/memory.c ****         }
+ 182:../src/wolfcrypt/src/memory.c ****     }
+ 183:../src/wolfcrypt/src/memory.c ****     /* Uninitialized value in next index. */
+ 184:../src/wolfcrypt/src/memory.c ****     nextIdx = -1;
+ 185:../src/wolfcrypt/src/memory.c **** }
+ 186:../src/wolfcrypt/src/memory.c **** 
+ 187:../src/wolfcrypt/src/memory.c **** /* Add an address to check.
+ 188:../src/wolfcrypt/src/memory.c ****  *
+ 189:../src/wolfcrypt/src/memory.c ****  * @param [in] name  Name of address to check.
+ 190:../src/wolfcrypt/src/memory.c ****  * @param [in] addr  Address that needs to be checked.
+ 191:../src/wolfcrypt/src/memory.c ****  * @param [in] len   Length of data that must be zero.
+ 192:../src/wolfcrypt/src/memory.c ****  */
+ 193:../src/wolfcrypt/src/memory.c **** void wc_MemZero_Add(const char* name, const void* addr, size_t len)
+ 194:../src/wolfcrypt/src/memory.c **** {
+ 195:../src/wolfcrypt/src/memory.c ****     /* Initialize if not done. */
+ 196:../src/wolfcrypt/src/memory.c ****     if (nextIdx == -1) {
+ 197:../src/wolfcrypt/src/memory.c ****         wc_MemZero_Init();
+ 198:../src/wolfcrypt/src/memory.c ****     }
+ 199:../src/wolfcrypt/src/memory.c **** 
+ 200:../src/wolfcrypt/src/memory.c ****     /* Add an entry to the table while locked. */
+ 201:../src/wolfcrypt/src/memory.c ****     wc_LockMutex(&zeroMutex);
+ 202:../src/wolfcrypt/src/memory.c ****     if (nextIdx < WOLFSSL_MEM_CHECK_ZERO_CACHE_LEN) {
+ 203:../src/wolfcrypt/src/memory.c ****         /* Fill in the next entry and update next index. */
+ 204:../src/wolfcrypt/src/memory.c ****         memZero[nextIdx].name = name;
+ 205:../src/wolfcrypt/src/memory.c ****         memZero[nextIdx].addr = addr;
+ 206:../src/wolfcrypt/src/memory.c ****         memZero[nextIdx].len  = len;
+ 207:../src/wolfcrypt/src/memory.c ****         nextIdx++;
+ 208:../src/wolfcrypt/src/memory.c ****     }
+ 209:../src/wolfcrypt/src/memory.c ****     else {
+ 210:../src/wolfcrypt/src/memory.c ****         /* Abort when too many entries. */
+ 211:../src/wolfcrypt/src/memory.c ****         fprintf(stderr, "\n[MEM_ZERO] Too many addresses to check\n");
+ 212:../src/wolfcrypt/src/memory.c ****         fprintf(stderr, "[MEM_ZERO] WOLFSSL_MEM_CHECK_ZERO_CACHE_LEN\n");
+ 213:../src/wolfcrypt/src/memory.c ****         abort();
+ 214:../src/wolfcrypt/src/memory.c ****     }
+ 215:../src/wolfcrypt/src/memory.c ****     wc_UnLockMutex(&zeroMutex);
+ 216:../src/wolfcrypt/src/memory.c **** }
+ 217:../src/wolfcrypt/src/memory.c **** 
+ 218:../src/wolfcrypt/src/memory.c **** /* Check the memory in the range of the address for memory that must be zero.
+ 219:../src/wolfcrypt/src/memory.c ****  *
+ 220:../src/wolfcrypt/src/memory.c ****  * @param [in] addr  Start address of memory that is to be checked.
+ 221:../src/wolfcrypt/src/memory.c ****  * @param [in] len   Length of data associated with address.
+ 222:../src/wolfcrypt/src/memory.c ****  */
+ 223:../src/wolfcrypt/src/memory.c **** void wc_MemZero_Check(void* addr, size_t len)
+ 224:../src/wolfcrypt/src/memory.c **** {
+ 225:../src/wolfcrypt/src/memory.c ****     int i;
+ 226:../src/wolfcrypt/src/memory.c ****     size_t j;
+ 227:../src/wolfcrypt/src/memory.c **** 
+ 228:../src/wolfcrypt/src/memory.c ****     wc_LockMutex(&zeroMutex);
+ 229:../src/wolfcrypt/src/memory.c ****     /* Look at each address for overlap with address passes in. */
+ 230:../src/wolfcrypt/src/memory.c ****     for (i = 0; i < nextIdx; i++) {
+ 231:../src/wolfcrypt/src/memory.c ****         if ((memZero[i].addr < addr) ||
+ 232:../src/wolfcrypt/src/memory.c ****                ((size_t)memZero[i].addr >= (size_t)addr + len)) {
+ 233:../src/wolfcrypt/src/memory.c ****             /* Check address not part of memory to check. */
+ 234:../src/wolfcrypt/src/memory.c ****             continue;
+ 235:../src/wolfcrypt/src/memory.c ****         }
+ 236:../src/wolfcrypt/src/memory.c **** 
+ 237:../src/wolfcrypt/src/memory.c ****         /* Address is in range of memory being freed - check each byte zero. */
+ 238:../src/wolfcrypt/src/memory.c ****         for (j = 0; j < memZero[i].len; j++) {
+ 239:../src/wolfcrypt/src/memory.c ****             if (((unsigned char*)memZero[i].addr)[j] != 0) {
+ 240:../src/wolfcrypt/src/memory.c ****                 /* Byte not zero - abort! */
+ 241:../src/wolfcrypt/src/memory.c ****                 fprintf(stderr, "\n[MEM_ZERO] %s:%p + %ld is not zero\n",
+ 242:../src/wolfcrypt/src/memory.c ****                     memZero[i].name, memZero[i].addr, j);
+ 243:../src/wolfcrypt/src/memory.c ****                 fprintf(stderr, "[MEM_ZERO] Checking %p:%ld\n", addr, len);
+ 244:../src/wolfcrypt/src/memory.c ****                 abort();
+ 245:../src/wolfcrypt/src/memory.c ****                 break;
+ 246:../src/wolfcrypt/src/memory.c ****             }
+ 247:../src/wolfcrypt/src/memory.c ****         }
+ 248:../src/wolfcrypt/src/memory.c ****         /* Update next index to write to. */
+ 249:../src/wolfcrypt/src/memory.c ****         nextIdx--;
+ 250:../src/wolfcrypt/src/memory.c ****         if (nextIdx > 0) {
+ 251:../src/wolfcrypt/src/memory.c ****             /* Remove entry. */
+ 252:../src/wolfcrypt/src/memory.c ****             XMEMCPY(memZero + i, memZero + i + 1,
+ 253:../src/wolfcrypt/src/memory.c ****                 sizeof(MemZero) * (nextIdx - i));
+ 254:../src/wolfcrypt/src/memory.c ****             /* Clear out top to make it easier to see what is to be checked. */
+ 255:../src/wolfcrypt/src/memory.c ****             XMEMSET(&memZero[nextIdx], 0, sizeof(MemZero));
+ 256:../src/wolfcrypt/src/memory.c ****         }
+ 257:../src/wolfcrypt/src/memory.c ****         /* Need to check this index again with new data. */
+ 258:../src/wolfcrypt/src/memory.c ****         i--;
+ 259:../src/wolfcrypt/src/memory.c ****     }
+ 260:../src/wolfcrypt/src/memory.c ****     wc_UnLockMutex(&zeroMutex);
+ 261:../src/wolfcrypt/src/memory.c **** }
+ 262:../src/wolfcrypt/src/memory.c **** #endif /* WOLFSSL_CHECK_MEM_ZERO */
+ 263:../src/wolfcrypt/src/memory.c **** 
+ 264:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_DEBUG_MEMORY
+ 265:../src/wolfcrypt/src/memory.c **** void* wolfSSL_Malloc(size_t size, const char* func, unsigned int line)
+ 266:../src/wolfcrypt/src/memory.c **** #else
+ 267:../src/wolfcrypt/src/memory.c **** void* wolfSSL_Malloc(size_t size)
+ 268:../src/wolfcrypt/src/memory.c **** #endif
+ 269:../src/wolfcrypt/src/memory.c **** {
+ 112                             		.loc 1 269 1
+ 113 0000 7E AA                   		push.l	r10
+ 114                             	.LCFI4:
+ 115 0002 71 0A F8                		add	#-8, r0, r10
+ 116                             	.LCFI5:
+ 117 0005 EF A0                   		mov.L	r10, r0
+ 118 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 270:../src/wolfcrypt/src/memory.c ****     void* res = 0;
+ 119                             		.loc 1 270 11
+ 120 000a F8 A6 00                		mov.L	#0, [r10]
+ 271:../src/wolfcrypt/src/memory.c **** 
+ 272:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_CHECK_MEM_ZERO
+ 273:../src/wolfcrypt/src/memory.c ****     /* Space for requested size. */
+ 274:../src/wolfcrypt/src/memory.c ****     size += MEM_ALIGN;
+ 275:../src/wolfcrypt/src/memory.c **** #endif
+ 276:../src/wolfcrypt/src/memory.c **** 
+ 277:../src/wolfcrypt/src/memory.c ****     if (malloc_function) {
+ 121                             		.loc 1 277 9
+ 122 000d FB 52 00 00 00 00       		mov.L	#_malloc_function, r5
+ 123 0013 EC 55                   		mov.L	[r5], r5
+ 124                             		.loc 1 277 8
+ 125 0015 61 05                   		cmp	#0, r5
+ 126 0017 20 13                   		beq	.L9
+ 278:../src/wolfcrypt/src/memory.c ****     #ifdef WOLFSSL_DEBUG_MEMORY
+ 279:../src/wolfcrypt/src/memory.c ****         res = malloc_function(size, func, line);
+ 280:../src/wolfcrypt/src/memory.c ****     #else
+ 281:../src/wolfcrypt/src/memory.c ****         res = malloc_function(size);
+ 127                             		.loc 1 281 15
+ 128 0019 FB 52 00 00 00 00       		mov.L	#_malloc_function, r5
+ 129 001f EC 55                   		mov.L	[r5], r5
+ 130 0021 ED A1 01                		mov.L	4[r10], r1
+ 131 0024 7F 15                   		jsr	r5
+ 132                             	.LVL0:
+ 133 0026 E3 A1                   		mov.L	r1, [r10]
+ 134 0028 2E 0D                   		bra	.L10
+ 135                             	.L9:
+ 282:../src/wolfcrypt/src/memory.c ****     #endif
+ 283:../src/wolfcrypt/src/memory.c ****     }
+ 284:../src/wolfcrypt/src/memory.c ****     else {
+ 285:../src/wolfcrypt/src/memory.c ****     #ifndef WOLFSSL_NO_MALLOC
+ 286:../src/wolfcrypt/src/memory.c ****         #ifdef WOLFSSL_TRAP_MALLOC_SZ
+ 287:../src/wolfcrypt/src/memory.c ****         if (size > WOLFSSL_TRAP_MALLOC_SZ) {
+ 288:../src/wolfcrypt/src/memory.c ****             WOLFSSL_MSG("Malloc too big!");
+ 289:../src/wolfcrypt/src/memory.c ****             return NULL;
+ 290:../src/wolfcrypt/src/memory.c ****         }
+ 291:../src/wolfcrypt/src/memory.c ****         #endif
+ 292:../src/wolfcrypt/src/memory.c **** 
+ 293:../src/wolfcrypt/src/memory.c ****         res = malloc(size);
+ 136                             		.loc 1 293 15
+ 137 002a ED A1 01                		mov.L	4[r10], r1
+ 138 002d 05 00 00 00             		bsr	_malloc
+ 139 0031 EF 15                   		mov.L	r1, r5
+ 140 0033 E3 A5                   		mov.L	r5, [r10]
+ 141                             	.L10:
+ 294:../src/wolfcrypt/src/memory.c ****     #else
+ 295:../src/wolfcrypt/src/memory.c ****         WOLFSSL_MSG("No malloc available");
+ 296:../src/wolfcrypt/src/memory.c ****     #endif
+ 297:../src/wolfcrypt/src/memory.c ****     }
+ 298:../src/wolfcrypt/src/memory.c **** 
+ 299:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_CHECK_MEM_ZERO
+ 300:../src/wolfcrypt/src/memory.c ****     /* Restore size to requested value. */
+ 301:../src/wolfcrypt/src/memory.c ****     size -= MEM_ALIGN;
+ 302:../src/wolfcrypt/src/memory.c ****     if (res != NULL) {
+ 303:../src/wolfcrypt/src/memory.c ****         /* Place size at front of allocated data and move pointer passed it. */
+ 304:../src/wolfcrypt/src/memory.c ****         *(size_t*)res = size;
+ 305:../src/wolfcrypt/src/memory.c ****         res = ((unsigned char*)res) + MEM_ALIGN;
+ 306:../src/wolfcrypt/src/memory.c ****     }
+ 307:../src/wolfcrypt/src/memory.c **** #endif
+ 308:../src/wolfcrypt/src/memory.c **** 
+ 309:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_DEBUG_MEMORY
+ 310:../src/wolfcrypt/src/memory.c **** #if defined(WOLFSSL_DEBUG_MEMORY_PRINT) && !defined(WOLFSSL_TRACK_MEMORY)
+ 311:../src/wolfcrypt/src/memory.c ****     fprintf(stderr, "Alloc: %p -> %u at %s:%u\n", res, (word32)size, func, line);
+ 312:../src/wolfcrypt/src/memory.c **** #else
+ 313:../src/wolfcrypt/src/memory.c ****     (void)func;
+ 314:../src/wolfcrypt/src/memory.c ****     (void)line;
+ 315:../src/wolfcrypt/src/memory.c **** #endif
+ 316:../src/wolfcrypt/src/memory.c **** #endif
+ 317:../src/wolfcrypt/src/memory.c **** 
+ 318:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_MALLOC_CHECK
+ 319:../src/wolfcrypt/src/memory.c ****     if (res == NULL)
+ 320:../src/wolfcrypt/src/memory.c ****         WOLFSSL_MSG("wolfSSL_malloc failed");
+ 321:../src/wolfcrypt/src/memory.c **** #endif
+ 322:../src/wolfcrypt/src/memory.c **** 
+ 323:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_FORCE_MALLOC_FAIL_TEST
+ 324:../src/wolfcrypt/src/memory.c ****     if (res && --gMemFailCount == 0) {
+ 325:../src/wolfcrypt/src/memory.c ****         fprintf(stderr, "\n---FORCED MEM FAIL TEST---\n");
+ 326:../src/wolfcrypt/src/memory.c ****         if (free_function) {
+ 327:../src/wolfcrypt/src/memory.c ****         #ifdef WOLFSSL_DEBUG_MEMORY
+ 328:../src/wolfcrypt/src/memory.c ****             free_function(res, func, line);
+ 329:../src/wolfcrypt/src/memory.c ****         #else
+ 330:../src/wolfcrypt/src/memory.c ****             free_function(res);
+ 331:../src/wolfcrypt/src/memory.c ****         #endif
+ 332:../src/wolfcrypt/src/memory.c ****         }
+ 333:../src/wolfcrypt/src/memory.c ****         else {
+ 334:../src/wolfcrypt/src/memory.c ****             free(res); /* clear */
+ 335:../src/wolfcrypt/src/memory.c ****         }
+ 336:../src/wolfcrypt/src/memory.c ****         gMemFailCount = gMemFailCountSeed; /* reset */
+ 337:../src/wolfcrypt/src/memory.c ****         return NULL;
+ 338:../src/wolfcrypt/src/memory.c ****     }
+ 339:../src/wolfcrypt/src/memory.c **** #endif
+ 340:../src/wolfcrypt/src/memory.c **** 
+ 341:../src/wolfcrypt/src/memory.c ****     return res;
+ 142                             		.loc 1 341 12
+ 143 0035 EC A5                   		mov.L	[r10], r5
+ 342:../src/wolfcrypt/src/memory.c **** }
+ 144                             		.loc 1 342 1
+ 145 0037 EF 51                   		mov.L	r5, r1
+ 146 0039 3F AA 03                		rtsd	#12, r10-r10
+ 147                             	.LFE3:
+ 149                             		.section	.text.wolfSSL_Free,"ax",@progbits
+ 150                             		.global	_wolfSSL_Free
+ 152                             	_wolfSSL_Free:
+ 153                             	.LFB4:
+ 343:../src/wolfcrypt/src/memory.c **** 
+ 344:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_DEBUG_MEMORY
+ 345:../src/wolfcrypt/src/memory.c **** void wolfSSL_Free(void *ptr, const char* func, unsigned int line)
+ 346:../src/wolfcrypt/src/memory.c **** #else
+ 347:../src/wolfcrypt/src/memory.c **** void wolfSSL_Free(void *ptr)
+ 348:../src/wolfcrypt/src/memory.c **** #endif
+ 349:../src/wolfcrypt/src/memory.c **** {
+ 154                             		.loc 1 349 1
+ 155 0000 7E AA                   		push.l	r10
+ 156                             	.LCFI6:
+ 157 0002 71 0A FC                		add	#-4, r0, r10
+ 158                             	.LCFI7:
+ 159 0005 EF A0                   		mov.L	r10, r0
+ 160 0007 E3 A1                   		mov.L	r1, [r10]
+ 350:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_DEBUG_MEMORY
+ 351:../src/wolfcrypt/src/memory.c **** #if defined(WOLFSSL_DEBUG_MEMORY_PRINT) && !defined(WOLFSSL_TRACK_MEMORY)
+ 352:../src/wolfcrypt/src/memory.c ****     fprintf(stderr, "Free: %p at %s:%u\n", ptr, func, line);
+ 353:../src/wolfcrypt/src/memory.c **** #else
+ 354:../src/wolfcrypt/src/memory.c ****     (void)func;
+ 355:../src/wolfcrypt/src/memory.c ****     (void)line;
+ 356:../src/wolfcrypt/src/memory.c **** #endif
+ 357:../src/wolfcrypt/src/memory.c **** #endif
+ 358:../src/wolfcrypt/src/memory.c **** 
+ 359:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_CHECK_MEM_ZERO
+ 360:../src/wolfcrypt/src/memory.c ****     /* Move pointer back to originally allocated pointer. */
+ 361:../src/wolfcrypt/src/memory.c ****     ptr = ((unsigned char*)ptr) - MEM_ALIGN;
+ 362:../src/wolfcrypt/src/memory.c ****     /* Check that the pointer is zero where required. */
+ 363:../src/wolfcrypt/src/memory.c ****     wc_MemZero_Check(((unsigned char*)ptr) + MEM_ALIGN, *(size_t*)ptr);
+ 364:../src/wolfcrypt/src/memory.c **** #endif
+ 365:../src/wolfcrypt/src/memory.c **** 
+ 366:../src/wolfcrypt/src/memory.c ****     if (free_function) {
+ 161                             		.loc 1 366 9
+ 162 0009 FB 52 00 00 00 00       		mov.L	#_free_function, r5
+ 163 000f EC 55                   		mov.L	[r5], r5
+ 164                             		.loc 1 366 8
+ 165 0011 61 05                   		cmp	#0, r5
+ 166 0013 20 0F                   		beq	.L13
+ 367:../src/wolfcrypt/src/memory.c ****     #ifdef WOLFSSL_DEBUG_MEMORY
+ 368:../src/wolfcrypt/src/memory.c ****         free_function(ptr, func, line);
+ 369:../src/wolfcrypt/src/memory.c ****     #else
+ 370:../src/wolfcrypt/src/memory.c ****         free_function(ptr);
+ 167                             		.loc 1 370 9
+ 168 0015 FB 52 00 00 00 00       		mov.L	#_free_function, r5
+ 169 001b EC 55                   		mov.L	[r5], r5
+ 170 001d EC A1                   		mov.L	[r10], r1
+ 171 001f 7F 15                   		jsr	r5
+ 172                             	.LVL1:
+ 371:../src/wolfcrypt/src/memory.c ****     #endif
+ 372:../src/wolfcrypt/src/memory.c ****     }
+ 373:../src/wolfcrypt/src/memory.c ****     else {
+ 374:../src/wolfcrypt/src/memory.c ****     #ifndef WOLFSSL_NO_MALLOC
+ 375:../src/wolfcrypt/src/memory.c ****         free(ptr);
+ 376:../src/wolfcrypt/src/memory.c ****     #else
+ 377:../src/wolfcrypt/src/memory.c ****         WOLFSSL_MSG("No free available");
+ 378:../src/wolfcrypt/src/memory.c ****     #endif
+ 379:../src/wolfcrypt/src/memory.c ****     }
+ 380:../src/wolfcrypt/src/memory.c **** }
+ 173                             		.loc 1 380 1
+ 174 0021 0F                      		bra	.L15
+ 175                             	.L13:
+ 375:../src/wolfcrypt/src/memory.c ****     #else
+ 176                             		.loc 1 375 9
+ 177 0022 EC A1                   		mov.L	[r10], r1
+ 178 0024 05 00 00 00             		bsr	_free
+ 179                             	.L15:
+ 180                             		.loc 1 380 1
+ 181 0028 03                      		nop
+ 182 0029 3F AA 02                		rtsd	#8, r10-r10
+ 183                             	.LFE4:
+ 185                             		.section	.text.wolfSSL_Realloc,"ax",@progbits
+ 186                             		.global	_wolfSSL_Realloc
+ 188                             	_wolfSSL_Realloc:
+ 189                             	.LFB5:
+ 381:../src/wolfcrypt/src/memory.c **** 
+ 382:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_DEBUG_MEMORY
+ 383:../src/wolfcrypt/src/memory.c **** void* wolfSSL_Realloc(void *ptr, size_t size, const char* func, unsigned int line)
+ 384:../src/wolfcrypt/src/memory.c **** #else
+ 385:../src/wolfcrypt/src/memory.c **** void* wolfSSL_Realloc(void *ptr, size_t size)
+ 386:../src/wolfcrypt/src/memory.c **** #endif
+ 387:../src/wolfcrypt/src/memory.c **** {
+ 190                             		.loc 1 387 1
+ 191 0000 7E AA                   		push.l	r10
+ 192                             	.LCFI8:
+ 193 0002 71 0A F4                		add	#-12, r0, r10
+ 194                             	.LCFI9:
+ 195 0005 EF A0                   		mov.L	r10, r0
+ 196 0007 E7 A1 01                		mov.L	r1, 4[r10]
+ 197 000a E7 A2 02                		mov.L	r2, 8[r10]
+ 388:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_CHECK_MEM_ZERO
+ 389:../src/wolfcrypt/src/memory.c ****     /* Can't check data that has been freed during realloc.
+ 390:../src/wolfcrypt/src/memory.c ****      * Manually allocated new memory, copy data and free original pointer.
+ 391:../src/wolfcrypt/src/memory.c ****      */
+ 392:../src/wolfcrypt/src/memory.c **** #ifdef WOLFSSL_DEBUG_MEMORY
+ 393:../src/wolfcrypt/src/memory.c ****     void* res = wolfSSL_Malloc(size, func, line);
+ 394:../src/wolfcrypt/src/memory.c **** #else
+ 395:../src/wolfcrypt/src/memory.c ****     void* res = wolfSSL_Malloc(size);
+ 396:../src/wolfcrypt/src/memory.c **** #endif
+ 397:../src/wolfcrypt/src/memory.c ****     if (ptr != NULL) {
+ 398:../src/wolfcrypt/src/memory.c ****         /* Copy the minimum of old and new size. */
+ 399:../src/wolfcrypt/src/memory.c ****         size_t copySize = *(size_t*)(((unsigned char*)ptr) - MEM_ALIGN);
+ 400:../src/wolfcrypt/src/memory.c ****         if (size < copySize) {
+ 401:../src/wolfcrypt/src/memory.c ****             copySize = size;
+ 402:../src/wolfcrypt/src/memory.c ****         }
+ 403:../src/wolfcrypt/src/memory.c ****         XMEMCPY(res, ptr, copySize);
+ 404:../src/wolfcrypt/src/memory.c ****         /* Dispose of old pointer. */
+ 405:../src/wolfcrypt/src/memory.c ****     #ifdef WOLFSSL_DEBUG_MEMORY
+ 406:../src/wolfcrypt/src/memory.c ****         wolfSSL_Free(ptr, func, line);
+ 407:../src/wolfcrypt/src/memory.c ****     #else
+ 408:../src/wolfcrypt/src/memory.c ****         wolfSSL_Free(ptr);
+ 409:../src/wolfcrypt/src/memory.c ****     #endif
+ 410:../src/wolfcrypt/src/memory.c ****     }
+ 411:../src/wolfcrypt/src/memory.c **** 
+ 412:../src/wolfcrypt/src/memory.c ****     /* Return new pointer with data copied into it. */
+ 413:../src/wolfcrypt/src/memory.c ****     return res;
+ 414:../src/wolfcrypt/src/memory.c **** #else
+ 415:../src/wolfcrypt/src/memory.c ****     void* res = 0;
+ 198                             		.loc 1 415 11
+ 199 000d F8 A6 00                		mov.L	#0, [r10]
+ 416:../src/wolfcrypt/src/memory.c **** 
+ 417:../src/wolfcrypt/src/memory.c ****     if (realloc_function) {
+ 200                             		.loc 1 417 9
+ 201 0010 FB 52 00 00 00 00       		mov.L	#_realloc_function, r5
+ 202 0016 EC 55                   		mov.L	[r5], r5
+ 203                             		.loc 1 417 8
+ 204 0018 61 05                   		cmp	#0, r5
+ 205 001a 20 16                   		beq	.L17
+ 418:../src/wolfcrypt/src/memory.c ****     #ifdef WOLFSSL_DEBUG_MEMORY
+ 419:../src/wolfcrypt/src/memory.c ****         res = realloc_function(ptr, size, func, line);
+ 420:../src/wolfcrypt/src/memory.c ****     #else
+ 421:../src/wolfcrypt/src/memory.c ****         res = realloc_function(ptr, size);
+ 206                             		.loc 1 421 15
+ 207 001c FB 52 00 00 00 00       		mov.L	#_realloc_function, r5
+ 208 0022 EC 55                   		mov.L	[r5], r5
+ 209 0024 ED A2 02                		mov.L	8[r10], r2
+ 210 0027 ED A1 01                		mov.L	4[r10], r1
+ 211 002a 7F 15                   		jsr	r5
+ 212                             	.LVL2:
+ 213 002c E3 A1                   		mov.L	r1, [r10]
+ 214 002e 2E 0E                   		bra	.L18
+ 215                             	.L17:
+ 422:../src/wolfcrypt/src/memory.c ****     #endif
+ 423:../src/wolfcrypt/src/memory.c ****     }
+ 424:../src/wolfcrypt/src/memory.c ****     else {
+ 425:../src/wolfcrypt/src/memory.c ****     #ifndef WOLFSSL_NO_MALLOC
+ 426:../src/wolfcrypt/src/memory.c ****         res = realloc(ptr, size);
+ 216                             		.loc 1 426 15
+ 217 0030 ED A2 02                		mov.L	8[r10], r2
+ 218 0033 ED A1 01                		mov.L	4[r10], r1
+ 219 0036 05 00 00 00             		bsr	_realloc
+ 220 003a E3 A1                   		mov.L	r1, [r10]
+ 221                             	.L18:
+ 427:../src/wolfcrypt/src/memory.c ****     #else
+ 428:../src/wolfcrypt/src/memory.c ****         WOLFSSL_MSG("No realloc available");
+ 429:../src/wolfcrypt/src/memory.c ****     #endif
+ 430:../src/wolfcrypt/src/memory.c ****     }
+ 431:../src/wolfcrypt/src/memory.c **** 
+ 432:../src/wolfcrypt/src/memory.c ****     return res;
+ 222                             		.loc 1 432 12
+ 223 003c EC A5                   		mov.L	[r10], r5
+ 433:../src/wolfcrypt/src/memory.c **** #endif
+ 434:../src/wolfcrypt/src/memory.c **** }
+ 224                             		.loc 1 434 1
+ 225 003e EF 51                   		mov.L	r5, r1
+ 226 0040 3F AA 04                		rtsd	#16, r10-r10
+ 227                             	.LFE5:
+ 342                             	.Letext0:
+ 343                             		.file 2 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 344                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 345                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 346                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 347                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 348                             		.file 7 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 349                             		.file 8 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 350                             		.file 9 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/memory.h"

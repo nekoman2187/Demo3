@@ -1,0 +1,1 @@
+-O0 -ffunction-sections -fdata-sections -fdiagnostics-parseable-fixits -Wstack-usage=100 -g2 -mcpu=rx72t -misa=v3 -mlittle-endian-data -I"C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src" -Wa,-adlnh="aes.lst" -MMD -MP -MF"src/wolfcrypt/aes.d" -MT"src/wolfcrypt/aes.o" "../src/wolfcrypt/aes.c" -c -o "src/wolfcrypt/aes.o"

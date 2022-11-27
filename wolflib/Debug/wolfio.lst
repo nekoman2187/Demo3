@@ -1,0 +1,2311 @@
+   1                             		.file	"wolfio.c"
+   2                             		.section P,"ax"
+   3                             	.Ltext0:
+   4                             		.section	.rodata.c25519_base_x,"a"
+   7                             	_c25519_base_x:
+   8 0000 09                      		.byte	9
+   9 0001 00 00 00 00 00 00 00 00 		.zero	31
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 00 
+   9      00 00 00 00 00 00 00 
+  10                             		.section	.rodata.f25519_zero,"a"
+  13                             	_f25519_zero:
+  14 0000 00 00 00 00 00 00 00 00 		.zero	32
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  14      00 00 00 00 00 00 00 00 
+  15                             		.section	.rodata.f25519_one,"a"
+  18                             	_f25519_one:
+  19 0000 01                      		.byte	1
+  20 0001 00 00 00 00 00 00 00 00 		.zero	31
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 00 
+  20      00 00 00 00 00 00 00 
+  21                             		.section	.rodata.fprime_zero,"a"
+  24                             	_fprime_zero:
+  25 0000 00 00 00 00 00 00 00 00 		.zero	32
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  25      00 00 00 00 00 00 00 00 
+  26                             		.section	.rodata.fprime_one,"a"
+  29                             	_fprime_one:
+  30 0000 01                      		.byte	1
+  31 0001 00 00 00 00 00 00 00 00 		.zero	31
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 00 
+  31      00 00 00 00 00 00 00 
+  32                             		.section	.rodata.client,"a"
+  35                             	_client:
+  36 0000 43                      		.byte	0x43
+  37 0001 4C                      		.byte	0x4c
+  38 0002 4E                      		.byte	0x4e
+  39 0003 54                      		.byte	0x54
+  40 0004 00                      		.byte	0
+  41                             		.section	.rodata.server,"a"
+  44                             	_server:
+  45 0000 53                      		.byte	0x53
+  46 0001 52                      		.byte	0x52
+  47 0002 56                      		.byte	0x56
+  48 0003 52                      		.byte	0x52
+  49 0004 00                      		.byte	0
+  50                             		.section	.rodata.tls_client,"a"
+  53                             	_tls_client:
+  54 0000 63 6C 69 65 6E 74 20 66 		.string	"client finished"
+  54      69 6E 69 73 68 65 64 00 
+  55                             		.section	.rodata.tls_server,"a"
+  58                             	_tls_server:
+  59 0000 73 65 72 76 65 72 20 66 		.string	"server finished"
+  59      69 6E 69 73 68 65 64 00 
+  60                             		.section	.text.wolfSSL_CTX_SetIORecv,"ax",@progbits
+  61                             		.global	_wolfSSL_CTX_SetIORecv
+  63                             	_wolfSSL_CTX_SetIORecv:
+  64                             	.LFB1:
+  65                             		.file 1 "../src/src/wolfio.c"
+   1:../src/src/wolfio.c **** /* wolfio.c
+   2:../src/src/wolfio.c ****  *
+   3:../src/src/wolfio.c ****  * Copyright (C) 2006-2021 wolfSSL Inc.
+   4:../src/src/wolfio.c ****  *
+   5:../src/src/wolfio.c ****  * This file is part of wolfSSL.
+   6:../src/src/wolfio.c ****  *
+   7:../src/src/wolfio.c ****  * wolfSSL is free software; you can redistribute it and/or modify
+   8:../src/src/wolfio.c ****  * it under the terms of the GNU General Public License as published by
+   9:../src/src/wolfio.c ****  * the Free Software Foundation; either version 2 of the License, or
+  10:../src/src/wolfio.c ****  * (at your option) any later version.
+  11:../src/src/wolfio.c ****  *
+  12:../src/src/wolfio.c ****  * wolfSSL is distributed in the hope that it will be useful,
+  13:../src/src/wolfio.c ****  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  14:../src/src/wolfio.c ****  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  15:../src/src/wolfio.c ****  * GNU General Public License for more details.
+  16:../src/src/wolfio.c ****  *
+  17:../src/src/wolfio.c ****  * You should have received a copy of the GNU General Public License
+  18:../src/src/wolfio.c ****  * along with this program; if not, write to the Free Software
+  19:../src/src/wolfio.c ****  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+  20:../src/src/wolfio.c ****  */
+  21:../src/src/wolfio.c **** 
+  22:../src/src/wolfio.c **** 
+  23:../src/src/wolfio.c **** 
+  24:../src/src/wolfio.c **** #ifdef HAVE_CONFIG_H
+  25:../src/src/wolfio.c ****     #include <config.h>
+  26:../src/src/wolfio.c **** #endif
+  27:../src/src/wolfio.c **** 
+  28:../src/src/wolfio.c **** #include <wolfssl/wolfcrypt/settings.h>
+  29:../src/src/wolfio.c **** 
+  30:../src/src/wolfio.c **** #ifndef WOLFCRYPT_ONLY
+  31:../src/src/wolfio.c **** 
+  32:../src/src/wolfio.c **** #ifdef _WIN32_WCE
+  33:../src/src/wolfio.c ****     /* On WinCE winsock2.h must be included before windows.h for socket stuff */
+  34:../src/src/wolfio.c ****     #include <winsock2.h>
+  35:../src/src/wolfio.c **** #endif
+  36:../src/src/wolfio.c **** 
+  37:../src/src/wolfio.c **** #include <wolfssl/internal.h>
+  38:../src/src/wolfio.c **** #include <wolfssl/error-ssl.h>
+  39:../src/src/wolfio.c **** #include <wolfssl/wolfio.h>
+  40:../src/src/wolfio.c **** 
+  41:../src/src/wolfio.c **** #if defined(HAVE_HTTP_CLIENT)
+  42:../src/src/wolfio.c ****     #include <stdlib.h>   /* strtol() */
+  43:../src/src/wolfio.c **** #endif
+  44:../src/src/wolfio.c **** 
+  45:../src/src/wolfio.c **** /*
+  46:../src/src/wolfio.c **** Possible IO enable options:
+  47:../src/src/wolfio.c ****  * WOLFSSL_USER_IO:     Disables default Embed* callbacks and     default: off
+  48:../src/src/wolfio.c ****                         allows user to define their own using
+  49:../src/src/wolfio.c ****                         wolfSSL_CTX_SetIORecv and wolfSSL_CTX_SetIOSend
+  50:../src/src/wolfio.c ****  * USE_WOLFSSL_IO:      Enables the wolfSSL IO functions          default: on
+  51:../src/src/wolfio.c ****  * HAVE_HTTP_CLIENT:    Enables HTTP client API's                 default: off
+  52:../src/src/wolfio.c ****                                      (unless HAVE_OCSP or HAVE_CRL_IO defined)
+  53:../src/src/wolfio.c ****  * HAVE_IO_TIMEOUT:     Enables support for connect timeout       default: off
+  54:../src/src/wolfio.c ****  */
+  55:../src/src/wolfio.c **** 
+  56:../src/src/wolfio.c **** 
+  57:../src/src/wolfio.c **** /* if user writes own I/O callbacks they can define WOLFSSL_USER_IO to remove
+  58:../src/src/wolfio.c ****    automatic setting of default I/O functions EmbedSend() and EmbedReceive()
+  59:../src/src/wolfio.c ****    but they'll still need SetCallback xxx() at end of file
+  60:../src/src/wolfio.c **** */
+  61:../src/src/wolfio.c **** 
+  62:../src/src/wolfio.c **** #if defined(USE_WOLFSSL_IO) || defined(HAVE_HTTP_CLIENT)
+  63:../src/src/wolfio.c **** 
+  64:../src/src/wolfio.c **** /* Translates return codes returned from
+  65:../src/src/wolfio.c ****  * send() and recv() if need be.
+  66:../src/src/wolfio.c ****  */
+  67:../src/src/wolfio.c **** static WC_INLINE int TranslateReturnCode(int old, int sd)
+  68:../src/src/wolfio.c **** {
+  69:../src/src/wolfio.c ****     (void)sd;
+  70:../src/src/wolfio.c **** 
+  71:../src/src/wolfio.c **** #if defined(FREESCALE_MQX) || defined(FREESCALE_KSDK_MQX)
+  72:../src/src/wolfio.c ****     if (old == 0) {
+  73:../src/src/wolfio.c ****         errno = SOCKET_EWOULDBLOCK;
+  74:../src/src/wolfio.c ****         return -1;  /* convert to BSD style wouldblock as error */
+  75:../src/src/wolfio.c ****     }
+  76:../src/src/wolfio.c **** 
+  77:../src/src/wolfio.c ****     if (old < 0) {
+  78:../src/src/wolfio.c ****         errno = RTCS_geterror(sd);
+  79:../src/src/wolfio.c ****         if (errno == RTCSERR_TCP_CONN_CLOSING)
+  80:../src/src/wolfio.c ****             return 0;   /* convert to BSD style closing */
+  81:../src/src/wolfio.c ****         if (errno == RTCSERR_TCP_CONN_RLSD)
+  82:../src/src/wolfio.c ****             errno = SOCKET_ECONNRESET;
+  83:../src/src/wolfio.c ****         if (errno == RTCSERR_TCP_TIMED_OUT)
+  84:../src/src/wolfio.c ****             errno = SOCKET_EAGAIN;
+  85:../src/src/wolfio.c ****     }
+  86:../src/src/wolfio.c **** #endif
+  87:../src/src/wolfio.c **** 
+  88:../src/src/wolfio.c ****     return old;
+  89:../src/src/wolfio.c **** }
+  90:../src/src/wolfio.c **** 
+  91:../src/src/wolfio.c **** static WC_INLINE int wolfSSL_LastError(int err)
+  92:../src/src/wolfio.c **** {
+  93:../src/src/wolfio.c ****     (void)err; /* Suppress unused arg */
+  94:../src/src/wolfio.c **** 
+  95:../src/src/wolfio.c **** #ifdef USE_WINDOWS_API
+  96:../src/src/wolfio.c ****     return WSAGetLastError();
+  97:../src/src/wolfio.c **** #elif defined(EBSNET)
+  98:../src/src/wolfio.c ****     return xn_getlasterror();
+  99:../src/src/wolfio.c **** #elif defined(WOLFSSL_LINUXKM)
+ 100:../src/src/wolfio.c ****     return err; /* Return provided error value */
+ 101:../src/src/wolfio.c **** #elif defined(FUSION_RTOS)
+ 102:../src/src/wolfio.c ****     #include <fclerrno.h>
+ 103:../src/src/wolfio.c ****     return FCL_GET_ERRNO;
+ 104:../src/src/wolfio.c **** #else
+ 105:../src/src/wolfio.c ****     return errno;
+ 106:../src/src/wolfio.c **** #endif
+ 107:../src/src/wolfio.c **** }
+ 108:../src/src/wolfio.c **** 
+ 109:../src/src/wolfio.c **** static int TranslateIoError(int err)
+ 110:../src/src/wolfio.c **** {
+ 111:../src/src/wolfio.c ****     if (err > 0)
+ 112:../src/src/wolfio.c ****         return err;
+ 113:../src/src/wolfio.c **** 
+ 114:../src/src/wolfio.c ****     err = wolfSSL_LastError(err);
+ 115:../src/src/wolfio.c **** #if SOCKET_EWOULDBLOCK != SOCKET_EAGAIN
+ 116:../src/src/wolfio.c ****     if ((err == SOCKET_EWOULDBLOCK) || (err == SOCKET_EAGAIN))
+ 117:../src/src/wolfio.c **** #else
+ 118:../src/src/wolfio.c ****     if (err == SOCKET_EWOULDBLOCK)
+ 119:../src/src/wolfio.c **** #endif
+ 120:../src/src/wolfio.c ****     {
+ 121:../src/src/wolfio.c ****         WOLFSSL_MSG("\tWould block");
+ 122:../src/src/wolfio.c ****         return WOLFSSL_CBIO_ERR_WANT_READ;
+ 123:../src/src/wolfio.c ****     }
+ 124:../src/src/wolfio.c ****     else if (err == SOCKET_ECONNRESET) {
+ 125:../src/src/wolfio.c ****         WOLFSSL_MSG("\tConnection reset");
+ 126:../src/src/wolfio.c ****         return WOLFSSL_CBIO_ERR_CONN_RST;
+ 127:../src/src/wolfio.c ****     }
+ 128:../src/src/wolfio.c ****     else if (err == SOCKET_EINTR) {
+ 129:../src/src/wolfio.c ****         WOLFSSL_MSG("\tSocket interrupted");
+ 130:../src/src/wolfio.c ****         return WOLFSSL_CBIO_ERR_ISR;
+ 131:../src/src/wolfio.c ****     }
+ 132:../src/src/wolfio.c ****     else if (err == SOCKET_EPIPE) {
+ 133:../src/src/wolfio.c ****         WOLFSSL_MSG("\tBroken pipe");
+ 134:../src/src/wolfio.c ****         return WOLFSSL_CBIO_ERR_CONN_CLOSE;
+ 135:../src/src/wolfio.c ****     }
+ 136:../src/src/wolfio.c ****     else if (err == SOCKET_ECONNABORTED) {
+ 137:../src/src/wolfio.c ****         WOLFSSL_MSG("\tConnection aborted");
+ 138:../src/src/wolfio.c ****         return WOLFSSL_CBIO_ERR_CONN_CLOSE;
+ 139:../src/src/wolfio.c ****     }
+ 140:../src/src/wolfio.c **** 
+ 141:../src/src/wolfio.c ****     WOLFSSL_MSG("\tGeneral error");
+ 142:../src/src/wolfio.c ****     return WOLFSSL_CBIO_ERR_GENERAL;
+ 143:../src/src/wolfio.c **** }
+ 144:../src/src/wolfio.c **** #endif /* USE_WOLFSSL_IO || HAVE_HTTP_CLIENT */
+ 145:../src/src/wolfio.c **** 
+ 146:../src/src/wolfio.c **** #ifdef OPENSSL_EXTRA
+ 147:../src/src/wolfio.c **** #ifndef NO_BIO
+ 148:../src/src/wolfio.c **** /* Use the WOLFSSL read BIO for receiving data. This is set by the function
+ 149:../src/src/wolfio.c ****  * wolfSSL_set_bio and can also be set by wolfSSL_CTX_SetIORecv.
+ 150:../src/src/wolfio.c ****  *
+ 151:../src/src/wolfio.c ****  * ssl  WOLFSSL struct passed in that has this function set as the receive
+ 152:../src/src/wolfio.c ****  *      callback.
+ 153:../src/src/wolfio.c ****  * buf  buffer to fill with data read
+ 154:../src/src/wolfio.c ****  * sz   size of buf buffer
+ 155:../src/src/wolfio.c ****  * ctx  a user set context
+ 156:../src/src/wolfio.c ****  *
+ 157:../src/src/wolfio.c ****  * returns the amount of data read or want read. See WOLFSSL_CBIO_ERR_* values.
+ 158:../src/src/wolfio.c ****  */
+ 159:../src/src/wolfio.c **** int BioReceive(WOLFSSL* ssl, char* buf, int sz, void* ctx)
+ 160:../src/src/wolfio.c **** {
+ 161:../src/src/wolfio.c ****     int recvd = WOLFSSL_CBIO_ERR_GENERAL;
+ 162:../src/src/wolfio.c **** 
+ 163:../src/src/wolfio.c ****     WOLFSSL_ENTER("BioReceive");
+ 164:../src/src/wolfio.c **** 
+ 165:../src/src/wolfio.c ****     if (ssl->biord == NULL) {
+ 166:../src/src/wolfio.c ****         WOLFSSL_MSG("WOLFSSL biord not set");
+ 167:../src/src/wolfio.c ****         return WOLFSSL_CBIO_ERR_GENERAL;
+ 168:../src/src/wolfio.c ****     }
+ 169:../src/src/wolfio.c **** 
+ 170:../src/src/wolfio.c ****     recvd = wolfSSL_BIO_read(ssl->biord, buf, sz);
+ 171:../src/src/wolfio.c ****     if (recvd <= 0) {
+ 172:../src/src/wolfio.c ****         if (/* ssl->biowr->wrIdx is checked for Bind9 */
+ 173:../src/src/wolfio.c ****             wolfSSL_BIO_method_type(ssl->biowr) == WOLFSSL_BIO_BIO &&
+ 174:../src/src/wolfio.c ****             wolfSSL_BIO_wpending(ssl->biowr) != 0 &&
+ 175:../src/src/wolfio.c ****             /* Not sure this pending check is necessary but let's double
+ 176:../src/src/wolfio.c ****              * check that the read BIO is empty before we signal a write
+ 177:../src/src/wolfio.c ****              * need */
+ 178:../src/src/wolfio.c ****             wolfSSL_BIO_supports_pending(ssl->biord) &&
+ 179:../src/src/wolfio.c ****             wolfSSL_BIO_ctrl_pending(ssl->biord) == 0) {
+ 180:../src/src/wolfio.c ****             /* Let's signal to the app layer that we have
+ 181:../src/src/wolfio.c ****              * data pending that needs to be sent. */
+ 182:../src/src/wolfio.c ****             return WOLFSSL_CBIO_ERR_WANT_WRITE;
+ 183:../src/src/wolfio.c ****         }
+ 184:../src/src/wolfio.c ****         else if (ssl->biord->type == WOLFSSL_BIO_SOCKET) {
+ 185:../src/src/wolfio.c ****             if (recvd == 0) {
+ 186:../src/src/wolfio.c ****                 WOLFSSL_MSG("BioReceive connection closed");
+ 187:../src/src/wolfio.c ****                 return WOLFSSL_CBIO_ERR_CONN_CLOSE;
+ 188:../src/src/wolfio.c ****             }
+ 189:../src/src/wolfio.c ****         #ifdef USE_WOLFSSL_IO
+ 190:../src/src/wolfio.c ****             recvd = TranslateIoError(recvd);
+ 191:../src/src/wolfio.c ****         #endif
+ 192:../src/src/wolfio.c ****             return recvd;
+ 193:../src/src/wolfio.c ****         }
+ 194:../src/src/wolfio.c **** 
+ 195:../src/src/wolfio.c ****         /* If retry and read flags are set, return WANT_READ */
+ 196:../src/src/wolfio.c ****         if ((ssl->biord->flags & WOLFSSL_BIO_FLAG_READ) &&
+ 197:../src/src/wolfio.c ****             (ssl->biord->flags & WOLFSSL_BIO_FLAG_RETRY)) {
+ 198:../src/src/wolfio.c ****             return WOLFSSL_CBIO_ERR_WANT_READ;
+ 199:../src/src/wolfio.c ****         }
+ 200:../src/src/wolfio.c **** 
+ 201:../src/src/wolfio.c ****         WOLFSSL_MSG("BIO general error");
+ 202:../src/src/wolfio.c ****         return WOLFSSL_CBIO_ERR_GENERAL;
+ 203:../src/src/wolfio.c ****     }
+ 204:../src/src/wolfio.c **** 
+ 205:../src/src/wolfio.c ****     (void)ctx;
+ 206:../src/src/wolfio.c ****     return recvd;
+ 207:../src/src/wolfio.c **** }
+ 208:../src/src/wolfio.c **** 
+ 209:../src/src/wolfio.c **** 
+ 210:../src/src/wolfio.c **** /* Use the WOLFSSL write BIO for sending data. This is set by the function
+ 211:../src/src/wolfio.c ****  * wolfSSL_set_bio and can also be set by wolfSSL_CTX_SetIOSend.
+ 212:../src/src/wolfio.c ****  *
+ 213:../src/src/wolfio.c ****  * ssl  WOLFSSL struct passed in that has this function set as the send callback.
+ 214:../src/src/wolfio.c ****  * buf  buffer with data to write out
+ 215:../src/src/wolfio.c ****  * sz   size of buf buffer
+ 216:../src/src/wolfio.c ****  * ctx  a user set context
+ 217:../src/src/wolfio.c ****  *
+ 218:../src/src/wolfio.c ****  * returns the amount of data sent or want send. See WOLFSSL_CBIO_ERR_* values.
+ 219:../src/src/wolfio.c ****  */
+ 220:../src/src/wolfio.c **** int BioSend(WOLFSSL* ssl, char *buf, int sz, void *ctx)
+ 221:../src/src/wolfio.c **** {
+ 222:../src/src/wolfio.c ****     int sent = WOLFSSL_CBIO_ERR_GENERAL;
+ 223:../src/src/wolfio.c **** 
+ 224:../src/src/wolfio.c ****     WOLFSSL_ENTER("BioSend");
+ 225:../src/src/wolfio.c **** 
+ 226:../src/src/wolfio.c ****     if (ssl->biowr == NULL) {
+ 227:../src/src/wolfio.c ****         WOLFSSL_MSG("WOLFSSL biowr not set");
+ 228:../src/src/wolfio.c ****         return WOLFSSL_CBIO_ERR_GENERAL;
+ 229:../src/src/wolfio.c ****     }
+ 230:../src/src/wolfio.c **** 
+ 231:../src/src/wolfio.c ****     sent = wolfSSL_BIO_write(ssl->biowr, buf, sz);
+ 232:../src/src/wolfio.c ****     if (sent <= 0) {
+ 233:../src/src/wolfio.c ****         if (ssl->biowr->type == WOLFSSL_BIO_SOCKET) {
+ 234:../src/src/wolfio.c ****         #ifdef USE_WOLFSSL_IO
+ 235:../src/src/wolfio.c ****             sent = TranslateIoError(sent);
+ 236:../src/src/wolfio.c ****         #endif
+ 237:../src/src/wolfio.c ****             return sent;
+ 238:../src/src/wolfio.c ****         }
+ 239:../src/src/wolfio.c ****         else if (ssl->biowr->type == WOLFSSL_BIO_BIO) {
+ 240:../src/src/wolfio.c ****             if (sent == WOLFSSL_BIO_ERROR) {
+ 241:../src/src/wolfio.c ****                 WOLFSSL_MSG("\tWould Block");
+ 242:../src/src/wolfio.c ****                 return WOLFSSL_CBIO_ERR_WANT_WRITE;
+ 243:../src/src/wolfio.c ****             }
+ 244:../src/src/wolfio.c ****         }
+ 245:../src/src/wolfio.c **** 
+ 246:../src/src/wolfio.c ****         /* If retry and write flags are set, return WANT_WRITE */
+ 247:../src/src/wolfio.c ****         if ((ssl->biord->flags & WOLFSSL_BIO_FLAG_WRITE) &&
+ 248:../src/src/wolfio.c ****             (ssl->biord->flags & WOLFSSL_BIO_FLAG_RETRY)) {
+ 249:../src/src/wolfio.c ****             return WOLFSSL_CBIO_ERR_WANT_WRITE;
+ 250:../src/src/wolfio.c ****         }
+ 251:../src/src/wolfio.c **** 
+ 252:../src/src/wolfio.c ****         return WOLFSSL_CBIO_ERR_GENERAL;
+ 253:../src/src/wolfio.c ****     }
+ 254:../src/src/wolfio.c ****     (void)ctx;
+ 255:../src/src/wolfio.c **** 
+ 256:../src/src/wolfio.c ****     return sent;
+ 257:../src/src/wolfio.c **** }
+ 258:../src/src/wolfio.c **** #endif /* !NO_BIO */
+ 259:../src/src/wolfio.c **** #endif /* OPENSSL_EXTRA */
+ 260:../src/src/wolfio.c **** 
+ 261:../src/src/wolfio.c **** 
+ 262:../src/src/wolfio.c **** #ifdef USE_WOLFSSL_IO
+ 263:../src/src/wolfio.c **** 
+ 264:../src/src/wolfio.c **** /* The receive embedded callback
+ 265:../src/src/wolfio.c ****  *  return : nb bytes read, or error
+ 266:../src/src/wolfio.c ****  */
+ 267:../src/src/wolfio.c **** int EmbedReceive(WOLFSSL *ssl, char *buf, int sz, void *ctx)
+ 268:../src/src/wolfio.c **** {
+ 269:../src/src/wolfio.c ****     int recvd;
+ 270:../src/src/wolfio.c **** #ifndef WOLFSSL_LINUXKM
+ 271:../src/src/wolfio.c ****     int sd = *(int*)ctx;
+ 272:../src/src/wolfio.c **** #else
+ 273:../src/src/wolfio.c ****     struct socket *sd = (struct socket*)ctx;
+ 274:../src/src/wolfio.c **** #endif
+ 275:../src/src/wolfio.c **** 
+ 276:../src/src/wolfio.c ****     recvd = wolfIO_Recv(sd, buf, sz, ssl->rflags);
+ 277:../src/src/wolfio.c ****     if (recvd < 0) {
+ 278:../src/src/wolfio.c ****         WOLFSSL_MSG("Embed Receive error");
+ 279:../src/src/wolfio.c ****         return TranslateIoError(recvd);
+ 280:../src/src/wolfio.c ****     }
+ 281:../src/src/wolfio.c ****     else if (recvd == 0) {
+ 282:../src/src/wolfio.c ****         WOLFSSL_MSG("Embed receive connection closed");
+ 283:../src/src/wolfio.c ****         return WOLFSSL_CBIO_ERR_CONN_CLOSE;
+ 284:../src/src/wolfio.c ****     }
+ 285:../src/src/wolfio.c **** 
+ 286:../src/src/wolfio.c ****     return recvd;
+ 287:../src/src/wolfio.c **** }
+ 288:../src/src/wolfio.c **** 
+ 289:../src/src/wolfio.c **** /* The send embedded callback
+ 290:../src/src/wolfio.c ****  *  return : nb bytes sent, or error
+ 291:../src/src/wolfio.c ****  */
+ 292:../src/src/wolfio.c **** int EmbedSend(WOLFSSL* ssl, char *buf, int sz, void *ctx)
+ 293:../src/src/wolfio.c **** {
+ 294:../src/src/wolfio.c ****     int sent;
+ 295:../src/src/wolfio.c **** #ifndef WOLFSSL_LINUXKM
+ 296:../src/src/wolfio.c ****     int sd = *(int*)ctx;
+ 297:../src/src/wolfio.c **** #else
+ 298:../src/src/wolfio.c ****     struct socket *sd = (struct socket*)ctx;
+ 299:../src/src/wolfio.c **** #endif
+ 300:../src/src/wolfio.c **** 
+ 301:../src/src/wolfio.c **** #ifdef WOLFSSL_MAX_SEND_SZ
+ 302:../src/src/wolfio.c ****     if (sz > WOLFSSL_MAX_SEND_SZ)
+ 303:../src/src/wolfio.c ****         sz = WOLFSSL_MAX_SEND_SZ;
+ 304:../src/src/wolfio.c **** #endif
+ 305:../src/src/wolfio.c **** 
+ 306:../src/src/wolfio.c ****     sent = wolfIO_Send(sd, buf, sz, ssl->wflags);
+ 307:../src/src/wolfio.c ****     if (sent < 0) {
+ 308:../src/src/wolfio.c ****         WOLFSSL_MSG("Embed Send error");
+ 309:../src/src/wolfio.c ****         return TranslateIoError(sent);
+ 310:../src/src/wolfio.c ****     }
+ 311:../src/src/wolfio.c **** 
+ 312:../src/src/wolfio.c ****     return sent;
+ 313:../src/src/wolfio.c **** }
+ 314:../src/src/wolfio.c **** 
+ 315:../src/src/wolfio.c **** 
+ 316:../src/src/wolfio.c **** #ifdef WOLFSSL_DTLS
+ 317:../src/src/wolfio.c **** 
+ 318:../src/src/wolfio.c **** #include <wolfssl/wolfcrypt/sha.h>
+ 319:../src/src/wolfio.c **** 
+ 320:../src/src/wolfio.c **** #ifndef DTLS_SENDTO_FUNCTION
+ 321:../src/src/wolfio.c ****     #define DTLS_SENDTO_FUNCTION sendto
+ 322:../src/src/wolfio.c **** #endif
+ 323:../src/src/wolfio.c **** #ifndef DTLS_RECVFROM_FUNCTION
+ 324:../src/src/wolfio.c ****     #define DTLS_RECVFROM_FUNCTION recvfrom
+ 325:../src/src/wolfio.c **** #endif
+ 326:../src/src/wolfio.c **** 
+ 327:../src/src/wolfio.c **** static int sockAddrEqual(
+ 328:../src/src/wolfio.c ****     SOCKADDR_S *a, XSOCKLENT aLen, SOCKADDR_S *b, XSOCKLENT bLen)
+ 329:../src/src/wolfio.c **** {
+ 330:../src/src/wolfio.c ****     if (aLen != bLen)
+ 331:../src/src/wolfio.c ****         return 0;
+ 332:../src/src/wolfio.c **** 
+ 333:../src/src/wolfio.c ****     if (a->ss_family != b->ss_family)
+ 334:../src/src/wolfio.c ****         return 0;
+ 335:../src/src/wolfio.c **** 
+ 336:../src/src/wolfio.c ****     if (a->ss_family == AF_INET) {
+ 337:../src/src/wolfio.c **** 
+ 338:../src/src/wolfio.c ****         if (aLen < (XSOCKLENT)sizeof(SOCKADDR_IN))
+ 339:../src/src/wolfio.c ****             return 0;
+ 340:../src/src/wolfio.c **** 
+ 341:../src/src/wolfio.c ****         if (((SOCKADDR_IN*)a)->sin_port != ((SOCKADDR_IN*)b)->sin_port)
+ 342:../src/src/wolfio.c ****             return 0;
+ 343:../src/src/wolfio.c **** 
+ 344:../src/src/wolfio.c ****         if (((SOCKADDR_IN*)a)->sin_addr.s_addr !=
+ 345:../src/src/wolfio.c ****             ((SOCKADDR_IN*)b)->sin_addr.s_addr)
+ 346:../src/src/wolfio.c ****             return 0;
+ 347:../src/src/wolfio.c **** 
+ 348:../src/src/wolfio.c ****         return 1;
+ 349:../src/src/wolfio.c ****     }
+ 350:../src/src/wolfio.c **** 
+ 351:../src/src/wolfio.c **** #ifdef WOLFSSL_IPV6
+ 352:../src/src/wolfio.c ****     if (a->ss_family == AF_INET6) {
+ 353:../src/src/wolfio.c ****         SOCKADDR_IN6 *a6, *b6;
+ 354:../src/src/wolfio.c **** 
+ 355:../src/src/wolfio.c ****         if (aLen < (XSOCKLENT)sizeof(SOCKADDR_IN6))
+ 356:../src/src/wolfio.c ****             return 0;
+ 357:../src/src/wolfio.c **** 
+ 358:../src/src/wolfio.c ****         a6 = (SOCKADDR_IN6*)a;
+ 359:../src/src/wolfio.c ****         b6 = (SOCKADDR_IN6*)b;
+ 360:../src/src/wolfio.c **** 
+ 361:../src/src/wolfio.c ****         if (((SOCKADDR_IN6*)a)->sin6_port != ((SOCKADDR_IN6*)b)->sin6_port)
+ 362:../src/src/wolfio.c ****             return 0;
+ 363:../src/src/wolfio.c **** 
+ 364:../src/src/wolfio.c ****         if (XMEMCMP((void*)&a6->sin6_addr, (void*)&b6->sin6_addr,
+ 365:../src/src/wolfio.c ****                 sizeof(a6->sin6_addr)) != 0)
+ 366:../src/src/wolfio.c ****             return 0;
+ 367:../src/src/wolfio.c **** 
+ 368:../src/src/wolfio.c ****         return 1;
+ 369:../src/src/wolfio.c ****     }
+ 370:../src/src/wolfio.c **** #endif /* WOLFSSL_HAVE_IPV6 */
+ 371:../src/src/wolfio.c **** 
+ 372:../src/src/wolfio.c ****     return 0;
+ 373:../src/src/wolfio.c **** }
+ 374:../src/src/wolfio.c **** 
+ 375:../src/src/wolfio.c **** /* The receive embedded callback
+ 376:../src/src/wolfio.c ****  *  return : nb bytes read, or error
+ 377:../src/src/wolfio.c ****  */
+ 378:../src/src/wolfio.c **** int EmbedReceiveFrom(WOLFSSL *ssl, char *buf, int sz, void *ctx)
+ 379:../src/src/wolfio.c **** {
+ 380:../src/src/wolfio.c ****     WOLFSSL_DTLS_CTX* dtlsCtx = (WOLFSSL_DTLS_CTX*)ctx;
+ 381:../src/src/wolfio.c ****     int recvd;
+ 382:../src/src/wolfio.c ****     int sd = dtlsCtx->rfd;
+ 383:../src/src/wolfio.c ****     int dtls_timeout = wolfSSL_dtls_get_current_timeout(ssl);
+ 384:../src/src/wolfio.c ****     byte doDtlsTimeout;
+ 385:../src/src/wolfio.c ****     SOCKADDR_S lclPeer;
+ 386:../src/src/wolfio.c ****     SOCKADDR_S* peer;
+ 387:../src/src/wolfio.c ****     XSOCKLENT peerSz;
+ 388:../src/src/wolfio.c **** 
+ 389:../src/src/wolfio.c ****     WOLFSSL_ENTER("EmbedReceiveFrom()");
+ 390:../src/src/wolfio.c **** 
+ 391:../src/src/wolfio.c ****     if (dtlsCtx->connected) {
+ 392:../src/src/wolfio.c ****         peer = NULL;
+ 393:../src/src/wolfio.c ****     }
+ 394:../src/src/wolfio.c ****     else if (dtlsCtx->userSet) {
+ 395:../src/src/wolfio.c ****         peer = &lclPeer;
+ 396:../src/src/wolfio.c ****         XMEMSET(&lclPeer, 0, sizeof(lclPeer));
+ 397:../src/src/wolfio.c ****         peerSz = sizeof(lclPeer);
+ 398:../src/src/wolfio.c ****     }
+ 399:../src/src/wolfio.c ****     else {
+ 400:../src/src/wolfio.c ****         /* Store the peer address. It is used to calculate the DTLS cookie. */
+ 401:../src/src/wolfio.c ****         if (dtlsCtx->peer.sa == NULL) {
+ 402:../src/src/wolfio.c ****             dtlsCtx->peer.sa = (void*)XMALLOC(sizeof(SOCKADDR_S),
+ 403:../src/src/wolfio.c ****                     ssl->heap, DYNAMIC_TYPE_SOCKADDR);
+ 404:../src/src/wolfio.c ****             dtlsCtx->peer.sz = 0;
+ 405:../src/src/wolfio.c ****             if (dtlsCtx->peer.sa != NULL)
+ 406:../src/src/wolfio.c ****                 dtlsCtx->peer.bufSz = sizeof(SOCKADDR_S);
+ 407:../src/src/wolfio.c ****             else
+ 408:../src/src/wolfio.c ****                 dtlsCtx->peer.bufSz = 0;
+ 409:../src/src/wolfio.c ****         }
+ 410:../src/src/wolfio.c ****         peer = (SOCKADDR_S*)dtlsCtx->peer.sa;
+ 411:../src/src/wolfio.c ****         peerSz = dtlsCtx->peer.bufSz;
+ 412:../src/src/wolfio.c ****     }
+ 413:../src/src/wolfio.c **** 
+ 414:../src/src/wolfio.c ****     /* Don't use ssl->options.handShakeDone since it is true even if
+ 415:../src/src/wolfio.c ****      * we are in the process of renegotiation */
+ 416:../src/src/wolfio.c ****     doDtlsTimeout = ssl->options.handShakeState != HANDSHAKE_DONE;
+ 417:../src/src/wolfio.c **** 
+ 418:../src/src/wolfio.c **** #ifdef WOLFSSL_DTLS13
+ 419:../src/src/wolfio.c ****     if (ssl->options.dtls && IsAtLeastTLSv1_3(ssl->version)) {
+ 420:../src/src/wolfio.c ****         doDtlsTimeout =
+ 421:../src/src/wolfio.c ****             doDtlsTimeout || ssl->dtls13Rtx.rtxRecords != NULL ||
+ 422:../src/src/wolfio.c ****             (ssl->dtls13FastTimeout && ssl->dtls13Rtx.seenRecords != NULL);
+ 423:../src/src/wolfio.c ****     }
+ 424:../src/src/wolfio.c **** #endif /* WOLFSSL_DTLS13 */
+ 425:../src/src/wolfio.c **** 
+ 426:../src/src/wolfio.c ****     if (!doDtlsTimeout)
+ 427:../src/src/wolfio.c ****         dtls_timeout = 0;
+ 428:../src/src/wolfio.c **** 
+ 429:../src/src/wolfio.c ****     if (!wolfSSL_get_using_nonblock(ssl)) {
+ 430:../src/src/wolfio.c ****         #ifdef USE_WINDOWS_API
+ 431:../src/src/wolfio.c ****             DWORD timeout = dtls_timeout * 1000;
+ 432:../src/src/wolfio.c ****             #ifdef WOLFSSL_DTLS13
+ 433:../src/src/wolfio.c ****             if (wolfSSL_dtls13_use_quick_timeout(ssl) &&
+ 434:../src/src/wolfio.c ****                 IsAtLeastTLSv1_3(ssl->version))
+ 435:../src/src/wolfio.c ****                 timeout /= 4;
+ 436:../src/src/wolfio.c ****             #endif /* WOLFSSL_DTLS13 */
+ 437:../src/src/wolfio.c ****         #else
+ 438:../src/src/wolfio.c ****             struct timeval timeout;
+ 439:../src/src/wolfio.c ****             XMEMSET(&timeout, 0, sizeof(timeout));
+ 440:../src/src/wolfio.c ****             #ifdef WOLFSSL_DTLS13
+ 441:../src/src/wolfio.c ****             if (wolfSSL_dtls13_use_quick_timeout(ssl) &&
+ 442:../src/src/wolfio.c ****                 IsAtLeastTLSv1_3(ssl->version)) {
+ 443:../src/src/wolfio.c ****                 if (dtls_timeout >= 4)
+ 444:../src/src/wolfio.c ****                     timeout.tv_sec = dtls_timeout / 4;
+ 445:../src/src/wolfio.c ****                 else
+ 446:../src/src/wolfio.c ****                     timeout.tv_usec = dtls_timeout * 1000000 / 4;
+ 447:../src/src/wolfio.c ****             }
+ 448:../src/src/wolfio.c ****             else
+ 449:../src/src/wolfio.c ****             #endif /* WOLFSSL_DTLS13 */
+ 450:../src/src/wolfio.c ****                 timeout.tv_sec = dtls_timeout;
+ 451:../src/src/wolfio.c ****         #endif
+ 452:../src/src/wolfio.c ****         if (setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout,
+ 453:../src/src/wolfio.c ****                        sizeof(timeout)) != 0) {
+ 454:../src/src/wolfio.c ****                 WOLFSSL_MSG("setsockopt rcvtimeo failed");
+ 455:../src/src/wolfio.c ****         }
+ 456:../src/src/wolfio.c ****     }
+ 457:../src/src/wolfio.c **** #ifndef NO_ASN_TIME
+ 458:../src/src/wolfio.c ****     else if(IsSCR(ssl)) {
+ 459:../src/src/wolfio.c ****         if (ssl->dtls_start_timeout &&
+ 460:../src/src/wolfio.c ****                 LowResTimer() - ssl->dtls_start_timeout > (word32)dtls_timeout) {
+ 461:../src/src/wolfio.c ****             ssl->dtls_start_timeout = 0;
+ 462:../src/src/wolfio.c ****             return WOLFSSL_CBIO_ERR_TIMEOUT;
+ 463:../src/src/wolfio.c ****         }
+ 464:../src/src/wolfio.c ****         else if (!ssl->dtls_start_timeout) {
+ 465:../src/src/wolfio.c ****             ssl->dtls_start_timeout = LowResTimer();
+ 466:../src/src/wolfio.c ****         }
+ 467:../src/src/wolfio.c ****     }
+ 468:../src/src/wolfio.c **** #endif /* !NO_ASN_TIME */
+ 469:../src/src/wolfio.c **** 
+ 470:../src/src/wolfio.c ****     recvd = (int)DTLS_RECVFROM_FUNCTION(sd, buf, sz, ssl->rflags,
+ 471:../src/src/wolfio.c ****                       (SOCKADDR*)peer, peer != NULL ? &peerSz : NULL);
+ 472:../src/src/wolfio.c **** 
+ 473:../src/src/wolfio.c ****     recvd = TranslateReturnCode(recvd, sd);
+ 474:../src/src/wolfio.c **** 
+ 475:../src/src/wolfio.c ****     if (recvd < 0) {
+ 476:../src/src/wolfio.c ****         WOLFSSL_MSG("Embed Receive From error");
+ 477:../src/src/wolfio.c ****         recvd = TranslateIoError(recvd);
+ 478:../src/src/wolfio.c ****         if (recvd == WOLFSSL_CBIO_ERR_WANT_READ &&
+ 479:../src/src/wolfio.c ****             !wolfSSL_dtls_get_using_nonblock(ssl)) {
+ 480:../src/src/wolfio.c ****             recvd = WOLFSSL_CBIO_ERR_TIMEOUT;
+ 481:../src/src/wolfio.c ****         }
+ 482:../src/src/wolfio.c ****         return recvd;
+ 483:../src/src/wolfio.c ****     }
+ 484:../src/src/wolfio.c ****     else if (dtlsCtx->connected) {
+ 485:../src/src/wolfio.c ****         /* Nothing to do */
+ 486:../src/src/wolfio.c ****     }
+ 487:../src/src/wolfio.c ****     else if (dtlsCtx->userSet) {
+ 488:../src/src/wolfio.c ****         /* Check we received the packet from the correct peer */
+ 489:../src/src/wolfio.c ****         if (dtlsCtx->peer.sz > 0 &&
+ 490:../src/src/wolfio.c ****             (peerSz != (XSOCKLENT)dtlsCtx->peer.sz ||
+ 491:../src/src/wolfio.c ****                 !sockAddrEqual(peer, peerSz, (SOCKADDR_S*)dtlsCtx->peer.sa,
+ 492:../src/src/wolfio.c ****                     dtlsCtx->peer.sz))) {
+ 493:../src/src/wolfio.c ****             WOLFSSL_MSG("    Ignored packet from invalid peer");
+ 494:../src/src/wolfio.c ****             return WOLFSSL_CBIO_ERR_WANT_READ;
+ 495:../src/src/wolfio.c ****         }
+ 496:../src/src/wolfio.c ****     }
+ 497:../src/src/wolfio.c ****     else {
+ 498:../src/src/wolfio.c ****         /* Store size of saved address */
+ 499:../src/src/wolfio.c ****         dtlsCtx->peer.sz = peerSz;
+ 500:../src/src/wolfio.c ****     }
+ 501:../src/src/wolfio.c **** #ifndef NO_ASN_TIME
+ 502:../src/src/wolfio.c ****     ssl->dtls_start_timeout = 0;
+ 503:../src/src/wolfio.c **** #endif /* !NO_ASN_TIME */
+ 504:../src/src/wolfio.c **** 
+ 505:../src/src/wolfio.c ****     return recvd;
+ 506:../src/src/wolfio.c **** }
+ 507:../src/src/wolfio.c **** 
+ 508:../src/src/wolfio.c **** 
+ 509:../src/src/wolfio.c **** /* The send embedded callback
+ 510:../src/src/wolfio.c ****  *  return : nb bytes sent, or error
+ 511:../src/src/wolfio.c ****  */
+ 512:../src/src/wolfio.c **** int EmbedSendTo(WOLFSSL* ssl, char *buf, int sz, void *ctx)
+ 513:../src/src/wolfio.c **** {
+ 514:../src/src/wolfio.c ****     WOLFSSL_DTLS_CTX* dtlsCtx = (WOLFSSL_DTLS_CTX*)ctx;
+ 515:../src/src/wolfio.c ****     int sd = dtlsCtx->wfd;
+ 516:../src/src/wolfio.c ****     int sent;
+ 517:../src/src/wolfio.c ****     const SOCKADDR_S* peer = NULL;
+ 518:../src/src/wolfio.c ****     XSOCKLENT peerSz = 0;
+ 519:../src/src/wolfio.c ****     int type;
+ 520:../src/src/wolfio.c ****     XSOCKLENT length = sizeof(int); /* optvalue 'type' is of size int */
+ 521:../src/src/wolfio.c **** 
+ 522:../src/src/wolfio.c ****     WOLFSSL_ENTER("EmbedSendTo()");
+ 523:../src/src/wolfio.c **** 
+ 524:../src/src/wolfio.c ****     if (getsockopt(sd, SOL_SOCKET, SO_TYPE, &type, &length) == 0 &&
+ 525:../src/src/wolfio.c ****             type != SOCK_DGRAM) {
+ 526:../src/src/wolfio.c ****         /* Probably a TCP socket. peer and peerSz MUST be NULL and 0 */
+ 527:../src/src/wolfio.c ****     }
+ 528:../src/src/wolfio.c ****     else if (!dtlsCtx->connected) {
+ 529:../src/src/wolfio.c ****         peer   = (const SOCKADDR_S*)dtlsCtx->peer.sa;
+ 530:../src/src/wolfio.c ****         peerSz = dtlsCtx->peer.sz;
+ 531:../src/src/wolfio.c ****     }
+ 532:../src/src/wolfio.c **** 
+ 533:../src/src/wolfio.c ****     sent = (int)DTLS_SENDTO_FUNCTION(sd, buf, sz, ssl->wflags,
+ 534:../src/src/wolfio.c ****             (const SOCKADDR*)peer, peerSz);
+ 535:../src/src/wolfio.c **** 
+ 536:../src/src/wolfio.c ****     sent = TranslateReturnCode(sent, sd);
+ 537:../src/src/wolfio.c **** 
+ 538:../src/src/wolfio.c ****     if (sent < 0) {
+ 539:../src/src/wolfio.c ****         WOLFSSL_MSG("Embed Send To error");
+ 540:../src/src/wolfio.c ****         return TranslateIoError(sent);
+ 541:../src/src/wolfio.c ****     }
+ 542:../src/src/wolfio.c **** 
+ 543:../src/src/wolfio.c ****     return sent;
+ 544:../src/src/wolfio.c **** }
+ 545:../src/src/wolfio.c **** 
+ 546:../src/src/wolfio.c **** 
+ 547:../src/src/wolfio.c **** #ifdef WOLFSSL_MULTICAST
+ 548:../src/src/wolfio.c **** 
+ 549:../src/src/wolfio.c **** /* The alternate receive embedded callback for Multicast
+ 550:../src/src/wolfio.c ****  *  return : nb bytes read, or error
+ 551:../src/src/wolfio.c ****  */
+ 552:../src/src/wolfio.c **** int EmbedReceiveFromMcast(WOLFSSL *ssl, char *buf, int sz, void *ctx)
+ 553:../src/src/wolfio.c **** {
+ 554:../src/src/wolfio.c ****     WOLFSSL_DTLS_CTX* dtlsCtx = (WOLFSSL_DTLS_CTX*)ctx;
+ 555:../src/src/wolfio.c ****     int recvd;
+ 556:../src/src/wolfio.c ****     int sd = dtlsCtx->rfd;
+ 557:../src/src/wolfio.c **** 
+ 558:../src/src/wolfio.c ****     WOLFSSL_ENTER("EmbedReceiveFromMcast()");
+ 559:../src/src/wolfio.c **** 
+ 560:../src/src/wolfio.c ****     recvd = (int)DTLS_RECVFROM_FUNCTION(sd, buf, sz, ssl->rflags, NULL, NULL);
+ 561:../src/src/wolfio.c **** 
+ 562:../src/src/wolfio.c ****     recvd = TranslateReturnCode(recvd, sd);
+ 563:../src/src/wolfio.c **** 
+ 564:../src/src/wolfio.c ****     if (recvd < 0) {
+ 565:../src/src/wolfio.c ****         WOLFSSL_MSG("Embed Receive From error");
+ 566:../src/src/wolfio.c ****         recvd = TranslateIoError(recvd);
+ 567:../src/src/wolfio.c ****         if (recvd == WOLFSSL_CBIO_ERR_WANT_READ &&
+ 568:../src/src/wolfio.c ****             !wolfSSL_dtls_get_using_nonblock(ssl)) {
+ 569:../src/src/wolfio.c ****             recvd = WOLFSSL_CBIO_ERR_TIMEOUT;
+ 570:../src/src/wolfio.c ****         }
+ 571:../src/src/wolfio.c ****         return recvd;
+ 572:../src/src/wolfio.c ****     }
+ 573:../src/src/wolfio.c **** 
+ 574:../src/src/wolfio.c ****     return recvd;
+ 575:../src/src/wolfio.c **** }
+ 576:../src/src/wolfio.c **** #endif /* WOLFSSL_MULTICAST */
+ 577:../src/src/wolfio.c **** 
+ 578:../src/src/wolfio.c **** 
+ 579:../src/src/wolfio.c **** /* The DTLS Generate Cookie callback
+ 580:../src/src/wolfio.c ****  *  return : number of bytes copied into buf, or error
+ 581:../src/src/wolfio.c ****  */
+ 582:../src/src/wolfio.c **** int EmbedGenerateCookie(WOLFSSL* ssl, byte *buf, int sz, void *ctx)
+ 583:../src/src/wolfio.c **** {
+ 584:../src/src/wolfio.c ****     int sd = ssl->wfd;
+ 585:../src/src/wolfio.c ****     SOCKADDR_S peer;
+ 586:../src/src/wolfio.c ****     XSOCKLENT peerSz = sizeof(peer);
+ 587:../src/src/wolfio.c ****     byte digest[WC_SHA256_DIGEST_SIZE];
+ 588:../src/src/wolfio.c ****     int  ret = 0;
+ 589:../src/src/wolfio.c **** 
+ 590:../src/src/wolfio.c ****     (void)ctx;
+ 591:../src/src/wolfio.c **** 
+ 592:../src/src/wolfio.c ****     XMEMSET(&peer, 0, sizeof(peer));
+ 593:../src/src/wolfio.c ****     if (getpeername(sd, (SOCKADDR*)&peer, &peerSz) != 0) {
+ 594:../src/src/wolfio.c ****         WOLFSSL_MSG("getpeername failed in EmbedGenerateCookie");
+ 595:../src/src/wolfio.c ****         return GEN_COOKIE_E;
+ 596:../src/src/wolfio.c ****     }
+ 597:../src/src/wolfio.c **** 
+ 598:../src/src/wolfio.c ****     ret = wc_Sha256Hash((byte*)&peer, peerSz, digest);
+ 599:../src/src/wolfio.c ****     if (ret != 0)
+ 600:../src/src/wolfio.c ****         return ret;
+ 601:../src/src/wolfio.c **** 
+ 602:../src/src/wolfio.c ****     if (sz > WC_SHA256_DIGEST_SIZE)
+ 603:../src/src/wolfio.c ****         sz = WC_SHA256_DIGEST_SIZE;
+ 604:../src/src/wolfio.c ****     XMEMCPY(buf, digest, sz);
+ 605:../src/src/wolfio.c **** 
+ 606:../src/src/wolfio.c ****     return sz;
+ 607:../src/src/wolfio.c **** }
+ 608:../src/src/wolfio.c **** #endif /* WOLFSSL_DTLS */
+ 609:../src/src/wolfio.c **** 
+ 610:../src/src/wolfio.c **** #ifdef WOLFSSL_SESSION_EXPORT
+ 611:../src/src/wolfio.c **** 
+ 612:../src/src/wolfio.c **** #ifdef WOLFSSL_DTLS
+ 613:../src/src/wolfio.c ****     static int EmbedGetPeerDTLS(WOLFSSL* ssl, char* ip, int* ipSz,
+ 614:../src/src/wolfio.c ****                                                  unsigned short* port, int* fam)
+ 615:../src/src/wolfio.c ****     {
+ 616:../src/src/wolfio.c ****         SOCKADDR_S peer;
+ 617:../src/src/wolfio.c ****         word32     peerSz;
+ 618:../src/src/wolfio.c ****         int        ret;
+ 619:../src/src/wolfio.c **** 
+ 620:../src/src/wolfio.c ****         /* get peer information stored in ssl struct */
+ 621:../src/src/wolfio.c ****         peerSz = sizeof(SOCKADDR_S);
+ 622:../src/src/wolfio.c ****         if ((ret = wolfSSL_dtls_get_peer(ssl, (void*)&peer, &peerSz))
+ 623:../src/src/wolfio.c ****                                                                != WOLFSSL_SUCCESS) {
+ 624:../src/src/wolfio.c ****             return ret;
+ 625:../src/src/wolfio.c ****         }
+ 626:../src/src/wolfio.c **** 
+ 627:../src/src/wolfio.c ****         /* extract family, ip, and port */
+ 628:../src/src/wolfio.c ****         *fam = ((SOCKADDR_S*)&peer)->ss_family;
+ 629:../src/src/wolfio.c ****         switch (*fam) {
+ 630:../src/src/wolfio.c ****             case WOLFSSL_IP4:
+ 631:../src/src/wolfio.c ****                 if (XINET_NTOP(*fam, &(((SOCKADDR_IN*)&peer)->sin_addr),
+ 632:../src/src/wolfio.c ****                                                            ip, *ipSz) == NULL) {
+ 633:../src/src/wolfio.c ****                     WOLFSSL_MSG("XINET_NTOP error");
+ 634:../src/src/wolfio.c ****                     return SOCKET_ERROR_E;
+ 635:../src/src/wolfio.c ****                 }
+ 636:../src/src/wolfio.c ****                 *port = XNTOHS(((SOCKADDR_IN*)&peer)->sin_port);
+ 637:../src/src/wolfio.c ****                 break;
+ 638:../src/src/wolfio.c **** 
+ 639:../src/src/wolfio.c ****             case WOLFSSL_IP6:
+ 640:../src/src/wolfio.c ****             #ifdef WOLFSSL_IPV6
+ 641:../src/src/wolfio.c ****                 if (XINET_NTOP(*fam, &(((SOCKADDR_IN6*)&peer)->sin6_addr),
+ 642:../src/src/wolfio.c ****                                                            ip, *ipSz) == NULL) {
+ 643:../src/src/wolfio.c ****                     WOLFSSL_MSG("XINET_NTOP error");
+ 644:../src/src/wolfio.c ****                     return SOCKET_ERROR_E;
+ 645:../src/src/wolfio.c ****                 }
+ 646:../src/src/wolfio.c ****                 *port = XNTOHS(((SOCKADDR_IN6*)&peer)->sin6_port);
+ 647:../src/src/wolfio.c ****             #endif /* WOLFSSL_IPV6 */
+ 648:../src/src/wolfio.c ****                 break;
+ 649:../src/src/wolfio.c **** 
+ 650:../src/src/wolfio.c ****             default:
+ 651:../src/src/wolfio.c ****                 WOLFSSL_MSG("Unknown family type");
+ 652:../src/src/wolfio.c ****                 return SOCKET_ERROR_E;
+ 653:../src/src/wolfio.c ****         }
+ 654:../src/src/wolfio.c ****         ip[*ipSz - 1] = '\0'; /* make sure has terminator */
+ 655:../src/src/wolfio.c ****         *ipSz = (word16)XSTRLEN(ip);
+ 656:../src/src/wolfio.c **** 
+ 657:../src/src/wolfio.c ****         return WOLFSSL_SUCCESS;
+ 658:../src/src/wolfio.c ****     }
+ 659:../src/src/wolfio.c **** 
+ 660:../src/src/wolfio.c ****     static int EmbedSetPeerDTLS(WOLFSSL* ssl, char* ip, int ipSz,
+ 661:../src/src/wolfio.c ****                                                    unsigned short port, int fam)
+ 662:../src/src/wolfio.c ****     {
+ 663:../src/src/wolfio.c ****         int    ret;
+ 664:../src/src/wolfio.c ****         SOCKADDR_S addr;
+ 665:../src/src/wolfio.c **** 
+ 666:../src/src/wolfio.c ****         /* sanity checks on arguments */
+ 667:../src/src/wolfio.c ****         if (ssl == NULL || ip == NULL || ipSz < 0 || ipSz > MAX_EXPORT_IP) {
+ 668:../src/src/wolfio.c ****             return BAD_FUNC_ARG;
+ 669:../src/src/wolfio.c ****         }
+ 670:../src/src/wolfio.c **** 
+ 671:../src/src/wolfio.c ****         addr.ss_family = fam;
+ 672:../src/src/wolfio.c ****         switch (addr.ss_family) {
+ 673:../src/src/wolfio.c ****             case WOLFSSL_IP4:
+ 674:../src/src/wolfio.c ****                 if (XINET_PTON(addr.ss_family, ip,
+ 675:../src/src/wolfio.c ****                                      &(((SOCKADDR_IN*)&addr)->sin_addr)) <= 0) {
+ 676:../src/src/wolfio.c ****                     WOLFSSL_MSG("XINET_PTON error");
+ 677:../src/src/wolfio.c ****                     return SOCKET_ERROR_E;
+ 678:../src/src/wolfio.c ****                 }
+ 679:../src/src/wolfio.c ****                 ((SOCKADDR_IN*)&addr)->sin_port = XHTONS(port);
+ 680:../src/src/wolfio.c **** 
+ 681:../src/src/wolfio.c ****                 /* peer sa is free'd in SSL_ResourceFree */
+ 682:../src/src/wolfio.c ****                 if ((ret = wolfSSL_dtls_set_peer(ssl, (SOCKADDR_IN*)&addr,
+ 683:../src/src/wolfio.c ****                                           sizeof(SOCKADDR_IN)))!= WOLFSSL_SUCCESS) {
+ 684:../src/src/wolfio.c ****                     WOLFSSL_MSG("Import DTLS peer info error");
+ 685:../src/src/wolfio.c ****                     return ret;
+ 686:../src/src/wolfio.c ****                 }
+ 687:../src/src/wolfio.c ****                 break;
+ 688:../src/src/wolfio.c **** 
+ 689:../src/src/wolfio.c ****             case WOLFSSL_IP6:
+ 690:../src/src/wolfio.c ****             #ifdef WOLFSSL_IPV6
+ 691:../src/src/wolfio.c ****                 if (XINET_PTON(addr.ss_family, ip,
+ 692:../src/src/wolfio.c ****                                    &(((SOCKADDR_IN6*)&addr)->sin6_addr)) <= 0) {
+ 693:../src/src/wolfio.c ****                     WOLFSSL_MSG("XINET_PTON error");
+ 694:../src/src/wolfio.c ****                     return SOCKET_ERROR_E;
+ 695:../src/src/wolfio.c ****                 }
+ 696:../src/src/wolfio.c ****                 ((SOCKADDR_IN6*)&addr)->sin6_port = XHTONS(port);
+ 697:../src/src/wolfio.c **** 
+ 698:../src/src/wolfio.c ****                 /* peer sa is free'd in SSL_ResourceFree */
+ 699:../src/src/wolfio.c ****                 if ((ret = wolfSSL_dtls_set_peer(ssl, (SOCKADDR_IN6*)&addr,
+ 700:../src/src/wolfio.c ****                                          sizeof(SOCKADDR_IN6)))!= WOLFSSL_SUCCESS) {
+ 701:../src/src/wolfio.c ****                     WOLFSSL_MSG("Import DTLS peer info error");
+ 702:../src/src/wolfio.c ****                     return ret;
+ 703:../src/src/wolfio.c ****                 }
+ 704:../src/src/wolfio.c ****             #endif /* WOLFSSL_IPV6 */
+ 705:../src/src/wolfio.c ****                 break;
+ 706:../src/src/wolfio.c **** 
+ 707:../src/src/wolfio.c ****             default:
+ 708:../src/src/wolfio.c ****                 WOLFSSL_MSG("Unknown address family");
+ 709:../src/src/wolfio.c ****                 return BUFFER_E;
+ 710:../src/src/wolfio.c ****         }
+ 711:../src/src/wolfio.c **** 
+ 712:../src/src/wolfio.c ****         return WOLFSSL_SUCCESS;
+ 713:../src/src/wolfio.c ****     }
+ 714:../src/src/wolfio.c **** #endif
+ 715:../src/src/wolfio.c **** 
+ 716:../src/src/wolfio.c ****     /* get the peer information in human readable form (ip, port, family)
+ 717:../src/src/wolfio.c ****      * default function assumes BSD sockets
+ 718:../src/src/wolfio.c ****      * can be overridden with wolfSSL_CTX_SetIOGetPeer
+ 719:../src/src/wolfio.c ****      */
+ 720:../src/src/wolfio.c ****     int EmbedGetPeer(WOLFSSL* ssl, char* ip, int* ipSz,
+ 721:../src/src/wolfio.c ****                                                  unsigned short* port, int* fam)
+ 722:../src/src/wolfio.c ****     {
+ 723:../src/src/wolfio.c ****         if (ssl == NULL || ip == NULL || ipSz == NULL ||
+ 724:../src/src/wolfio.c ****                                                   port == NULL || fam == NULL) {
+ 725:../src/src/wolfio.c ****             return BAD_FUNC_ARG;
+ 726:../src/src/wolfio.c ****         }
+ 727:../src/src/wolfio.c **** 
+ 728:../src/src/wolfio.c ****         if (ssl->options.dtls) {
+ 729:../src/src/wolfio.c ****         #ifdef WOLFSSL_DTLS
+ 730:../src/src/wolfio.c ****             return EmbedGetPeerDTLS(ssl, ip, ipSz, port, fam);
+ 731:../src/src/wolfio.c ****         #else
+ 732:../src/src/wolfio.c ****             return NOT_COMPILED_IN;
+ 733:../src/src/wolfio.c ****         #endif
+ 734:../src/src/wolfio.c ****         }
+ 735:../src/src/wolfio.c ****         else {
+ 736:../src/src/wolfio.c ****             *port = wolfSSL_get_fd(ssl);
+ 737:../src/src/wolfio.c ****             ip[0] = '\0';
+ 738:../src/src/wolfio.c ****             *ipSz = 0;
+ 739:../src/src/wolfio.c ****             *fam  = 0;
+ 740:../src/src/wolfio.c ****             return WOLFSSL_SUCCESS;
+ 741:../src/src/wolfio.c ****         }
+ 742:../src/src/wolfio.c ****     }
+ 743:../src/src/wolfio.c **** 
+ 744:../src/src/wolfio.c ****     /* set the peer information in human readable form (ip, port, family)
+ 745:../src/src/wolfio.c ****      * default function assumes BSD sockets
+ 746:../src/src/wolfio.c ****      * can be overridden with wolfSSL_CTX_SetIOSetPeer
+ 747:../src/src/wolfio.c ****      */
+ 748:../src/src/wolfio.c ****     int EmbedSetPeer(WOLFSSL* ssl, char* ip, int ipSz,
+ 749:../src/src/wolfio.c ****                                                    unsigned short port, int fam)
+ 750:../src/src/wolfio.c ****     {
+ 751:../src/src/wolfio.c ****         /* sanity checks on arguments */
+ 752:../src/src/wolfio.c ****         if (ssl == NULL || ip == NULL || ipSz < 0 || ipSz > MAX_EXPORT_IP) {
+ 753:../src/src/wolfio.c ****             return BAD_FUNC_ARG;
+ 754:../src/src/wolfio.c ****         }
+ 755:../src/src/wolfio.c **** 
+ 756:../src/src/wolfio.c ****         if (ssl->options.dtls) {
+ 757:../src/src/wolfio.c ****         #ifdef WOLFSSL_DTLS
+ 758:../src/src/wolfio.c ****             return EmbedSetPeerDTLS(ssl, ip, ipSz, port, fam);
+ 759:../src/src/wolfio.c ****         #else
+ 760:../src/src/wolfio.c ****             return NOT_COMPILED_IN;
+ 761:../src/src/wolfio.c ****         #endif
+ 762:../src/src/wolfio.c ****         }
+ 763:../src/src/wolfio.c ****         else {
+ 764:../src/src/wolfio.c ****             wolfSSL_set_fd(ssl, port);
+ 765:../src/src/wolfio.c ****             (void)fam;
+ 766:../src/src/wolfio.c ****             return WOLFSSL_SUCCESS;
+ 767:../src/src/wolfio.c ****         }
+ 768:../src/src/wolfio.c ****     }
+ 769:../src/src/wolfio.c **** #endif /* WOLFSSL_SESSION_EXPORT */
+ 770:../src/src/wolfio.c **** 
+ 771:../src/src/wolfio.c **** #ifdef WOLFSSL_LINUXKM
+ 772:../src/src/wolfio.c **** static int linuxkm_send(struct socket *socket, void *buf, int size,
+ 773:../src/src/wolfio.c ****     unsigned int flags)
+ 774:../src/src/wolfio.c **** {
+ 775:../src/src/wolfio.c ****     int ret;
+ 776:../src/src/wolfio.c ****     struct kvec vec = { .iov_base = buf, .iov_len = size };
+ 777:../src/src/wolfio.c ****     struct msghdr msg = { .msg_flags = flags };
+ 778:../src/src/wolfio.c ****     ret = kernel_sendmsg(socket, &msg, &vec, 1, size);
+ 779:../src/src/wolfio.c ****     return ret;
+ 780:../src/src/wolfio.c **** }
+ 781:../src/src/wolfio.c **** 
+ 782:../src/src/wolfio.c **** static int linuxkm_recv(struct socket *socket, void *buf, int size,
+ 783:../src/src/wolfio.c ****     unsigned int flags)
+ 784:../src/src/wolfio.c **** {
+ 785:../src/src/wolfio.c ****     int ret;
+ 786:../src/src/wolfio.c ****     struct kvec vec = { .iov_base = buf, .iov_len = size };
+ 787:../src/src/wolfio.c ****     struct msghdr msg = { .msg_flags = flags };
+ 788:../src/src/wolfio.c ****     ret = kernel_recvmsg(socket, &msg, &vec, 1, size, msg.msg_flags);
+ 789:../src/src/wolfio.c ****     return ret;
+ 790:../src/src/wolfio.c **** }
+ 791:../src/src/wolfio.c **** #endif /* WOLFSSL_LINUXKM */
+ 792:../src/src/wolfio.c **** 
+ 793:../src/src/wolfio.c **** 
+ 794:../src/src/wolfio.c **** int wolfIO_Recv(SOCKET_T sd, char *buf, int sz, int rdFlags)
+ 795:../src/src/wolfio.c **** {
+ 796:../src/src/wolfio.c ****     int recvd;
+ 797:../src/src/wolfio.c **** 
+ 798:../src/src/wolfio.c ****     recvd = (int)RECV_FUNCTION(sd, buf, sz, rdFlags);
+ 799:../src/src/wolfio.c ****     recvd = TranslateReturnCode(recvd, sd);
+ 800:../src/src/wolfio.c **** 
+ 801:../src/src/wolfio.c ****     return recvd;
+ 802:../src/src/wolfio.c **** }
+ 803:../src/src/wolfio.c **** 
+ 804:../src/src/wolfio.c **** int wolfIO_Send(SOCKET_T sd, char *buf, int sz, int wrFlags)
+ 805:../src/src/wolfio.c **** {
+ 806:../src/src/wolfio.c ****     int sent;
+ 807:../src/src/wolfio.c **** 
+ 808:../src/src/wolfio.c ****     sent = (int)SEND_FUNCTION(sd, buf, sz, wrFlags);
+ 809:../src/src/wolfio.c ****     sent = TranslateReturnCode(sent, sd);
+ 810:../src/src/wolfio.c **** 
+ 811:../src/src/wolfio.c ****     return sent;
+ 812:../src/src/wolfio.c **** }
+ 813:../src/src/wolfio.c **** 
+ 814:../src/src/wolfio.c **** #endif /* USE_WOLFSSL_IO */
+ 815:../src/src/wolfio.c **** 
+ 816:../src/src/wolfio.c **** 
+ 817:../src/src/wolfio.c **** #ifdef HAVE_HTTP_CLIENT
+ 818:../src/src/wolfio.c **** 
+ 819:../src/src/wolfio.c **** #ifndef HAVE_IO_TIMEOUT
+ 820:../src/src/wolfio.c ****     #define io_timeout_sec 0
+ 821:../src/src/wolfio.c **** #else
+ 822:../src/src/wolfio.c **** 
+ 823:../src/src/wolfio.c ****     #ifndef DEFAULT_TIMEOUT_SEC
+ 824:../src/src/wolfio.c ****         #define DEFAULT_TIMEOUT_SEC 0 /* no timeout */
+ 825:../src/src/wolfio.c ****     #endif
+ 826:../src/src/wolfio.c **** 
+ 827:../src/src/wolfio.c ****     static int io_timeout_sec = DEFAULT_TIMEOUT_SEC;
+ 828:../src/src/wolfio.c **** 
+ 829:../src/src/wolfio.c ****     void wolfIO_SetTimeout(int to_sec)
+ 830:../src/src/wolfio.c ****     {
+ 831:../src/src/wolfio.c ****         io_timeout_sec = to_sec;
+ 832:../src/src/wolfio.c ****     }
+ 833:../src/src/wolfio.c **** 
+ 834:../src/src/wolfio.c ****     int wolfIO_SetBlockingMode(SOCKET_T sockfd, int non_blocking)
+ 835:../src/src/wolfio.c ****     {
+ 836:../src/src/wolfio.c ****         int ret = 0;
+ 837:../src/src/wolfio.c **** 
+ 838:../src/src/wolfio.c ****     #ifdef USE_WINDOWS_API
+ 839:../src/src/wolfio.c ****         unsigned long blocking = non_blocking;
+ 840:../src/src/wolfio.c ****         ret = ioctlsocket(sockfd, FIONBIO, &blocking);
+ 841:../src/src/wolfio.c ****         if (ret == SOCKET_ERROR)
+ 842:../src/src/wolfio.c ****             ret = -1;
+ 843:../src/src/wolfio.c ****     #else
+ 844:../src/src/wolfio.c ****         ret = fcntl(sockfd, F_GETFL, 0);
+ 845:../src/src/wolfio.c ****         if (ret >= 0) {
+ 846:../src/src/wolfio.c ****             if (non_blocking)
+ 847:../src/src/wolfio.c ****                 ret |= O_NONBLOCK;
+ 848:../src/src/wolfio.c ****             else
+ 849:../src/src/wolfio.c ****                 ret &= ~O_NONBLOCK;
+ 850:../src/src/wolfio.c ****             ret = fcntl(sockfd, F_SETFL, ret);
+ 851:../src/src/wolfio.c ****         }
+ 852:../src/src/wolfio.c ****     #endif
+ 853:../src/src/wolfio.c ****         if (ret < 0) {
+ 854:../src/src/wolfio.c ****             WOLFSSL_MSG("wolfIO_SetBlockingMode failed");
+ 855:../src/src/wolfio.c ****         }
+ 856:../src/src/wolfio.c **** 
+ 857:../src/src/wolfio.c ****         return ret;
+ 858:../src/src/wolfio.c ****     }
+ 859:../src/src/wolfio.c **** 
+ 860:../src/src/wolfio.c ****     int wolfIO_Select(SOCKET_T sockfd, int to_sec)
+ 861:../src/src/wolfio.c ****     {
+ 862:../src/src/wolfio.c ****         fd_set rfds, wfds;
+ 863:../src/src/wolfio.c ****         int nfds = 0;
+ 864:../src/src/wolfio.c ****         struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
+ 865:../src/src/wolfio.c ****         int ret;
+ 866:../src/src/wolfio.c **** 
+ 867:../src/src/wolfio.c ****     #ifndef USE_WINDOWS_API
+ 868:../src/src/wolfio.c ****         nfds = (int)sockfd + 1;
+ 869:../src/src/wolfio.c ****     #endif
+ 870:../src/src/wolfio.c **** 
+ 871:../src/src/wolfio.c ****         if ((sockfd < 0) || (sockfd >= FD_SETSIZE)) {
+ 872:../src/src/wolfio.c ****             WOLFSSL_MSG("socket fd out of FDSET range");
+ 873:../src/src/wolfio.c ****             return -1;
+ 874:../src/src/wolfio.c ****         }
+ 875:../src/src/wolfio.c **** 
+ 876:../src/src/wolfio.c ****         FD_ZERO(&rfds);
+ 877:../src/src/wolfio.c ****         FD_SET(sockfd, &rfds);
+ 878:../src/src/wolfio.c ****         wfds = rfds;
+ 879:../src/src/wolfio.c **** 
+ 880:../src/src/wolfio.c ****         ret = select(nfds, &rfds, &wfds, NULL, &timeout);
+ 881:../src/src/wolfio.c ****         if (ret == 0) {
+ 882:../src/src/wolfio.c ****         #ifdef DEBUG_HTTP
+ 883:../src/src/wolfio.c ****             fprintf(stderr, "Timeout: %d\n", ret);
+ 884:../src/src/wolfio.c ****         #endif
+ 885:../src/src/wolfio.c ****             return HTTP_TIMEOUT;
+ 886:../src/src/wolfio.c ****         }
+ 887:../src/src/wolfio.c ****         else if (ret > 0) {
+ 888:../src/src/wolfio.c ****             if (FD_ISSET(sockfd, &wfds)) {
+ 889:../src/src/wolfio.c ****                 if (!FD_ISSET(sockfd, &rfds)) {
+ 890:../src/src/wolfio.c ****                     return 0;
+ 891:../src/src/wolfio.c ****                 }
+ 892:../src/src/wolfio.c ****             }
+ 893:../src/src/wolfio.c ****         }
+ 894:../src/src/wolfio.c **** 
+ 895:../src/src/wolfio.c ****         WOLFSSL_MSG("Select error");
+ 896:../src/src/wolfio.c ****         return SOCKET_ERROR_E;
+ 897:../src/src/wolfio.c ****     }
+ 898:../src/src/wolfio.c **** #endif /* HAVE_IO_TIMEOUT */
+ 899:../src/src/wolfio.c **** 
+ 900:../src/src/wolfio.c **** static int wolfIO_Word16ToString(char* d, word16 number)
+ 901:../src/src/wolfio.c **** {
+ 902:../src/src/wolfio.c ****     int i = 0;
+ 903:../src/src/wolfio.c ****     word16 order = 10000;
+ 904:../src/src/wolfio.c ****     word16 digit;
+ 905:../src/src/wolfio.c **** 
+ 906:../src/src/wolfio.c ****     if (d == NULL)
+ 907:../src/src/wolfio.c ****         return i;
+ 908:../src/src/wolfio.c **** 
+ 909:../src/src/wolfio.c ****     if (number == 0)
+ 910:../src/src/wolfio.c ****         d[i++] = '0';
+ 911:../src/src/wolfio.c ****     else {
+ 912:../src/src/wolfio.c ****         while (order) {
+ 913:../src/src/wolfio.c ****             digit = number / order;
+ 914:../src/src/wolfio.c ****             if (i > 0 || digit != 0)
+ 915:../src/src/wolfio.c ****                 d[i++] = (char)digit + '0';
+ 916:../src/src/wolfio.c ****             if (digit != 0)
+ 917:../src/src/wolfio.c ****                 number %= digit * order;
+ 918:../src/src/wolfio.c **** 
+ 919:../src/src/wolfio.c ****             order = (order > 1) ? order / 10 : 0;
+ 920:../src/src/wolfio.c ****         }
+ 921:../src/src/wolfio.c ****     }
+ 922:../src/src/wolfio.c ****     d[i] = 0; /* null terminate */
+ 923:../src/src/wolfio.c **** 
+ 924:../src/src/wolfio.c ****     return i;
+ 925:../src/src/wolfio.c **** }
+ 926:../src/src/wolfio.c **** 
+ 927:../src/src/wolfio.c **** int wolfIO_TcpConnect(SOCKET_T* sockfd, const char* ip, word16 port, int to_sec)
+ 928:../src/src/wolfio.c **** {
+ 929:../src/src/wolfio.c **** #ifdef HAVE_SOCKADDR
+ 930:../src/src/wolfio.c ****     int ret = 0;
+ 931:../src/src/wolfio.c ****     SOCKADDR_S addr;
+ 932:../src/src/wolfio.c ****     int sockaddr_len;
+ 933:../src/src/wolfio.c **** #if defined(HAVE_GETADDRINFO)
+ 934:../src/src/wolfio.c ****     /* use getaddrinfo */
+ 935:../src/src/wolfio.c ****     ADDRINFO hints;
+ 936:../src/src/wolfio.c ****     ADDRINFO* answer = NULL;
+ 937:../src/src/wolfio.c ****     char strPort[6];
+ 938:../src/src/wolfio.c **** #else
+ 939:../src/src/wolfio.c ****     /* use gethostbyname */
+ 940:../src/src/wolfio.c **** #if !defined(WOLFSSL_USE_POPEN_HOST)
+ 941:../src/src/wolfio.c **** #if defined(__GLIBC__) && (__GLIBC__ >= 2) && defined(__USE_MISC) && \
+ 942:../src/src/wolfio.c ****     !defined(SINGLE_THREADED)
+ 943:../src/src/wolfio.c ****     HOSTENT entry_buf, *entry = NULL;
+ 944:../src/src/wolfio.c ****     char *ghbn_r_buf = NULL;
+ 945:../src/src/wolfio.c ****     int ghbn_r_errno;
+ 946:../src/src/wolfio.c **** #else
+ 947:../src/src/wolfio.c ****     HOSTENT *entry;
+ 948:../src/src/wolfio.c **** #endif
+ 949:../src/src/wolfio.c **** #endif
+ 950:../src/src/wolfio.c **** #ifdef WOLFSSL_IPV6
+ 951:../src/src/wolfio.c ****     SOCKADDR_IN6 *sin;
+ 952:../src/src/wolfio.c **** #else
+ 953:../src/src/wolfio.c ****     SOCKADDR_IN *sin;
+ 954:../src/src/wolfio.c **** #endif
+ 955:../src/src/wolfio.c **** #endif /* HAVE_SOCKADDR */
+ 956:../src/src/wolfio.c **** 
+ 957:../src/src/wolfio.c ****     if (sockfd == NULL || ip == NULL) {
+ 958:../src/src/wolfio.c ****         return -1;
+ 959:../src/src/wolfio.c ****     }
+ 960:../src/src/wolfio.c **** 
+ 961:../src/src/wolfio.c **** #if !defined(HAVE_GETADDRINFO)
+ 962:../src/src/wolfio.c **** #ifdef WOLFSSL_IPV6
+ 963:../src/src/wolfio.c ****     sockaddr_len = sizeof(SOCKADDR_IN6);
+ 964:../src/src/wolfio.c **** #else
+ 965:../src/src/wolfio.c ****     sockaddr_len = sizeof(SOCKADDR_IN);
+ 966:../src/src/wolfio.c **** #endif
+ 967:../src/src/wolfio.c **** #endif
+ 968:../src/src/wolfio.c ****     XMEMSET(&addr, 0, sizeof(addr));
+ 969:../src/src/wolfio.c **** 
+ 970:../src/src/wolfio.c **** #ifdef WOLFIO_DEBUG
+ 971:../src/src/wolfio.c ****     printf("TCP Connect: %s:%d\n", ip, port);
+ 972:../src/src/wolfio.c **** #endif
+ 973:../src/src/wolfio.c **** 
+ 974:../src/src/wolfio.c ****     /* use gethostbyname for c99 */
+ 975:../src/src/wolfio.c **** #if defined(HAVE_GETADDRINFO)
+ 976:../src/src/wolfio.c ****     XMEMSET(&hints, 0, sizeof(hints));
+ 977:../src/src/wolfio.c ****     hints.ai_family = AF_UNSPEC; /* detect IPv4 or IPv6 */
+ 978:../src/src/wolfio.c ****     hints.ai_socktype = SOCK_STREAM;
+ 979:../src/src/wolfio.c ****     hints.ai_protocol = IPPROTO_TCP;
+ 980:../src/src/wolfio.c **** 
+ 981:../src/src/wolfio.c ****     if (wolfIO_Word16ToString(strPort, port) == 0) {
+ 982:../src/src/wolfio.c ****         WOLFSSL_MSG("invalid port number for responder");
+ 983:../src/src/wolfio.c ****         return -1;
+ 984:../src/src/wolfio.c ****     }
+ 985:../src/src/wolfio.c **** 
+ 986:../src/src/wolfio.c ****     if (getaddrinfo(ip, strPort, &hints, &answer) < 0 || answer == NULL) {
+ 987:../src/src/wolfio.c ****         WOLFSSL_MSG("no addr info for responder");
+ 988:../src/src/wolfio.c ****         return -1;
+ 989:../src/src/wolfio.c ****     }
+ 990:../src/src/wolfio.c **** 
+ 991:../src/src/wolfio.c ****     sockaddr_len = answer->ai_addrlen;
+ 992:../src/src/wolfio.c ****     XMEMCPY(&addr, answer->ai_addr, sockaddr_len);
+ 993:../src/src/wolfio.c ****     freeaddrinfo(answer);
+ 994:../src/src/wolfio.c **** #elif defined(WOLFSSL_USE_POPEN_HOST) && !defined(WOLFSSL_IPV6)
+ 995:../src/src/wolfio.c ****     {
+ 996:../src/src/wolfio.c ****         char host_ipaddr[4] = { 127, 0, 0, 1 };
+ 997:../src/src/wolfio.c ****         int found = 1;
+ 998:../src/src/wolfio.c **** 
+ 999:../src/src/wolfio.c ****         if ((XSTRNCMP(ip, "localhost", 10) != 0) &&
+1000:../src/src/wolfio.c ****             (XSTRNCMP(ip, "127.0.0.1", 10) != 0)) {
+1001:../src/src/wolfio.c ****             FILE* fp;
+1002:../src/src/wolfio.c ****             char host_out[100];
+1003:../src/src/wolfio.c ****             char cmd[100];
+1004:../src/src/wolfio.c **** 
+1005:../src/src/wolfio.c ****             XSTRNCPY(cmd, "host ", 6);
+1006:../src/src/wolfio.c ****             XSTRNCAT(cmd, ip, 99 - XSTRLEN(cmd));
+1007:../src/src/wolfio.c ****             found = 0;
+1008:../src/src/wolfio.c ****             fp = popen(cmd, "r");
+1009:../src/src/wolfio.c ****             if (fp != NULL) {
+1010:../src/src/wolfio.c ****                 while (fgets(host_out, sizeof(host_out), fp) != NULL) {
+1011:../src/src/wolfio.c ****                     int i;
+1012:../src/src/wolfio.c ****                     int j = 0;
+1013:../src/src/wolfio.c ****                     for (j = 0; host_out[j] != '\0'; j++) {
+1014:../src/src/wolfio.c ****                         if ((host_out[j] >= '0') && (host_out[j] <= '9')) {
+1015:../src/src/wolfio.c ****                             break;
+1016:../src/src/wolfio.c ****                         }
+1017:../src/src/wolfio.c ****                     }
+1018:../src/src/wolfio.c ****                     found = (host_out[j] >= '0') && (host_out[j] <= '9');
+1019:../src/src/wolfio.c ****                     if (!found) {
+1020:../src/src/wolfio.c ****                         continue;
+1021:../src/src/wolfio.c ****                     }
+1022:../src/src/wolfio.c **** 
+1023:../src/src/wolfio.c ****                     for (i = 0; i < 4; i++) {
+1024:../src/src/wolfio.c ****                         host_ipaddr[i] = atoi(host_out + j);
+1025:../src/src/wolfio.c ****                         while ((host_out[j] >= '0') && (host_out[j] <= '9')) {
+1026:../src/src/wolfio.c ****                             j++;
+1027:../src/src/wolfio.c ****                         }
+1028:../src/src/wolfio.c ****                         if (host_out[j] == '.') {
+1029:../src/src/wolfio.c ****                             j++;
+1030:../src/src/wolfio.c ****                             found &= (i != 3);
+1031:../src/src/wolfio.c ****                         }
+1032:../src/src/wolfio.c ****                         else {
+1033:../src/src/wolfio.c ****                             found &= (i == 3);
+1034:../src/src/wolfio.c ****                             break;
+1035:../src/src/wolfio.c ****                         }
+1036:../src/src/wolfio.c ****                     }
+1037:../src/src/wolfio.c ****                     if (found) {
+1038:../src/src/wolfio.c ****                         break;
+1039:../src/src/wolfio.c ****                     }
+1040:../src/src/wolfio.c ****                 }
+1041:../src/src/wolfio.c ****                 pclose(fp);
+1042:../src/src/wolfio.c ****             }
+1043:../src/src/wolfio.c ****         }
+1044:../src/src/wolfio.c ****         if (found) {
+1045:../src/src/wolfio.c ****             sin = (SOCKADDR_IN *)&addr;
+1046:../src/src/wolfio.c ****             sin->sin_family = AF_INET;
+1047:../src/src/wolfio.c ****             sin->sin_port = XHTONS(port);
+1048:../src/src/wolfio.c ****             XMEMCPY(&sin->sin_addr.s_addr, host_ipaddr, sizeof(host_ipaddr));
+1049:../src/src/wolfio.c ****         }
+1050:../src/src/wolfio.c ****         else {
+1051:../src/src/wolfio.c ****             WOLFSSL_MSG("no addr info for responder");
+1052:../src/src/wolfio.c ****             return -1;
+1053:../src/src/wolfio.c ****         }
+1054:../src/src/wolfio.c ****     }
+1055:../src/src/wolfio.c **** #else
+1056:../src/src/wolfio.c **** #if defined(__GLIBC__) && (__GLIBC__ >= 2) && defined(__USE_MISC) && \
+1057:../src/src/wolfio.c ****     !defined(SINGLE_THREADED)
+1058:../src/src/wolfio.c ****     /* 2048 is a magic number that empirically works.  the header and
+1059:../src/src/wolfio.c ****      * documentation provide no guidance on appropriate buffer size other than
+1060:../src/src/wolfio.c ****      * "if buf is too small, the functions will return ERANGE, and the call
+1061:../src/src/wolfio.c ****      * should be retried with a larger buffer."
+1062:../src/src/wolfio.c ****      */
+1063:../src/src/wolfio.c ****     ghbn_r_buf = (char *)XMALLOC(2048, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+1064:../src/src/wolfio.c ****     if (ghbn_r_buf != NULL) {
+1065:../src/src/wolfio.c ****         gethostbyname_r(ip, &entry_buf, ghbn_r_buf, 2048, &entry, &ghbn_r_errno);
+1066:../src/src/wolfio.c ****     }
+1067:../src/src/wolfio.c **** #else
+1068:../src/src/wolfio.c ****     entry = gethostbyname(ip);
+1069:../src/src/wolfio.c **** #endif
+1070:../src/src/wolfio.c **** 
+1071:../src/src/wolfio.c ****     if (entry) {
+1072:../src/src/wolfio.c ****     #ifdef WOLFSSL_IPV6
+1073:../src/src/wolfio.c ****         sin = (SOCKADDR_IN6 *)&addr;
+1074:../src/src/wolfio.c ****         sin->sin6_family = AF_INET6;
+1075:../src/src/wolfio.c ****         sin->sin6_port = XHTONS(port);
+1076:../src/src/wolfio.c ****         XMEMCPY(&sin->sin6_addr, entry->h_addr_list[0], entry->h_length);
+1077:../src/src/wolfio.c ****     #else
+1078:../src/src/wolfio.c ****         sin = (SOCKADDR_IN *)&addr;
+1079:../src/src/wolfio.c ****         sin->sin_family = AF_INET;
+1080:../src/src/wolfio.c ****         sin->sin_port = XHTONS(port);
+1081:../src/src/wolfio.c ****         XMEMCPY(&sin->sin_addr.s_addr, entry->h_addr_list[0], entry->h_length);
+1082:../src/src/wolfio.c ****     #endif
+1083:../src/src/wolfio.c ****     }
+1084:../src/src/wolfio.c **** 
+1085:../src/src/wolfio.c **** #if defined(__GLIBC__) && (__GLIBC__ >= 2) && defined(__USE_MISC) && \
+1086:../src/src/wolfio.c ****     !defined(SINGLE_THREADED)
+1087:../src/src/wolfio.c ****     XFREE(ghbn_r_buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+1088:../src/src/wolfio.c **** #endif
+1089:../src/src/wolfio.c **** 
+1090:../src/src/wolfio.c ****     if (entry == NULL) {
+1091:../src/src/wolfio.c ****         WOLFSSL_MSG("no addr info for responder");
+1092:../src/src/wolfio.c ****         return -1;
+1093:../src/src/wolfio.c ****     }
+1094:../src/src/wolfio.c **** #endif
+1095:../src/src/wolfio.c **** 
+1096:../src/src/wolfio.c ****     *sockfd = (SOCKET_T)socket(addr.ss_family, SOCK_STREAM, 0);
+1097:../src/src/wolfio.c **** #ifdef USE_WINDOWS_API
+1098:../src/src/wolfio.c ****     if (*sockfd == SOCKET_INVALID)
+1099:../src/src/wolfio.c **** #else
+1100:../src/src/wolfio.c ****     if (*sockfd <= SOCKET_INVALID)
+1101:../src/src/wolfio.c **** #endif
+1102:../src/src/wolfio.c ****     {
+1103:../src/src/wolfio.c ****         WOLFSSL_MSG("bad socket fd, out of fds?");
+1104:../src/src/wolfio.c ****         return -1;
+1105:../src/src/wolfio.c ****     }
+1106:../src/src/wolfio.c **** 
+1107:../src/src/wolfio.c **** #ifdef HAVE_IO_TIMEOUT
+1108:../src/src/wolfio.c ****     /* if timeout value provided then set socket non-blocking */
+1109:../src/src/wolfio.c ****     if (to_sec > 0) {
+1110:../src/src/wolfio.c ****         wolfIO_SetBlockingMode(*sockfd, 1);
+1111:../src/src/wolfio.c ****     }
+1112:../src/src/wolfio.c **** #else
+1113:../src/src/wolfio.c ****     (void)to_sec;
+1114:../src/src/wolfio.c **** #endif
+1115:../src/src/wolfio.c **** 
+1116:../src/src/wolfio.c ****     ret = connect(*sockfd, (SOCKADDR *)&addr, sockaddr_len);
+1117:../src/src/wolfio.c **** #ifdef HAVE_IO_TIMEOUT
+1118:../src/src/wolfio.c ****     if (ret != 0) {
+1119:../src/src/wolfio.c ****         if ((errno == EINPROGRESS) && (to_sec > 0)) {
+1120:../src/src/wolfio.c ****             /* wait for connect to complete */
+1121:../src/src/wolfio.c ****             ret = wolfIO_Select(*sockfd, to_sec);
+1122:../src/src/wolfio.c **** 
+1123:../src/src/wolfio.c ****             /* restore blocking mode */
+1124:../src/src/wolfio.c ****             wolfIO_SetBlockingMode(*sockfd, 0);
+1125:../src/src/wolfio.c ****         }
+1126:../src/src/wolfio.c ****     }
+1127:../src/src/wolfio.c **** #endif
+1128:../src/src/wolfio.c ****     if (ret != 0) {
+1129:../src/src/wolfio.c ****         WOLFSSL_MSG("Responder tcp connect failed");
+1130:../src/src/wolfio.c ****         CloseSocket(*sockfd);
+1131:../src/src/wolfio.c ****         *sockfd = SOCKET_INVALID;
+1132:../src/src/wolfio.c ****         return -1;
+1133:../src/src/wolfio.c ****     }
+1134:../src/src/wolfio.c ****     return ret;
+1135:../src/src/wolfio.c **** #else
+1136:../src/src/wolfio.c ****     (void)sockfd;
+1137:../src/src/wolfio.c ****     (void)ip;
+1138:../src/src/wolfio.c ****     (void)port;
+1139:../src/src/wolfio.c ****     (void)to_sec;
+1140:../src/src/wolfio.c ****     return -1;
+1141:../src/src/wolfio.c **** #endif /* HAVE_SOCKADDR */
+1142:../src/src/wolfio.c **** }
+1143:../src/src/wolfio.c **** 
+1144:../src/src/wolfio.c **** int wolfIO_TcpBind(SOCKET_T* sockfd, word16 port)
+1145:../src/src/wolfio.c **** {
+1146:../src/src/wolfio.c **** #ifdef HAVE_SOCKADDR
+1147:../src/src/wolfio.c ****     int ret = 0;
+1148:../src/src/wolfio.c ****     SOCKADDR_S addr;
+1149:../src/src/wolfio.c ****     int sockaddr_len = sizeof(SOCKADDR_IN);
+1150:../src/src/wolfio.c ****     SOCKADDR_IN *sin = (SOCKADDR_IN *)&addr;
+1151:../src/src/wolfio.c **** 
+1152:../src/src/wolfio.c ****     if (sockfd == NULL || port < 1) {
+1153:../src/src/wolfio.c ****         return -1;
+1154:../src/src/wolfio.c ****     }
+1155:../src/src/wolfio.c **** 
+1156:../src/src/wolfio.c ****     XMEMSET(&addr, 0, sizeof(addr));
+1157:../src/src/wolfio.c **** 
+1158:../src/src/wolfio.c ****     sin->sin_family = AF_INET;
+1159:../src/src/wolfio.c ****     sin->sin_addr.s_addr = INADDR_ANY;
+1160:../src/src/wolfio.c ****     sin->sin_port = XHTONS(port);
+1161:../src/src/wolfio.c ****     *sockfd = (SOCKET_T)socket(AF_INET, SOCK_STREAM, 0);
+1162:../src/src/wolfio.c **** 
+1163:../src/src/wolfio.c ****     if (*sockfd < 0) {
+1164:../src/src/wolfio.c ****         WOLFSSL_MSG("socket failed");
+1165:../src/src/wolfio.c ****         *sockfd = SOCKET_INVALID;
+1166:../src/src/wolfio.c ****         return -1;
+1167:../src/src/wolfio.c ****     }
+1168:../src/src/wolfio.c **** 
+1169:../src/src/wolfio.c **** #if !defined(USE_WINDOWS_API) && !defined(WOLFSSL_MDK_ARM)\
+1170:../src/src/wolfio.c ****                    && !defined(WOLFSSL_KEIL_TCP_NET) && !defined(WOLFSSL_ZEPHYR)
+1171:../src/src/wolfio.c ****     {
+1172:../src/src/wolfio.c ****         int optval  = 1;
+1173:../src/src/wolfio.c ****         XSOCKLENT optlen = sizeof(optval);
+1174:../src/src/wolfio.c ****         ret = setsockopt(*sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, optlen);
+1175:../src/src/wolfio.c ****     }
+1176:../src/src/wolfio.c **** #endif
+1177:../src/src/wolfio.c **** 
+1178:../src/src/wolfio.c ****     if (ret == 0)
+1179:../src/src/wolfio.c ****         ret = bind(*sockfd, (SOCKADDR *)sin, sockaddr_len);
+1180:../src/src/wolfio.c ****     if (ret == 0)
+1181:../src/src/wolfio.c ****         ret = listen(*sockfd, SOMAXCONN);
+1182:../src/src/wolfio.c **** 
+1183:../src/src/wolfio.c ****     if (ret != 0) {
+1184:../src/src/wolfio.c ****         WOLFSSL_MSG("wolfIO_TcpBind failed");
+1185:../src/src/wolfio.c ****         CloseSocket(*sockfd);
+1186:../src/src/wolfio.c ****         *sockfd = SOCKET_INVALID;
+1187:../src/src/wolfio.c ****         ret = -1;
+1188:../src/src/wolfio.c ****     }
+1189:../src/src/wolfio.c **** 
+1190:../src/src/wolfio.c ****     return ret;
+1191:../src/src/wolfio.c **** #else
+1192:../src/src/wolfio.c ****     (void)sockfd;
+1193:../src/src/wolfio.c ****     (void)port;
+1194:../src/src/wolfio.c ****     return -1;
+1195:../src/src/wolfio.c **** #endif /* HAVE_SOCKADDR */
+1196:../src/src/wolfio.c **** }
+1197:../src/src/wolfio.c **** 
+1198:../src/src/wolfio.c **** #ifdef HAVE_SOCKADDR
+1199:../src/src/wolfio.c **** int wolfIO_TcpAccept(SOCKET_T sockfd, SOCKADDR* peer_addr, XSOCKLENT* peer_len)
+1200:../src/src/wolfio.c **** {
+1201:../src/src/wolfio.c ****     return (int)accept(sockfd, peer_addr, peer_len);
+1202:../src/src/wolfio.c **** }
+1203:../src/src/wolfio.c **** #endif /* HAVE_SOCKADDR */
+1204:../src/src/wolfio.c **** 
+1205:../src/src/wolfio.c **** #ifndef HTTP_SCRATCH_BUFFER_SIZE
+1206:../src/src/wolfio.c ****     #define HTTP_SCRATCH_BUFFER_SIZE 512
+1207:../src/src/wolfio.c **** #endif
+1208:../src/src/wolfio.c **** #ifndef MAX_URL_ITEM_SIZE
+1209:../src/src/wolfio.c ****     #define MAX_URL_ITEM_SIZE   80
+1210:../src/src/wolfio.c **** #endif
+1211:../src/src/wolfio.c **** 
+1212:../src/src/wolfio.c **** int wolfIO_DecodeUrl(const char* url, int urlSz, char* outName, char* outPath,
+1213:../src/src/wolfio.c ****     word16* outPort)
+1214:../src/src/wolfio.c **** {
+1215:../src/src/wolfio.c ****     int result = -1;
+1216:../src/src/wolfio.c **** 
+1217:../src/src/wolfio.c ****     if (url == NULL || urlSz == 0) {
+1218:../src/src/wolfio.c ****         if (outName)
+1219:../src/src/wolfio.c ****             *outName = 0;
+1220:../src/src/wolfio.c ****         if (outPath)
+1221:../src/src/wolfio.c ****             *outPath = 0;
+1222:../src/src/wolfio.c ****         if (outPort)
+1223:../src/src/wolfio.c ****             *outPort = 0;
+1224:../src/src/wolfio.c ****     }
+1225:../src/src/wolfio.c ****     else {
+1226:../src/src/wolfio.c ****         int i, cur;
+1227:../src/src/wolfio.c **** 
+1228:../src/src/wolfio.c ****         /* need to break the url down into scheme, address, and port */
+1229:../src/src/wolfio.c ****         /*     "http://example.com:8080/" */
+1230:../src/src/wolfio.c ****         /*     "http://[::1]:443/"        */
+1231:../src/src/wolfio.c ****         if (XSTRNCMP(url, "http://", 7) == 0) {
+1232:../src/src/wolfio.c ****             cur = 7;
+1233:../src/src/wolfio.c ****         } else cur = 0;
+1234:../src/src/wolfio.c **** 
+1235:../src/src/wolfio.c ****         i = 0;
+1236:../src/src/wolfio.c ****         if (url[cur] == '[') {
+1237:../src/src/wolfio.c ****             cur++;
+1238:../src/src/wolfio.c ****             /* copy until ']' */
+1239:../src/src/wolfio.c ****             while (i < MAX_URL_ITEM_SIZE-1 && cur < urlSz && url[cur] != 0 &&
+1240:../src/src/wolfio.c ****                     url[cur] != ']') {
+1241:../src/src/wolfio.c ****                 if (outName)
+1242:../src/src/wolfio.c ****                     outName[i] = url[cur];
+1243:../src/src/wolfio.c ****                 i++; cur++;
+1244:../src/src/wolfio.c ****             }
+1245:../src/src/wolfio.c ****             cur++; /* skip ']' */
+1246:../src/src/wolfio.c ****         }
+1247:../src/src/wolfio.c ****         else {
+1248:../src/src/wolfio.c ****             while (i < MAX_URL_ITEM_SIZE-1 && cur < urlSz && url[cur] != 0 &&
+1249:../src/src/wolfio.c ****                     url[cur] != ':' && url[cur] != '/') {
+1250:../src/src/wolfio.c ****                 if (outName)
+1251:../src/src/wolfio.c ****                     outName[i] = url[cur];
+1252:../src/src/wolfio.c ****                 i++; cur++;
+1253:../src/src/wolfio.c ****             }
+1254:../src/src/wolfio.c ****         }
+1255:../src/src/wolfio.c ****         if (outName)
+1256:../src/src/wolfio.c ****             outName[i] = 0;
+1257:../src/src/wolfio.c ****         /* Need to pick out the path after the domain name */
+1258:../src/src/wolfio.c **** 
+1259:../src/src/wolfio.c ****         if (cur < urlSz && url[cur] == ':') {
+1260:../src/src/wolfio.c ****             char port[6];
+1261:../src/src/wolfio.c ****             int j;
+1262:../src/src/wolfio.c ****             word32 bigPort = 0;
+1263:../src/src/wolfio.c ****             i = 0;
+1264:../src/src/wolfio.c ****             cur++;
+1265:../src/src/wolfio.c ****             while (i < 6 && cur < urlSz && url[cur] != 0 && url[cur] != '/') {
+1266:../src/src/wolfio.c ****                 port[i] = url[cur];
+1267:../src/src/wolfio.c ****                 i++; cur++;
+1268:../src/src/wolfio.c ****             }
+1269:../src/src/wolfio.c **** 
+1270:../src/src/wolfio.c ****             for (j = 0; j < i; j++) {
+1271:../src/src/wolfio.c ****                 if (port[j] < '0' || port[j] > '9') return -1;
+1272:../src/src/wolfio.c ****                 bigPort = (bigPort * 10) + (port[j] - '0');
+1273:../src/src/wolfio.c ****             }
+1274:../src/src/wolfio.c ****             if (outPort)
+1275:../src/src/wolfio.c ****                 *outPort = (word16)bigPort;
+1276:../src/src/wolfio.c ****         }
+1277:../src/src/wolfio.c ****         else if (outPort)
+1278:../src/src/wolfio.c ****             *outPort = 80;
+1279:../src/src/wolfio.c **** 
+1280:../src/src/wolfio.c **** 
+1281:../src/src/wolfio.c ****         if (cur < urlSz && url[cur] == '/') {
+1282:../src/src/wolfio.c ****             i = 0;
+1283:../src/src/wolfio.c ****             while (i < MAX_URL_ITEM_SIZE-1 && cur < urlSz && url[cur] != 0) {
+1284:../src/src/wolfio.c ****                 if (outPath)
+1285:../src/src/wolfio.c ****                     outPath[i] = url[cur];
+1286:../src/src/wolfio.c ****                 i++; cur++;
+1287:../src/src/wolfio.c ****             }
+1288:../src/src/wolfio.c ****             if (outPath)
+1289:../src/src/wolfio.c ****                 outPath[i] = 0;
+1290:../src/src/wolfio.c ****         }
+1291:../src/src/wolfio.c ****         else if (outPath) {
+1292:../src/src/wolfio.c ****             outPath[0] = '/';
+1293:../src/src/wolfio.c ****             outPath[1] = 0;
+1294:../src/src/wolfio.c ****         }
+1295:../src/src/wolfio.c **** 
+1296:../src/src/wolfio.c ****         result = 0;
+1297:../src/src/wolfio.c ****     }
+1298:../src/src/wolfio.c **** 
+1299:../src/src/wolfio.c ****     return result;
+1300:../src/src/wolfio.c **** }
+1301:../src/src/wolfio.c **** 
+1302:../src/src/wolfio.c **** static int wolfIO_HttpProcessResponseBuf(int sfd, byte **recvBuf,
+1303:../src/src/wolfio.c ****     int* recvBufSz, int chunkSz, char* start, int len, int dynType, void* heap)
+1304:../src/src/wolfio.c **** {
+1305:../src/src/wolfio.c ****     byte* newRecvBuf = NULL;
+1306:../src/src/wolfio.c ****     int newRecvSz = *recvBufSz + chunkSz;
+1307:../src/src/wolfio.c ****     int pos = 0;
+1308:../src/src/wolfio.c **** 
+1309:../src/src/wolfio.c ****     WOLFSSL_MSG("Processing HTTP response");
+1310:../src/src/wolfio.c **** #ifdef WOLFIO_DEBUG
+1311:../src/src/wolfio.c ****     printf("HTTP Chunk %d->%d\n", *recvBufSz, chunkSz);
+1312:../src/src/wolfio.c **** #endif
+1313:../src/src/wolfio.c **** 
+1314:../src/src/wolfio.c ****     (void)heap;
+1315:../src/src/wolfio.c ****     (void)dynType;
+1316:../src/src/wolfio.c **** 
+1317:../src/src/wolfio.c ****     if (chunkSz < 0 || len < 0) {
+1318:../src/src/wolfio.c ****         WOLFSSL_MSG("wolfIO_HttpProcessResponseBuf invalid chunk or length size");
+1319:../src/src/wolfio.c ****         return MEMORY_E;
+1320:../src/src/wolfio.c ****     }
+1321:../src/src/wolfio.c **** 
+1322:../src/src/wolfio.c ****     if (newRecvSz <= 0) {
+1323:../src/src/wolfio.c ****         WOLFSSL_MSG("wolfIO_HttpProcessResponseBuf new receive size overflow");
+1324:../src/src/wolfio.c ****         return MEMORY_E;
+1325:../src/src/wolfio.c ****     }
+1326:../src/src/wolfio.c **** 
+1327:../src/src/wolfio.c ****     newRecvBuf = (byte*)XMALLOC(newRecvSz, heap, dynType);
+1328:../src/src/wolfio.c ****     if (newRecvBuf == NULL) {
+1329:../src/src/wolfio.c ****         WOLFSSL_MSG("wolfIO_HttpProcessResponseBuf malloc failed");
+1330:../src/src/wolfio.c ****         return MEMORY_E;
+1331:../src/src/wolfio.c ****     }
+1332:../src/src/wolfio.c **** 
+1333:../src/src/wolfio.c ****     /* if buffer already exists, then we are growing it */
+1334:../src/src/wolfio.c ****     if (*recvBuf) {
+1335:../src/src/wolfio.c ****         XMEMCPY(&newRecvBuf[pos], *recvBuf, *recvBufSz);
+1336:../src/src/wolfio.c ****         XFREE(*recvBuf, heap, dynType);
+1337:../src/src/wolfio.c ****         pos += *recvBufSz;
+1338:../src/src/wolfio.c ****         *recvBuf = NULL;
+1339:../src/src/wolfio.c ****     }
+1340:../src/src/wolfio.c **** 
+1341:../src/src/wolfio.c ****     /* copy the remainder of the httpBuf into the respBuf */
+1342:../src/src/wolfio.c ****     if (len != 0) {
+1343:../src/src/wolfio.c ****         if (pos + len <= newRecvSz) {
+1344:../src/src/wolfio.c ****             XMEMCPY(&newRecvBuf[pos], start, len);
+1345:../src/src/wolfio.c ****             pos += len;
+1346:../src/src/wolfio.c ****         }
+1347:../src/src/wolfio.c ****         else {
+1348:../src/src/wolfio.c ****             WOLFSSL_MSG("wolfIO_HttpProcessResponseBuf bad size");
+1349:../src/src/wolfio.c ****             XFREE(newRecvBuf, heap, dynType);
+1350:../src/src/wolfio.c ****             return -1;
+1351:../src/src/wolfio.c ****         }
+1352:../src/src/wolfio.c ****     }
+1353:../src/src/wolfio.c **** 
+1354:../src/src/wolfio.c ****     /* receive the remainder of chunk */
+1355:../src/src/wolfio.c ****     while (len < chunkSz) {
+1356:../src/src/wolfio.c ****         int rxSz = wolfIO_Recv(sfd, (char*)&newRecvBuf[pos], chunkSz-len, 0);
+1357:../src/src/wolfio.c ****         if (rxSz > 0) {
+1358:../src/src/wolfio.c ****             len += rxSz;
+1359:../src/src/wolfio.c ****             pos += rxSz;
+1360:../src/src/wolfio.c ****         }
+1361:../src/src/wolfio.c ****         else {
+1362:../src/src/wolfio.c ****             WOLFSSL_MSG("wolfIO_HttpProcessResponseBuf recv failed");
+1363:../src/src/wolfio.c ****             XFREE(newRecvBuf, heap, dynType);
+1364:../src/src/wolfio.c ****             return -1;
+1365:../src/src/wolfio.c ****         }
+1366:../src/src/wolfio.c ****     }
+1367:../src/src/wolfio.c **** 
+1368:../src/src/wolfio.c ****     *recvBuf = newRecvBuf;
+1369:../src/src/wolfio.c ****     *recvBufSz = newRecvSz;
+1370:../src/src/wolfio.c **** 
+1371:../src/src/wolfio.c ****     return 0;
+1372:../src/src/wolfio.c **** }
+1373:../src/src/wolfio.c **** 
+1374:../src/src/wolfio.c **** int wolfIO_HttpProcessResponse(int sfd, const char** appStrList,
+1375:../src/src/wolfio.c ****     byte** respBuf, byte* httpBuf, int httpBufSz, int dynType, void* heap)
+1376:../src/src/wolfio.c **** {
+1377:../src/src/wolfio.c ****     static const char HTTP_PROTO[] = "HTTP/1.";
+1378:../src/src/wolfio.c ****     static const char HTTP_STATUS_200[] = "200";
+1379:../src/src/wolfio.c ****     int result = 0;
+1380:../src/src/wolfio.c ****     int len = 0;
+1381:../src/src/wolfio.c ****     char *start, *end;
+1382:../src/src/wolfio.c ****     int respBufSz = 0;
+1383:../src/src/wolfio.c ****     int isChunked = 0, chunkSz = 0;
+1384:../src/src/wolfio.c ****     enum phr_state { phr_init, phr_http_start, phr_have_length, phr_have_type,
+1385:../src/src/wolfio.c ****                      phr_wait_end, phr_get_chunk_len, phr_get_chunk_data,
+1386:../src/src/wolfio.c ****                      phr_http_end
+1387:../src/src/wolfio.c ****     } state = phr_init;
+1388:../src/src/wolfio.c **** 
+1389:../src/src/wolfio.c ****     WOLFSSL_ENTER("wolfIO_HttpProcessResponse");
+1390:../src/src/wolfio.c **** 
+1391:../src/src/wolfio.c ****     *respBuf = NULL;
+1392:../src/src/wolfio.c ****     start = end = NULL;
+1393:../src/src/wolfio.c ****     do {
+1394:../src/src/wolfio.c ****         if (state == phr_get_chunk_data) {
+1395:../src/src/wolfio.c ****             /* get chunk of data */
+1396:../src/src/wolfio.c ****             result = wolfIO_HttpProcessResponseBuf(sfd, respBuf, &respBufSz,
+1397:../src/src/wolfio.c ****                 chunkSz, start, len, dynType, heap);
+1398:../src/src/wolfio.c **** 
+1399:../src/src/wolfio.c ****             state = (result != 0) ? phr_http_end : phr_get_chunk_len;
+1400:../src/src/wolfio.c ****             end = NULL;
+1401:../src/src/wolfio.c ****             len = 0;
+1402:../src/src/wolfio.c ****         }
+1403:../src/src/wolfio.c **** 
+1404:../src/src/wolfio.c ****         /* read data if no \r\n or first time */
+1405:../src/src/wolfio.c ****         if ((start == NULL) || (end == NULL)) {
+1406:../src/src/wolfio.c ****             result = wolfIO_Recv(sfd, (char*)httpBuf+len, httpBufSz-len-1, 0);
+1407:../src/src/wolfio.c ****             if (result > 0) {
+1408:../src/src/wolfio.c ****                 len += result;
+1409:../src/src/wolfio.c ****                 start = (char*)httpBuf;
+1410:../src/src/wolfio.c ****                 start[len] = 0;
+1411:../src/src/wolfio.c ****             }
+1412:../src/src/wolfio.c ****             else {
+1413:../src/src/wolfio.c ****                 result = TranslateReturnCode(result, sfd);
+1414:../src/src/wolfio.c ****                 result = wolfSSL_LastError(result);
+1415:../src/src/wolfio.c ****                 if (result == SOCKET_EWOULDBLOCK || result == SOCKET_EAGAIN) {
+1416:../src/src/wolfio.c ****                     return OCSP_WANT_READ;
+1417:../src/src/wolfio.c ****                 }
+1418:../src/src/wolfio.c **** 
+1419:../src/src/wolfio.c ****                 WOLFSSL_MSG("wolfIO_HttpProcessResponse recv http from peer failed");
+1420:../src/src/wolfio.c ****                 return HTTP_RECV_ERR;
+1421:../src/src/wolfio.c ****             }
+1422:../src/src/wolfio.c ****         }
+1423:../src/src/wolfio.c ****         end = XSTRSTR(start, "\r\n"); /* locate end */
+1424:../src/src/wolfio.c **** 
+1425:../src/src/wolfio.c ****         /* handle incomplete rx */
+1426:../src/src/wolfio.c ****         if (end == NULL) {
+1427:../src/src/wolfio.c ****             if (len != 0)
+1428:../src/src/wolfio.c ****                 XMEMMOVE(httpBuf, start, len);
+1429:../src/src/wolfio.c ****             start = end = NULL;
+1430:../src/src/wolfio.c ****         }
+1431:../src/src/wolfio.c ****         /* when start is "\r\n" */
+1432:../src/src/wolfio.c ****         else if (end == start) {
+1433:../src/src/wolfio.c ****             /* if waiting for end or need chunk len */
+1434:../src/src/wolfio.c ****             if (state == phr_wait_end || state == phr_get_chunk_len) {
+1435:../src/src/wolfio.c ****                 state = (isChunked) ? phr_get_chunk_len : phr_http_end;
+1436:../src/src/wolfio.c ****                 len -= 2; start += 2; /* skip \r\n */
+1437:../src/src/wolfio.c ****              }
+1438:../src/src/wolfio.c ****              else {
+1439:../src/src/wolfio.c ****                 WOLFSSL_MSG("wolfIO_HttpProcessResponse header ended early");
+1440:../src/src/wolfio.c ****                 return HTTP_HEADER_ERR;
+1441:../src/src/wolfio.c ****              }
+1442:../src/src/wolfio.c ****         }
+1443:../src/src/wolfio.c ****         else {
+1444:../src/src/wolfio.c ****             *end = 0; /* null terminate */
+1445:../src/src/wolfio.c ****             len -= (int)(end - start) + 2;
+1446:../src/src/wolfio.c ****                 /* adjust len to remove the first line including the /r/n */
+1447:../src/src/wolfio.c **** 
+1448:../src/src/wolfio.c ****         #ifdef WOLFIO_DEBUG
+1449:../src/src/wolfio.c ****             printf("HTTP Resp: %s\n", start);
+1450:../src/src/wolfio.c ****         #endif
+1451:../src/src/wolfio.c **** 
+1452:../src/src/wolfio.c ****             switch (state) {
+1453:../src/src/wolfio.c ****                 case phr_init:
+1454:../src/src/wolfio.c ****                     /* length of "HTTP/1.x 200" == 12*/
+1455:../src/src/wolfio.c ****                     if (XSTRLEN(start) < 12) {
+1456:../src/src/wolfio.c ****                         WOLFSSL_MSG("wolfIO_HttpProcessResponse HTTP header "
+1457:../src/src/wolfio.c ****                             "too short.");
+1458:../src/src/wolfio.c ****                         return HTTP_HEADER_ERR;
+1459:../src/src/wolfio.c ****                     }
+1460:../src/src/wolfio.c ****                     if (XSTRNCASECMP(start, HTTP_PROTO,
+1461:../src/src/wolfio.c ****                                      sizeof(HTTP_PROTO) - 1) != 0) {
+1462:../src/src/wolfio.c ****                         WOLFSSL_MSG("wolfIO_HttpProcessResponse HTTP header "
+1463:../src/src/wolfio.c ****                             "doesn't start with HTTP/1.");
+1464:../src/src/wolfio.c ****                         return HTTP_PROTO_ERR;
+1465:../src/src/wolfio.c ****                     }
+1466:../src/src/wolfio.c ****                     /* +2 for HTTP minor version and space between version and
+1467:../src/src/wolfio.c ****                      * status code. */
+1468:../src/src/wolfio.c ****                     start += sizeof(HTTP_PROTO) - 1 + 2 ;
+1469:../src/src/wolfio.c ****                     if (XSTRNCASECMP(start, HTTP_STATUS_200,
+1470:../src/src/wolfio.c ****                                      sizeof(HTTP_STATUS_200) - 1) != 0) {
+1471:../src/src/wolfio.c ****                         WOLFSSL_MSG("wolfIO_HttpProcessResponse HTTP header "
+1472:../src/src/wolfio.c ****                             "doesn't have status code 200.");
+1473:../src/src/wolfio.c ****                         return HTTP_STATUS_ERR;
+1474:../src/src/wolfio.c ****                     }
+1475:../src/src/wolfio.c ****                     state = phr_http_start;
+1476:../src/src/wolfio.c ****                     break;
+1477:../src/src/wolfio.c ****                 case phr_http_start:
+1478:../src/src/wolfio.c ****                 case phr_have_length:
+1479:../src/src/wolfio.c ****                 case phr_have_type:
+1480:../src/src/wolfio.c ****                     if (XSTRLEN(start) < 13) { /* 13 is the shortest of the following
+1481:../src/src/wolfio.c ****                                           next lines we're checking for. */
+1482:../src/src/wolfio.c ****                         WOLFSSL_MSG("wolfIO_HttpProcessResponse content type is too short.");
+1483:../src/src/wolfio.c ****                         return HTTP_VERSION_ERR;
+1484:../src/src/wolfio.c ****                     }
+1485:../src/src/wolfio.c **** 
+1486:../src/src/wolfio.c ****                     if (XSTRNCASECMP(start, "Content-Type:", 13) == 0) {
+1487:../src/src/wolfio.c ****                         int i;
+1488:../src/src/wolfio.c **** 
+1489:../src/src/wolfio.c ****                         start += 13;
+1490:../src/src/wolfio.c ****                         while (*start == ' ') start++;
+1491:../src/src/wolfio.c **** 
+1492:../src/src/wolfio.c ****                         /* try and match against appStrList */
+1493:../src/src/wolfio.c ****                         i = 0;
+1494:../src/src/wolfio.c ****                         while (appStrList[i] != NULL) {
+1495:../src/src/wolfio.c ****                             if (XSTRNCASECMP(start, appStrList[i],
+1496:../src/src/wolfio.c ****                                                 XSTRLEN(appStrList[i])) == 0) {
+1497:../src/src/wolfio.c ****                                 break;
+1498:../src/src/wolfio.c ****                             }
+1499:../src/src/wolfio.c ****                             i++;
+1500:../src/src/wolfio.c ****                         }
+1501:../src/src/wolfio.c ****                         if (appStrList[i] == NULL) {
+1502:../src/src/wolfio.c ****                             WOLFSSL_MSG("wolfIO_HttpProcessResponse appstr mismatch");
+1503:../src/src/wolfio.c ****                             return HTTP_APPSTR_ERR;
+1504:../src/src/wolfio.c ****                         }
+1505:../src/src/wolfio.c ****                         state = (state == phr_http_start) ? phr_have_type : phr_wait_end;
+1506:../src/src/wolfio.c ****                     }
+1507:../src/src/wolfio.c ****                     else if (XSTRNCASECMP(start, "Content-Length:", 15) == 0) {
+1508:../src/src/wolfio.c ****                         start += 15;
+1509:../src/src/wolfio.c ****                         while (*start == ' ') start++;
+1510:../src/src/wolfio.c ****                         chunkSz = XATOI(start);
+1511:../src/src/wolfio.c ****                         state = (state == phr_http_start) ? phr_have_length : phr_wait_end;
+1512:../src/src/wolfio.c ****                     }
+1513:../src/src/wolfio.c ****                     else if (XSTRNCASECMP(start, "Transfer-Encoding:", 18) == 0) {
+1514:../src/src/wolfio.c ****                         start += 18;
+1515:../src/src/wolfio.c ****                         while (*start == ' ') start++;
+1516:../src/src/wolfio.c ****                         if (XSTRNCASECMP(start, "chunked", 7) == 0) {
+1517:../src/src/wolfio.c ****                             isChunked = 1;
+1518:../src/src/wolfio.c ****                             state = (state == phr_http_start) ? phr_have_length : phr_wait_end;
+1519:../src/src/wolfio.c ****                         }
+1520:../src/src/wolfio.c ****                     }
+1521:../src/src/wolfio.c ****                     break;
+1522:../src/src/wolfio.c ****                 case phr_get_chunk_len:
+1523:../src/src/wolfio.c ****                     chunkSz = (int)strtol(start, NULL, 16); /* hex format */
+1524:../src/src/wolfio.c ****                     state = (chunkSz == 0) ? phr_http_end : phr_get_chunk_data;
+1525:../src/src/wolfio.c ****                     break;
+1526:../src/src/wolfio.c ****                 case phr_get_chunk_data:
+1527:../src/src/wolfio.c ****                     /* processing for chunk data done above, since \r\n isn't required */
+1528:../src/src/wolfio.c ****                 case phr_wait_end:
+1529:../src/src/wolfio.c ****                 case phr_http_end:
+1530:../src/src/wolfio.c ****                     /* do nothing */
+1531:../src/src/wolfio.c ****                     break;
+1532:../src/src/wolfio.c ****             } /* switch (state) */
+1533:../src/src/wolfio.c **** 
+1534:../src/src/wolfio.c ****             /* skip to end plus \r\n */
+1535:../src/src/wolfio.c ****             start = end + 2;
+1536:../src/src/wolfio.c ****         }
+1537:../src/src/wolfio.c ****     } while (state != phr_http_end);
+1538:../src/src/wolfio.c **** 
+1539:../src/src/wolfio.c ****     if (!isChunked) {
+1540:../src/src/wolfio.c ****         result = wolfIO_HttpProcessResponseBuf(sfd, respBuf, &respBufSz, chunkSz,
+1541:../src/src/wolfio.c ****                                                     start, len, dynType, heap);
+1542:../src/src/wolfio.c ****     }
+1543:../src/src/wolfio.c **** 
+1544:../src/src/wolfio.c ****     if (result >= 0) {
+1545:../src/src/wolfio.c ****         result = respBufSz;
+1546:../src/src/wolfio.c ****     }
+1547:../src/src/wolfio.c ****     else {
+1548:../src/src/wolfio.c ****         WOLFSSL_ERROR(result);
+1549:../src/src/wolfio.c ****     }
+1550:../src/src/wolfio.c **** 
+1551:../src/src/wolfio.c ****     return result;
+1552:../src/src/wolfio.c **** }
+1553:../src/src/wolfio.c **** int wolfIO_HttpBuildRequest(const char *reqType, const char *domainName,
+1554:../src/src/wolfio.c ****                                const char *path, int pathLen, int reqSz, const char *contentType,
+1555:../src/src/wolfio.c ****                                byte *buf, int bufSize)
+1556:../src/src/wolfio.c **** {
+1557:../src/src/wolfio.c ****     return wolfIO_HttpBuildRequest_ex(reqType, domainName, path, pathLen, reqSz, contentType, "", b
+1558:../src/src/wolfio.c **** }
+1559:../src/src/wolfio.c **** 
+1560:../src/src/wolfio.c ****     int wolfIO_HttpBuildRequest_ex(const char *reqType, const char *domainName,
+1561:../src/src/wolfio.c ****                                 const char *path, int pathLen, int reqSz, const char *contentType,
+1562:../src/src/wolfio.c ****                                 const char *exHdrs, byte *buf, int bufSize)
+1563:../src/src/wolfio.c ****     {
+1564:../src/src/wolfio.c ****     word32 reqTypeLen, domainNameLen, reqSzStrLen, contentTypeLen, exHdrsLen, maxLen;
+1565:../src/src/wolfio.c ****     char reqSzStr[6];
+1566:../src/src/wolfio.c ****     char* req = (char*)buf;
+1567:../src/src/wolfio.c ****     const char* blankStr = " ";
+1568:../src/src/wolfio.c ****     const char* http11Str = " HTTP/1.1";
+1569:../src/src/wolfio.c ****     const char* hostStr = "\r\nHost: ";
+1570:../src/src/wolfio.c ****     const char* contentLenStr = "\r\nContent-Length: ";
+1571:../src/src/wolfio.c ****     const char* contentTypeStr = "\r\nContent-Type: ";
+1572:../src/src/wolfio.c ****     const char* singleCrLfStr = "\r\n";
+1573:../src/src/wolfio.c ****     const char* doubleCrLfStr = "\r\n\r\n";
+1574:../src/src/wolfio.c ****     word32 blankStrLen, http11StrLen, hostStrLen, contentLenStrLen,
+1575:../src/src/wolfio.c ****         contentTypeStrLen, singleCrLfStrLen, doubleCrLfStrLen;
+1576:../src/src/wolfio.c **** 
+1577:../src/src/wolfio.c ****     reqTypeLen = (word32)XSTRLEN(reqType);
+1578:../src/src/wolfio.c ****     domainNameLen = (word32)XSTRLEN(domainName);
+1579:../src/src/wolfio.c ****     reqSzStrLen = wolfIO_Word16ToString(reqSzStr, (word16)reqSz);
+1580:../src/src/wolfio.c ****     contentTypeLen = (word32)XSTRLEN(contentType);
+1581:../src/src/wolfio.c **** 
+1582:../src/src/wolfio.c ****     blankStrLen = (word32)XSTRLEN(blankStr);
+1583:../src/src/wolfio.c ****     http11StrLen = (word32)XSTRLEN(http11Str);
+1584:../src/src/wolfio.c ****     hostStrLen = (word32)XSTRLEN(hostStr);
+1585:../src/src/wolfio.c ****     contentLenStrLen = (word32)XSTRLEN(contentLenStr);
+1586:../src/src/wolfio.c ****     contentTypeStrLen = (word32)XSTRLEN(contentTypeStr);
+1587:../src/src/wolfio.c **** 
+1588:../src/src/wolfio.c ****     if(exHdrs){
+1589:../src/src/wolfio.c ****         singleCrLfStrLen = (word32)XSTRLEN(singleCrLfStr);
+1590:../src/src/wolfio.c ****         exHdrsLen = (word32)XSTRLEN(exHdrs);
+1591:../src/src/wolfio.c ****     } else {
+1592:../src/src/wolfio.c ****         singleCrLfStrLen = 0;
+1593:../src/src/wolfio.c ****         exHdrsLen = 0;
+1594:../src/src/wolfio.c ****     }
+1595:../src/src/wolfio.c **** 
+1596:../src/src/wolfio.c ****     doubleCrLfStrLen = (word32)XSTRLEN(doubleCrLfStr);
+1597:../src/src/wolfio.c **** 
+1598:../src/src/wolfio.c ****     /* determine max length and check it */
+1599:../src/src/wolfio.c ****     maxLen =
+1600:../src/src/wolfio.c ****         reqTypeLen +
+1601:../src/src/wolfio.c ****         blankStrLen +
+1602:../src/src/wolfio.c ****         pathLen +
+1603:../src/src/wolfio.c ****         http11StrLen +
+1604:../src/src/wolfio.c ****         hostStrLen +
+1605:../src/src/wolfio.c ****         domainNameLen +
+1606:../src/src/wolfio.c ****         contentLenStrLen +
+1607:../src/src/wolfio.c ****         reqSzStrLen +
+1608:../src/src/wolfio.c ****         contentTypeStrLen +
+1609:../src/src/wolfio.c ****         contentTypeLen +
+1610:../src/src/wolfio.c ****         singleCrLfStrLen +
+1611:../src/src/wolfio.c ****         exHdrsLen +
+1612:../src/src/wolfio.c ****         doubleCrLfStrLen +
+1613:../src/src/wolfio.c ****         1 /* null term */;
+1614:../src/src/wolfio.c ****     if (maxLen > (word32)bufSize)
+1615:../src/src/wolfio.c ****         return 0;
+1616:../src/src/wolfio.c **** 
+1617:../src/src/wolfio.c ****     XSTRNCPY((char*)buf, reqType, bufSize);
+1618:../src/src/wolfio.c ****     buf += reqTypeLen; bufSize -= reqTypeLen;
+1619:../src/src/wolfio.c ****     XSTRNCPY((char*)buf, blankStr, bufSize);
+1620:../src/src/wolfio.c ****     buf += blankStrLen; bufSize -= blankStrLen;
+1621:../src/src/wolfio.c ****     XSTRNCPY((char*)buf, path, bufSize);
+1622:../src/src/wolfio.c ****     buf += pathLen; bufSize -= pathLen;
+1623:../src/src/wolfio.c ****     XSTRNCPY((char*)buf, http11Str, bufSize);
+1624:../src/src/wolfio.c ****     buf += http11StrLen; bufSize -= http11StrLen;
+1625:../src/src/wolfio.c ****     if (domainNameLen > 0) {
+1626:../src/src/wolfio.c ****         XSTRNCPY((char*)buf, hostStr, bufSize);
+1627:../src/src/wolfio.c ****         buf += hostStrLen; bufSize -= hostStrLen;
+1628:../src/src/wolfio.c ****         XSTRNCPY((char*)buf, domainName, bufSize);
+1629:../src/src/wolfio.c ****         buf += domainNameLen; bufSize -= domainNameLen;
+1630:../src/src/wolfio.c ****     }
+1631:../src/src/wolfio.c ****     if (reqSz > 0 && reqSzStrLen > 0) {
+1632:../src/src/wolfio.c ****         XSTRNCPY((char*)buf, contentLenStr, bufSize);
+1633:../src/src/wolfio.c ****         buf += contentLenStrLen; bufSize -= contentLenStrLen;
+1634:../src/src/wolfio.c ****         XSTRNCPY((char*)buf, reqSzStr, bufSize);
+1635:../src/src/wolfio.c ****         buf += reqSzStrLen; bufSize -= reqSzStrLen;
+1636:../src/src/wolfio.c ****     }
+1637:../src/src/wolfio.c ****     if (contentTypeLen > 0) {
+1638:../src/src/wolfio.c ****         XSTRNCPY((char*)buf, contentTypeStr, bufSize);
+1639:../src/src/wolfio.c ****         buf += contentTypeStrLen; bufSize -= contentTypeStrLen;
+1640:../src/src/wolfio.c ****         XSTRNCPY((char*)buf, contentType, bufSize);
+1641:../src/src/wolfio.c ****         buf += contentTypeLen; bufSize -= contentTypeLen;
+1642:../src/src/wolfio.c ****     }
+1643:../src/src/wolfio.c ****     if (exHdrsLen > 0)
+1644:../src/src/wolfio.c ****     {
+1645:../src/src/wolfio.c ****         XSTRNCPY((char *)buf, singleCrLfStr, bufSize);
+1646:../src/src/wolfio.c ****         buf += singleCrLfStrLen;
+1647:../src/src/wolfio.c ****         bufSize -= singleCrLfStrLen;
+1648:../src/src/wolfio.c ****         XSTRNCPY((char *)buf, exHdrs, bufSize);
+1649:../src/src/wolfio.c ****         buf += exHdrsLen;
+1650:../src/src/wolfio.c ****         bufSize -= exHdrsLen;
+1651:../src/src/wolfio.c ****     }
+1652:../src/src/wolfio.c ****     XSTRNCPY((char*)buf, doubleCrLfStr, bufSize);
+1653:../src/src/wolfio.c ****     buf += doubleCrLfStrLen;
+1654:../src/src/wolfio.c **** 
+1655:../src/src/wolfio.c **** #ifdef WOLFIO_DEBUG
+1656:../src/src/wolfio.c ****     printf("HTTP %s: %s", reqType, req);
+1657:../src/src/wolfio.c **** #endif
+1658:../src/src/wolfio.c **** 
+1659:../src/src/wolfio.c ****     /* calculate actual length based on original and new pointer */
+1660:../src/src/wolfio.c ****     return (int)((char*)buf - req);
+1661:../src/src/wolfio.c **** }
+1662:../src/src/wolfio.c **** 
+1663:../src/src/wolfio.c **** 
+1664:../src/src/wolfio.c **** #ifdef HAVE_OCSP
+1665:../src/src/wolfio.c **** 
+1666:../src/src/wolfio.c **** int wolfIO_HttpBuildRequestOcsp(const char* domainName, const char* path,
+1667:../src/src/wolfio.c ****                                     int ocspReqSz, byte* buf, int bufSize)
+1668:../src/src/wolfio.c **** {
+1669:../src/src/wolfio.c ****     const char *cacheCtl = "Cache-Control: no-cache";
+1670:../src/src/wolfio.c ****     return wolfIO_HttpBuildRequest_ex("POST", domainName, path, (int)XSTRLEN(path),
+1671:../src/src/wolfio.c ****         ocspReqSz, "application/ocsp-request", cacheCtl, buf, bufSize);
+1672:../src/src/wolfio.c **** }
+1673:../src/src/wolfio.c **** 
+1674:../src/src/wolfio.c **** /* return: >0 OCSP Response Size
+1675:../src/src/wolfio.c ****  *         -1 error */
+1676:../src/src/wolfio.c **** int wolfIO_HttpProcessResponseOcsp(int sfd, byte** respBuf,
+1677:../src/src/wolfio.c ****                                        byte* httpBuf, int httpBufSz, void* heap)
+1678:../src/src/wolfio.c **** {
+1679:../src/src/wolfio.c ****     const char* appStrList[] = {
+1680:../src/src/wolfio.c ****         "application/ocsp-response",
+1681:../src/src/wolfio.c ****         NULL
+1682:../src/src/wolfio.c ****     };
+1683:../src/src/wolfio.c **** 
+1684:../src/src/wolfio.c ****     return wolfIO_HttpProcessResponse(sfd, appStrList,
+1685:../src/src/wolfio.c ****         respBuf, httpBuf, httpBufSz, DYNAMIC_TYPE_OCSP, heap);
+1686:../src/src/wolfio.c **** }
+1687:../src/src/wolfio.c **** 
+1688:../src/src/wolfio.c **** /* in default wolfSSL callback ctx is the heap pointer */
+1689:../src/src/wolfio.c **** int EmbedOcspLookup(void* ctx, const char* url, int urlSz,
+1690:../src/src/wolfio.c ****                         byte* ocspReqBuf, int ocspReqSz, byte** ocspRespBuf)
+1691:../src/src/wolfio.c **** {
+1692:../src/src/wolfio.c ****     SOCKET_T sfd = SOCKET_INVALID;
+1693:../src/src/wolfio.c ****     word16   port;
+1694:../src/src/wolfio.c ****     int      ret = -1;
+1695:../src/src/wolfio.c **** #ifdef WOLFSSL_SMALL_STACK
+1696:../src/src/wolfio.c ****     char*    path;
+1697:../src/src/wolfio.c ****     char*    domainName;
+1698:../src/src/wolfio.c **** #else
+1699:../src/src/wolfio.c ****     char     path[MAX_URL_ITEM_SIZE];
+1700:../src/src/wolfio.c ****     char     domainName[MAX_URL_ITEM_SIZE];
+1701:../src/src/wolfio.c **** #endif
+1702:../src/src/wolfio.c **** 
+1703:../src/src/wolfio.c **** #ifdef WOLFSSL_SMALL_STACK
+1704:../src/src/wolfio.c ****     path = (char*)XMALLOC(MAX_URL_ITEM_SIZE, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+1705:../src/src/wolfio.c ****     if (path == NULL)
+1706:../src/src/wolfio.c ****         return MEMORY_E;
+1707:../src/src/wolfio.c **** 
+1708:../src/src/wolfio.c ****     domainName = (char*)XMALLOC(MAX_URL_ITEM_SIZE, NULL,
+1709:../src/src/wolfio.c ****             DYNAMIC_TYPE_TMP_BUFFER);
+1710:../src/src/wolfio.c ****     if (domainName == NULL) {
+1711:../src/src/wolfio.c ****         XFREE(path, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+1712:../src/src/wolfio.c ****         return MEMORY_E;
+1713:../src/src/wolfio.c ****     }
+1714:../src/src/wolfio.c **** #endif
+1715:../src/src/wolfio.c **** 
+1716:../src/src/wolfio.c ****     if (ocspReqBuf == NULL || ocspReqSz == 0) {
+1717:../src/src/wolfio.c ****         WOLFSSL_MSG("OCSP request is required for lookup");
+1718:../src/src/wolfio.c ****     }
+1719:../src/src/wolfio.c ****     else if (ocspRespBuf == NULL) {
+1720:../src/src/wolfio.c ****         WOLFSSL_MSG("Cannot save OCSP response");
+1721:../src/src/wolfio.c ****     }
+1722:../src/src/wolfio.c ****     else if (wolfIO_DecodeUrl(url, urlSz, domainName, path, &port) < 0) {
+1723:../src/src/wolfio.c ****         WOLFSSL_MSG("Unable to decode OCSP URL");
+1724:../src/src/wolfio.c ****     }
+1725:../src/src/wolfio.c ****     else {
+1726:../src/src/wolfio.c ****         /* Note, the library uses the EmbedOcspRespFree() callback to
+1727:../src/src/wolfio.c ****          * free this buffer. */
+1728:../src/src/wolfio.c ****         int   httpBufSz = HTTP_SCRATCH_BUFFER_SIZE;
+1729:../src/src/wolfio.c ****         byte* httpBuf   = (byte*)XMALLOC(httpBufSz, ctx, DYNAMIC_TYPE_OCSP);
+1730:../src/src/wolfio.c **** 
+1731:../src/src/wolfio.c ****         if (httpBuf == NULL) {
+1732:../src/src/wolfio.c ****             WOLFSSL_MSG("Unable to create OCSP response buffer");
+1733:../src/src/wolfio.c ****         }
+1734:../src/src/wolfio.c ****         else {
+1735:../src/src/wolfio.c ****             httpBufSz = wolfIO_HttpBuildRequestOcsp(domainName, path, ocspReqSz,
+1736:../src/src/wolfio.c ****                                                             httpBuf, httpBufSz);
+1737:../src/src/wolfio.c **** 
+1738:../src/src/wolfio.c ****             ret = wolfIO_TcpConnect(&sfd, domainName, port, io_timeout_sec);
+1739:../src/src/wolfio.c ****             if (ret != 0) {
+1740:../src/src/wolfio.c ****                 WOLFSSL_MSG("OCSP Responder connection failed");
+1741:../src/src/wolfio.c ****             }
+1742:../src/src/wolfio.c ****             else if (wolfIO_Send(sfd, (char*)httpBuf, httpBufSz, 0) !=
+1743:../src/src/wolfio.c ****                                                                     httpBufSz) {
+1744:../src/src/wolfio.c ****                 WOLFSSL_MSG("OCSP http request failed");
+1745:../src/src/wolfio.c ****             }
+1746:../src/src/wolfio.c ****             else if (wolfIO_Send(sfd, (char*)ocspReqBuf, ocspReqSz, 0) !=
+1747:../src/src/wolfio.c ****                                                                     ocspReqSz) {
+1748:../src/src/wolfio.c ****                 WOLFSSL_MSG("OCSP ocsp request failed");
+1749:../src/src/wolfio.c ****             }
+1750:../src/src/wolfio.c ****             else {
+1751:../src/src/wolfio.c ****                 ret = wolfIO_HttpProcessResponseOcsp(sfd, ocspRespBuf, httpBuf,
+1752:../src/src/wolfio.c ****                                                  HTTP_SCRATCH_BUFFER_SIZE, ctx);
+1753:../src/src/wolfio.c ****             }
+1754:../src/src/wolfio.c ****             if (sfd != SOCKET_INVALID)
+1755:../src/src/wolfio.c ****                 CloseSocket(sfd);
+1756:../src/src/wolfio.c ****             XFREE(httpBuf, ctx, DYNAMIC_TYPE_OCSP);
+1757:../src/src/wolfio.c ****         }
+1758:../src/src/wolfio.c ****     }
+1759:../src/src/wolfio.c **** 
+1760:../src/src/wolfio.c **** #ifdef WOLFSSL_SMALL_STACK
+1761:../src/src/wolfio.c ****     XFREE(path,       NULL, DYNAMIC_TYPE_TMP_BUFFER);
+1762:../src/src/wolfio.c ****     XFREE(domainName, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+1763:../src/src/wolfio.c **** #endif
+1764:../src/src/wolfio.c **** 
+1765:../src/src/wolfio.c ****     return ret;
+1766:../src/src/wolfio.c **** }
+1767:../src/src/wolfio.c **** 
+1768:../src/src/wolfio.c **** /* in default callback ctx is heap hint */
+1769:../src/src/wolfio.c **** void EmbedOcspRespFree(void* ctx, byte *resp)
+1770:../src/src/wolfio.c **** {
+1771:../src/src/wolfio.c ****     if (resp)
+1772:../src/src/wolfio.c ****         XFREE(resp, ctx, DYNAMIC_TYPE_OCSP);
+1773:../src/src/wolfio.c **** 
+1774:../src/src/wolfio.c ****     (void)ctx;
+1775:../src/src/wolfio.c **** }
+1776:../src/src/wolfio.c **** #endif /* HAVE_OCSP */
+1777:../src/src/wolfio.c **** 
+1778:../src/src/wolfio.c **** 
+1779:../src/src/wolfio.c **** #if defined(HAVE_CRL) && defined(HAVE_CRL_IO)
+1780:../src/src/wolfio.c **** 
+1781:../src/src/wolfio.c **** int wolfIO_HttpBuildRequestCrl(const char* url, int urlSz,
+1782:../src/src/wolfio.c ****     const char* domainName, byte* buf, int bufSize)
+1783:../src/src/wolfio.c **** {
+1784:../src/src/wolfio.c ****     const char *cacheCtl = "Cache-Control: no-cache";
+1785:../src/src/wolfio.c ****     return wolfIO_HttpBuildRequest_ex("GET", domainName, url, urlSz, 0, "",
+1786:../src/src/wolfio.c ****                                    cacheCtl, buf, bufSize);
+1787:../src/src/wolfio.c **** }
+1788:../src/src/wolfio.c **** 
+1789:../src/src/wolfio.c **** int wolfIO_HttpProcessResponseCrl(WOLFSSL_CRL* crl, int sfd, byte* httpBuf,
+1790:../src/src/wolfio.c ****     int httpBufSz)
+1791:../src/src/wolfio.c **** {
+1792:../src/src/wolfio.c ****     int ret;
+1793:../src/src/wolfio.c ****     byte *respBuf = NULL;
+1794:../src/src/wolfio.c **** 
+1795:../src/src/wolfio.c ****     const char* appStrList[] = {
+1796:../src/src/wolfio.c ****         "application/pkix-crl",
+1797:../src/src/wolfio.c ****         "application/x-pkcs7-crl",
+1798:../src/src/wolfio.c ****         NULL
+1799:../src/src/wolfio.c ****     };
+1800:../src/src/wolfio.c **** 
+1801:../src/src/wolfio.c **** 
+1802:../src/src/wolfio.c ****     ret = wolfIO_HttpProcessResponse(sfd, appStrList,
+1803:../src/src/wolfio.c ****         &respBuf, httpBuf, httpBufSz, DYNAMIC_TYPE_CRL, crl->heap);
+1804:../src/src/wolfio.c ****     if (ret >= 0) {
+1805:../src/src/wolfio.c ****         ret = BufferLoadCRL(crl, respBuf, ret, WOLFSSL_FILETYPE_ASN1, 0);
+1806:../src/src/wolfio.c ****     }
+1807:../src/src/wolfio.c ****     XFREE(respBuf, crl->heap, DYNAMIC_TYPE_CRL);
+1808:../src/src/wolfio.c **** 
+1809:../src/src/wolfio.c ****     return ret;
+1810:../src/src/wolfio.c **** }
+1811:../src/src/wolfio.c **** 
+1812:../src/src/wolfio.c **** int EmbedCrlLookup(WOLFSSL_CRL* crl, const char* url, int urlSz)
+1813:../src/src/wolfio.c **** {
+1814:../src/src/wolfio.c ****     SOCKET_T sfd = SOCKET_INVALID;
+1815:../src/src/wolfio.c ****     word16   port;
+1816:../src/src/wolfio.c ****     int      ret = -1;
+1817:../src/src/wolfio.c **** #ifdef WOLFSSL_SMALL_STACK
+1818:../src/src/wolfio.c ****     char*    domainName;
+1819:../src/src/wolfio.c **** #else
+1820:../src/src/wolfio.c ****     char     domainName[MAX_URL_ITEM_SIZE];
+1821:../src/src/wolfio.c **** #endif
+1822:../src/src/wolfio.c **** 
+1823:../src/src/wolfio.c **** #ifdef WOLFSSL_SMALL_STACK
+1824:../src/src/wolfio.c ****     domainName = (char*)XMALLOC(MAX_URL_ITEM_SIZE, crl->heap,
+1825:../src/src/wolfio.c ****                                                        DYNAMIC_TYPE_TMP_BUFFER);
+1826:../src/src/wolfio.c ****     if (domainName == NULL) {
+1827:../src/src/wolfio.c ****         return MEMORY_E;
+1828:../src/src/wolfio.c ****     }
+1829:../src/src/wolfio.c **** #endif
+1830:../src/src/wolfio.c **** 
+1831:../src/src/wolfio.c ****     if (wolfIO_DecodeUrl(url, urlSz, domainName, NULL, &port) < 0) {
+1832:../src/src/wolfio.c ****         WOLFSSL_MSG("Unable to decode CRL URL");
+1833:../src/src/wolfio.c ****     }
+1834:../src/src/wolfio.c ****     else {
+1835:../src/src/wolfio.c ****         int   httpBufSz = HTTP_SCRATCH_BUFFER_SIZE;
+1836:../src/src/wolfio.c ****         byte* httpBuf   = (byte*)XMALLOC(httpBufSz, crl->heap,
+1837:../src/src/wolfio.c ****                                                               DYNAMIC_TYPE_CRL);
+1838:../src/src/wolfio.c ****         if (httpBuf == NULL) {
+1839:../src/src/wolfio.c ****             WOLFSSL_MSG("Unable to create CRL response buffer");
+1840:../src/src/wolfio.c ****         }
+1841:../src/src/wolfio.c ****         else {
+1842:../src/src/wolfio.c ****             httpBufSz = wolfIO_HttpBuildRequestCrl(url, urlSz, domainName,
+1843:../src/src/wolfio.c ****                 httpBuf, httpBufSz);
+1844:../src/src/wolfio.c **** 
+1845:../src/src/wolfio.c ****             ret = wolfIO_TcpConnect(&sfd, domainName, port, io_timeout_sec);
+1846:../src/src/wolfio.c ****             if (ret != 0) {
+1847:../src/src/wolfio.c ****                 WOLFSSL_MSG("CRL connection failed");
+1848:../src/src/wolfio.c ****             }
+1849:../src/src/wolfio.c ****             else if (wolfIO_Send(sfd, (char*)httpBuf, httpBufSz, 0)
+1850:../src/src/wolfio.c ****                                                                  != httpBufSz) {
+1851:../src/src/wolfio.c ****                 WOLFSSL_MSG("CRL http get failed");
+1852:../src/src/wolfio.c ****             }
+1853:../src/src/wolfio.c ****             else {
+1854:../src/src/wolfio.c ****                 ret = wolfIO_HttpProcessResponseCrl(crl, sfd, httpBuf,
+1855:../src/src/wolfio.c ****                                                       HTTP_SCRATCH_BUFFER_SIZE);
+1856:../src/src/wolfio.c ****             }
+1857:../src/src/wolfio.c ****             if (sfd != SOCKET_INVALID)
+1858:../src/src/wolfio.c ****                 CloseSocket(sfd);
+1859:../src/src/wolfio.c ****             XFREE(httpBuf, crl->heap, DYNAMIC_TYPE_CRL);
+1860:../src/src/wolfio.c ****         }
+1861:../src/src/wolfio.c ****     }
+1862:../src/src/wolfio.c **** 
+1863:../src/src/wolfio.c **** #ifdef WOLFSSL_SMALL_STACK
+1864:../src/src/wolfio.c ****     XFREE(domainName, crl->heap, DYNAMIC_TYPE_TMP_BUFFER);
+1865:../src/src/wolfio.c **** #endif
+1866:../src/src/wolfio.c **** 
+1867:../src/src/wolfio.c ****     return ret;
+1868:../src/src/wolfio.c **** }
+1869:../src/src/wolfio.c **** #endif /* HAVE_CRL && HAVE_CRL_IO */
+1870:../src/src/wolfio.c **** 
+1871:../src/src/wolfio.c **** #endif /* HAVE_HTTP_CLIENT */
+1872:../src/src/wolfio.c **** 
+1873:../src/src/wolfio.c **** 
+1874:../src/src/wolfio.c **** 
+1875:../src/src/wolfio.c **** void wolfSSL_CTX_SetIORecv(WOLFSSL_CTX *ctx, CallbackIORecv CBIORecv)
+1876:../src/src/wolfio.c **** {
+  66                             		.loc 1 1876 1
+  67 0000 7E AA                   		push.l	r10
+  68                             	.LCFI0:
+  69 0002 71 0A F8                		add	#-8, r0, r10
+  70                             	.LCFI1:
+  71 0005 EF A0                   		mov.L	r10, r0
+  72 0007 E3 A1                   		mov.L	r1, [r10]
+  73 0009 E7 A2 01                		mov.L	r2, 4[r10]
+1877:../src/src/wolfio.c ****     if (ctx) {
+  74                             		.loc 1 1877 8
+  75 000c EC A5                   		mov.L	[r10], r5
+  76 000e 61 05                   		cmp	#0, r5
+  77 0010 10                      		beq	.L3
+1878:../src/src/wolfio.c ****         ctx->CBIORecv = CBIORecv;
+  78                             		.loc 1 1878 23
+  79 0011 EC A5                   		mov.L	[r10], r5
+  80 0013 ED A4 01                		mov.L	4[r10], r4
+  81 0016 A5 DC                   		mov.L	r4, 92[r5]
+  82                             	.L3:
+1879:../src/src/wolfio.c ****     #ifdef OPENSSL_EXTRA
+1880:../src/src/wolfio.c ****         ctx->cbioFlag |= WOLFSSL_CBIO_RECV;
+1881:../src/src/wolfio.c ****     #endif
+1882:../src/src/wolfio.c ****     }
+1883:../src/src/wolfio.c **** }
+  83                             		.loc 1 1883 1
+  84 0018 03                      		nop
+  85 0019 3F AA 03                		rtsd	#12, r10-r10
+  86                             	.LFE1:
+  88                             		.section	.text.wolfSSL_CTX_SetIOSend,"ax",@progbits
+  89                             		.global	_wolfSSL_CTX_SetIOSend
+  91                             	_wolfSSL_CTX_SetIOSend:
+  92                             	.LFB2:
+1884:../src/src/wolfio.c **** 
+1885:../src/src/wolfio.c **** 
+1886:../src/src/wolfio.c **** void wolfSSL_CTX_SetIOSend(WOLFSSL_CTX *ctx, CallbackIOSend CBIOSend)
+1887:../src/src/wolfio.c **** {
+  93                             		.loc 1 1887 1
+  94 0000 7E AA                   		push.l	r10
+  95                             	.LCFI2:
+  96 0002 71 0A F8                		add	#-8, r0, r10
+  97                             	.LCFI3:
+  98 0005 EF A0                   		mov.L	r10, r0
+  99 0007 E3 A1                   		mov.L	r1, [r10]
+ 100 0009 E7 A2 01                		mov.L	r2, 4[r10]
+1888:../src/src/wolfio.c ****     if (ctx) {
+ 101                             		.loc 1 1888 8
+ 102 000c EC A5                   		mov.L	[r10], r5
+ 103 000e 61 05                   		cmp	#0, r5
+ 104 0010 10                      		beq	.L6
+1889:../src/src/wolfio.c ****         ctx->CBIOSend = CBIOSend;
+ 105                             		.loc 1 1889 23
+ 106 0011 EC A5                   		mov.L	[r10], r5
+ 107 0013 ED A4 01                		mov.L	4[r10], r4
+ 108 0016 A6 54                   		mov.L	r4, 96[r5]
+ 109                             	.L6:
+1890:../src/src/wolfio.c ****     #ifdef OPENSSL_EXTRA
+1891:../src/src/wolfio.c ****         ctx->cbioFlag |= WOLFSSL_CBIO_SEND;
+1892:../src/src/wolfio.c ****     #endif
+1893:../src/src/wolfio.c ****     }
+1894:../src/src/wolfio.c **** }
+ 110                             		.loc 1 1894 1
+ 111 0018 03                      		nop
+ 112 0019 3F AA 03                		rtsd	#12, r10-r10
+ 113                             	.LFE2:
+ 115                             		.section	.text.wolfSSL_SSLSetIORecv,"ax",@progbits
+ 116                             		.global	_wolfSSL_SSLSetIORecv
+ 118                             	_wolfSSL_SSLSetIORecv:
+ 119                             	.LFB3:
+1895:../src/src/wolfio.c **** 
+1896:../src/src/wolfio.c **** 
+1897:../src/src/wolfio.c **** /* sets the IO callback to use for receives at WOLFSSL level */
+1898:../src/src/wolfio.c **** void wolfSSL_SSLSetIORecv(WOLFSSL *ssl, CallbackIORecv CBIORecv)
+1899:../src/src/wolfio.c **** {
+ 120                             		.loc 1 1899 1
+ 121 0000 7E AA                   		push.l	r10
+ 122                             	.LCFI4:
+ 123 0002 71 0A F8                		add	#-8, r0, r10
+ 124                             	.LCFI5:
+ 125 0005 EF A0                   		mov.L	r10, r0
+ 126 0007 E3 A1                   		mov.L	r1, [r10]
+ 127 0009 E7 A2 01                		mov.L	r2, 4[r10]
+1900:../src/src/wolfio.c ****     if (ssl) {
+ 128                             		.loc 1 1900 8
+ 129 000c EC A5                   		mov.L	[r10], r5
+ 130 000e 61 05                   		cmp	#0, r5
+ 131 0010 10                      		beq	.L9
+1901:../src/src/wolfio.c ****         ssl->CBIORecv = CBIORecv;
+ 132                             		.loc 1 1901 23
+ 133 0011 EC A5                   		mov.L	[r10], r5
+ 134 0013 ED A4 01                		mov.L	4[r10], r4
+ 135 0016 A2 D4                   		mov.L	r4, 40[r5]
+ 136                             	.L9:
+1902:../src/src/wolfio.c ****     #ifdef OPENSSL_EXTRA
+1903:../src/src/wolfio.c ****         ssl->cbioFlag |= WOLFSSL_CBIO_RECV;
+1904:../src/src/wolfio.c ****     #endif
+1905:../src/src/wolfio.c ****     }
+1906:../src/src/wolfio.c **** }
+ 137                             		.loc 1 1906 1
+ 138 0018 03                      		nop
+ 139 0019 3F AA 03                		rtsd	#12, r10-r10
+ 140                             	.LFE3:
+ 142                             		.section	.text.wolfSSL_SSLSetIOSend,"ax",@progbits
+ 143                             		.global	_wolfSSL_SSLSetIOSend
+ 145                             	_wolfSSL_SSLSetIOSend:
+ 146                             	.LFB4:
+1907:../src/src/wolfio.c **** 
+1908:../src/src/wolfio.c **** 
+1909:../src/src/wolfio.c **** /* sets the IO callback to use for sends at WOLFSSL level */
+1910:../src/src/wolfio.c **** void wolfSSL_SSLSetIOSend(WOLFSSL *ssl, CallbackIOSend CBIOSend)
+1911:../src/src/wolfio.c **** {
+ 147                             		.loc 1 1911 1
+ 148 0000 7E AA                   		push.l	r10
+ 149                             	.LCFI6:
+ 150 0002 71 0A F8                		add	#-8, r0, r10
+ 151                             	.LCFI7:
+ 152 0005 EF A0                   		mov.L	r10, r0
+ 153 0007 E3 A1                   		mov.L	r1, [r10]
+ 154 0009 E7 A2 01                		mov.L	r2, 4[r10]
+1912:../src/src/wolfio.c ****     if (ssl) {
+ 155                             		.loc 1 1912 8
+ 156 000c EC A5                   		mov.L	[r10], r5
+ 157 000e 61 05                   		cmp	#0, r5
+ 158 0010 10                      		beq	.L12
+1913:../src/src/wolfio.c ****         ssl->CBIOSend = CBIOSend;
+ 159                             		.loc 1 1913 23
+ 160 0011 EC A5                   		mov.L	[r10], r5
+ 161 0013 ED A4 01                		mov.L	4[r10], r4
+ 162 0016 A2 DC                   		mov.L	r4, 44[r5]
+ 163                             	.L12:
+1914:../src/src/wolfio.c ****     #ifdef OPENSSL_EXTRA
+1915:../src/src/wolfio.c ****         ssl->cbioFlag |= WOLFSSL_CBIO_SEND;
+1916:../src/src/wolfio.c ****     #endif
+1917:../src/src/wolfio.c ****     }
+1918:../src/src/wolfio.c **** }
+ 164                             		.loc 1 1918 1
+ 165 0018 03                      		nop
+ 166 0019 3F AA 03                		rtsd	#12, r10-r10
+ 167                             	.LFE4:
+ 169                             		.section	.text.wolfSSL_SetIOReadCtx,"ax",@progbits
+ 170                             		.global	_wolfSSL_SetIOReadCtx
+ 172                             	_wolfSSL_SetIOReadCtx:
+ 173                             	.LFB5:
+1919:../src/src/wolfio.c **** 
+1920:../src/src/wolfio.c **** 
+1921:../src/src/wolfio.c **** void wolfSSL_SetIOReadCtx(WOLFSSL* ssl, void *rctx)
+1922:../src/src/wolfio.c **** {
+ 174                             		.loc 1 1922 1
+ 175 0000 7E AA                   		push.l	r10
+ 176                             	.LCFI8:
+ 177 0002 71 0A F8                		add	#-8, r0, r10
+ 178                             	.LCFI9:
+ 179 0005 EF A0                   		mov.L	r10, r0
+ 180 0007 E3 A1                   		mov.L	r1, [r10]
+ 181 0009 E7 A2 01                		mov.L	r2, 4[r10]
+1923:../src/src/wolfio.c ****     if (ssl)
+ 182                             		.loc 1 1923 8
+ 183 000c EC A5                   		mov.L	[r10], r5
+ 184 000e 61 05                   		cmp	#0, r5
+ 185 0010 10                      		beq	.L15
+1924:../src/src/wolfio.c ****         ssl->IOCB_ReadCtx = rctx;
+ 186                             		.loc 1 1924 27
+ 187 0011 EC A5                   		mov.L	[r10], r5
+ 188 0013 ED A4 01                		mov.L	4[r10], r4
+ 189 0016 A1 54                   		mov.L	r4, 16[r5]
+ 190                             	.L15:
+1925:../src/src/wolfio.c **** }
+ 191                             		.loc 1 1925 1
+ 192 0018 03                      		nop
+ 193 0019 3F AA 03                		rtsd	#12, r10-r10
+ 194                             	.LFE5:
+ 196                             		.section	.text.wolfSSL_SetIOWriteCtx,"ax",@progbits
+ 197                             		.global	_wolfSSL_SetIOWriteCtx
+ 199                             	_wolfSSL_SetIOWriteCtx:
+ 200                             	.LFB6:
+1926:../src/src/wolfio.c **** 
+1927:../src/src/wolfio.c **** 
+1928:../src/src/wolfio.c **** void wolfSSL_SetIOWriteCtx(WOLFSSL* ssl, void *wctx)
+1929:../src/src/wolfio.c **** {
+ 201                             		.loc 1 1929 1
+ 202 0000 7E AA                   		push.l	r10
+ 203                             	.LCFI10:
+ 204 0002 71 0A F8                		add	#-8, r0, r10
+ 205                             	.LCFI11:
+ 206 0005 EF A0                   		mov.L	r10, r0
+ 207 0007 E3 A1                   		mov.L	r1, [r10]
+ 208 0009 E7 A2 01                		mov.L	r2, 4[r10]
+1930:../src/src/wolfio.c ****     if (ssl)
+ 209                             		.loc 1 1930 8
+ 210 000c EC A5                   		mov.L	[r10], r5
+ 211 000e 61 05                   		cmp	#0, r5
+ 212 0010 10                      		beq	.L18
+1931:../src/src/wolfio.c ****         ssl->IOCB_WriteCtx = wctx;
+ 213                             		.loc 1 1931 28
+ 214 0011 EC A5                   		mov.L	[r10], r5
+ 215 0013 ED A4 01                		mov.L	4[r10], r4
+ 216 0016 A1 5C                   		mov.L	r4, 20[r5]
+ 217                             	.L18:
+1932:../src/src/wolfio.c **** }
+ 218                             		.loc 1 1932 1
+ 219 0018 03                      		nop
+ 220 0019 3F AA 03                		rtsd	#12, r10-r10
+ 221                             	.LFE6:
+ 223                             		.section	.text.wolfSSL_GetIOReadCtx,"ax",@progbits
+ 224                             		.global	_wolfSSL_GetIOReadCtx
+ 226                             	_wolfSSL_GetIOReadCtx:
+ 227                             	.LFB7:
+1933:../src/src/wolfio.c **** 
+1934:../src/src/wolfio.c **** 
+1935:../src/src/wolfio.c **** void* wolfSSL_GetIOReadCtx(WOLFSSL* ssl)
+1936:../src/src/wolfio.c **** {
+ 228                             		.loc 1 1936 1
+ 229 0000 7E AA                   		push.l	r10
+ 230                             	.LCFI12:
+ 231 0002 71 0A FC                		add	#-4, r0, r10
+ 232                             	.LCFI13:
+ 233 0005 EF A0                   		mov.L	r10, r0
+ 234 0007 E3 A1                   		mov.L	r1, [r10]
+1937:../src/src/wolfio.c ****     if (ssl)
+ 235                             		.loc 1 1937 8
+ 236 0009 EC A5                   		mov.L	[r10], r5
+ 237 000b 61 05                   		cmp	#0, r5
+ 238 000d 16                      		beq	.L20
+1938:../src/src/wolfio.c ****         return ssl->IOCB_ReadCtx;
+ 239                             		.loc 1 1938 19
+ 240 000e EC A5                   		mov.L	[r10], r5
+ 241 0010 A9 55                   		mov.L	16[r5], r5
+ 242 0012 0B                      		bra	.L21
+ 243                             	.L20:
+1939:../src/src/wolfio.c **** 
+1940:../src/src/wolfio.c ****     return NULL;
+ 244                             		.loc 1 1940 12
+ 245 0013 66 05                   		mov.L	#0, r5
+ 246                             	.L21:
+1941:../src/src/wolfio.c **** }
+ 247                             		.loc 1 1941 1
+ 248 0015 EF 51                   		mov.L	r5, r1
+ 249 0017 3F AA 02                		rtsd	#8, r10-r10
+ 250                             	.LFE7:
+ 252                             		.section	.text.wolfSSL_GetIOWriteCtx,"ax",@progbits
+ 253                             		.global	_wolfSSL_GetIOWriteCtx
+ 255                             	_wolfSSL_GetIOWriteCtx:
+ 256                             	.LFB8:
+1942:../src/src/wolfio.c **** 
+1943:../src/src/wolfio.c **** 
+1944:../src/src/wolfio.c **** void* wolfSSL_GetIOWriteCtx(WOLFSSL* ssl)
+1945:../src/src/wolfio.c **** {
+ 257                             		.loc 1 1945 1
+ 258 0000 7E AA                   		push.l	r10
+ 259                             	.LCFI14:
+ 260 0002 71 0A FC                		add	#-4, r0, r10
+ 261                             	.LCFI15:
+ 262 0005 EF A0                   		mov.L	r10, r0
+ 263 0007 E3 A1                   		mov.L	r1, [r10]
+1946:../src/src/wolfio.c ****     if (ssl)
+ 264                             		.loc 1 1946 8
+ 265 0009 EC A5                   		mov.L	[r10], r5
+ 266 000b 61 05                   		cmp	#0, r5
+ 267 000d 16                      		beq	.L23
+1947:../src/src/wolfio.c ****         return ssl->IOCB_WriteCtx;
+ 268                             		.loc 1 1947 19
+ 269 000e EC A5                   		mov.L	[r10], r5
+ 270 0010 A9 5D                   		mov.L	20[r5], r5
+ 271 0012 0B                      		bra	.L24
+ 272                             	.L23:
+1948:../src/src/wolfio.c **** 
+1949:../src/src/wolfio.c ****     return NULL;
+ 273                             		.loc 1 1949 12
+ 274 0013 66 05                   		mov.L	#0, r5
+ 275                             	.L24:
+1950:../src/src/wolfio.c **** }
+ 276                             		.loc 1 1950 1
+ 277 0015 EF 51                   		mov.L	r5, r1
+ 278 0017 3F AA 02                		rtsd	#8, r10-r10
+ 279                             	.LFE8:
+ 281                             		.section	.text.wolfSSL_SetIOReadFlags,"ax",@progbits
+ 282                             		.global	_wolfSSL_SetIOReadFlags
+ 284                             	_wolfSSL_SetIOReadFlags:
+ 285                             	.LFB9:
+1951:../src/src/wolfio.c **** 
+1952:../src/src/wolfio.c **** 
+1953:../src/src/wolfio.c **** void wolfSSL_SetIOReadFlags(WOLFSSL* ssl, int flags)
+1954:../src/src/wolfio.c **** {
+ 286                             		.loc 1 1954 1
+ 287 0000 7E AA                   		push.l	r10
+ 288                             	.LCFI16:
+ 289 0002 71 0A F8                		add	#-8, r0, r10
+ 290                             	.LCFI17:
+ 291 0005 EF A0                   		mov.L	r10, r0
+ 292 0007 E3 A1                   		mov.L	r1, [r10]
+ 293 0009 E7 A2 01                		mov.L	r2, 4[r10]
+1955:../src/src/wolfio.c ****     if (ssl)
+ 294                             		.loc 1 1955 8
+ 295 000c EC A5                   		mov.L	[r10], r5
+ 296 000e 61 05                   		cmp	#0, r5
+ 297 0010 11                      		beq	.L27
+1956:../src/src/wolfio.c ****         ssl->rflags = flags;
+ 298                             		.loc 1 1956 21
+ 299 0011 EC A5                   		mov.L	[r10], r5
+ 300 0013 ED A4 01                		mov.L	4[r10], r4
+ 301 0016 E7 54 51                		mov.L	r4, 324[r5]
+ 302                             	.L27:
+1957:../src/src/wolfio.c **** }
+ 303                             		.loc 1 1957 1
+ 304 0019 03                      		nop
+ 305 001a 3F AA 03                		rtsd	#12, r10-r10
+ 306                             	.LFE9:
+ 308                             		.section	.text.wolfSSL_SetIOWriteFlags,"ax",@progbits
+ 309                             		.global	_wolfSSL_SetIOWriteFlags
+ 311                             	_wolfSSL_SetIOWriteFlags:
+ 312                             	.LFB10:
+1958:../src/src/wolfio.c **** 
+1959:../src/src/wolfio.c **** 
+1960:../src/src/wolfio.c **** void wolfSSL_SetIOWriteFlags(WOLFSSL* ssl, int flags)
+1961:../src/src/wolfio.c **** {
+ 313                             		.loc 1 1961 1
+ 314 0000 7E AA                   		push.l	r10
+ 315                             	.LCFI18:
+ 316 0002 71 0A F8                		add	#-8, r0, r10
+ 317                             	.LCFI19:
+ 318 0005 EF A0                   		mov.L	r10, r0
+ 319 0007 E3 A1                   		mov.L	r1, [r10]
+ 320 0009 E7 A2 01                		mov.L	r2, 4[r10]
+1962:../src/src/wolfio.c ****     if (ssl)
+ 321                             		.loc 1 1962 8
+ 322 000c EC A5                   		mov.L	[r10], r5
+ 323 000e 61 05                   		cmp	#0, r5
+ 324 0010 11                      		beq	.L30
+1963:../src/src/wolfio.c ****         ssl->wflags = flags;
+ 325                             		.loc 1 1963 21
+ 326 0011 EC A5                   		mov.L	[r10], r5
+ 327 0013 ED A4 01                		mov.L	4[r10], r4
+ 328 0016 E7 54 52                		mov.L	r4, 328[r5]
+ 329                             	.L30:
+1964:../src/src/wolfio.c **** }
+ 330                             		.loc 1 1964 1
+ 331 0019 03                      		nop
+ 332 001a 3F AA 03                		rtsd	#12, r10-r10
+ 333                             	.LFE10:
+ 543                             	.Letext0:
+ 544                             		.file 2 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/wc_port.h"
+ 545                             		.file 3 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\lib\\gcc\\rx-
+ 546                             		.file 4 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 547                             		.file 5 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 548                             		.file 6 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 549                             		.file 7 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 550                             		.file 8 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/types.h"
+ 551                             		.file 9 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\inclu
+ 552                             		.file 10 "c:\\programdata\\gcc for renesas rx 8.3.0.202202-gnurx-elf\\rx-elf\\rx-elf\\rx-elf\\incl
+ 553                             		.file 11 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sp_int.h"
+ 554                             		.file 12 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha256.h"
+ 555                             		.file 13 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/random.h"
+ 556                             		.file 14 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/wolfmath.h"
+ 557                             		.file 15 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/asn_public.h"
+ 558                             		.file 16 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/ecc.h"
+ 559                             		.file 17 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/ed25519.h"
+ 560                             		.file 18 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/curve25519.h"
+ 561                             		.file 19 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/rsa.h"
+ 562                             		.file 20 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/dh.h"
+ 563                             		.file 21 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md5.h"
+ 564                             		.file 22 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha.h"
+ 565                             		.file 23 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/sha512.h"
+ 566                             		.file 24 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/md4.h"
+ 567                             		.file 25 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/openssl/compat_types.h"
+ 568                             		.file 26 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/ssl.h"
+ 569                             		.file 27 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/callbacks.h"
+ 570                             		.file 28 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/internal.h"
+ 571                             		.file 29 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfio.h"
+ 572                             		.file 30 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/asn.h"
+ 573                             		.file 31 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/des3.h"
+ 574                             		.file 32 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/aes.h"
+ 575                             		.file 33 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/ocsp.h"
+ 576                             		.file 34 "C:\\Users\\nekom\\e2_studio\\e2sss_proj\\wolflib\\src/wolfssl/wolfcrypt/fe_operations.h"
